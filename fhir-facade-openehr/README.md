@@ -21,7 +21,7 @@ Authorization: `patient/Observation.rs` (or v1 `.read`) with a `fhirUser` claim 
 
 ## Layout
 
-    src/FhirFacade/               the API (net11.0; needs the JwtBearer NuGet package)
+    src/FhirFacade/               the API (net10.0; needs the JwtBearer NuGet package)
     tests/FhirFacade.SelfTest/    43 checks against a stub repository replaying rows recorded from EHRbase
     client/test_client.py         Python test client: mints development tokens and checks the live facade
     Dockerfile, docker-compose.yml
@@ -34,20 +34,19 @@ Authorization: `patient/Observation.rs` (or v1 `.read`) with a `fhirUser` claim 
 
        docker compose up -d --build
 
-   This builds the facade on the .NET 11 SDK image, starts it on http://localhost:5080/fhir and runs the Python
+   This builds the facade on the .NET 10 SDK image, starts it on http://localhost:5080/fhir and runs the Python
    test client once. The client writes `client/report.json`.
 3. Self-test without Docker, EHRbase or NuGet:
 
        cd tests/FhirFacade.SelfTest
-       dotnet run                         # .NET 11 SDK
-       SELFTEST_TFM=net10.0 dotnet run    # .NET 10 SDK
+       dotnet run                         # .NET 10 SDK
 
 ## What was verified, and how
 
 | Check | Where it ran | Result |
 | --- | --- | --- |
-| `tests/FhirFacade.SelfTest` (43 checks, test authentication, stub repository replaying recorded EHRbase rows) | .NET SDK 10.0.115, Linux | 43 of 43 |
-| `docker compose up -d --build`: build on the `mcr.microsoft.com/dotnet/sdk:11.0` image with the real JwtBearer package | Docker Desktop, 12 November 2026 | Built and started |
+| `tests/FhirFacade.SelfTest` (43 checks, test authentication, stub repository replaying recorded EHRbase rows) | .NET 10 SDK, Linux | 43 of 43 |
+| `docker compose up -d --build`: build on the `mcr.microsoft.com/dotnet/sdk:10.0` image with the real JwtBearer package | Docker Desktop, 12 November 2026 | Built and started |
 | `client/test_client.py` against the running facade and EHRbase 2.39.0-SNAPSHOT | Docker Desktop, 12 November 2026 | 20 of 20 |
 | The same matrix plus forged tokens (`alg: none`, wrong issuer), paging and read, sent from a browser | Same stack | All as expected |
 

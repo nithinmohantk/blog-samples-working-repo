@@ -23,7 +23,7 @@ Not everything here has been compiled or run. The state at the time of the first
 
 * Python: the tests in every folder pass on Python 3.13.
 * C# in `fhir-openehr`, `openehr-aql-to-fhir` and `clinical-queries`: compiled and run on the .NET 10 SDK.
-* `fhir-facade-openehr`: self-test run on the .NET 10 SDK; the API built on the .NET 11 SDK image and run in Docker against EHRbase 2.39.0, where the Python test client passed 20 of 20 checks. Not deployed to Azure and not tested with Microsoft Entra ID.
+* `fhir-facade-openehr`: self-test run on the .NET 10 SDK; the API built on the .NET 10 SDK image and run in Docker against EHRbase 2.39.0, where the Python test client passed 20 of 20 checks. Not deployed to Azure and not tested with Microsoft Entra ID.
 * C# in `meai-two-clouds`, `a2a-mcp-interop/dotnet` and `secure-remote-mcp/dotnet`: **not yet compiled**. They depend on NuGet packages; run `dotnet build` before relying on them.
 * `clinical-queries/live`: AQL run on EHRbase 2.39.0 and FHIR searches run on HAPI FHIR 8.6.0, both local. See `RESULTS.md` there for what passed, what failed and what was not covered.
 * Nothing in this repository has been deployed to AWS or Azure.

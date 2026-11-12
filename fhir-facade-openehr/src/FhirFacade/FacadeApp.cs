@@ -156,7 +156,7 @@ public static class FacadeApp
     {
         ["resourceType"] = "CapabilityStatement",
         ["status"] = "active",
-        ["date"] = "2026-11-12",
+        ["date"] = "2026-08-15",
         ["kind"] = "instance",
         ["software"] = new JsonObject { ["name"] = "FHIR facade over openEHR (sample)" },
         ["implementation"] = new JsonObject
