@@ -7,7 +7,7 @@ using Hl7.Fhir.Specification;
 using Hl7.Fhir.Specification.Source;
 using Hl7.Fhir.Specification.Terminology;
 
-// Usage: FhirGate --package hl7.fhir.uv.ips@2.0.0 --out firely.json <file.json> [<file.json> ...]
+// Usage: FhirGate --package hl7.fhir.uv.ips@2.0.0 [--package <dependency>@<version>] --out firely.json <file.json> ...
 // Validates each resource against the profile it declares in meta.profile, with the Firely .NET SDK, and
 // writes {file: [{severity, code, message, location}]} in the shape fhir_gate.py reads.
 // Exit code: 0 when the run completed (whatever it found), 2 when it could not run.
@@ -34,6 +34,8 @@ const string PackageServer = "https://packages.simplifier.net";
 try
 {
     // Core definitions plus the implementation guides, resolved from the package server and cached on disk.
+    // The source loads exactly the packages it is given: an implementation guide's own dependencies have to
+    // be listed too, or its profiles fail to load.
     FhirPackageSource core = FhirPackageSource.CreateCorePackageSource(ModelInfo.ModelInspector, FhirRelease.R4, PackageServer);
     FhirPackageSource guides = new(ModelInfo.ModelInspector, PackageServer, [.. packages]);
     CachedResolver resolver = new(new MultiResolver(guides, core));

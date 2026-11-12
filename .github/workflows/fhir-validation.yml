@@ -22,6 +22,9 @@ jobs:
       run:
         working-directory: fhir-validation-ci
     env:
+      # Pinned, with a checksum. An unpinned validator changes what "valid" means between two builds.
+      VALIDATOR_VERSION: "7.0.5"
+      VALIDATOR_SHA256: 9dfe9f305b0f9389eceade2a4a1c9a2740d7b0e614066fdf07a78b571c76d92f
       IPS_PACKAGE_HL7: hl7.fhir.uv.ips#2.0.0
       IPS_PACKAGE_FIRELY: hl7.fhir.uv.ips@2.0.0
       # The Firely package source loads what it is given: the packages IPS depends on are listed explicitly.
@@ -48,9 +51,8 @@ jobs:
       - name: Download the HL7 validator
         run: |
           mkdir -p out
-          curl -fsSL -o validator_cli.jar https://github.com/hapifhir/org.hl7.fhir.core/releases/latest/download/validator_cli.jar
-          ls -l validator_cli.jar | tee out/validator-jar.txt
-          sha256sum validator_cli.jar | tee -a out/validator-jar.txt
+          curl -fsSL -o validator_cli.jar "https://github.com/hapifhir/org.hl7.fhir.core/releases/download/${VALIDATOR_VERSION}/validator_cli.jar"
+          echo "${VALIDATOR_SHA256}  validator_cli.jar" | sha256sum --check | tee out/validator-jar.txt
 
       - name: Self-check, HL7 validator without a terminology server
         id: hl7_notx
@@ -61,6 +63,22 @@ jobs:
         id: hl7_tx
         continue-on-error: true
         run: python gate/fhir_gate.py selfcheck --engine hl7 --ig "$IPS_PACKAGE_HL7" --tx https://tx.fhir.org --work out/hl7-tx --report out/hl7-tx/report.json | tee out/hl7-tx.txt
+
+      # The build step itself: conformant resources pass, and one non-conformant resource fails the step.
+      - name: Gate, conformant resources pass
+        id: gate_valid
+        continue-on-error: true
+        run: python gate/fhir_gate.py gate --dir testdata/valid --engine hl7 --ig "$IPS_PACKAGE_HL7" --tx n/a --work out/gate-valid | tee out/gate-valid.txt
+
+      - name: Gate, non-conformant resources are refused
+        id: gate_invalid
+        continue-on-error: true
+        run: |
+          set +e
+          python gate/fhir_gate.py gate --dir testdata/invalid --engine hl7 --ig "$IPS_PACKAGE_HL7" --tx n/a --work out/gate-invalid > out/gate-invalid.txt
+          code=$?
+          echo "exit code $code" | tee -a out/gate-invalid.txt
+          test "$code" -eq 1
 
       - name: Build the Firely tool
         id: firely_build
@@ -90,6 +108,8 @@ jobs:
             echo "date: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
             echo "hl7_notx: ${{ steps.hl7_notx.outcome }}"
             echo "hl7_tx: ${{ steps.hl7_tx.outcome }}"
+            echo "gate_valid: ${{ steps.gate_valid.outcome }}"
+            echo "gate_invalid: ${{ steps.gate_invalid.outcome }}"
             echo "firely_build: ${{ steps.firely_build.outcome }}"
             echo "firely: ${{ steps.firely.outcome }}"
             java -version 2>&1 | head -1
@@ -107,7 +127,7 @@ jobs:
           git push -f "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" ci-results
 
       - name: Fail the build if the gate let something through
-        if: steps.hl7_notx.outcome != 'success' || steps.hl7_tx.outcome != 'success' || steps.firely_build.outcome != 'success' || steps.firely.outcome != 'success'
+        if: steps.hl7_notx.outcome != 'success' || steps.hl7_tx.outcome != 'success' || steps.gate_valid.outcome != 'success' || steps.gate_invalid.outcome != 'success' || steps.firely_build.outcome != 'success' || steps.firely.outcome != 'success'
         run: |
           echo "One or more validation checks failed. See the ci-results branch."
           exit 1

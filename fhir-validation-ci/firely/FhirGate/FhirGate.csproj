@@ -6,7 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Firely.Fhir.Validation.R4" Version="3.*" />
-    <PackageReference Include="Firely.Fhir.Packages" Version="5.*" />
+    <PackageReference Include="Firely.Fhir.Validation.R4" Version="3.6.0" />
+    <PackageReference Include="Firely.Fhir.Packages" Version="5.0.2" />
   </ItemGroup>
 </Project>
