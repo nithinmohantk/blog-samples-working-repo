@@ -1,0 +1,8 @@
+# One deliberate defect per line: name | sed expression applied to main.tf or variables.tf | file
+weaker-encryption|s/sse_algorithm     = "aws:kms"/sse_algorithm     = "AES256"/|main.tf
+public-acls-allowed|s/block_public_acls       = true/block_public_acls       = false/|main.tf
+versioning-suspended|s/status = "Enabled"\n  }\n}\n\nresource "aws_s3_bucket_server/XX/;0,/status = "Enabled"/s//status = "Suspended"/|main.tf
+policy-allows-http|s/Effect    = "Deny"/Effect    = "Allow"/|main.tf
+prod-force-destroy-permitted|s/condition     = !(var.force_destroy \&\& var.environment == "prod")/condition     = true/|variables.tf
+clinical-retention-unchecked|s/condition     = var.data_classification != "clinical" || var.noncurrent_retention_days >= 365/condition     = true/|variables.tf
+name-drops-environment|s/bucket_name = "${var.name}-${var.environment}-${local.account_id}"/bucket_name = "${var.name}-${local.account_id}"/|main.tf

@@ -1,0 +1,25 @@
+{
+  "_comment": "Hand-written in the shape of 'terraform show -json'. A real destroy plan needs existing state, which this sample never has.",
+  "format_version": "1.2",
+  "resource_changes": [
+    {
+      "address": "module.discharge_summaries.aws_s3_bucket.this",
+      "type": "aws_s3_bucket",
+      "change": {
+        "actions": ["delete"],
+        "before": { "bucket": "discharge-summaries-prod-111122223333", "force_destroy": false, "tags": { "environment": "prod", "data-classification": "clinical" } },
+        "after": null
+      }
+    },
+    {
+      "address": "aws_s3_bucket.build_cache",
+      "type": "aws_s3_bucket",
+      "change": {
+        "actions": ["delete"],
+        "before": { "bucket": "build-cache-dev-111122223333", "force_destroy": true, "tags": { "environment": "dev", "data-classification": "internal" } },
+        "after": null
+      }
+    }
+  ],
+  "configuration": { "root_module": {} }
+}
