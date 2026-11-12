@@ -106,7 +106,9 @@ string settings = """{"service":"coding","limits":{"requestsPerMinute":120}}""";
 using StringStream settingsStream = new(settings, Encoding.UTF8);
 using JsonDocument parsed = await JsonDocument.ParseAsync(settingsStream);
 Check("StringStream: parsed as a stream", parsed.RootElement.GetProperty("limits").GetProperty("requestsPerMinute").GetInt32() == 120);
-report["stringStream"] = new JsonObject { ["length"] = settingsStream.Length };
+// It is a forward-only reader: asking for Length throws NotSupportedException.
+Check("StringStream: read-only and not seekable", settingsStream is { CanRead: true, CanSeek: false, CanWrite: false });
+report["stringStream"] = new JsonObject { ["canSeek"] = settingsStream.CanSeek, ["characters"] = settings.Length };
 
 if (args.Length > 0)
 {
