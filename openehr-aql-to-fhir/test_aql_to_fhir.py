@@ -25,7 +25,7 @@ assert met["subject"]["reference"] == "Patient/pat-001" and met["intent"] == "or
 assert "coding" not in met["medicationCodeableConcept"]                       # local formulary code not exported
 assert met["dosageInstruction"][0]["route"]["coding"][0] == {
     "system": "http://snomed.info/sct", "code": "26643006", "display": "Oral route"}
-assert met["dosageInstruction"][0]["timing"]["repeat"]["boundsPeriod"] == {"start": "2026-10-01T00:00:00Z"}
+assert met["dosageInstruction"][0]["timing"]["repeat"]["boundsPeriod"] == {"start": "2026-08-01T00:00:00Z"}
 assert met["identifier"][0]["value"] == "11111111-0000-4000-8000-000000000001::synthetic.example:ORD-1001"
 assert met["meta"]["source"].endswith("::2")                                  # the exact version it came from
 assert by_order["ORD-1001"]["request"] == {
@@ -33,7 +33,7 @@ assert by_order["ORD-1001"]["request"] == {
     "url": "MedicationRequest?identifier=urn%3Aopenehr%3Amedication-order%7C"
            "11111111-0000-4000-8000-000000000001%3A%3Asynthetic.example%3AORD-1001"}
 amox = by_order["ORD-1002"]["resource"]
-assert amox["dosageInstruction"][0]["timing"]["repeat"]["boundsPeriod"]["end"] == "2026-09-17T00:00:00Z"
+assert amox["dosageInstruction"][0]["timing"]["repeat"]["boundsPeriod"]["end"] == "2026-07-17T00:00:00Z"
 assert amox["dosageInstruction"][0]["route"] == {"text": "by mouth"}
 assert any("dosage_justification" in n and "ORD-1001" in n for n in report.notes)
 

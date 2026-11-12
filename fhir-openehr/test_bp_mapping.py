@@ -14,7 +14,7 @@ assert len(observations) == 1 and obs["code"]["coding"][0]["code"] == "85354-9"
 values = {c["code"]["coding"][0]["code"]: c["valueQuantity"] for c in obs["component"]}
 assert values["8480-6"]["value"] == 142 and values["8462-4"]["value"] == 88
 assert all(v["system"] == "http://unitsofmeasure.org" and v["code"] == "mm[Hg]" for v in values.values())
-assert obs["effectiveDateTime"] == "2026-11-03T09:42:00+00:00"
+assert obs["effectiveDateTime"] == "2026-08-03T09:42:00+00:00"
 assert obs["subject"]["reference"] == "Patient/pat-001"
 assert obs["identifier"][0]["value"].startswith("8f2c1a9e")            # provenance back to the composition
 assert obs["bodySite"]["coding"][0]["code"] == "368209003"
@@ -24,7 +24,7 @@ assert report.not_carried == ["state/Position = Sitting", "protocol/Cuff size = 
 back = fhir_to_blood_pressure(obs)
 event = back["data"]["events"][0]
 assert [i["value"]["magnitude"] for i in event["data"]["items"]] == [142, 88]
-assert event["time"]["value"] == "2026-11-03T09:42:00+00:00"
+assert event["time"]["value"] == "2026-08-03T09:42:00+00:00"
 assert "state" not in event and "protocol" not in back
 
 # A unit the mapping does not expect must stop the pipeline, not pass through.

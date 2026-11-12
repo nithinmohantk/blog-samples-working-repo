@@ -26,7 +26,7 @@ Dictionary<string, decimal> values = observation["component"]!.AsArray().ToDicti
 
 Check(result.Observations.Count == 1, "one observation per event");
 Check(values["8480-6"] == 142 && values["8462-4"] == 88, "systolic and diastolic values");
-Check((string)observation["effectiveDateTime"]! == "2026-11-03T09:42:00+00:00", "effective time");
+Check((string)observation["effectiveDateTime"]! == "2026-08-03T09:42:00+00:00", "effective time");
 Check((string)observation["subject"]!["reference"]! == "Patient/pat-001", "subject");
 Check(((string)observation["identifier"]![0]!["value"]!).StartsWith("8f2c1a9e"), "provenance identifier");
 Check((string)observation["bodySite"]!["coding"]![0]!["code"]! == "368209003", "body site");

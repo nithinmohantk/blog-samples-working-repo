@@ -1,6 +1,6 @@
 # FHIR and openEHR mapping sample
 
-Companion code for "FHIR and openEHR: When to Use Which, and How They Coexist" (dataa.dev, November 2026).
+Companion code for "FHIR and openEHR: When to Use Which, and How They Coexist" (dataa.dev, August 2026).
 
 Maps one openEHR blood pressure OBSERVATION (archetype `openEHR-EHR-OBSERVATION.blood_pressure.v2`,
 canonical JSON) to a FHIR R4 Observation, and reports what the FHIR resource could not carry.
@@ -16,7 +16,7 @@ canonical JSON) to a FHIR R4 Observation, and reports what the FHIR resource cou
     python test_bp_mapping.py          # Python 3.11+, no dependencies
     cd dotnet && dotnet run            # .NET 10 SDK, no NuGet packages
 
-Both were run by the author: Python 3.13, and .NET SDK 10.0.115 with warnings treated as errors.
+Both were run by the author: Python 3.13, and the .NET 10 SDK with warnings treated as errors.
 
 ## Read before using
 

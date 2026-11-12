@@ -1,6 +1,6 @@
 # openEHR AQL result set to FHIR Bundle
 
-Companion code for "Mapping openEHR Medication Orders to FHIR: AQL In, Transaction Bundle Out" (dataa.dev, November 2026).
+Companion code for "Mapping openEHR Medication Orders to FHIR: AQL In, Transaction Bundle Out" (dataa.dev, September 2026).
 
 A table-driven mapper: an AQL result set of medication orders (archetype
 `openEHR-EHR-INSTRUCTION.medication_order.v3`) plus a result set of ACTION states becomes a FHIR R4
@@ -18,7 +18,7 @@ row rejected or degraded.
     python test_aql_to_fhir.py         # Python 3.11+, no dependencies
     cd dotnet && dotnet run            # .NET 10 SDK, no NuGet packages
 
-Both were run by the author (Python 3.13; .NET SDK 10.0.115, warnings as errors). The two
+Both were run by the author (Python 3.13; the .NET 10 SDK, warnings as errors). The two
 implementations produce identical Bundles for the sample input.
 
 ## Read before using
