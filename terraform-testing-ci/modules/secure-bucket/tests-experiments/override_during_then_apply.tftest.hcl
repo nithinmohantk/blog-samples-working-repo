@@ -1,9 +1,16 @@
-# An experiment, expected to fail. With "override_during = plan" on the whole provider, an apply run
-# is given one set of generated values while planning and a different set while applying.
+# An experiment, expected to fail. With "override_during = plan" on the provider and defaults for only
+# some attributes of a resource, an apply run gets one set of generated values for the remaining
+# attributes while planning and a different set while applying.
 # Run with: terraform test -test-directory=tests-experiments
 
 mock_provider "aws" {
   override_during = plan
+
+  mock_resource "aws_s3_bucket" {
+    defaults = {
+      arn = "arn:aws:s3:::mocked-bucket"
+    }
+  }
 }
 
 variables {

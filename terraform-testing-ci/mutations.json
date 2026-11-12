@@ -30,16 +30,16 @@
     "replace": "Resource  = [aws_s3_bucket.this.arn]"
   },
   {
-    "name": "prod-force-destroy-permitted",
+    "name": "prod-force-destroy-typo",
     "file": "variables.tf",
     "find": "condition     = !(var.force_destroy && var.environment == \"prod\")",
-    "replace": "condition     = true"
+    "replace": "condition     = !(var.force_destroy && var.environment == \"production\")"
   },
   {
-    "name": "clinical-retention-unchecked",
+    "name": "clinical-retention-wrong-case",
     "file": "variables.tf",
     "find": "condition     = var.data_classification != \"clinical\" || var.noncurrent_retention_days >= 365",
-    "replace": "condition     = true"
+    "replace": "condition     = var.data_classification != \"Clinical\" || var.noncurrent_retention_days >= 365"
   },
   {
     "name": "name-drops-environment",
