@@ -1,6 +1,6 @@
 # openEHR AQL result set to FHIR Bundle
 
-Companion code for "Mapping openEHR Medication Orders to FHIR: AQL In, Transaction Bundle Out" (dataa.dev, September 2026).
+Companion code for "Mapping openEHR Medication Orders to FHIR: AQL In, Transaction Bundle Out" (dataa.dev, August 2026).
 
 A table-driven mapper: an AQL result set of medication orders (archetype
 `openEHR-EHR-INSTRUCTION.medication_order.v3`) plus a result set of ACTION states becomes a FHIR R4
