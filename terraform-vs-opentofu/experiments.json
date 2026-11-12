@@ -1,0 +1,20 @@
+[
+  {"id": "01-baseline", "title": "Plain configuration (control)", "expect": {"terraform": "pass", "tofu": "pass"}},
+  {"id": "02-state-encryption", "title": "State and plan encryption in the terraform block", "env": {"TF_VAR_state_passphrase": "correct-horse-battery-staple-2026"}, "expect": {"terraform": "fail", "tofu": "pass"}},
+  {"id": "03-variables-in-backend", "title": "Variable in the backend block", "expect": {"terraform": "fail", "tofu": "pass"}},
+  {"id": "04-provider-for-each", "title": "for_each on a provider configuration", "expect": {"terraform": "fail", "tofu": "pass"}},
+  {"id": "05-exclude-flag", "title": "apply -exclude=ADDRESS", "steps": ["init -input=false", "apply -input=false -auto-approve -exclude=terraform_data.skipped"], "expect": {"terraform": "fail", "tofu": "pass"}},
+  {"id": "06-enabled-meta-argument", "title": "lifecycle { enabled = ... }", "expect": {"terraform": "fail", "tofu": "pass"}},
+  {"id": "07-prevent-destroy-from-a-variable", "title": "prevent_destroy set from a variable", "expect": {"terraform": "fail", "tofu": "pass"}},
+  {"id": "08-lifecycle-destroy-false", "title": "lifecycle { destroy = false }", "steps": ["init -input=false", "validate", "apply -input=false -auto-approve", "destroy -input=false -auto-approve"], "expect": {"terraform": "pass", "tofu": "pass"}},
+  {"id": "09-import-block-in-a-module", "title": "import block inside a child module", "expect": {"terraform": "pass", "tofu": "fail"}},
+  {"id": "10-ephemeral-variable", "title": "ephemeral input variable", "expect": {"terraform": "pass", "tofu": "pass"}},
+  {"id": "11-tofu-file-takes-precedence", "title": "main.tofu beside main.tf", "expect": {"terraform": "pass", "tofu": "pass"}},
+  {"id": "12-required-version-names-terraform", "title": "required_version = \">= 1.16.0\"", "expect": {"terraform": "pass", "tofu": "fail"}},
+  {"id": "13-override-during-plan", "title": "override_during = plan in a test", "steps": ["init -input=false", "test"], "expect": {"terraform": "pass", "tofu": "fail"}},
+  {"id": "14-const-variable", "title": "variable with const = true", "expect": {"terraform": "fail", "tofu": "pass"}},
+  {"id": "15-deprecated-variable", "title": "variable with deprecated = \"...\"", "expect": {"terraform": "pass", "tofu": "pass"}},
+  {"id": "16-state-show-json", "title": "state show -json", "steps": ["init -input=false", "apply -input=false -auto-approve", "state show -json terraform_data.record"], "expect": {"terraform": "pass", "tofu": "fail"}},
+  {"id": "17-contains-null", "title": "contains() with a null element", "expect": {"terraform": "pass", "tofu": "fail"}},
+  {"id": "18-convert-function", "title": "convert(value, type)", "expect": {"terraform": "fail", "tofu": "pass"}}
+]
