@@ -70,7 +70,7 @@ jobs:
         continue-on-error: true
         run: |
           set -o pipefail
-          python -m pip install --quiet openai azure-identity
+          python -m pip install --quiet -r python/requirements-azure.txt
           python -m pip freeze | grep -i -E "^(openai|azure-identity|azure-core|pydantic|httpx)=" | tee out/python-azure-packages.txt
           python -c "import azure.identity, openai; from openai import APIStatusError, OpenAI; print('imports ok')" | tee out/python-azure.txt
           python python/azure_extractor.py request > out/request-py.json

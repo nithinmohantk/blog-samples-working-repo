@@ -13,7 +13,7 @@
   "observations": [
     { "code": "8867-4", "display": "Heart rate", "unit": "/min", "category": "vital-signs", "low": 20, "high": 250 },
     { "code": "8310-5", "display": "Body temperature", "unit": "Cel", "category": "vital-signs", "low": 30, "high": 43 },
-    { "code": "59408-5", "display": "Oxygen saturation in Arterial blood by Pulse oximetry", "unit": "%", "category": "vital-signs", "low": 50, "high": 100 },
+    { "code": "2708-6", "display": "Oxygen saturation in Arterial blood", "unit": "%", "category": "vital-signs", "low": 50, "high": 100 },
     { "code": "29463-7", "display": "Body weight", "unit": "kg", "category": "vital-signs", "low": 2, "high": 400 },
     { "code": "4548-4", "display": "Hemoglobin A1c/Hemoglobin.total in Blood", "unit": "%", "category": "laboratory", "low": 3, "high": 20 }
   ]

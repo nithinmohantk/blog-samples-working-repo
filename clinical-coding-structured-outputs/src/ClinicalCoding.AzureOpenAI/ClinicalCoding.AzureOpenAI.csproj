@@ -8,8 +8,8 @@
     <AssemblyName>clinical-coding</AssemblyName>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="OpenAI" Version="2.*" />
-    <PackageReference Include="Azure.Identity" Version="1.*" />
+    <PackageReference Include="OpenAI" Version="2.15.0" />
+    <PackageReference Include="Azure.Identity" Version="1.21.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../ClinicalCoding.Core/ClinicalCoding.Core.csproj" />

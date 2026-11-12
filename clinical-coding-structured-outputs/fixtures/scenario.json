@@ -30,7 +30,7 @@
         "observations": [
           { "evidence": "Heart rate 88 /min", "code": "8867-4", "value": 88, "unit": "/min" },
           { "evidence": "temperature 36.8 C", "code": "8310-5", "value": 36.8, "unit": "Cel" },
-          { "evidence": "SpO2 96%", "code": "59408-5", "value": 96, "unit": "%" },
+          { "evidence": "SpO2 96%", "code": "2708-6", "value": 96, "unit": "%" },
           { "evidence": "weight 84 kg", "code": "29463-7", "value": 84, "unit": "kg" },
           { "evidence": "HbA1c 7.9 %", "code": "4548-4", "value": 7.9, "unit": "%" }
         ]
