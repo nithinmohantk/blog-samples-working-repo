@@ -66,6 +66,7 @@ jobs:
         run: |
           set -o pipefail
           dotnet build firely/FhirGate/FhirGate.csproj -c Release -o out/firely-bin 2>&1 | tee out/firely-build.txt
+          dotnet list firely/FhirGate/FhirGate.csproj package --include-transitive > out/firely-packages.txt
 
       - name: Self-check, Firely SDK
         id: firely

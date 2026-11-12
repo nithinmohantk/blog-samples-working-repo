@@ -7,5 +7,6 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Firely.Fhir.Validation.R4" Version="3.*" />
+    <PackageReference Include="Firely.Fhir.Packages" Version="4.*" />
   </ItemGroup>
 </Project>
