@@ -22,6 +22,7 @@ Each folder has its own README that says what the code does, how to run it, and 
 | `clinical-coding-structured-outputs` | [Azure OpenAI Structured Outputs for Clinical Coding: Free Text to FHIR Condition and Observation, with a Human Review Step](https://www.dataa.dev/2026/09/13/azure-openai-structured-outputs-clinical-coding-fhir-condition-observation-human-review/) | C#, Python |
 | `dotnet11-for-architects` | [.NET 11 for Architects: What Changes a Design, and What Does Not](https://www.dataa.dev/2026/11/10/dotnet-11-for-architects-what-changes-a-design-and-what-does-not/) | C#, Python |
 | `csharp15-unions` | [C# 15 Union Types in a Real Domain Model: Dispensed, Rejected or Referred](https://www.dataa.dev/2026/11/11/csharp-15-union-types-in-a-real-domain-model-dispensed-rejected-or-referred/) | C#, Python |
+| `terraform-testing-ci` | [Testing Infrastructure Code: terraform test, Mock Providers and a Policy Gate in CI](https://www.dataa.dev/2026/09/20/testing-infrastructure-code-terraform-test-mock-providers-policy-gate-ci/) | HCL, Python |
 
 ## Verification status
 
@@ -38,6 +39,7 @@ Not everything here has been compiled or run. The state at the time of the first
 * `clinical-coding-structured-outputs`: tests pass in both languages, the Azure OpenAI client code builds, and the FHIR output passes the HL7 validator with a terminology server, all in GitHub Actions. **No call to Azure OpenAI was made**; the model responses in the fixtures are hand-written.
 * `dotnet11-for-architects`: built and run in GitHub Actions on SDK 11.0.100 beside the .NET 10 runtime; see its README for what was observed. Timings there are single runs and are not performance claims.
 * `csharp15-unions`: tests, experiments and a deliberately failing build run in GitHub Actions on SDK 11.0.100; see its README for each result.
+* `terraform-testing-ci`: tests, mutations and policy gate run in GitHub Actions on Terraform 1.16.3 and OpenTofu 1.12.6 against a mocked provider. Nothing is applied to a real account.
 * Nothing in this repository has been deployed to AWS or Azure.
 
 ## Healthcare samples
