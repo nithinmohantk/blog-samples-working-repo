@@ -7,7 +7,7 @@ Sample for the dataa.dev article of the same name.
 | `scripts/migrate.py` | Python: `$export` on the source, build the `$import` request from the manifest, `$import` on the target, summarise |
 | `scripts/test_migrate.py` | 16 checks against a local stand-in that implements the documented request and response shapes |
 | `validator/` | C# console tool (.NET 10, no packages): compares source and target by FHIR version, count per type and a field-by-field sample |
-| `validator/tests/SelfTest` | 13 checks with two in-memory FHIR servers |
+| `validator/tests/SelfTest` | 14 checks with two in-memory FHIR servers |
 | `docker-compose.yml` | Rehearsal of the validator against two real FHIR servers (HAPI) |
 
 Synthetic data only. Not clinically validated.
@@ -34,7 +34,7 @@ The validator only sends GET requests. Its report holds resource ids and element
 
 * `scripts/test_migrate.py`: 16 of 16, against a stand-in written from Microsoft's documentation. The script
   has **not** been run against Azure API for FHIR or the FHIR service.
-* Validator self-test: 13 of 13 on the .NET 10 SDK.
+* Validator self-test: 14 of 14 on the .NET 10 SDK.
 * Validator against two HAPI FHIR servers in Docker: see the article for the results. HAPI is not Azure;
   the run proves the tool against real FHIR servers, not against either Azure service.
 

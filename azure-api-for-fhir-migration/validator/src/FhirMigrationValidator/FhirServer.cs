@@ -18,6 +18,9 @@ public sealed class FhirServer(HttpClient http, string name)
         http.BaseAddress = new Uri(baseUrl.ToString().TrimEnd('/') + "/");
         http.Timeout = TimeSpan.FromSeconds(100);
         http.DefaultRequestHeaders.Accept.ParseAdd("application/fhir+json");
+        // Ask for a fresh answer. Some servers reuse a recent search result, and a count taken straight
+        // after a load can then be a minute out of date.
+        http.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
         if (!string.IsNullOrEmpty(bearerToken))
         {
             http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", bearerToken);

@@ -45,6 +45,7 @@ foreach (JsonObject resource in copy.Resources)
 ValidationReport faithful = await Run(Source(), copy);
 Check(faithful.Passed && faithful.Types[0] is { SourceCount: 3, TargetCount: 3, Sampled: 3 }, "a faithful copy passes when versions are not compared");
 Check(copy.SawAuthorization && copy.Paths.All(p => p.StartsWith("/fhir/", StringComparison.Ordinal)), "the target token is sent and the base path is kept");
+Check(copy.AlwaysNoCache, "every request asks the server not to answer from a cache");
 
 // 2. The same copy fails when history was supposed to be carried across.
 ValidationReport versions = await Run(Source(), copy, compareVersions: true);
@@ -109,6 +110,7 @@ internal sealed class FakeFhir(string fhirVersion, params JsonObject[] resources
     public List<JsonObject> Resources { get; } = [.. resources];
     public List<string> Paths { get; } = [];
     public bool SawAuthorization { get; private set; }
+    public bool AlwaysNoCache { get; private set; } = true;
     public int ThrottleNext { get; set; }
     public int Throttled { get; private set; }
     public HttpStatusCode? FailWith { get; set; }
@@ -117,6 +119,7 @@ internal sealed class FakeFhir(string fhirVersion, params JsonObject[] resources
     {
         Paths.Add(request.RequestUri!.AbsolutePath);
         SawAuthorization |= request.Headers.Authorization is { Scheme: "Bearer", Parameter: "token" };
+        AlwaysNoCache &= request.Headers.CacheControl?.NoCache == true;
         if (request.Method != HttpMethod.Get)
         {
             return Reply(HttpStatusCode.MethodNotAllowed, null);
