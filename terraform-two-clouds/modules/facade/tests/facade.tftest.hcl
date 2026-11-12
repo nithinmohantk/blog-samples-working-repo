@@ -1,7 +1,30 @@
 # A caller that only wants AWS still has to satisfy the Azure provider, and the other way round.
 
-mock_provider "aws" {}
-mock_provider "azurerm" {}
+# The AWS provider validates the format of some values even when it is mocked: a flow log
+# destination has to look like an ARN. Give the mock a well-formed one.
+mock_provider "aws" {
+  mock_resource "aws_s3_bucket" {
+    defaults = {
+      arn = "arn:aws:s3:::netlogs-mock"
+    }
+  }
+}
+
+# The Azure provider parses resource ids even when it is mocked. Give the mock well-formed ones
+# for the two resources whose ids are passed to other resources.
+mock_provider "azurerm" {
+  mock_resource "azurerm_virtual_network" {
+    defaults = {
+      id = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-mock/providers/Microsoft.Network/virtualNetworks/vnet-mock"
+    }
+  }
+
+  mock_resource "azurerm_storage_account" {
+    defaults = {
+      id = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-mock/providers/Microsoft.Storage/storageAccounts/stmock"
+    }
+  }
+}
 
 variables {
   name          = "records"

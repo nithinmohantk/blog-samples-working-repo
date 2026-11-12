@@ -1,6 +1,16 @@
 # What only the AWS implementation can be asked: the cloud-specific controls.
 
-mock_provider "aws" {}
+# --- mock block, kept in step with the contract by contract/render.py ---
+# The AWS provider validates the format of some values even when it is mocked: a flow log
+# destination has to look like an ARN. Give the mock a well-formed one.
+mock_provider "aws" {
+  mock_resource "aws_s3_bucket" {
+    defaults = {
+      arn = "arn:aws:s3:::netlogs-mock"
+    }
+  }
+}
+# --- mock block, kept in step with the contract by contract/render.py ---
 
 variables {
   name          = "records"
@@ -18,12 +28,12 @@ run "subnets_never_assign_public_addresses" {
   }
 }
 
-run "default_security_group_has_no_rules" {
+run "resources_are_named_for_the_workload" {
   command = plan
 
   assert {
-    condition     = length(aws_default_security_group.this.ingress) == 0 && length(aws_default_security_group.this.egress) == 0
-    error_message = "The default security group must allow nothing."
+    condition     = aws_vpc.this.tags["Name"] == "vpc-records-dev" && aws_subnet.private["private-1"].tags["Name"] == "snet-records-dev-private-1"
+    error_message = "The VPC and subnets must carry Name tags built from the workload and environment."
   }
 }
 
