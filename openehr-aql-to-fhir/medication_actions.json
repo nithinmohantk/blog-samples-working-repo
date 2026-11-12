@@ -1,0 +1,17 @@
+{
+  "meta": {"_type": "RESULTSET", "_executed_aql": "synthetic sample, not produced by a server"},
+  "columns": [
+    {"name": "order_id", "path": "resolved from /instruction_details to the order identifier"},
+    {"name": "time", "path": "/time/value"},
+    {"name": "state", "path": "/ism_transition/current_state/defining_code/code_string"}
+  ],
+  "rows": [
+    ["ORD-1001", "2026-10-01T09:05:00Z", "526"],
+    ["ORD-1001", "2026-10-02T08:00:00Z", "245"],
+    ["ORD-1002", "2026-09-10T14:35:00Z", "245"],
+    ["ORD-1002", "2026-09-17T18:00:00Z", "532"],
+    ["ORD-1003", "2026-08-02T08:20:00Z", "245"],
+    ["ORD-1003", "2026-09-30T12:00:00Z", "531"],
+    ["ORD-2001", "2026-10-05T10:05:00Z", "245"]
+  ]
+}

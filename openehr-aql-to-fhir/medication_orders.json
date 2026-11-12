@@ -1,0 +1,41 @@
+{
+  "meta": {"_type": "RESULTSET", "_executed_aql": "synthetic sample, not produced by a server"},
+  "columns": [
+    {"name": "ehr_id", "path": "/ehr_id/value"},
+    {"name": "composition_uid", "path": "/uid/value"},
+    {"name": "authored", "path": "/context/start_time/value"},
+    {"name": "order_id", "path": "/protocol[at0005]/items[at0004]/value/id"},
+    {"name": "medication", "path": "/activities[at0001]/description[at0002]/items[at0070]/value"},
+    {"name": "directions", "path": "/activities[at0001]/description[at0002]/items[at0009]/value/value"},
+    {"name": "route", "path": "/activities[at0001]/description[at0002]/items[at0091]/value"},
+    {"name": "indication", "path": "/activities[at0001]/description[at0002]/items[at0018]/value/value"},
+    {"name": "start", "path": "/activities[at0001]/description[at0002]/items[at0113]/items[at0012]/value/value"},
+    {"name": "stop", "path": "/activities[at0001]/description[at0002]/items[at0113]/items[at0013]/value/value"},
+    {"name": "dosage_justification", "path": "/activities[at0001]/description[at0002]/items[at0174]/value/value"}
+  ],
+  "rows": [
+    ["ehr-aaa", "11111111-0000-4000-8000-000000000001::synthetic.example::2", "2026-10-01T09:00:00Z", "ORD-1001",
+     {"_type": "DV_CODED_TEXT", "value": "Metformin 500 mg tablets",
+      "defining_code": {"terminology_id": {"value": "local-formulary"}, "code_string": "MED-0001"}},
+     "One tablet twice daily with food",
+     {"_type": "DV_CODED_TEXT", "value": "Oral route",
+      "defining_code": {"terminology_id": {"value": "SNOMED-CT"}, "code_string": "26643006"}},
+     "Type 2 diabetes", "2026-10-01T00:00:00Z", null, "Renal function checked before starting"],
+    ["ehr-aaa", "11111111-0000-4000-8000-000000000002::synthetic.example::1", "2026-09-10T14:30:00Z", "ORD-1002",
+     {"_type": "DV_TEXT", "value": "Amoxicillin 500 mg capsules"},
+     "One capsule three times daily for seven days",
+     {"_type": "DV_TEXT", "value": "by mouth"},
+     "Chest infection", "2026-09-10T00:00:00Z", "2026-09-17T00:00:00Z", null],
+    ["ehr-aaa", "11111111-0000-4000-8000-000000000003::synthetic.example::1", "2026-08-02T08:15:00Z", "ORD-1003",
+     {"_type": "DV_TEXT", "value": "Gliclazide 80 mg tablets"},
+     "One tablet daily", null, "Type 2 diabetes", "2026-08-02T00:00:00Z", null, null],
+    ["ehr-aaa", "11111111-0000-4000-8000-000000000004::synthetic.example::1", "2026-10-20T11:00:00Z", "ORD-1004",
+     {"_type": "DV_TEXT", "value": "Atorvastatin 20 mg tablets"},
+     "One tablet at night", null, null, "2026-10-20T00:00:00Z", null, null],
+    ["ehr-zzz", "22222222-0000-4000-8000-000000000001::synthetic.example::1", "2026-10-05T10:00:00Z", "ORD-2001",
+     {"_type": "DV_TEXT", "value": "Ramipril 5 mg capsules"},
+     "One capsule daily", null, null, "2026-10-05T00:00:00Z", null, null],
+    ["ehr-aaa", "11111111-0000-4000-8000-000000000005::synthetic.example::1", "2026-10-22T16:45:00Z", "ORD-1005",
+     null, "As directed", null, null, null, null, null]
+  ]
+}
