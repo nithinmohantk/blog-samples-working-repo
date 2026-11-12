@@ -1,0 +1,25 @@
+{
+  "resourceType": "Patient",
+  "id": "ips-patient-bad-gender",
+  "meta": {
+    "profile": [
+      "http://hl7.org/fhir/uv/ips/StructureDefinition/Patient-uv-ips"
+    ]
+  },
+  "identifier": [
+    {
+      "system": "urn:example:mrn",
+      "value": "SYN-0001"
+    }
+  ],
+  "name": [
+    {
+      "family": "Example",
+      "given": [
+        "Aoife"
+      ]
+    }
+  ],
+  "gender": "F",
+  "birthDate": "1984-03-12"
+}

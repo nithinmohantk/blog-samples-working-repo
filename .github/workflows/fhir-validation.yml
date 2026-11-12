@@ -1,0 +1,110 @@
+name: FHIR validation gate
+
+on:
+  push:
+    paths:
+      - "fhir-validation-ci/**"
+      - ".github/workflows/fhir-validation.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write   # only to publish the result files to the ci-results branch
+
+concurrency:
+  group: fhir-validation-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: fhir-validation-ci
+    env:
+      IPS_PACKAGE_HL7: hl7.fhir.uv.ips#2.0.0
+      IPS_PACKAGE_FIRELY: hl7.fhir.uv.ips@2.0.0
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      # FHIR packages are downloaded once and reused. Without the cache every run depends on the registry.
+      - uses: actions/cache@v4
+        with:
+          path: ~/.fhir/packages
+          key: fhir-packages-${{ hashFiles('.github/workflows/fhir-validation.yml') }}
+
+      - name: Download the HL7 validator
+        run: |
+          mkdir -p out
+          curl -fsSL -o validator_cli.jar https://github.com/hapifhir/org.hl7.fhir.core/releases/latest/download/validator_cli.jar
+          ls -l validator_cli.jar | tee out/validator-jar.txt
+          sha256sum validator_cli.jar | tee -a out/validator-jar.txt
+
+      - name: Self-check, HL7 validator without a terminology server
+        id: hl7_notx
+        continue-on-error: true
+        run: python gate/fhir_gate.py selfcheck --engine hl7 --ig "$IPS_PACKAGE_HL7" --tx n/a --work out/hl7-notx --report out/hl7-notx/report.json | tee out/hl7-notx.txt
+
+      - name: Self-check, HL7 validator with tx.fhir.org
+        id: hl7_tx
+        continue-on-error: true
+        run: python gate/fhir_gate.py selfcheck --engine hl7 --ig "$IPS_PACKAGE_HL7" --tx https://tx.fhir.org --work out/hl7-tx --report out/hl7-tx/report.json | tee out/hl7-tx.txt
+
+      - name: Build the Firely tool
+        id: firely_build
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          dotnet build firely/FhirGate/FhirGate.csproj -c Release -o out/firely-bin 2>&1 | tee out/firely-build.txt
+
+      - name: Self-check, Firely SDK
+        id: firely
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          dotnet out/firely-bin/FhirGate.dll --package "$IPS_PACKAGE_FIRELY" --out out/firely.json testdata/valid/*.json testdata/invalid/*.json testdata/terminology/*.json 2>&1 | tee out/firely-run.txt
+          python gate/fhir_gate.py selfcheck --engine firely --firely-results out/firely.json --report out/firely-report.json | tee out/firely.txt
+
+      - name: Publish the results
+        if: always()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          rm -rf out/firely-bin
+          {
+            echo "commit: $GITHUB_SHA"
+            echo "run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+            echo "date: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            echo "hl7_notx: ${{ steps.hl7_notx.outcome }}"
+            echo "hl7_tx: ${{ steps.hl7_tx.outcome }}"
+            echo "firely_build: ${{ steps.firely_build.outcome }}"
+            echo "firely: ${{ steps.firely.outcome }}"
+            java -version 2>&1 | head -1
+            dotnet --version
+          } > out/run.txt
+          cat out/run.txt >> "$GITHUB_STEP_SUMMARY"
+          publish="$RUNNER_TEMP/publish"
+          rm -rf "$publish" && mkdir -p "$publish" && cp -r out/. "$publish/"
+          cd "$publish"
+          git init -q -b ci-results
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -q -m "Validation results for $GITHUB_SHA"
+          git push -f "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" ci-results
+
+      - name: Fail the build if the gate let something through
+        if: steps.hl7_notx.outcome != 'success' || steps.hl7_tx.outcome != 'success' || steps.firely_build.outcome != 'success' || steps.firely.outcome != 'success'
+        run: |
+          echo "One or more validation checks failed. See the ci-results branch."
+          exit 1
