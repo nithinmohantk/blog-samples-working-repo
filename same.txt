@@ -1,0 +1,3 @@
+same       FHIR Bundle
+same       request (schema, name, strict flag, instructions)
+same       schema from the self-test

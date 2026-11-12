@@ -1,0 +1,8 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+Project 'ClinicalCoding.AzureOpenAI' has the following package references
+   [net10.0]: 
+   Top-level Package      Requested   Resolved
+   > Azure.Identity       1.21.0      1.21.0  
+   > OpenAI               2.15.0      2.15.0  
+

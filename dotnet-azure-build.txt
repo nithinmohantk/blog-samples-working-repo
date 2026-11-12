@@ -1,0 +1,11 @@
+  Determining projects to restore...
+  Restored /home/runner/work/blog-samples-working-repo/blog-samples-working-repo/clinical-coding-structured-outputs/src/ClinicalCoding.AzureOpenAI/ClinicalCoding.AzureOpenAI.csproj (in 1.62 sec).
+  1 of 2 projects are up-to-date for restore.
+  ClinicalCoding.Core -> /home/runner/work/blog-samples-working-repo/blog-samples-working-repo/clinical-coding-structured-outputs/out/azure-bin/ClinicalCoding.Core.dll
+  ClinicalCoding.AzureOpenAI -> /home/runner/work/blog-samples-working-repo/blog-samples-working-repo/clinical-coding-structured-outputs/out/azure-bin/clinical-coding.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:02.83

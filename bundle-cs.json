@@ -1,0 +1,571 @@
+{
+  "resourceType": "Bundle",
+  "type": "transaction",
+  "entry": [
+    {
+      "fullUrl": "urn:uuid:5a490a58-0824-e576-c6be-0055684ea3f1",
+      "resource": {
+        "resourceType": "Condition",
+        "clinicalStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+              "code": "active"
+            }
+          ]
+        },
+        "verificationStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+              "code": "confirmed"
+            }
+          ]
+        },
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/condition-category",
+                "code": "encounter-diagnosis"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "44054006",
+              "display": "Diabetes mellitus type 2 (disorder)"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/synthetic-0042"
+        },
+        "recordedDate": "2026-09-03T15:42:00\u002B01:00",
+        "asserter": {
+          "reference": "Practitioner/synthetic-dr-0007",
+          "display": "Dr A. Example (synthetic)"
+        },
+        "note": [
+          {
+            "text": "Source text: \u0022known type 2 diabetes\u0022"
+          }
+        ]
+      },
+      "request": {
+        "method": "POST",
+        "url": "Condition"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:dd33c9c5-076c-2806-9d20-99649020646f",
+      "resource": {
+        "resourceType": "Condition",
+        "clinicalStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+              "code": "active"
+            }
+          ]
+        },
+        "verificationStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+              "code": "confirmed"
+            }
+          ]
+        },
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/condition-category",
+                "code": "encounter-diagnosis"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "38341003",
+              "display": "Hypertensive disorder, systemic arterial (disorder)"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/synthetic-0042"
+        },
+        "recordedDate": "2026-09-03T15:42:00\u002B01:00",
+        "asserter": {
+          "reference": "Practitioner/synthetic-dr-0007",
+          "display": "Dr A. Example (synthetic)"
+        },
+        "note": [
+          {
+            "text": "Source text: \u0022hypertension\u0022"
+          }
+        ]
+      },
+      "request": {
+        "method": "POST",
+        "url": "Condition"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:88c1bdbc-0dde-4b0c-aa32-bb3a541db302",
+      "resource": {
+        "resourceType": "Condition",
+        "clinicalStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+              "code": "active"
+            }
+          ]
+        },
+        "verificationStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+              "code": "confirmed"
+            }
+          ]
+        },
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/condition-category",
+                "code": "encounter-diagnosis"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "267036007",
+              "display": "Dyspnea (finding)"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/synthetic-0042"
+        },
+        "recordedDate": "2026-09-03T15:42:00\u002B01:00",
+        "asserter": {
+          "reference": "Practitioner/synthetic-dr-0007",
+          "display": "Dr A. Example (synthetic)"
+        },
+        "note": [
+          {
+            "text": "Source text: \u0022shortness of breath on exertion\u0022"
+          }
+        ]
+      },
+      "request": {
+        "method": "POST",
+        "url": "Condition"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:dc005aca-f3db-d4b1-3b5e-10ae01ac8472",
+      "resource": {
+        "resourceType": "Condition",
+        "clinicalStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+              "code": "active"
+            }
+          ]
+        },
+        "verificationStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+              "code": "provisional"
+            }
+          ]
+        },
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/condition-category",
+                "code": "encounter-diagnosis"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "49436004",
+              "display": "Atrial fibrillation (disorder)"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/synthetic-0042"
+        },
+        "recordedDate": "2026-09-03T15:42:00\u002B01:00",
+        "asserter": {
+          "reference": "Practitioner/synthetic-dr-0007",
+          "display": "Dr A. Example (synthetic)"
+        },
+        "note": [
+          {
+            "text": "Source text: \u0022Possible atrial fibrillation on examination\u0022"
+          }
+        ]
+      },
+      "request": {
+        "method": "POST",
+        "url": "Condition"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:50ec2817-13b8-293f-5a24-f03a5675b69d",
+      "resource": {
+        "resourceType": "Observation",
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "vital-signs"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "8867-4",
+              "display": "Heart rate"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/synthetic-0042"
+        },
+        "effectiveDateTime": "2026-09-03",
+        "performer": [
+          {
+            "reference": "Practitioner/synthetic-dr-0007",
+            "display": "Dr A. Example (synthetic)"
+          }
+        ],
+        "valueQuantity": {
+          "value": 88,
+          "unit": "/min",
+          "system": "http://unitsofmeasure.org",
+          "code": "/min"
+        },
+        "note": [
+          {
+            "text": "Source text: \u0022Heart rate 88 /min\u0022"
+          }
+        ]
+      },
+      "request": {
+        "method": "POST",
+        "url": "Observation"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:ac967985-8e55-c254-3491-6a08872a1107",
+      "resource": {
+        "resourceType": "Observation",
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "vital-signs"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "8310-5",
+              "display": "Body temperature"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/synthetic-0042"
+        },
+        "effectiveDateTime": "2026-09-03",
+        "performer": [
+          {
+            "reference": "Practitioner/synthetic-dr-0007",
+            "display": "Dr A. Example (synthetic)"
+          }
+        ],
+        "valueQuantity": {
+          "value": 36.8,
+          "unit": "Cel",
+          "system": "http://unitsofmeasure.org",
+          "code": "Cel"
+        },
+        "note": [
+          {
+            "text": "Source text: \u0022temperature 36.8 C\u0022"
+          }
+        ]
+      },
+      "request": {
+        "method": "POST",
+        "url": "Observation"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:ecec3945-f9aa-93aa-24eb-248d9b9e3ed5",
+      "resource": {
+        "resourceType": "Observation",
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "vital-signs"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "2708-6",
+              "display": "Oxygen saturation in Arterial blood"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/synthetic-0042"
+        },
+        "effectiveDateTime": "2026-09-03",
+        "performer": [
+          {
+            "reference": "Practitioner/synthetic-dr-0007",
+            "display": "Dr A. Example (synthetic)"
+          }
+        ],
+        "valueQuantity": {
+          "value": 96,
+          "unit": "%",
+          "system": "http://unitsofmeasure.org",
+          "code": "%"
+        },
+        "note": [
+          {
+            "text": "Source text: \u0022SpO2 96%\u0022"
+          }
+        ]
+      },
+      "request": {
+        "method": "POST",
+        "url": "Observation"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:65f89125-1e89-3e7f-24af-b345a418f6a6",
+      "resource": {
+        "resourceType": "Observation",
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "vital-signs"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "29463-7",
+              "display": "Body weight"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/synthetic-0042"
+        },
+        "effectiveDateTime": "2026-09-03",
+        "performer": [
+          {
+            "reference": "Practitioner/synthetic-dr-0007",
+            "display": "Dr A. Example (synthetic)"
+          }
+        ],
+        "valueQuantity": {
+          "value": 84,
+          "unit": "kg",
+          "system": "http://unitsofmeasure.org",
+          "code": "kg"
+        },
+        "note": [
+          {
+            "text": "Source text: \u0022weight 84 kg\u0022"
+          }
+        ]
+      },
+      "request": {
+        "method": "POST",
+        "url": "Observation"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:1f905849-5449-b871-a622-96da9a969177",
+      "resource": {
+        "resourceType": "Observation",
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "4548-4",
+              "display": "Hemoglobin A1c/Hemoglobin.total in Blood"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/synthetic-0042"
+        },
+        "effectiveDateTime": "2026-09-03",
+        "performer": [
+          {
+            "reference": "Practitioner/synthetic-dr-0007",
+            "display": "Dr A. Example (synthetic)"
+          }
+        ],
+        "valueQuantity": {
+          "value": 7.9,
+          "unit": "%",
+          "system": "http://unitsofmeasure.org",
+          "code": "%"
+        },
+        "note": [
+          {
+            "text": "Source text: \u0022HbA1c 7.9 %\u0022"
+          }
+        ]
+      },
+      "request": {
+        "method": "POST",
+        "url": "Observation"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:a101f736-7787-7f23-fa4b-ee5e2f5d7ed3",
+      "resource": {
+        "resourceType": "Provenance",
+        "target": [
+          {
+            "reference": "urn:uuid:5a490a58-0824-e576-c6be-0055684ea3f1"
+          },
+          {
+            "reference": "urn:uuid:dd33c9c5-076c-2806-9d20-99649020646f"
+          },
+          {
+            "reference": "urn:uuid:88c1bdbc-0dde-4b0c-aa32-bb3a541db302"
+          },
+          {
+            "reference": "urn:uuid:dc005aca-f3db-d4b1-3b5e-10ae01ac8472"
+          },
+          {
+            "reference": "urn:uuid:50ec2817-13b8-293f-5a24-f03a5675b69d"
+          },
+          {
+            "reference": "urn:uuid:ac967985-8e55-c254-3491-6a08872a1107"
+          },
+          {
+            "reference": "urn:uuid:ecec3945-f9aa-93aa-24eb-248d9b9e3ed5"
+          },
+          {
+            "reference": "urn:uuid:65f89125-1e89-3e7f-24af-b345a418f6a6"
+          },
+          {
+            "reference": "urn:uuid:1f905849-5449-b871-a622-96da9a969177"
+          }
+        ],
+        "recorded": "2026-09-03T15:42:00\u002B01:00",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/provenance-participant-type",
+                  "code": "verifier"
+                }
+              ]
+            },
+            "who": {
+              "reference": "Practitioner/synthetic-dr-0007",
+              "display": "Dr A. Example (synthetic)"
+            }
+          },
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/provenance-participant-type",
+                  "code": "assembler"
+                }
+              ]
+            },
+            "who": {
+              "reference": "Device/clinical-coding-assistant",
+              "display": "Clinical coding assistant (structured output extraction)"
+            }
+          }
+        ],
+        "entity": [
+          {
+            "role": "source",
+            "what": {
+              "reference": "DocumentReference/note-2026-09-03-0042"
+            }
+          }
+        ]
+      },
+      "request": {
+        "method": "POST",
+        "url": "Provenance"
+      }
+    }
+  ]
+}

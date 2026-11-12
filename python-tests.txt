@@ -1,0 +1,34 @@
+ok    schema meets the strict structured output limits
+ok    schema lint finds an unsupported keyword and an optional property
+ok    schema enums are the subset
+ok    prompt lists every code
+ok    guard, careful response: statuses
+ok    guard, careless response: statuses
+ok    guard, implausible response: statuses
+ok    fabricated evidence is blocked
+ok    a value that differs from the evidence is blocked
+ok    an unconverted unit is blocked
+ok    an uncoded condition reaches review with a flag
+ok    a wrong assertion passes the guard (the reviewer has to catch it)
+ok    an implausible value is flagged, not blocked
+ok    malformed response refused: not JSON (truncated)
+ok    malformed response refused: code outside the subset
+ok    malformed response refused: extra property
+ok    malformed response refused: missing property
+ok    malformed response refused: value is a string
+ok    review refused: accepting a negated finding
+ok    review refused: accepting a family history item as the patient's condition
+ok    review refused: deciding on a proposal that does not exist
+ok    review refused: provisional acceptance of a measurement
+ok    review refused: recoding to a code outside the subset
+ok    review refused: two decisions for one proposal
+ok    review refused: accepting an uncoded condition
+ok    recode gives the subset's display; reject gives nothing
+ok    bundle: 4 conditions, 5 observations, 1 provenance
+ok    bundle: three confirmed, one provisional
+ok    bundle: nothing negated, familial or undecided was written
+ok    bundle: provenance targets every resource and names reviewer and device
+ok    no decisions, no resources
+ok    same input, same bundle
+
+32 of 32 checks passed

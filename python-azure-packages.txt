@@ -1,0 +1,4 @@
+azure-core==1.41.0
+azure-identity==1.27.0
+openai==3.49.0
+pydantic==2.14.3

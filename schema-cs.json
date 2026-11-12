@@ -1,0 +1,98 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "conditions",
+    "observations"
+  ],
+  "properties": {
+    "conditions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "evidence",
+          "code",
+          "assertion"
+        ],
+        "properties": {
+          "evidence": {
+            "type": "string",
+            "description": "Exact words copied from the note that support this item. No paraphrase."
+          },
+          "code": {
+            "type": "string",
+            "enum": [
+              "44054006",
+              "38341003",
+              "195967001",
+              "49436004",
+              "22298006",
+              "29857009",
+              "267036007",
+              "386661006",
+              "uncoded"
+            ],
+            "description": "SNOMED CT code from the list in the instructions, or \u0027uncoded\u0027 when none fits."
+          },
+          "assertion": {
+            "type": "string",
+            "enum": [
+              "present",
+              "absent",
+              "uncertain",
+              "family_history"
+            ],
+            "description": "present: the patient has it. absent: the note rules it out. uncertain: suspected or queried. family_history: about a relative."
+          }
+        }
+      }
+    },
+    "observations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "evidence",
+          "code",
+          "value",
+          "unit"
+        ],
+        "properties": {
+          "evidence": {
+            "type": "string",
+            "description": "Exact words copied from the note that support this item. No paraphrase."
+          },
+          "code": {
+            "type": "string",
+            "enum": [
+              "8867-4",
+              "8310-5",
+              "2708-6",
+              "29463-7",
+              "4548-4"
+            ],
+            "description": "LOINC code from the list in the instructions."
+          },
+          "value": {
+            "type": "number",
+            "description": "The number as written in the note. Do not convert units."
+          },
+          "unit": {
+            "type": "string",
+            "enum": [
+              "%",
+              "/min",
+              "Cel",
+              "kg",
+              "other"
+            ],
+            "description": "UCUM unit as written in the note, or \u0027other\u0027 when the note uses a different unit."
+          }
+        }
+      }
+    }
+  }
+}

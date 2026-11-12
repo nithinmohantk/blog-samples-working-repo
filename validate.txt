@@ -1,0 +1,3 @@
+ok    out/fhir/bundle.json
+
+1 of 1 resources conform

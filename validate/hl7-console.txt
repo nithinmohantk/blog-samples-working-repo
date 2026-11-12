@@ -1,0 +1,32 @@
+$ java -jar validator_cli.jar out/fhir/bundle.json -version 4.0.1 -output out/validate/hl7-output.json -tx https://tx.fhir.org
+exit code 0, 13 s
+
+FHIR Validation tool Version 7.0.5 (Git# 17db3661806b). Built 2026-11-05T23:27:05.236Z (6 days old)
+  Java:   21.0.13 from /usr/lib/jvm/temurin-21-jdk-amd64 on amd64 (64bit). 3996MB available
+  Paths:  Current = /home/runner/work/blog-samples-working-repo/blog-samples-working-repo/clinical-coding-structured-outputs, Package Cache = /home/runner/.fhir/packages
+  Params: out/fhir/bundle.json -version 4.0.1 -output out/validate/hl7-output.json -tx https://tx.fhir.org
+  Locale: /
+  Jurisdiction: None specified (locale = )
+  Note that exceptions and validation failures may happen in the absence of a locale
+Loading
+  Loading FHIR v4.0.1 from hl7.fhir.r4.core#4.0.1
+  Load hl7.terminology.r4#6.2.0 - 4288 resources (00:03.847)
+  Load hl7.fhir.uv.extensions.r4#5.2.0 - 759 resources (00:00.784)
+  Loaded FHIR - 8265 resources (00:00.000)
+  Terminology Cache at /tmp/default-tx-cache/r4
+  Terminology server https://tx.fhir.org - Version Connected to Terminology Server at https://tx.fhir.org (00:02.398)
+  Load hl7.terminology#7.5.0 - 4190 resources (00:00.625)
+  Load hl7.terminology.r5#7.5.0 - 4190 resources (00:00.193)
+  Load hl7.fhir.uv.extensions#5.4.0 - 885 resources (00:00.453)
+  Package Summary: [hl7.fhir.r4.core#4.0.1, hl7.fhir.xver-extensions#0.1.0, hl7.terminology.r4#6.2.0, hl7.fhir.uv.extensions.r4#5.2.0, hl7.terminology#7.5.0, hl7.terminology.r5#7.5.0, hl7.fhir.uv.extensions#5.4.0]
+  Get set... 
+  ...go! (00:00.695)
+Cached new session. Cache size = 1
+Sources to validate: out/fhir/bundle.json
+Validating
+  Validate out/fhir/bundle.json
+ 00:01.540
+Done. Times: Loading: 00:09.053, validation: 00:01.540. Memory = 433Mb
+
+Done. Times: Loading: 00:09.053, validation: 00:01.540. Max Memory = 3Gb
+
