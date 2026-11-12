@@ -7,7 +7,7 @@ public sealed record AqlQuery(string Text, IReadOnlyDictionary<string, string> P
 
 /// <summary>
 /// Builds the two AQL statements the facade issues against archetype blood_pressure.v2.
-/// Both were run against EHRbase 2.39.0; see the README for what that repository accepted and rejected.
+/// Both were run against a live EHRbase; see the README for what that repository accepted and rejected.
 /// </summary>
 public static class BloodPressureQuery
 {
