@@ -1,0 +1,48 @@
+$ java -jar validator_cli.jar testdata/invalid/allergy-bad-status.json testdata/invalid/allergy-no-patient.json testdata/invalid/patient-bad-date.json testdata/invalid/patient-bad-gender.json testdata/invalid/patient-empty-name.json testdata/invalid/patient-no-birthdate.json testdata/invalid/patient-unknown-element.json -version 4.0.1 -output out/gate-invalid/hl7-output.json -ig hl7.fhir.uv.ips#2.0.0 -tx n/a
+exit code 0, 12 s
+
+FHIR Validation tool Version 7.0.5 (Git# 17db3661806b). Built 2026-11-05T23:27:05.236Z (6 days old)
+  Java:   21.0.13 from /usr/lib/jvm/temurin-21-jdk-amd64 on amd64 (64bit). 3996MB available
+  Paths:  Current = /home/runner/work/blog-samples-working-repo/blog-samples-working-repo/fhir-validation-ci, Package Cache = /home/runner/.fhir/packages
+  Params: testdata/invalid/allergy-bad-status.json testdata/invalid/allergy-no-patient.json testdata/invalid/patient-bad-date.json testdata/invalid/patient-bad-gender.json testdata/invalid/patient-empty-name.json testdata/invalid/patient-no-birthdate.json testdata/invalid/patient-unknown-element.json -version 4.0.1 -output out/gate-invalid/hl7-output.json -ig hl7.fhir.uv.ips#2.0.0 -tx n/a
+  Locale: /
+  Jurisdiction: None specified (locale = )
+  Note that exceptions and validation failures may happen in the absence of a locale
+Loading
+  Loading FHIR v4.0.1 from hl7.fhir.r4.core#4.0.1
+  Load hl7.terminology.r4#6.2.0 - 4288 resources (00:03.509)
+  Load hl7.fhir.uv.extensions.r4#5.2.0 - 759 resources (00:00.551)
+  Loaded FHIR - 8265 resources (00:00.000)
+  Terminology Cache at /tmp/default-tx-cache/r4
+  Terminology server null - Version n/a: No Terminology Server (00:00.029)
+  Load hl7.terminology#7.5.0 - 4190 resources (00:05.239)
+  Load hl7.terminology.r5#7.5.0 - 4190 resources (00:00.193)
+  Load hl7.fhir.uv.extensions#5.4.0 - 885 resources (00:00.450)
+  Load hl7.terminology.r4#6.5.0 - 4357 resources (00:00.083)
+  Load hl7.fhir.uv.smart-app-launch#2.0.0 - 1 resources (00:00.002)
+  Load hl7.fhir.uv.ipa#1.1.0 - 16 resources (00:00.001)
+  Load hl7.fhir.uv.ips#2.0.0 - 71 resources (00:00.004)
+  Package Summary: [hl7.fhir.r4.core#4.0.1, hl7.fhir.xver-extensions#0.1.0, hl7.terminology.r4#6.2.0, hl7.fhir.uv.extensions.r4#5.2.0, hl7.terminology#7.5.0, hl7.terminology.r5#7.5.0, hl7.fhir.uv.extensions#5.4.0, hl7.terminology.r4#6.5.0, hl7.fhir.uv.smart-app-launch#2.0.0, hl7.fhir.uv.ipa#1.1.0, hl7.fhir.uv.ips#2.0.0]
+  Get set... 
+  ...go! (00:00.912)
+Cached new session. Cache size = 1
+Sources to validate: testdata/invalid/allergy-bad-status.jsontestdata/invalid/allergy-no-patient.jsontestdata/invalid/patient-bad-date.jsontestdata/invalid/patient-bad-gender.jsontestdata/invalid/patient-empty-name.jsontestdata/invalid/patient-no-birthdate.jsontestdata/invalid/patient-unknown-element.json
+Validating
+  Validate testdata/invalid/allergy-bad-status.json
+ 00:00.126
+  Validate testdata/invalid/allergy-no-patient.json
+ 00:00.069
+  Validate testdata/invalid/patient-bad-date.json
+ 00:00.042
+  Validate testdata/invalid/patient-bad-gender.json
+ 00:00.030
+  Validate testdata/invalid/patient-empty-name.json
+ 00:00.026
+  Validate testdata/invalid/patient-no-birthdate.json
+ 00:00.023
+  Validate testdata/invalid/patient-unknown-element.json
+ 00:00.029
+Done. Times: Loading: 00:11.025, validation: 00:00.348 (#7). Memory = 654Mb
+
+Done. Times: Loading: 00:11.025, validation: 00:00.348 (#7). Max Memory = 3Gb
+

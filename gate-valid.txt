@@ -1,0 +1,4 @@
+ok    testdata/valid/allergy-ok.json
+ok    testdata/valid/patient-ok.json
+
+2 of 2 resources conform

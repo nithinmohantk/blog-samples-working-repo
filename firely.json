@@ -1,0 +1,62 @@
+{
+  "allergy-ok.json": [],
+  "patient-ok.json": [],
+  "allergy-bad-status.json": [
+    {
+      "severity": "error",
+      "code": "CodeInvalid",
+      "message": "Code \u0027ongoing\u0027 from system \u0027http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical\u0027 does not exist in the value set \u0027AllergyIntolerance Clinical Status Codes\u0027 (http://hl7.org/fhir/ValueSet/allergyintolerance-clinical); Code \u0027ongoing\u0027 does not exist in the code system \u0027http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical\u0027 version \u00274.0.1\u0027, but the binding is of strength \u0027required\u0027",
+      "location": "AllergyIntolerance.clinicalStatus[0]"
+    }
+  ],
+  "allergy-no-patient.json": [
+    {
+      "severity": "error",
+      "code": "structure",
+      "message": "One or more errors occurred. (Element \u0027$this.patient\u0027 with minimum cardinality 1 must be present. At $this.patient, line 1, position 2.)",
+      "location": ""
+    }
+  ],
+  "patient-bad-date.json": [
+    {
+      "severity": "error",
+      "code": "structure",
+      "message": "One or more errors occurred. (string \u002712/03/1984\u0027 is not a correct literal for a date. At Patient.birthDate, line 24, position 28.)",
+      "location": ""
+    }
+  ],
+  "patient-bad-gender.json": [
+    {
+      "severity": "error",
+      "code": "structure",
+      "message": "One or more errors occurred. (Value \u0027F\u0027 is not a correct code for valueset \u0027AdministrativeGender\u0027. At Patient.gender, line 23, position 16.)",
+      "location": ""
+    }
+  ],
+  "patient-empty-name.json": [
+    {
+      "severity": "error",
+      "code": "Invariant",
+      "message": "Instance failed constraint ips-pat-1 \u0022Patient.name.given, Patient.name.family or Patient.name.text SHALL be present\u0022",
+      "location": "Patient.name[0]"
+    }
+  ],
+  "patient-no-birthdate.json": [
+    {
+      "severity": "error",
+      "code": "Invalid",
+      "message": "Missing required member: \u0027birthDate\u0027",
+      "location": "Patient"
+    }
+  ],
+  "patient-unknown-element.json": [
+    {
+      "severity": "error",
+      "code": "structure",
+      "message": "One or more errors occurred. (Found unknown element \u0027birthday\u0027. At Patient.birthday, line 25, position 14.)",
+      "location": ""
+    }
+  ],
+  "allergy-bogus-snomed.json": [],
+  "allergy-wrong-display.json": []
+}

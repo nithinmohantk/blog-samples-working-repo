@@ -1,0 +1,118 @@
+{
+  "engine": "hl7",
+  "terminology": "on",
+  "cases": 11,
+  "wrong": 0,
+  "blindSpots": 0,
+  "rows": [
+    {
+      "file": "valid/patient-ok.json",
+      "expected": "pass",
+      "verdict": "pass",
+      "status": "as expected",
+      "because": "",
+      "errors": []
+    },
+    {
+      "file": "valid/allergy-ok.json",
+      "expected": "pass",
+      "verdict": "pass",
+      "status": "as expected",
+      "because": "",
+      "errors": []
+    },
+    {
+      "file": "invalid/patient-no-birthdate.json",
+      "expected": "fail",
+      "verdict": "fail",
+      "status": "as expected",
+      "because": "IPS requires birthDate",
+      "errors": [
+        "Patient: Patient.birthDate: minimum required = 1, but only found 0 (from http://hl7.org/fhir/uv/ips/StructureDefinition/Patient-uv-ips|2.0.0)"
+      ]
+    },
+    {
+      "file": "invalid/patient-bad-gender.json",
+      "expected": "fail",
+      "verdict": "fail",
+      "status": "as expected",
+      "because": "gender is bound to a required value set",
+      "errors": [
+        "Patient.gender: The System URI could not be determined for the code 'F' in the ValueSet 'http://hl7.org/fhir/ValueSet/administrative-gender|4.0.1'",
+        "Patient.gender: The value provided ('F') was not found in the value set 'AdministrativeGender' (http://hl7.org/fhir/ValueSet/administrative-gender|4.0.1), and a code is required from this value set  (error message = The System URI could not be determined for the code 'F' in the ValueSet 'http://hl7."
+      ]
+    },
+    {
+      "file": "invalid/patient-empty-name.json",
+      "expected": "fail",
+      "verdict": "fail",
+      "status": "as expected",
+      "because": "IPS requires a family name, given name or text",
+      "errors": [
+        "Patient.name[0]: Constraint failed: ips-pat-1: 'Patient.name.given, Patient.name.family or Patient.name.text SHALL be present' (defined in http://hl7.org/fhir/uv/ips/StructureDefinition/Patient-uv-ips)"
+      ]
+    },
+    {
+      "file": "invalid/patient-unknown-element.json",
+      "expected": "fail",
+      "verdict": "fail",
+      "status": "as expected",
+      "because": "'birthday' is not an element of Patient",
+      "errors": [
+        "Patient: Unrecognized property 'birthday'"
+      ]
+    },
+    {
+      "file": "invalid/patient-bad-date.json",
+      "expected": "fail",
+      "verdict": "fail",
+      "status": "as expected",
+      "because": "birthDate is not a FHIR date",
+      "errors": [
+        "Patient.birthDate: Not a valid date format: '12/03/1984'"
+      ]
+    },
+    {
+      "file": "invalid/allergy-no-patient.json",
+      "expected": "fail",
+      "verdict": "fail",
+      "status": "as expected",
+      "because": "patient is mandatory",
+      "errors": [
+        "AllergyIntolerance: AllergyIntolerance.patient: minimum required = 1, but only found 0 (from http://hl7.org/fhir/StructureDefinition/AllergyIntolerance|4.0.1)",
+        "AllergyIntolerance: AllergyIntolerance.patient: minimum required = 1, but only found 0 (from http://hl7.org/fhir/uv/ips/StructureDefinition/AllergyIntolerance-uv-ips|2.0.0)"
+      ]
+    },
+    {
+      "file": "invalid/allergy-bad-status.json",
+      "expected": "fail",
+      "verdict": "fail",
+      "status": "as expected",
+      "because": "'ongoing' is not in the clinical status value set",
+      "errors": [
+        "AllergyIntolerance.clinicalStatus.coding[0].code: Unknown code 'ongoing' in the CodeSystem 'http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical' version '1.0.1'",
+        "AllergyIntolerance.clinicalStatus: None of the codings provided are in the value set 'AllergyIntolerance Clinical Status Codes' (http://hl7.org/fhir/ValueSet/allergyintolerance-clinical|4.0.1), and a coding from this value set is required) (codes = http://terminology.hl7.org/CodeSystem/allergyintole"
+      ]
+    },
+    {
+      "file": "terminology/allergy-bogus-snomed.json",
+      "expected": "fail",
+      "verdict": "fail",
+      "status": "as expected",
+      "because": "the SNOMED CT code does not exist",
+      "errors": [
+        "AllergyIntolerance.code.coding[0].code: Unknown code '999999999999' in the CodeSystem 'http://snomed.info/sct' version 'http://snomed.info/sct/900000000000207008/version/20250201' (International Edition)"
+      ]
+    },
+    {
+      "file": "terminology/allergy-wrong-display.json",
+      "expected": "fail",
+      "verdict": "fail",
+      "status": "as expected",
+      "because": "the display does not belong to the code",
+      "errors": [
+        "AllergyIntolerance.code.coding[0].display: Wrong Display Name 'Fracture of femur' for http://snomed.info/sct#91936005. Valid display is one of 4 choices: 'Allergy to penicillin' (en), 'Allergy to penicillin (disorder)' (en), 'Penicillin allergy' (en) or 'Allergy to penicillin (finding)' (en) (for th"
+      ]
+    }
+  ]
+}

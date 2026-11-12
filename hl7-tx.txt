@@ -1,0 +1,25 @@
+as expected   pass  valid/patient-ok.json
+as expected   pass  valid/allergy-ok.json
+as expected   fail  invalid/patient-no-birthdate.json
+              Patient.birthDate: minimum required = 1, but only found 0 (from http://hl7.org/fhir/uv/ips/StructureDefinition/Patient-uv-ips|2.0.0)
+as expected   fail  invalid/patient-bad-gender.json
+              The System URI could not be determined for the code 'F' in the ValueSet 'http://hl7.org/fhir/ValueSet/administrative-gender|4.0.1'
+              The value provided ('F') was not found in the value set 'AdministrativeGender' (http://hl7.org/fhir/ValueSet/administrative-gender|4.0.1), and a code is require
+as expected   fail  invalid/patient-empty-name.json
+              Constraint failed: ips-pat-1: 'Patient.name.given, Patient.name.family or Patient.name.text SHALL be present' (defined in http://hl7.org/fhir/uv/ips/StructureDe
+as expected   fail  invalid/patient-unknown-element.json
+              Unrecognized property 'birthday'
+as expected   fail  invalid/patient-bad-date.json
+              Not a valid date format: '12/03/1984'
+as expected   fail  invalid/allergy-no-patient.json
+              AllergyIntolerance.patient: minimum required = 1, but only found 0 (from http://hl7.org/fhir/StructureDefinition/AllergyIntolerance|4.0.1)
+              AllergyIntolerance.patient: minimum required = 1, but only found 0 (from http://hl7.org/fhir/uv/ips/StructureDefinition/AllergyIntolerance-uv-ips|2.0.0)
+as expected   fail  invalid/allergy-bad-status.json
+              Unknown code 'ongoing' in the CodeSystem 'http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical' version '1.0.1'
+              None of the codings provided are in the value set 'AllergyIntolerance Clinical Status Codes' (http://hl7.org/fhir/ValueSet/allergyintolerance-clinical|4.0.1), a
+as expected   fail  terminology/allergy-bogus-snomed.json
+              Unknown code '999999999999' in the CodeSystem 'http://snomed.info/sct' version 'http://snomed.info/sct/900000000000207008/version/20250201' (International Editi
+as expected   fail  terminology/allergy-wrong-display.json
+              Wrong Display Name 'Fracture of femur' for http://snomed.info/sct#91936005. Valid display is one of 4 choices: 'Allergy to penicillin' (en), 'Allergy to penicil
+
+11 of 11 cases as expected, 0 blind spot(s) without a terminology server

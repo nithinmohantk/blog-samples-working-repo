@@ -1,0 +1,14 @@
+  Determining projects to restore...
+  Restored /home/runner/work/blog-samples-working-repo/blog-samples-working-repo/fhir-validation-ci/firely/FhirGate/FhirGate.csproj (in 1.53 sec).
+/home/runner/work/blog-samples-working-repo/blog-samples-working-repo/fhir-validation-ci/firely/FhirGate/Program.cs(47,5): warning CS0618: 'FhirJsonParser' is obsolete: 'FhirJsonParser is obsolete, use FhirJsonDeserializer instead.' [/home/runner/work/blog-samples-working-repo/blog-samples-working-repo/fhir-validation-ci/firely/FhirGate/FhirGate.csproj]
+/home/runner/work/blog-samples-working-repo/blog-samples-working-repo/fhir-validation-ci/firely/FhirGate/Program.cs(57,24): warning CS0618: 'FhirJsonParser.Parse<T>(string)' is obsolete: 'Use Deserialize<T>() instead.' [/home/runner/work/blog-samples-working-repo/blog-samples-working-repo/fhir-validation-ci/firely/FhirGate/FhirGate.csproj]
+  FhirGate -> /home/runner/work/blog-samples-working-repo/blog-samples-working-repo/fhir-validation-ci/out/firely-bin/FhirGate.dll
+
+Build succeeded.
+
+/home/runner/work/blog-samples-working-repo/blog-samples-working-repo/fhir-validation-ci/firely/FhirGate/Program.cs(47,5): warning CS0618: 'FhirJsonParser' is obsolete: 'FhirJsonParser is obsolete, use FhirJsonDeserializer instead.' [/home/runner/work/blog-samples-working-repo/blog-samples-working-repo/fhir-validation-ci/firely/FhirGate/FhirGate.csproj]
+/home/runner/work/blog-samples-working-repo/blog-samples-working-repo/fhir-validation-ci/firely/FhirGate/Program.cs(57,24): warning CS0618: 'FhirJsonParser.Parse<T>(string)' is obsolete: 'Use Deserialize<T>() instead.' [/home/runner/work/blog-samples-working-repo/blog-samples-working-repo/fhir-validation-ci/firely/FhirGate/FhirGate.csproj]
+    2 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:06.41

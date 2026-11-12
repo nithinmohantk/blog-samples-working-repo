@@ -1,0 +1,28 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+Project 'FhirGate' has the following package references
+   [net10.0]: 
+   Top-level Package                Requested   Resolved
+   > Firely.Fhir.Packages           5.0.2       5.0.2   
+   > Firely.Fhir.Validation.R4      3.6.0       3.6.0   
+
+   Transitive Package                                           Resolved
+   > Fhir.Metrics                                               1.4.0   
+   > Firely.Fhir.Validation                                     3.6.0   
+   > Firely.Fhir.Validation.Compilation                         3.6.0   
+   > Hl7.Fhir.Base                                              6.8.0   
+   > Hl7.Fhir.Conformance                                       6.8.0   
+   > Hl7.Fhir.R4                                                6.8.0   
+   > MessagePack.Annotations                                    3.1.12  
+   > Microsoft.Extensions.Caching.Abstractions                  10.0.9  
+   > Microsoft.Extensions.Caching.Memory                        10.0.9  
+   > Microsoft.Extensions.DependencyInjection.Abstractions      10.0.9  
+   > Microsoft.Extensions.Logging.Abstractions                  10.0.9  
+   > Microsoft.Extensions.Options                               10.0.9  
+   > Microsoft.Extensions.Primitives                            10.0.9  
+   > Newtonsoft.Json                                            13.0.4  
+   > SemanticVersioning                                         3.0.0   
+   > SharpZipLib                                                1.4.2   
+   > System.ComponentModel.Annotations                          5.0.0   
+   > System.ValueTuple                                          4.6.2   
+

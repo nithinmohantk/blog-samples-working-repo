@@ -1,0 +1,111 @@
+{
+  "engine": "firely",
+  "terminology": "off",
+  "cases": 11,
+  "wrong": 0,
+  "blindSpots": 2,
+  "rows": [
+    {
+      "file": "valid/patient-ok.json",
+      "expected": "pass",
+      "verdict": "pass",
+      "status": "as expected",
+      "because": "",
+      "errors": []
+    },
+    {
+      "file": "valid/allergy-ok.json",
+      "expected": "pass",
+      "verdict": "pass",
+      "status": "as expected",
+      "because": "",
+      "errors": []
+    },
+    {
+      "file": "invalid/patient-no-birthdate.json",
+      "expected": "fail",
+      "verdict": "fail",
+      "status": "as expected",
+      "because": "IPS requires birthDate",
+      "errors": [
+        "Patient: Missing required member: 'birthDate'"
+      ]
+    },
+    {
+      "file": "invalid/patient-bad-gender.json",
+      "expected": "fail",
+      "verdict": "fail",
+      "status": "as expected",
+      "because": "gender is bound to a required value set",
+      "errors": [
+        ": One or more errors occurred. (Value 'F' is not a correct code for valueset 'AdministrativeGender'. At Patient.gender, line 23, position 16.)"
+      ]
+    },
+    {
+      "file": "invalid/patient-empty-name.json",
+      "expected": "fail",
+      "verdict": "fail",
+      "status": "as expected",
+      "because": "IPS requires a family name, given name or text",
+      "errors": [
+        "Patient.name[0]: Instance failed constraint ips-pat-1 \"Patient.name.given, Patient.name.family or Patient.name.text SHALL be present\""
+      ]
+    },
+    {
+      "file": "invalid/patient-unknown-element.json",
+      "expected": "fail",
+      "verdict": "fail",
+      "status": "as expected",
+      "because": "'birthday' is not an element of Patient",
+      "errors": [
+        ": One or more errors occurred. (Found unknown element 'birthday'. At Patient.birthday, line 25, position 14.)"
+      ]
+    },
+    {
+      "file": "invalid/patient-bad-date.json",
+      "expected": "fail",
+      "verdict": "fail",
+      "status": "as expected",
+      "because": "birthDate is not a FHIR date",
+      "errors": [
+        ": One or more errors occurred. (string '12/03/1984' is not a correct literal for a date. At Patient.birthDate, line 24, position 28.)"
+      ]
+    },
+    {
+      "file": "invalid/allergy-no-patient.json",
+      "expected": "fail",
+      "verdict": "fail",
+      "status": "as expected",
+      "because": "patient is mandatory",
+      "errors": [
+        ": One or more errors occurred. (Element '$this.patient' with minimum cardinality 1 must be present. At $this.patient, line 1, position 2.)"
+      ]
+    },
+    {
+      "file": "invalid/allergy-bad-status.json",
+      "expected": "fail",
+      "verdict": "fail",
+      "status": "as expected",
+      "because": "'ongoing' is not in the clinical status value set",
+      "errors": [
+        "AllergyIntolerance.clinicalStatus[0]: Code 'ongoing' from system 'http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical' does not exist in the value set 'AllergyIntolerance Clinical Status Codes' (http://hl7.org/fhir/ValueSet/allergyintolerance-clinical); Code 'ongoing' does not exist in"
+      ]
+    },
+    {
+      "file": "terminology/allergy-bogus-snomed.json",
+      "expected": "fail",
+      "verdict": "pass",
+      "status": "blind spot",
+      "because": "the SNOMED CT code does not exist",
+      "errors": []
+    },
+    {
+      "file": "terminology/allergy-wrong-display.json",
+      "expected": "fail",
+      "verdict": "pass",
+      "status": "blind spot",
+      "because": "the display does not belong to the code",
+      "errors": []
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+FAIL  testdata/invalid/allergy-bad-status.json
+        AllergyIntolerance.clinicalStatus.coding[0].code: Unknown code 'ongoing' in the CodeSystem 'http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical' version '1.0.1'
+        AllergyIntolerance.clinicalStatus: None of the codings provided are in the value set 'AllergyIntolerance Clinical Status Codes' (http://hl7.org/fhir/ValueSet/allergyintolerance-clinical|4.0.1), and a coding from this value set is required) (codes = http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical#ongoing)
+FAIL  testdata/invalid/allergy-no-patient.json
+        AllergyIntolerance: AllergyIntolerance.patient: minimum required = 1, but only found 0 (from http://hl7.org/fhir/StructureDefinition/AllergyIntolerance|4.0.1)
+        AllergyIntolerance: AllergyIntolerance.patient: minimum required = 1, but only found 0 (from http://hl7.org/fhir/uv/ips/StructureDefinition/AllergyIntolerance-uv-ips|2.0.0)
+FAIL  testdata/invalid/patient-bad-date.json
+        Patient.birthDate: Not a valid date format: '12/03/1984'
+FAIL  testdata/invalid/patient-bad-gender.json
+        Patient.gender: The System URI could not be determined for the code 'F' in the ValueSet 'http://hl7.org/fhir/ValueSet/administrative-gender|4.0.1'
+        Patient.gender: The value provided ('F') was not found in the value set 'AdministrativeGender' (http://hl7.org/fhir/ValueSet/administrative-gender|4.0.1), and a code is required from this value set  (error message = The System URI could not be determined for the code 'F' in the ValueSet 'http://hl7.org/fhir/ValueSet/administrative-gender|4.0.1'; The provided code '#F' was not found in the value set 'http://hl7.org/fhir/ValueSet/administrative-gender|4.0.1')
+FAIL  testdata/invalid/patient-empty-name.json
+        Patient.name[0]: Constraint failed: ips-pat-1: 'Patient.name.given, Patient.name.family or Patient.name.text SHALL be present' (defined in http://hl7.org/fhir/uv/ips/StructureDefinition/Patient-uv-ips)
+FAIL  testdata/invalid/patient-no-birthdate.json
+        Patient: Patient.birthDate: minimum required = 1, but only found 0 (from http://hl7.org/fhir/uv/ips/StructureDefinition/Patient-uv-ips|2.0.0)
+FAIL  testdata/invalid/patient-unknown-element.json
+        Patient: Unrecognized property 'birthday'
+
+0 of 7 resources conform
+exit code 1
