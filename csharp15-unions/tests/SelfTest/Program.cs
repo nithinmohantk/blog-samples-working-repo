@@ -35,7 +35,9 @@ Check("HTTP mapping covers the three cases", outcomes.Select(o => OutcomeHandler
 Check("task status mapping", outcomes.Select(OutcomeHandlers.ToTaskStatus).SequenceEqual(["completed", "rejected", "rejected", "rejected", "on-hold"]));
 Check("audit line names the case; ToString does not", OutcomeHandlers.ToAuditLine(outcomes[1]) == "rx-002 rejected code=cancelled" && outcomes[1].ToString() == "Prescribing.DispenseOutcome");
 
-DispenseOutcome empty = new DispenseOutcome[1][0];
+// An array element, like a field, starts as the default value.
+DispenseOutcome[] slots = new DispenseOutcome[1];
+DispenseOutcome empty = slots[0];
 Check("a default outcome holds no value", empty.Value is null);
 Check("a default outcome is refused at the API boundary", Throws<InvalidOperationException>(() => OutcomeHandlers.ToHttp(empty)));
 Check("a default outcome is visible in the audit log", OutcomeHandlers.ToAuditLine(empty) == "no outcome");
