@@ -16,7 +16,7 @@ Each folder has its own README that says what the code does, how to run it, and 
 | `openehr-aql-to-fhir` | [Mapping openEHR Medication Orders to FHIR: AQL In, Transaction Bundle Out](https://www.dataa.dev/2026/08/01/mapping-openehr-medication-orders-to-fhir-aql-in-transaction-bundle-out/) | Python, C# |
 | `clinical-queries` | [Querying Clinical Data: AQL vs. FHIR Search vs. SQL on FHIR](https://www.dataa.dev/2026/08/08/querying-clinical-data-aql-vs-fhir-search-vs-sql-on-fhir/) | Python, SQL, C#, AQL |
 | `fhir-facade-openehr` | [A FHIR Facade over an openEHR Repository on Azure](https://www.dataa.dev/2026/08/15/fhir-facade-over-openehr-repository-on-azure-aspnet-core-entra-id-smart-scopes/) | C#, Python |
-| `azure-api-for-fhir-migration` | Migrating from Azure API for FHIR to Azure Health Data Services | Python, C# |
+| `azure-api-for-fhir-migration` | [Migrating from Azure API for FHIR to Azure Health Data Services](https://www.dataa.dev/2026/08/23/migrating-azure-api-for-fhir-to-azure-health-data-services-export-import-identity-cut-over-runbook/) | Python, C# |
 
 ## Verification status
 
@@ -27,6 +27,7 @@ Not everything here has been compiled or run. The state at the time of the first
 * `fhir-facade-openehr`: self-test run on the .NET 10 SDK; the API built on the .NET 10 SDK image and run in Docker against EHRbase 2.39.0, where the Python test client passed 20 of 20 checks. Not deployed to Azure and not tested with Microsoft Entra ID.
 * C# in `meai-two-clouds`, `a2a-mcp-interop/dotnet` and `secure-remote-mcp/dotnet`: **not yet compiled**. They depend on NuGet packages; run `dotnet build` before relying on them.
 * `clinical-queries/live`: AQL run on EHRbase 2.39.0 and FHIR searches run on HAPI FHIR 8.6.0, both local. See `RESULTS.md` there for what passed, what failed and what was not covered.
+* `azure-api-for-fhir-migration`: script tests and validator self-test pass; the validator was run in Docker against two HAPI FHIR servers. Not run against either Azure service.
 * Nothing in this repository has been deployed to AWS or Azure.
 
 ## Healthcare samples

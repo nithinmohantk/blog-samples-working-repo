@@ -35,8 +35,15 @@ The validator only sends GET requests. Its report holds resource ids and element
 * `scripts/test_migrate.py`: 16 of 16, against a stand-in written from Microsoft's documentation. The script
   has **not** been run against Azure API for FHIR or the FHIR service.
 * Validator self-test: 14 of 14 on the .NET 10 SDK.
-* Validator against two HAPI FHIR servers in Docker: see the article for the results. HAPI is not Azure;
-  the run proves the tool against real FHIR servers, not against either Azure service.
+* Validator built on the .NET 10 SDK image and run in Docker against two HAPI FHIR 8.6.0 servers on
+  12 November 2026 (source: 5 patients, 15 observations, 5 medication requests, synthetic). It reported an
+  unreachable target (exit 2), an empty target, a target with one resource missing and one value changed
+  (both found, by id and by path), and a clean copy (pass). HAPI is not Azure: the run proves the tool
+  against real FHIR servers, not against either Azure service.
+* Finding from that run: for about a minute after the target changed, HAPI answered `_summary=count` from a
+  cached search result (0 instead of 5/14/5, then 14 instead of 15) while reads by id were current. A direct
+  request with `Cache-Control: no-cache` returned the current count. The tool now sends that header on every
+  request; the self-test checks it. The Docker run above was made before that change.
 
 ## Limits
 
