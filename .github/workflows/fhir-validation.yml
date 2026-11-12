@@ -24,6 +24,8 @@ jobs:
     env:
       IPS_PACKAGE_HL7: hl7.fhir.uv.ips#2.0.0
       IPS_PACKAGE_FIRELY: hl7.fhir.uv.ips@2.0.0
+      # The Firely package source loads what it is given: the packages IPS depends on are listed explicitly.
+      IPS_DEPENDENCIES_FIRELY: hl7.fhir.uv.extensions.r4@5.3.0-ballot-tc1
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
@@ -73,7 +75,7 @@ jobs:
         continue-on-error: true
         run: |
           set -o pipefail
-          dotnet out/firely-bin/FhirGate.dll --package "$IPS_PACKAGE_FIRELY" --out out/firely.json testdata/valid/*.json testdata/invalid/*.json testdata/terminology/*.json 2>&1 | tee out/firely-run.txt
+          dotnet out/firely-bin/FhirGate.dll --package "$IPS_PACKAGE_FIRELY" --package "$IPS_DEPENDENCIES_FIRELY" --out out/firely.json testdata/valid/*.json testdata/invalid/*.json testdata/terminology/*.json 2>&1 | tee out/firely-run.txt
           python gate/fhir_gate.py selfcheck --engine firely --firely-results out/firely.json --report out/firely-report.json | tee out/firely.txt
 
       - name: Publish the results
