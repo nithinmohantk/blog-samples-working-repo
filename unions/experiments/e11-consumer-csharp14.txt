@@ -1,0 +1,6 @@
+### e11-consumer-csharp14
+build: succeeded
+output:
+  constructor and Value work: Dispensed { PrescriptionId = rx-1, Pharmacy = Main Street }
+  dispensed at Main Street
+

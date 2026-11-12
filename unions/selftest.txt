@@ -1,0 +1,21 @@
+ok    an active prescription is dispensed
+ok    a cancelled prescription is rejected with its code
+ok    an expired prescription is rejected with its code
+ok    an allergy conflict is rejected
+ok    an interaction is referred, neither dispensed nor rejected
+ok    HTTP mapping covers the three cases
+ok    task status mapping
+ok    audit line names the case; ToString does not
+ok    a default outcome holds no value
+ok    a default outcome is refused at the API boundary
+ok    a default outcome is visible in the audit log
+ok    two outcomes with equal contents are equal
+ok    an outcome does not equal its own case value
+ok    JSON carries the case's own shape, no wrapper
+ok    every case survives a JSON round trip
+ok    JSON with an unknown shape is refused
+ok    JSON null becomes a default outcome
+ok    legacy: a cancelled prescription surfaces as an exception
+ok    legacy: a referral is indistinguishable from a rejection by its flag
+
+19 of 19 checks passed

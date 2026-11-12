@@ -1,0 +1,9 @@
+ok    dispensed: dispensed
+ok    rejected: rejected
+ok    referred: referred
+ok    a fourth case the consumer has never seen: refused
+ok    an extra property on a known case: refused
+ok    only the shared property: refused
+ok    not an object: refused
+
+7 of 7 checks passed

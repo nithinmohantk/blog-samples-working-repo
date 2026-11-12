@@ -1,0 +1,9 @@
+### e07-closed
+build: succeeded
+output:
+  rejected: interaction
+  shared member without a switch: rx-1
+  IsAbstract=True IsClass=True
+  equality: True
+  json: {"PrescriptionId":"rx-1"}
+

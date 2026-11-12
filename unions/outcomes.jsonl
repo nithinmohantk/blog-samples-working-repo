@@ -1,0 +1,5 @@
+{"prescriptionId":"rx-001","pharmacy":"Main Street Pharmacy","at":"2026-11-11T09:30:00+00:00"}
+{"prescriptionId":"rx-002","code":"cancelled","reason":"The prescriber cancelled this prescription."}
+{"prescriptionId":"rx-003","code":"expired","reason":"The prescription is past its validity period."}
+{"prescriptionId":"rx-004","code":"allergy","reason":"A recorded allergy conflicts with amoxicillin 500 mg."}
+{"prescriptionId":"rx-005","question":"clarithromycin 500 mg interacts with simvastatin. Confirm or change."}

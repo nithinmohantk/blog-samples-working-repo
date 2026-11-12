@@ -1,0 +1,7 @@
+{
+  "level": "x86-64-v3",
+  "startsDotnet11": true,
+  "usesPrecompiledCode": true,
+  "missingForV2": [],
+  "missingForV3": []
+}

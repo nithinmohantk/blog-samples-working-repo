@@ -1,0 +1,26 @@
+{
+  "label": "runtime-async",
+  "framesBeforeSuspension": [
+    "Program.\u003C\u003CMain\u003E$\u003Eg__Inner|0_3",
+    "Program.\u003C\u003CMain\u003E$\u003Eg__Middle|0_2",
+    "Program.\u003C\u003CMain\u003E$\u003Eg__Outer|0_1",
+    "Program.\u003CMain\u003E$",
+    "Program.\u003CMain\u003E"
+  ],
+  "framesAfterResuming": [
+    "Program.\u003C\u003CMain\u003E$\u003Eg__Inner|0_3",
+    "System.Runtime.CompilerServices.AsyncHelpers\u002BRuntimeAsyncTask\u00601.DispatchContinuations",
+    "System.Threading.ThreadPoolWorkQueue.Dispatch",
+    "System.Threading.PortableThreadPool\u002BWorkerThread.WorkerDoWork",
+    "System.Threading.PortableThreadPool\u002BWorkerThread.WorkerThreadStart",
+    "System.Threading.Thread.StartCallback"
+  ],
+  "completedChain": {
+    "bytesPerCall": 72,
+    "ms": 14
+  },
+  "yieldingChain": {
+    "bytesPerCall": 312,
+    "ms": 125
+  }
+}

@@ -1,0 +1,13 @@
+### e01-basics
+build: succeeded
+output:
+  dispensed at Main Street
+  IsValueType=True implements IUnion=True
+  attributes: NullableContextAttribute, NullableAttribute, UnionAttribute
+  constructors: Void .ctor(Dispensed) | Void .ctor(Rejected) | Void .ctor(Referred)
+  instance fields: Object <Value>k__BackingField
+  public members: System.Object get_Value() | Void .ctor(Dispensed) | Void .ctor(Rejected) | Void .ctor(Referred) | System.Object Value
+  size of struct: 8
+  Value type: Dispensed
+  is-pattern: True
+

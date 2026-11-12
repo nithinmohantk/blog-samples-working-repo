@@ -1,0 +1,6 @@
+### e12-closed-json
+build: succeeded
+output:
+  serialize: {"$type":"Rejected","reason":"interaction","prescriptionId":"rx-1"}
+  deserialize: Rejected { PrescriptionId = rx-1, Reason = interaction }
+

@@ -1,0 +1,10 @@
+### e03-default
+build: succeeded
+  warning CS8655: The switch expression does not handle some null inputs (it is not exhaustive). For example, the pattern 'null' is not covered. 
+output:
+  default.Value is null: True
+  with null arm: no outcome
+  without null arm: System.Runtime.CompilerServices.SwitchExpressionException: Non-exhaustive switch expression failed to match its input.
+  Unmatched value was Outcome.
+  nullable wrapper: null
+

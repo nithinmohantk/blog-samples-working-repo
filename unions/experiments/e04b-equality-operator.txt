@@ -1,0 +1,4 @@
+### e04b-equality-operator
+build: FAILED
+  error CS0019: Operator '==' cannot be applied to operands of type 'Outcome' and 'Outcome' 
+

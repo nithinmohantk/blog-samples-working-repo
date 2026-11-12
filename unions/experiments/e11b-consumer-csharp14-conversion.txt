@@ -1,0 +1,4 @@
+### e11b-consumer-csharp14-conversion
+build: FAILED
+  error CS9327: Feature 'unions' is not available in C# 14.0. Please use language version 15.0 or greater. 
+

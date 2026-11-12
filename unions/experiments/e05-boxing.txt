@@ -1,0 +1,8 @@
+### e05-boxing
+build: succeeded
+output:
+  declared union of int and decimal: 24.0 bytes per create-and-match
+  hand-written union with TryGetValue: 0.0 bytes per create-and-match
+  declared union wrapping an existing object: 0.0 bytes per create-and-match
+  sizes: Amount=8 AmountNoBox=24 bytes
+

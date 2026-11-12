@@ -1,0 +1,6 @@
+### e10b-net10-polyfill
+build: succeeded
+output:
+  dispensed
+  .NET 10.0.15
+

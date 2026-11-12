@@ -1,0 +1,9 @@
+ok    a host with every v3 flag
+ok    a v2 host without AVX2 starts and uses the JIT more
+ok    a host without SSE4.2 does not start
+ok    a host without POPCNT does not start
+ok    an empty flag list does not start
+ok    the flags line of /proc/cpuinfo is parsed
+ok    missing instruction sets are named
+
+7 of 7 checks passed

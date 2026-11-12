@@ -1,0 +1,6 @@
+### e08-generic
+build: succeeded
+output:
+  value 42 / failed: out of range
+  half is 5
+

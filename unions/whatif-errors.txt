@@ -1,0 +1,3 @@
+OutcomeHandlers.cs(18,75): error CS8509: The switch expression does not handle all possible values of its input type (it is not exhaustive). For example, the pattern 'Prescribing.PartiallyDispensed' is not covered. 
+OutcomeHandlers.cs(27,74): error CS8509: The switch expression does not handle all possible values of its input type (it is not exhaustive). For example, the pattern 'Prescribing.PartiallyDispensed' is not covered. 
+OutcomeHandlers.cs(9,91): error CS8509: The switch expression does not handle all possible values of its input type (it is not exhaustive). For example, the pattern 'Prescribing.PartiallyDispensed' is not covered. 

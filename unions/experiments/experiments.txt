@@ -1,0 +1,129 @@
+### e01-basics
+build: succeeded
+output:
+  dispensed at Main Street
+  IsValueType=True implements IUnion=True
+  attributes: NullableContextAttribute, NullableAttribute, UnionAttribute
+  constructors: Void .ctor(Dispensed) | Void .ctor(Rejected) | Void .ctor(Referred)
+  instance fields: Object <Value>k__BackingField
+  public members: System.Object get_Value() | Void .ctor(Dispensed) | Void .ctor(Rejected) | Void .ctor(Referred) | System.Object Value
+  size of struct: 8
+  Value type: Dispensed
+  is-pattern: True
+
+### e02-missing-case
+build: succeeded
+  warning CS8509: The switch expression does not handle all possible values of its input type (it is not exhaustive). For example, the pattern 'Referred' is not covered. 
+output:
+  rejected
+
+### e03-default
+build: succeeded
+  warning CS8655: The switch expression does not handle some null inputs (it is not exhaustive). For example, the pattern 'null' is not covered. 
+output:
+  default.Value is null: True
+  with null arm: no outcome
+  without null arm: System.Runtime.CompilerServices.SwitchExpressionException: Non-exhaustive switch expression failed to match its input.
+  Unmatched value was Outcome.
+  nullable wrapper: null
+
+### e04-equality
+build: succeeded
+output:
+  Equals, equal records in two unions: True
+  Equals, different cases: False
+  GetHashCode equal: True
+  HashSet count for two equal unions: 1
+  EqualityComparer.Default: True
+  ToString: Outcome
+  union equals its case value: False
+
+### e04b-equality-operator
+build: FAILED
+  error CS0019: Operator '==' cannot be applied to operands of type 'Outcome' and 'Outcome' 
+
+### e05-boxing
+build: succeeded
+output:
+  declared union of int and decimal: 24.0 bytes per create-and-match
+  hand-written union with TryGetValue: 0.0 bytes per create-and-match
+  declared union wrapping an existing object: 0.0 bytes per create-and-match
+  sizes: Amount=8 AmountNoBox=24 bytes
+
+### e06-json
+build: succeeded
+output:
+  serialize, classifier declared: {"prescriptionId":"rx-1","reason":"interaction with warfarin"}
+  serialize inside a record: {"eventId":"evt-1","outcome":{"prescriptionId":"rx-1","reason":"interaction with warfarin"}}
+  serialize default union: null
+  deserialize Rejected by shape: Rejected { PrescriptionId = rx-1, Reason = x }
+  deserialize Dispensed by shape: Dispensed { PrescriptionId = rx-1, Pharmacy = Main Street }
+  deserialize, shape matches no case: JsonException: The custom type classifier for union type 'Outcome' returned null for JSON token type 'StartObject'. Path: $ | LineNumber: 0 | BytePositionInLine: 1.
+  deserialize, only the shared property: JsonException: The custom type classifier for union type 'Outcome' returned null for JSON token type 'StartObject'. Path: $ | LineNumber: 0 | BytePositionInLine: 1.
+  deserialize null: null
+  round trip inside a record: Envelope { EventId = evt-1, Outcome = Outcome }
+  serialize, no classifier: {"name":"x"}
+  deserialize, no classifier: JsonException: JSON value type 'Object' is ambiguous for union type 'Plain' because multiple case types can use this value type. Specify a custom type classifier to support deserialization. Path: $ | LineNumber: 0 | BytePositionInLine: 1.
+  ambiguous shapes with classifier: NotSupportedException: The JsonUnionTypeStructuralClassifier cannot classify union type 'Twins' because the case type 'A' can never be selected uniquely. The case type 'B' recognizes every property name recognized by 'A' and has no stricter required-property or unmapped-member constraints.
+  primitive cases: number: Int32
+  primitive cases: string: JsonException: JSON value type 'String' is ambiguous for union type 'TextOrNumber' because multiple case types can use this value type. Specify a custom type classifier to support deserialization. Path: $ | LineNumber: 0 | BytePositionInLine: 11.
+  primitive cases: serialize: 42 "x"
+
+### e07-closed
+build: succeeded
+output:
+  rejected: interaction
+  shared member without a switch: rx-1
+  IsAbstract=True IsClass=True
+  equality: True
+  json: {"PrescriptionId":"rx-1"}
+
+### e07b-closed-missing-case
+build: succeeded
+  warning CS8509: The switch expression does not handle all possible values of its input type (it is not exhaustive). For example, the pattern 'Referred' is not covered. 
+output:
+  rejected
+
+### e08-generic
+build: succeeded
+output:
+  value 42 / failed: out of range
+  half is 5
+
+### e08b-generic-ambiguous
+build: FAILED
+  error CS0457: Ambiguous user defined conversions 'Validated<Failure>.Validated(Failure)' and 'Validated<Failure>.Validated(Failure)' when converting from 'Failure' to 'Validated<Failure>' 
+
+### e09-langversion14
+build: FAILED
+  error CS0106: The modifier 'public' is not valid for this item 
+  error CS1001: Identifier expected 
+  error CS8803: Top-level statements must precede namespace and type declarations. 
+
+### e10-net10-target
+build: FAILED
+  error CS0518: Predefined type 'System.Runtime.CompilerServices.IUnion' is not defined or imported 
+  error CS0656: Missing compiler required member 'System.Runtime.CompilerServices.UnionAttribute..ctor' 
+
+### e10b-net10-polyfill
+build: succeeded
+output:
+  dispensed
+  .NET 10.0.15
+
+### e11-consumer-csharp14
+build: succeeded
+output:
+  constructor and Value work: Dispensed { PrescriptionId = rx-1, Pharmacy = Main Street }
+  dispensed at Main Street
+
+### e11b-consumer-csharp14-conversion
+build: FAILED
+  error CS9327: Feature 'unions' is not available in C# 14.0. Please use language version 15.0 or greater. 
+
+### e12-closed-json
+build: succeeded
+output:
+  serialize: {"$type":"Rejected","reason":"interaction","prescriptionId":"rx-1"}
+  deserialize: Rejected { PrescriptionId = rx-1, Reason = interaction }
+

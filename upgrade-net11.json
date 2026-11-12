@@ -1,0 +1,38 @@
+{
+  "runtime": ".NET 11.0.0",
+  "os": "Ubuntu 26.04.1 LTS",
+  "behaviour": {
+    "empty gzip stream, bytes written": 20,
+    "empty deflate stream, bytes written": 2,
+    "empty zlib stream, bytes written": 8,
+    "unchecked (byte)300.7": 255,
+    "unchecked (sbyte)300.7": 127,
+    "unchecked (byte)-300.7": 0,
+    "unchecked (short)300.7e9": 32767,
+    "unchecked (ushort)-300.7": 0,
+    "unchecked (int)300.7e9": 2147483647,
+    "(double)BigInteger 2^53\u002B1": "9007199254740992",
+    "(decimal)BigInteger 10^28\u002B5 / 10": "1000000000000000000000000000.5",
+    "(BigInteger)2.5m": "2",
+    "(BigInteger)-2.5m": "-2",
+    "(decimal)0.1f": "0.100000001490116119384765625",
+    "(decimal)1e-7d * 3": "0.0000002999999999999999864244"
+  },
+  "cpu": {
+    "architecture": "X64",
+    "x86-64-v2: SSE4.2": true,
+    "x86-64-v2: POPCNT": true,
+    "x86-64-v2: SSSE3": true,
+    "x86-64-v3: AVX2": true,
+    "x86-64-v3: BMI2": true,
+    "x86-64-v3: FMA": true,
+    "x86-64-v3: LZCNT": true
+  },
+  "timingsMs": {
+    "parse 3,000 JSON documents": 12.11,
+    "serialize 3,000 records": 1.18,
+    "gzip Optimal, 1 MB of JSON Lines": 2.81,
+    "group and average by patient": 0.73,
+    "500,000 awaits of completed tasks": 25.83
+  }
+}

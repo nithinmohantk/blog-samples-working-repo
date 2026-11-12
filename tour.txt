@@ -1,0 +1,17 @@
+ok    gzip Fastest: round trip
+ok    gzip Optimal: round trip
+ok    gzip SmallestSize: round trip
+ok    brotli Fastest: round trip
+ok    brotli Optimal: round trip
+ok    brotli SmallestSize: round trip
+ok    zstandard Fastest: round trip
+ok    zstandard Optimal: round trip
+ok    zstandard SmallestSize: round trip
+ok    FullJoin: finds what is only in the source
+ok    FullJoin: finds what is only in the target
+ok    JSON Lines: one document per line
+ok    Process: exit status and output captured
+ok    StringStream: parsed as a stream
+ok    StringStream: read-only and not seekable
+
+All checks passed

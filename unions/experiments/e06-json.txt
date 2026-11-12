@@ -1,0 +1,19 @@
+### e06-json
+build: succeeded
+output:
+  serialize, classifier declared: {"prescriptionId":"rx-1","reason":"interaction with warfarin"}
+  serialize inside a record: {"eventId":"evt-1","outcome":{"prescriptionId":"rx-1","reason":"interaction with warfarin"}}
+  serialize default union: null
+  deserialize Rejected by shape: Rejected { PrescriptionId = rx-1, Reason = x }
+  deserialize Dispensed by shape: Dispensed { PrescriptionId = rx-1, Pharmacy = Main Street }
+  deserialize, shape matches no case: JsonException: The custom type classifier for union type 'Outcome' returned null for JSON token type 'StartObject'. Path: $ | LineNumber: 0 | BytePositionInLine: 1.
+  deserialize, only the shared property: JsonException: The custom type classifier for union type 'Outcome' returned null for JSON token type 'StartObject'. Path: $ | LineNumber: 0 | BytePositionInLine: 1.
+  deserialize null: null
+  round trip inside a record: Envelope { EventId = evt-1, Outcome = Outcome }
+  serialize, no classifier: {"name":"x"}
+  deserialize, no classifier: JsonException: JSON value type 'Object' is ambiguous for union type 'Plain' because multiple case types can use this value type. Specify a custom type classifier to support deserialization. Path: $ | LineNumber: 0 | BytePositionInLine: 1.
+  ambiguous shapes with classifier: NotSupportedException: The JsonUnionTypeStructuralClassifier cannot classify union type 'Twins' because the case type 'A' can never be selected uniquely. The case type 'B' recognizes every property name recognized by 'A' and has no stricter required-property or unmapped-member constraints.
+  primitive cases: number: Int32
+  primitive cases: string: JsonException: JSON value type 'String' is ambiguous for union type 'TextOrNumber' because multiple case types can use this value type. Specify a custom type classifier to support deserialization. Path: $ | LineNumber: 0 | BytePositionInLine: 11.
+  primitive cases: serialize: 42 "x"
+

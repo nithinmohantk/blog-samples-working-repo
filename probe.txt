@@ -1,0 +1,225 @@
+
+## System.IO.Compression.ZstandardStream, System.IO.Compression: System.IO.Compression
+  Void SetSourceLength(Int64)
+  Void Write(Byte[], Int32, Int32)
+  Void Write(System.ReadOnlySpan`1[System.Byte])
+  Void WriteByte(Byte)
+  System.Threading.Tasks.Task WriteAsync(Byte[], Int32, Int32, System.Threading.CancellationToken)
+  System.Threading.Tasks.ValueTask WriteAsync(System.ReadOnlyMemory`1[System.Byte], System.Threading.CancellationToken)
+  System.IAsyncResult BeginWrite(Byte[], Int32, Int32, System.AsyncCallback, System.Object)
+  Void EndWrite(System.IAsyncResult)
+  Void Flush()
+  System.Threading.Tasks.Task FlushAsync(System.Threading.CancellationToken)
+  Int32 Read(Byte[], Int32, Int32)
+  Int32 Read(System.Span`1[System.Byte])
+  System.Threading.Tasks.Task`1[System.Int32] ReadAsync(Byte[], Int32, Int32, System.Threading.CancellationToken)
+  System.Threading.Tasks.ValueTask`1[System.Int32] ReadAsync(System.Memory`1[System.Byte], System.Threading.CancellationToken)
+  System.IAsyncResult BeginRead(Byte[], Int32, Int32, System.AsyncCallback, System.Object)
+  Int32 EndRead(System.IAsyncResult)
+  Int32 ReadByte()
+  System.IO.Stream get_BaseStream()
+  Boolean get_CanRead()
+  Boolean get_CanWrite()
+  Boolean get_CanSeek()
+  Int64 get_Length()
+  Int64 get_Position()
+  Void set_Position(Int64)
+  Int64 Seek(Int64, System.IO.SeekOrigin)
+  Void SetLength(Int64)
+  System.Threading.Tasks.ValueTask DisposeAsync()
+  Void .ctor(System.IO.Stream, System.IO.Compression.CompressionLevel)
+  Void .ctor(System.IO.Stream, System.IO.Compression.CompressionLevel, Boolean)
+  Void .ctor(System.IO.Stream, System.IO.Compression.ZstandardCompressionOptions, Boolean)
+  Void .ctor(System.IO.Stream, System.IO.Compression.ZstandardEncoder, Boolean)
+  Void .ctor(System.IO.Stream, System.IO.Compression.ZstandardDecoder, Boolean)
+  Void .ctor(System.IO.Stream, System.IO.Compression.ZstandardDecompressionOptions, Boolean)
+  Void .ctor(System.IO.Stream, System.IO.Compression.CompressionMode, Boolean)
+  Void .ctor(System.IO.Stream, System.IO.Compression.CompressionMode)
+  Void .ctor(System.IO.Stream, System.IO.Compression.CompressionMode, System.IO.Compression.ZstandardDictionary, Boolean)
+  System.IO.Stream BaseStream
+  Boolean CanRead
+  Boolean CanWrite
+  Boolean CanSeek
+  Int64 Length
+  Int64 Position
+
+## System.IO.Compression.ZstandardStream, System.IO.Compression.Zstandard: NOT FOUND
+
+## System.IO.Compression.ZstandardEncoder, System.IO.Compression: System.IO.Compression
+  System.Buffers.OperationStatus Compress(System.ReadOnlySpan`1[System.Byte], System.Span`1[System.Byte], Int32 ByRef, Int32 ByRef, Boolean)
+  System.Buffers.OperationStatus Flush(System.Span`1[System.Byte], Int32 ByRef)
+  Int64 GetMaxCompressedLength(Int64)
+  Boolean TryCompress(System.ReadOnlySpan`1[System.Byte], System.Span`1[System.Byte], Int32 ByRef)
+  Boolean TryCompress(System.ReadOnlySpan`1[System.Byte], System.Span`1[System.Byte], Int32 ByRef, Int32, Int32)
+  Boolean TryCompress(System.ReadOnlySpan`1[System.Byte], System.Span`1[System.Byte], Int32 ByRef, System.IO.Compression.ZstandardDictionary, Int32)
+  Void Reset()
+  Void SetPrefix(System.ReadOnlyMemory`1[System.Byte])
+  Void SetSourceLength(Int64)
+  Void Dispose()
+  Void .ctor()
+  Void .ctor(Int32)
+  Void .ctor(System.IO.Compression.ZstandardDictionary)
+  Void .ctor(Int32, Int32)
+  Void .ctor(System.IO.Compression.ZstandardDictionary, Int32)
+  Void .ctor(System.IO.Compression.ZstandardCompressionOptions)
+
+## System.IO.Compression.ZstandardCompressionOptions, System.IO.Compression: System.IO.Compression
+  Int32 get_DefaultQuality()
+  Int32 get_MinQuality()
+  Int32 get_MaxQuality()
+  Int32 get_DefaultWindowLog2()
+  Int32 get_MinWindowLog2()
+  Int32 get_MaxWindowLog2()
+  Int32 get_Quality()
+  Void set_Quality(Int32)
+  Int32 get_WindowLog2()
+  Void set_WindowLog2(Int32)
+  System.IO.Compression.ZstandardDictionary get_Dictionary()
+  Void set_Dictionary(System.IO.Compression.ZstandardDictionary)
+  Int32 get_TargetBlockSize()
+  Void set_TargetBlockSize(Int32)
+  Boolean get_AppendChecksum()
+  Void set_AppendChecksum(Boolean)
+  Boolean get_EnableLongDistanceMatching()
+  Void set_EnableLongDistanceMatching(Boolean)
+  Void .ctor()
+  Int32 DefaultQuality
+  Int32 MinQuality
+  Int32 MaxQuality
+  Int32 DefaultWindowLog2
+  Int32 MinWindowLog2
+  Int32 MaxWindowLog2
+  Int32 Quality
+  Int32 WindowLog2
+  System.IO.Compression.ZstandardDictionary Dictionary
+  Int32 TargetBlockSize
+  Boolean AppendChecksum
+  Boolean EnableLongDistanceMatching
+
+## System.Diagnostics.ProcessTextOutput, System.Diagnostics.Process: System.Diagnostics.Process
+  System.Diagnostics.ProcessExitStatus get_ExitStatus()
+  System.String get_StandardOutput()
+  System.String get_StandardError()
+  Int32 get_ProcessId()
+  Void .ctor(System.Diagnostics.ProcessExitStatus, System.String, System.String, Int32)
+  System.Diagnostics.ProcessExitStatus ExitStatus
+  System.String StandardOutput
+  System.String StandardError
+  Int32 ProcessId
+
+## System.Diagnostics.ProcessExitStatus, System.Diagnostics.Process: System.Diagnostics.Process
+  Int32 get_ExitCode()
+  System.Nullable`1[System.Runtime.InteropServices.PosixSignal] get_Signal()
+  Boolean get_Canceled()
+  Void .ctor(Int32, Boolean, System.Nullable`1[System.Runtime.InteropServices.PosixSignal])
+  Int32 ExitCode
+  System.Nullable`1[System.Runtime.InteropServices.PosixSignal] Signal
+  Boolean Canceled
+
+## System.Runtime.CompilerServices.UnionAttribute, System.Runtime: System.Private.CoreLib
+  Void .ctor()
+
+## System.Runtime.CompilerServices.IUnion, System.Runtime: System.Private.CoreLib
+  System.Object get_Value()
+  System.Object Value
+
+## System.Text.Json.Serialization.JsonUnionAttribute, System.Text.Json: System.Text.Json
+  System.Type get_TypeClassifier()
+  Void set_TypeClassifier(System.Type)
+  Void .ctor()
+  System.Type TypeClassifier
+
+## System.IO.StringStream, System.Runtime: System.Private.CoreLib
+  System.Text.Encoding get_Encoding()
+  Boolean get_CanRead()
+  Boolean get_CanSeek()
+  Boolean get_CanWrite()
+  Int64 get_Length()
+  Int64 get_Position()
+  Void set_Position(Int64)
+  Int32 Read(Byte[], Int32, Int32)
+  Int32 Read(System.Span`1[System.Byte])
+  Int32 ReadByte()
+  System.Threading.Tasks.Task`1[System.Int32] ReadAsync(Byte[], Int32, Int32, System.Threading.CancellationToken)
+  System.Threading.Tasks.ValueTask`1[System.Int32] ReadAsync(System.Memory`1[System.Byte], System.Threading.CancellationToken)
+  Int64 Seek(Int64, System.IO.SeekOrigin)
+  Void SetLength(Int64)
+  Void Write(Byte[], Int32, Int32)
+  Void Write(System.ReadOnlySpan`1[System.Byte])
+  System.Threading.Tasks.Task WriteAsync(Byte[], Int32, Int32, System.Threading.CancellationToken)
+  System.Threading.Tasks.ValueTask WriteAsync(System.ReadOnlyMemory`1[System.Byte], System.Threading.CancellationToken)
+  Void Flush()
+  System.Threading.Tasks.Task FlushAsync(System.Threading.CancellationToken)
+  Void .ctor(System.String, System.Text.Encoding)
+  Void .ctor(System.ReadOnlyMemory`1[System.Char], System.Text.Encoding)
+  System.Text.Encoding Encoding
+  Boolean CanRead
+  Boolean CanSeek
+  Boolean CanWrite
+  Int64 Length
+  Int64 Position
+
+## System.IO.ReadOnlyMemoryStream, System.Runtime: System.Private.CoreLib
+  Boolean get_CanRead()
+  Boolean get_CanSeek()
+  Boolean get_CanWrite()
+  Int64 get_Length()
+  Int64 get_Position()
+  Void set_Position(Int64)
+  Void Flush()
+  System.Threading.Tasks.Task FlushAsync(System.Threading.CancellationToken)
+  Int32 ReadByte()
+  Int32 Read(Byte[], Int32, Int32)
+  Int32 Read(System.Span`1[System.Byte])
+  System.Threading.Tasks.Task`1[System.Int32] ReadAsync(Byte[], Int32, Int32, System.Threading.CancellationToken)
+  System.Threading.Tasks.ValueTask`1[System.Int32] ReadAsync(System.Memory`1[System.Byte], System.Threading.CancellationToken)
+  Int64 Seek(Int64, System.IO.SeekOrigin)
+  Void CopyTo(System.IO.Stream, Int32)
+  System.Threading.Tasks.Task CopyToAsync(System.IO.Stream, Int32, System.Threading.CancellationToken)
+  Void SetLength(Int64)
+  Void Write(Byte[], Int32, Int32)
+  Void Write(System.ReadOnlySpan`1[System.Byte])
+  Void WriteByte(Byte)
+  System.Threading.Tasks.Task WriteAsync(Byte[], Int32, Int32, System.Threading.CancellationToken)
+  System.Threading.Tasks.ValueTask WriteAsync(System.ReadOnlyMemory`1[System.Byte], System.Threading.CancellationToken)
+  Void .ctor(System.ReadOnlyMemory`1[System.Byte])
+  Boolean CanRead
+  Boolean CanSeek
+  Boolean CanWrite
+  Int64 Length
+  Int64 Position
+
+## System.ComponentModel.DataAnnotations.AsyncValidationAttribute, System.ComponentModel.Annotations: System.ComponentModel.Annotations
+  Boolean IsValid(System.Object)
+  System.Threading.Tasks.Task`1[System.ComponentModel.DataAnnotations.ValidationResult] GetValidationResultAsync(System.Object, System.ComponentModel.DataAnnotations.ValidationContext, System.Threading.CancellationToken)
+
+## System.Linq.Enumerable
+  System.Collections.Generic.IEnumerable`1[TResult] FullJoin[TOuter,TInner,TKey,TResult](System.Collections.Generic.IEnumerable`1[TOuter], System.Collections.Generic.IEnumerable`1[TInner], System.Func`2[TOuter,TKey], System.Func`2[TInner,TKey], System.Func`3[TOuter,TInner,TResult], System.Collections.Generic.IEqualityComparer`1[TKey])
+  System.Collections.Generic.IEnumerable`1[System.ValueTuple`2[TOuter,TInner]] FullJoin[TOuter,TInner,TKey](System.Collections.Generic.IEnumerable`1[TOuter], System.Collections.Generic.IEnumerable`1[TInner], System.Func`2[TOuter,TKey], System.Func`2[TInner,TKey], System.Collections.Generic.IEqualityComparer`1[TKey])
+  System.Collections.Generic.IEnumerable`1[TResult] LeftJoin[TOuter,TInner,TKey,TResult](System.Collections.Generic.IEnumerable`1[TOuter], System.Collections.Generic.IEnumerable`1[TInner], System.Func`2[TOuter,TKey], System.Func`2[TInner,TKey], System.Func`3[TOuter,TInner,TResult])
+  System.Collections.Generic.IEnumerable`1[TResult] LeftJoin[TOuter,TInner,TKey,TResult](System.Collections.Generic.IEnumerable`1[TOuter], System.Collections.Generic.IEnumerable`1[TInner], System.Func`2[TOuter,TKey], System.Func`2[TInner,TKey], System.Func`3[TOuter,TInner,TResult], System.Collections.Generic.IEqualityComparer`1[TKey])
+  System.Collections.Generic.IEnumerable`1[System.ValueTuple`2[TOuter,TInner]] LeftJoin[TOuter,TInner,TKey](System.Collections.Generic.IEnumerable`1[TOuter], System.Collections.Generic.IEnumerable`1[TInner], System.Func`2[TOuter,TKey], System.Func`2[TInner,TKey], System.Collections.Generic.IEqualityComparer`1[TKey])
+
+## System.Text.Json.JsonSerializer
+  System.Threading.Tasks.Task SerializeAsyncEnumerable[TValue](System.IO.Stream, System.Collections.Generic.IAsyncEnumerable`1[TValue], Boolean, System.Text.Json.JsonSerializerOptions, System.Threading.CancellationToken)
+  System.Threading.Tasks.Task SerializeAsyncEnumerable[TValue](System.IO.Stream, System.Collections.Generic.IAsyncEnumerable`1[TValue], System.Text.Json.Serialization.Metadata.JsonTypeInfo`1[TValue], Boolean, System.Threading.CancellationToken)
+  System.Threading.Tasks.Task SerializeAsyncEnumerable[TValue](System.IO.Pipelines.PipeWriter, System.Collections.Generic.IAsyncEnumerable`1[TValue], Boolean, System.Text.Json.JsonSerializerOptions, System.Threading.CancellationToken)
+  System.Threading.Tasks.Task SerializeAsyncEnumerable[TValue](System.IO.Pipelines.PipeWriter, System.Collections.Generic.IAsyncEnumerable`1[TValue], System.Text.Json.Serialization.Metadata.JsonTypeInfo`1[TValue], Boolean, System.Threading.CancellationToken)
+
+## System.Diagnostics.Process
+  System.Diagnostics.ProcessExitStatus Run(System.Diagnostics.ProcessStartInfo, System.Nullable`1[System.TimeSpan])
+  System.Diagnostics.ProcessExitStatus Run(System.String, System.Collections.Generic.IEnumerable`1[System.String], Boolean, System.Nullable`1[System.TimeSpan])
+  System.Threading.Tasks.Task`1[System.Diagnostics.ProcessExitStatus] RunAsync(System.Diagnostics.ProcessStartInfo, System.Threading.CancellationToken)
+  System.Threading.Tasks.Task`1[System.Diagnostics.ProcessExitStatus] RunAsync(System.String, System.Collections.Generic.IEnumerable`1[System.String], Boolean, System.Threading.CancellationToken)
+  System.Diagnostics.ProcessTextOutput RunAndCaptureText(System.Diagnostics.ProcessStartInfo, System.Nullable`1[System.TimeSpan])
+  System.Diagnostics.ProcessTextOutput RunAndCaptureText(System.String, System.Collections.Generic.IEnumerable`1[System.String], System.Nullable`1[System.TimeSpan])
+  System.Threading.Tasks.Task`1[System.Diagnostics.ProcessTextOutput] RunAndCaptureTextAsync(System.Diagnostics.ProcessStartInfo, System.Threading.CancellationToken)
+  System.Threading.Tasks.Task`1[System.Diagnostics.ProcessTextOutput] RunAndCaptureTextAsync(System.String, System.Collections.Generic.IEnumerable`1[System.String], System.Threading.CancellationToken)
+
+## System.ComponentModel.DataAnnotations.Validator
+  System.Threading.Tasks.Task`1[System.Boolean] TryValidateObjectAsync(System.Object, System.ComponentModel.DataAnnotations.ValidationContext, System.Collections.Generic.ICollection`1[System.ComponentModel.DataAnnotations.ValidationResult], System.Threading.CancellationToken)
+  System.Threading.Tasks.Task`1[System.Boolean] TryValidateObjectAsync(System.Object, System.ComponentModel.DataAnnotations.ValidationContext, System.Collections.Generic.ICollection`1[System.ComponentModel.DataAnnotations.ValidationResult], Boolean, System.Threading.CancellationToken)
+  System.Threading.Tasks.Task ValidateObjectAsync(System.Object, System.ComponentModel.DataAnnotations.ValidationContext, System.Threading.CancellationToken)
+  System.Threading.Tasks.Task ValidateObjectAsync(System.Object, System.ComponentModel.DataAnnotations.ValidationContext, Boolean, System.Threading.CancellationToken)
+
+Runtime: .NET 11.0.0

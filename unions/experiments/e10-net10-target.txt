@@ -1,0 +1,5 @@
+### e10-net10-target
+build: FAILED
+  error CS0518: Predefined type 'System.Runtime.CompilerServices.IUnion' is not defined or imported 
+  error CS0656: Missing compiler required member 'System.Runtime.CompilerServices.UnionAttribute..ctor' 
+

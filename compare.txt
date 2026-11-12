@@ -1,0 +1,27 @@
+.NET 10.0.15  ->  .NET 11.0.0
+
+Behaviour that differs:
+  empty gzip stream, bytes written                                0  ->  20
+  empty deflate stream, bytes written                             0  ->  2
+  empty zlib stream, bytes written                                0  ->  8
+  unchecked (byte)300.7                                          44  ->  255
+  unchecked (sbyte)300.7                                         44  ->  127
+  unchecked (byte)-300.7                                        212  ->  0
+  unchecked (short)300.7e9                                       -1  ->  32767
+  unchecked (ushort)-300.7                                    65236  ->  0
+
+Behaviour that is the same: 7 of 15 probes
+  unchecked (int)300.7e9                                 2147483647
+  (double)BigInteger 2^53+1                        9007199254740992
+  (decimal)BigInteger 10^28+5 / 10         1000000000000000000000000000.5
+  (BigInteger)2.5m                                                2
+  (BigInteger)-2.5m                                              -2
+  (decimal)0.1f                            0.100000001490116119384765625
+  (decimal)1e-7d * 3                       0.0000002999999999999999864244
+
+Median wall time, milliseconds (one shared machine; indicative only):
+  parse 3,000 JSON documents                     9.89  ->     12.11    +22.4%
+  serialize 3,000 records                        1.06  ->      1.18    +11.3%
+  gzip Optimal, 1 MB of JSON Lines               2.04  ->      2.81    +37.7%
+  group and average by patient                   0.77  ->      0.73     -5.2%
+  500,000 awaits of completed tasks             26.98  ->     25.83     -4.3%

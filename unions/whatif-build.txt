@@ -1,0 +1,13 @@
+/home/runner/work/blog-samples-working-repo/blog-samples-working-repo/csharp15-unions/src/Prescribing/OutcomeHandlers.cs(9,91): error CS8509: The switch expression does not handle all possible values of its input type (it is not exhaustive). For example, the pattern 'Prescribing.PartiallyDispensed' is not covered. [/home/runner/work/blog-samples-working-repo/blog-samples-working-repo/csharp15-unions/whatif/AddCase/AddCase.csproj]
+/home/runner/work/blog-samples-working-repo/blog-samples-working-repo/csharp15-unions/src/Prescribing/OutcomeHandlers.cs(18,75): error CS8509: The switch expression does not handle all possible values of its input type (it is not exhaustive). For example, the pattern 'Prescribing.PartiallyDispensed' is not covered. [/home/runner/work/blog-samples-working-repo/blog-samples-working-repo/csharp15-unions/whatif/AddCase/AddCase.csproj]
+/home/runner/work/blog-samples-working-repo/blog-samples-working-repo/csharp15-unions/src/Prescribing/OutcomeHandlers.cs(27,74): error CS8509: The switch expression does not handle all possible values of its input type (it is not exhaustive). For example, the pattern 'Prescribing.PartiallyDispensed' is not covered. [/home/runner/work/blog-samples-working-repo/blog-samples-working-repo/csharp15-unions/whatif/AddCase/AddCase.csproj]
+
+Build FAILED.
+
+/home/runner/work/blog-samples-working-repo/blog-samples-working-repo/csharp15-unions/src/Prescribing/OutcomeHandlers.cs(9,91): error CS8509: The switch expression does not handle all possible values of its input type (it is not exhaustive). For example, the pattern 'Prescribing.PartiallyDispensed' is not covered. [/home/runner/work/blog-samples-working-repo/blog-samples-working-repo/csharp15-unions/whatif/AddCase/AddCase.csproj]
+/home/runner/work/blog-samples-working-repo/blog-samples-working-repo/csharp15-unions/src/Prescribing/OutcomeHandlers.cs(18,75): error CS8509: The switch expression does not handle all possible values of its input type (it is not exhaustive). For example, the pattern 'Prescribing.PartiallyDispensed' is not covered. [/home/runner/work/blog-samples-working-repo/blog-samples-working-repo/csharp15-unions/whatif/AddCase/AddCase.csproj]
+/home/runner/work/blog-samples-working-repo/blog-samples-working-repo/csharp15-unions/src/Prescribing/OutcomeHandlers.cs(27,74): error CS8509: The switch expression does not handle all possible values of its input type (it is not exhaustive). For example, the pattern 'Prescribing.PartiallyDispensed' is not covered. [/home/runner/work/blog-samples-working-repo/blog-samples-working-repo/csharp15-unions/whatif/AddCase/AddCase.csproj]
+    0 Warning(s)
+    3 Error(s)
+
+Time Elapsed 00:00:00.11

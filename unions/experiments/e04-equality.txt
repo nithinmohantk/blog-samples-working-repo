@@ -1,0 +1,11 @@
+### e04-equality
+build: succeeded
+output:
+  Equals, equal records in two unions: True
+  Equals, different cases: False
+  GetHashCode equal: True
+  HashSet count for two equal unions: 1
+  EqualityComparer.Default: True
+  ToString: Outcome
+  union equals its case value: False
+

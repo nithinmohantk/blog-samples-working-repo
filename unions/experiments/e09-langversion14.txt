@@ -1,0 +1,6 @@
+### e09-langversion14
+build: FAILED
+  error CS0106: The modifier 'public' is not valid for this item 
+  error CS1001: Identifier expected 
+  error CS8803: Top-level statements must precede namespace and type declarations. 
+

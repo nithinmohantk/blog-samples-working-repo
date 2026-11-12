@@ -1,0 +1,4 @@
+### e08b-generic-ambiguous
+build: FAILED
+  error CS0457: Ambiguous user defined conversions 'Validated<Failure>.Validated(Failure)' and 'Validated<Failure>.Validated(Failure)' when converting from 'Failure' to 'Validated<Failure>' 
+

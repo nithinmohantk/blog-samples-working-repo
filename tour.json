@@ -1,0 +1,104 @@
+{
+  "runtime": ".NET 11.0.0",
+  "compression": {
+    "payloadBytes": 1380748,
+    "rows": [
+      {
+        "codec": "gzip",
+        "level": "Fastest",
+        "bytes": 63654,
+        "ratio": 21.69,
+        "compressMs": 0.37,
+        "decompressMs": 1.49
+      },
+      {
+        "codec": "gzip",
+        "level": "Optimal",
+        "bytes": 41052,
+        "ratio": 33.63,
+        "compressMs": 2.03,
+        "decompressMs": 1.07
+      },
+      {
+        "codec": "gzip",
+        "level": "SmallestSize",
+        "bytes": 38613,
+        "ratio": 35.76,
+        "compressMs": 3.39,
+        "decompressMs": 0.88
+      },
+      {
+        "codec": "brotli",
+        "level": "Fastest",
+        "bytes": 39039,
+        "ratio": 35.37,
+        "compressMs": 0.7,
+        "decompressMs": 1.18
+      },
+      {
+        "codec": "brotli",
+        "level": "Optimal",
+        "bytes": 37482,
+        "ratio": 36.84,
+        "compressMs": 1.9,
+        "decompressMs": 1.01
+      },
+      {
+        "codec": "brotli",
+        "level": "SmallestSize",
+        "bytes": 20420,
+        "ratio": 67.62,
+        "compressMs": 1961.41,
+        "decompressMs": 1.14
+      },
+      {
+        "codec": "zstandard",
+        "level": "Fastest",
+        "bytes": 34421,
+        "ratio": 40.11,
+        "compressMs": 0.36,
+        "decompressMs": 0.58
+      },
+      {
+        "codec": "zstandard",
+        "level": "Optimal",
+        "bytes": 40717,
+        "ratio": 33.91,
+        "compressMs": 0.48,
+        "decompressMs": 0.97
+      },
+      {
+        "codec": "zstandard",
+        "level": "SmallestSize",
+        "bytes": 25096,
+        "ratio": 55.02,
+        "compressMs": 851.21,
+        "decompressMs": 2.03
+      }
+    ]
+  },
+  "fullJoin": {
+    "rows": 5,
+    "matched": 2,
+    "onlyInSource": [
+      "obs-1",
+      "obs-5"
+    ],
+    "onlyInTarget": [
+      "obs-4"
+    ]
+  },
+  "jsonLines": {
+    "lines": 100,
+    "first": "{\u0022id\u0022:\u0022obs-000000\u0022,\u0022patient\u0022:\u0022Patient/synthetic-0135\u0022,\u0022taken\u0022:\u00222026-11-01T08:00:00Z\u0022,\u0022beatsPerMinute\u0022:89}"
+  },
+  "process": {
+    "command": "dotnet --version",
+    "exitCode": 0,
+    "output": "11.0.100"
+  },
+  "stringStream": {
+    "canSeek": false,
+    "characters": 55
+  }
+}
