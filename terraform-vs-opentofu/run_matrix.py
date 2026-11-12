@@ -23,21 +23,26 @@ DEFAULT_STEPS = ["init -input=false", "validate", "apply -input=false -auto-appr
 def first_error(output: str) -> str:
     lines = output.splitlines()
     for index, line in enumerate(lines):
-        if line.startswith("Error:") or line.startswith("│ Error:"):
+        if (line.startswith("Error:") or line.startswith("│ Error:")) and "encountered problems during initialisation" not in line:
             rest = [l.strip("│ ").strip() for l in lines[index + 1:index + 12]]
             detail = " ".join(l for l in rest if l and not l.startswith("on ") and not l[:1].isdigit() and not l.startswith("with "))
             return (line.strip("│ ").strip() + " | " + detail)[:300]
     return (lines[-1] if lines else "")[:300]
 
 
-def run(tool: str, experiment: dict) -> dict:
+def run(tool: str, other: str, experiment: dict) -> dict:
     work = pathlib.Path(tempfile.mkdtemp())
     shutil.copytree(HERE / "experiments" / experiment["id"], work, dirs_exist_ok=True)
     env = {**os.environ, "TF_IN_AUTOMATION": "1", "TF_CLI_ARGS": "-no-color", "CHECKPOINT_DISABLE": "1", **experiment.get("env", {})}
     for step in experiment.get("steps", DEFAULT_STEPS):
-        done = subprocess.run([tool, *shlex.split(step)], cwd=work, env=env, capture_output=True, text=True)
+        # A step written as "other:<command>" runs with the other tool, in the same directory.
+        binary, command = (other, step[len("other:"):]) if step.startswith("other:") else (tool, step)
+        if binary is other:
+            shutil.rmtree(work / ".terraform", ignore_errors=True)
+        done = subprocess.run([binary, *shlex.split(command)], cwd=work, env=env, capture_output=True, text=True)
         if done.returncode != 0:
-            return {"result": "fail", "stage": step.split()[0], "detail": first_error(done.stdout + done.stderr)}
+            stage = ("the other tool's " if binary is other else "") + command.split()[0]
+            return {"result": "fail", "stage": stage, "detail": first_error(done.stdout + done.stderr)}
     note = ""
     if (work / "check.py").exists():
         check = subprocess.run([sys.executable, "check.py", tool], cwd=work, env=env, capture_output=True, text=True)
@@ -56,7 +61,7 @@ def main() -> int:
     for experiment in experiments:
         row = {"id": experiment["id"], "title": experiment["title"]}
         for name, binary in tools.items():
-            row[name] = run(binary, experiment)
+            row[name] = run(binary, next(b for n, b in tools.items() if n != name), experiment)
             row[name]["expected"] = experiment["expect"][name]
             if row[name]["result"] != experiment["expect"][name]:
                 unexpected += 1
