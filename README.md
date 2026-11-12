@@ -19,6 +19,7 @@ Each folder has its own README that says what the code does, how to run it, and 
 | `azure-api-for-fhir-migration` | [Migrating from Azure API for FHIR to Azure Health Data Services](https://www.dataa.dev/2026/08/23/migrating-azure-api-for-fhir-to-azure-health-data-services-export-import-identity-cut-over-runbook/) | Python, C# |
 | `fhir-events-azure-functions` | [FHIR Subscriptions and Events on Azure: Keeping Downstream Systems in Step](https://www.dataa.dev/2026/08/30/fhir-subscriptions-and-events-on-azure-keeping-downstream-systems-in-step/) | C#, Python |
 | `fhir-validation-ci` | [FHIR Validation in CI: Profiles, Terminology and IPS Checks That Fail the Build](https://www.dataa.dev/2026/09/06/fhir-validation-in-ci-profiles-terminology-ips-checks-that-fail-the-build/) | C#, Python |
+| `clinical-coding-structured-outputs` | [Azure OpenAI Structured Outputs for Clinical Coding: Free Text to FHIR Condition and Observation, with a Human Review Step](https://www.dataa.dev/2026/09/13/azure-openai-structured-outputs-clinical-coding-fhir-condition-observation-human-review/) | C#, Python |
 
 ## Verification status
 
@@ -32,6 +33,7 @@ Not everything here has been compiled or run. The state at the time of the first
 * `azure-api-for-fhir-migration`: script tests and validator self-test pass; the validator was run in Docker against two HAPI FHIR servers. Not run against either Azure service.
 * `fhir-events-azure-functions`: core self-test and Python rule pass; the Function App was built and run in Docker with PostgreSQL and HAPI FHIR, where the replay script passed 22 of 22. Events were built by the script, not by Event Grid.
 * `fhir-validation-ci`: run in GitHub Actions (`.github/workflows/fhir-validation.yml`) with the HL7 validator and the Firely SDK against the IPS 2.0.0 profiles; see its README for the results. Only IPS, only single resources.
+* `clinical-coding-structured-outputs`: tests pass in both languages, the Azure OpenAI client code builds, and the FHIR output passes the HL7 validator with a terminology server, all in GitHub Actions. **No call to Azure OpenAI was made**; the model responses in the fixtures are hand-written.
 * Nothing in this repository has been deployed to AWS or Azure.
 
 ## Healthcare samples
