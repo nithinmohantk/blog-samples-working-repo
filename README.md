@@ -15,7 +15,7 @@ Each folder has its own README that says what the code does, how to run it, and 
 | `fhir-openehr` | [FHIR and openEHR: When to Use Which, and How They Coexist](https://www.dataa.dev/2026/11/11/fhir-and-openehr-when-to-use-which-and-how-they-coexist/) | Python, C# |
 | `openehr-aql-to-fhir` | [Mapping openEHR Medication Orders to FHIR: AQL In, Transaction Bundle Out](https://www.dataa.dev/2026/11/12/mapping-openehr-medication-orders-to-fhir-aql-in-transaction-bundle-out/) | Python, C# |
 | `clinical-queries` | [Querying Clinical Data: AQL vs. FHIR Search vs. SQL on FHIR](https://www.dataa.dev/2026/11/12/querying-clinical-data-aql-vs-fhir-search-vs-sql-on-fhir/) | Python, SQL, C#, AQL |
-| `fhir-facade-openehr` | A FHIR Facade over an openEHR Repository on Azure | C#, Python |
+| `fhir-facade-openehr` | [A FHIR Facade over an openEHR Repository on Azure](https://www.dataa.dev/2026/11/12/fhir-facade-over-openehr-repository-on-azure-aspnet-core-entra-id-smart-scopes/) | C#, Python |
 
 ## Verification status
 
