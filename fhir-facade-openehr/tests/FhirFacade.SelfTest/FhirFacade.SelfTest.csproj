@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <!-- Compiles the facade's own source files, minus Program.cs, so it needs no NuGet package. -->
+  <PropertyGroup>
+    <!-- Set the environment variable SELFTEST_TFM=net10.0 to run on the .NET 10 SDK. -->
+    <SELFTEST_TFM Condition="'$(SELFTEST_TFM)' == ''">net11.0</SELFTEST_TFM>
+    <TargetFramework>$(SELFTEST_TFM)</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <RootNamespace>FhirFacade.SelfTest</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../src/FhirFacade/**/*.cs" Exclude="../../src/FhirFacade/Program.cs;../../src/FhirFacade/bin/**;../../src/FhirFacade/obj/**" LinkBase="Facade" />
+    <None Include="recorded/*.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

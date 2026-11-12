@@ -1,0 +1,22 @@
+{
+  "_source": "Rows returned by EHRbase 2.39.0-SNAPSHOT on 12 November 2026 for the facade's own search query, one request per patient with no LIMIT. Synthetic data.",
+  "columns": [
+    {"path": "e/ehr_id/value", "name": "ehr_id"},
+    {"path": "s/subject/external_ref/id/value", "name": "patient_id"},
+    {"path": "c/uid/value", "name": "composition_uid"},
+    {"path": "o/data[at0001]/events[at0006]/time/value", "name": "effective"},
+    {"path": "o/data[at0001]/events[at0006]/data[at0003]/items[at0004]/value/magnitude", "name": "systolic"},
+    {"path": "o/data[at0001]/events[at0006]/data[at0003]/items[at0004]/value/units", "name": "systolic_units"},
+    {"path": "o/data[at0001]/events[at0006]/data[at0003]/items[at0005]/value/magnitude", "name": "diastolic"},
+    {"path": "o/data[at0001]/events[at0006]/data[at0003]/items[at0005]/value/units", "name": "diastolic_units"}
+  ],
+  "rows": [
+    ["75667c1b-a504-4974-ac72-28ef88efd2ef", "p1", "cd440ede-dc1e-4994-8e78-ec362cb07ba0::local.ehrbase.org::1", "2026-11-03T09:42:00Z", 142, "mm[Hg]", 88, "mm[Hg]"],
+    ["75667c1b-a504-4974-ac72-28ef88efd2ef", "p1", "b2b1c1b0-2d11-482a-98b4-b31ba57db6bd::local.ehrbase.org::1", "2026-08-14T10:00:00Z", 146, "mm[Hg]", 90, "mm[Hg]"],
+    ["75667c1b-a504-4974-ac72-28ef88efd2ef", "p1", "c2145996-beab-47ea-aa24-369221b145e6::local.ehrbase.org::1", "2026-03-02T09:10:00Z", 150, "mm[Hg]", 94, "mm[Hg]"],
+    ["4f5855b5-d5d6-4f70-8284-1ed22329fb5e", "p2", "00a64985-8a90-420d-869e-96b03d73899f::local.ehrbase.org::1", "2026-10-28T08:50:00Z", 128, "mm[Hg]", 82, "mm[Hg]"],
+    ["4f5855b5-d5d6-4f70-8284-1ed22329fb5e", "p2", "be3382cf-94c1-43c4-abaf-eef390029b43::local.ehrbase.org::1", "2026-05-20T11:30:00Z", 152, "mm[Hg]", 96, "mm[Hg]"],
+    ["8842d6fe-7502-40a8-8f39-27b3d8cb8b79", "p3", "17478b3c-bcb5-4784-b2b5-2f6b15d2e289::local.ehrbase.org::1", "2026-09-09T14:05:00Z", 138, "mm[Hg]", 86, "mm[Hg]"],
+    ["21cdcd17-525a-4389-8206-f95386322993", "p4", "2f26b70a-b293-4ddc-bf80-4e3ed7fcd4bb::local.ehrbase.org::1", "2026-10-30T16:20:00Z", 161, "mm[Hg]", 99, "mm[Hg]"]
+  ]
+}
