@@ -110,9 +110,25 @@
   },
   {
     "id": "13-required-version-far-ahead",
-    "title": "required_version = \">= 99.0.0\"",
+    "title": "required_version = \">= 99.0.0\" in a .tf file",
     "expect": {
       "terraform": "fail",
+      "tofu": "pass"
+    }
+  },
+  {
+    "id": "13b-language-block-far-ahead",
+    "title": "language { compatible_with { opentofu = \">= 99.0.0\" } }",
+    "expect": {
+      "terraform": "fail",
+      "tofu": "fail"
+    }
+  },
+  {
+    "id": "13c-required-version-in-a-tofu-file",
+    "title": "required_version = \">= 99.0.0\" in a .tofu file",
+    "expect": {
+      "terraform": "pass",
       "tofu": "fail"
     }
   },
