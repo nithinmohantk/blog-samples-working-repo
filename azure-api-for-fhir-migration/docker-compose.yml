@@ -1,0 +1,32 @@
+# Local rehearsal of the validation step, with two HAPI FHIR servers standing in for the source and the
+# target. The source is the HAPI server from ../clinical-queries/docker (port 8090). No Azure is involved.
+name: fhir-migration-rehearsal
+
+services:
+  target-fhir:
+    image: hapiproject/hapi:latest
+    ports:
+      - "127.0.0.1:8091:8080"
+
+  # Re-runs the comparison every 20 seconds and overwrites ./reports, so a change on the target shows up
+  # without another command. The loop is for the rehearsal only; in a cut-over the tool runs once.
+  validator:
+    build: ./validator
+    volumes:
+      - ./reports:/reports
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - >
+        while true; do
+        dotnet FhirMigrationValidator.dll
+        --source http://host.docker.internal:8090/fhir
+        --target http://target-fhir:8080/fhir
+        --types Patient,Observation,MedicationRequest
+        --sample 50 --report /reports/report.json > /reports/console.txt 2>&1;
+        echo "exit code $$?" >> /reports/console.txt;
+        sleep 20;
+        done
+    depends_on:
+      - target-fhir
