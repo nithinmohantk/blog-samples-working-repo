@@ -1,20 +1,20 @@
-# Unit tests. No AWS account, no credentials, no network calls to AWS: the provider is mocked.
-# Run with: terraform test   (or: tofu test)
+# Unit tests. No AWS account, no credentials, no calls to AWS: the provider is mocked.
+# The file runs unchanged under "terraform test" and "tofu test".
+#
+# Rule used throughout: assert on values the configuration sets in "plan" runs, and on values
+# the provider computes (ARNs, ids, anything read from a data source) in "apply" runs.
+# An apply against a mocked provider creates nothing and costs nothing.
 
 mock_provider "aws" {
-  # Give computed attributes their values at plan time, so plan-only runs can assert on them.
-  override_during = plan
-
   mock_resource "aws_s3_bucket" {
     defaults = {
-      id  = "mocked-bucket-id"
       arn = "arn:aws:s3:::mocked-bucket"
     }
   }
 
   mock_data "aws_caller_identity" {
     defaults = {
-      account_id = "111122223333"
+      account_id = "444455556666"
     }
   }
 }
@@ -24,6 +24,7 @@ variables {
   environment         = "dev"
   data_classification = "clinical"
   kms_key_arn         = "arn:aws:kms:eu-west-1:111122223333:key/11111111-2222-3333-4444-555555555555"
+  account_id          = "111122223333"
 }
 
 run "name_carries_environment_and_account" {
@@ -43,18 +44,27 @@ run "name_carries_environment_and_account" {
 run "explicit_account_id_skips_the_lookup" {
   command = plan
 
-  variables {
-    account_id = "999900001111"
-  }
-
   assert {
     condition     = length(data.aws_caller_identity.current) == 0
     error_message = "No caller identity lookup should happen when account_id is given."
   }
+}
+
+run "account_id_is_looked_up_when_not_given" {
+  command = apply
+
+  variables {
+    account_id = null
+  }
 
   assert {
-    condition     = aws_s3_bucket.this.bucket == "clinical-docs-dev-999900001111"
-    error_message = "The given account id must be used in the name."
+    condition     = length(data.aws_caller_identity.current) == 1
+    error_message = "The caller identity must be looked up when account_id is null."
+  }
+
+  assert {
+    condition     = aws_s3_bucket.this.bucket == "clinical-docs-dev-444455556666"
+    error_message = "The looked-up account id must be used in the name."
   }
 }
 
@@ -96,7 +106,8 @@ run "versioning_is_on" {
 }
 
 run "policy_denies_plain_http" {
-  command = plan
+  # The policy embeds the bucket ARN, which the provider computes: an apply run.
+  command = apply
 
   assert {
     condition     = jsondecode(aws_s3_bucket_policy.this.policy).Statement[0].Effect == "Deny"

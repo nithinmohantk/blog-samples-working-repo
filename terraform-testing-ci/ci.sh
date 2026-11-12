@@ -22,26 +22,31 @@ sed -i 's|registry.terraform.io|registry.opentofu.org|; /^  hashes = \[/,/^  \]/
 ( cd "$work/module" && tofu init -input=false > "$out/tofu-init.txt" 2>&1 && tofu validate > "$out/tofu-validate.txt" 2>&1 \
   && tofu test 2>&1 | tee "$out/tofu-test.txt"; exit "${PIPESTATUS[0]}" ) || { echo "tofu: FAILED" | tee -a "$out/tofu-test.txt"; status=1; }
 
-echo "== mutations: each defect must make the tests fail"
+echo "== terraform-only tests: pass on terraform, and what opentofu says about them"
+( cd modules/secure-bucket && terraform test -test-directory=tests-terraform-only 2>&1 | tee "$out/terraform-only-on-terraform.txt"; exit "${PIPESTATUS[0]}" ) || status=1
+( cd "$work/module" && tofu test -test-directory=tests-terraform-only > "$out/terraform-only-on-tofu.txt" 2>&1 ) && { echo "expected opentofu to refuse override_during"; status=1; }
+tail -n 8 "$out/terraform-only-on-tofu.txt"
+
+echo "== experiment: override_during = plan followed by an apply run (expected to fail)"
+( cd modules/secure-bucket && terraform test -test-directory=tests-experiments > "$out/experiment-override-then-apply.txt" 2>&1 ) && { echo "the experiment unexpectedly passed"; status=1; }
+grep -c "Provider produced inconsistent final plan" "$out/experiment-override-then-apply.txt" | sed 's/^/inconsistent final plan errors: /' | tee "$out/experiment-summary.txt"
+
+echo "== mutations: each defect must make the tests fail, and a named test must catch it"
 : > "$out/mutations.txt"
-while IFS='|' read -r name expression file; do
-  case "$name" in ''|\#*) continue ;; esac
+for name in $(python -c "import json;print(' '.join(m['name'] for m in json.load(open('mutations.json'))))"); do
   copy="$(mktemp -d)"
   cp -r modules/secure-bucket/. "$copy/"
-  sed -i -E -z "$expression" "$copy/$file" 2>/dev/null || sed -i "$expression" "$copy/$file"
-  if cmp -s "$copy/$file" "modules/secure-bucket/$file"; then
-    echo "$name: NOT APPLIED (the pattern did not match)" | tee -a "$out/mutations.txt"; status=1; continue
-  fi
+  python mutate.py "$copy" "$name" || { echo "$name: NOT APPLIED" | tee -a "$out/mutations.txt"; status=1; continue; }
   result="$(cd "$copy" && terraform test 2>&1)"
   code=$?
-  failed="$(echo "$result" | grep -E '^\s*run "[^"]+"\.\.\. fail' | sed -E 's/.*run "([^"]+)".*/\1/' | paste -sd, -)"
-  if [ "$code" -ne 0 ]; then
-    echo "$name: caught by ${failed:-the test run}" | tee -a "$out/mutations.txt"
+  failed="$(echo "$result" | grep -E 'run "[^"]+"\.\.\. fail' | sed -E 's/.*run "([^"]+)".*/\1/' | paste -sd, -)"
+  if [ "$code" -ne 0 ] && [ -n "$failed" ]; then
+    echo "$name: caught by $failed" | tee -a "$out/mutations.txt"
   else
-    echo "$name: SURVIVED (no test failed)" | tee -a "$out/mutations.txt"; status=1
+    echo "$name: SURVIVED" | tee -a "$out/mutations.txt"; status=1
   fi
   echo "$result" > "$out/mutation-$name.txt"
-done < mutations.txt
+done
 
 echo "== plans for the policy gate"
 for example in compliant noncompliant; do

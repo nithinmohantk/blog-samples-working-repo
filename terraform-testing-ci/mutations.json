@@ -1,0 +1,62 @@
+[
+  {
+    "name": "weaker-encryption",
+    "file": "main.tf",
+    "find": "sse_algorithm     = \"aws:kms\"",
+    "replace": "sse_algorithm     = \"AES256\""
+  },
+  {
+    "name": "public-acls-allowed",
+    "file": "main.tf",
+    "find": "block_public_acls       = true",
+    "replace": "block_public_acls       = false"
+  },
+  {
+    "name": "versioning-suspended",
+    "file": "main.tf",
+    "find": "versioning_configuration {\n    status = \"Enabled\"",
+    "replace": "versioning_configuration {\n    status = \"Suspended\""
+  },
+  {
+    "name": "policy-allows-http",
+    "file": "main.tf",
+    "find": "Effect    = \"Deny\"",
+    "replace": "Effect    = \"Allow\""
+  },
+  {
+    "name": "policy-skips-objects",
+    "file": "main.tf",
+    "find": "Resource  = [aws_s3_bucket.this.arn, \"${aws_s3_bucket.this.arn}/*\"]",
+    "replace": "Resource  = [aws_s3_bucket.this.arn]"
+  },
+  {
+    "name": "prod-force-destroy-permitted",
+    "file": "variables.tf",
+    "find": "condition     = !(var.force_destroy && var.environment == \"prod\")",
+    "replace": "condition     = true"
+  },
+  {
+    "name": "clinical-retention-unchecked",
+    "file": "variables.tf",
+    "find": "condition     = var.data_classification != \"clinical\" || var.noncurrent_retention_days >= 365",
+    "replace": "condition     = true"
+  },
+  {
+    "name": "name-drops-environment",
+    "file": "main.tf",
+    "find": "bucket_name = \"${var.name}-${var.environment}-${local.account_id}\"",
+    "replace": "bucket_name = \"${var.name}-${local.account_id}\""
+  },
+  {
+    "name": "classification-tag-dropped",
+    "file": "main.tf",
+    "find": "    data-classification = var.data_classification\n",
+    "replace": ""
+  },
+  {
+    "name": "lookup-ignored",
+    "file": "main.tf",
+    "find": "one(data.aws_caller_identity.current[*].account_id)",
+    "replace": "\"000000000000\""
+  }
+]
