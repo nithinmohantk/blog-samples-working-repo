@@ -6,8 +6,14 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 
 string label = args.Length > 0 ? args[0] : "default";
-string[] frames = await Outer();
-Console.WriteLine($"[{label}] {frames.Length} frames in the live stack:");
+(string[] before, string[] frames) = await Outer();
+Console.WriteLine($"[{label}] {before.Length} frames in the live stack before the first suspension:");
+foreach (string frame in before)
+{
+    Console.WriteLine("  " + frame);
+}
+
+Console.WriteLine($"[{label}] {frames.Length} frames in the live stack after resuming:");
 foreach (string frame in frames)
 {
     Console.WriteLine("  " + frame);
@@ -30,7 +36,8 @@ if (args.Length > 1)
     File.WriteAllText(args[1], new JsonObject
     {
         ["label"] = label,
-        ["frames"] = new JsonArray([.. frames.Select(f => (JsonNode)f)]),
+        ["framesBeforeSuspension"] = new JsonArray([.. before.Select(f => (JsonNode)f)]),
+        ["framesAfterResuming"] = new JsonArray([.. frames.Select(f => (JsonNode)f)]),
         ["completedChain"] = new JsonObject { ["bytesPerCall"] = Math.Round(completedBytes), ["ms"] = Math.Round(completedMs) },
         ["yieldingChain"] = new JsonObject { ["bytesPerCall"] = Math.Round(yieldingBytes), ["ms"] = Math.Round(yieldingMs) },
     }.ToJsonString(new JsonSerializerOptions { WriteIndented = true }));
@@ -54,15 +61,19 @@ static async Task<(double Milliseconds, double BytesPerCall)> Run(Func<int, Task
     return (elapsed, (double)allocated / Iterations);
 }
 
-static async Task<string[]> Outer() => await Middle();
+static async Task<(string[] Before, string[] After)> Outer() => await Middle();
 
-static async Task<string[]> Middle() => await Inner();
+static async Task<(string[] Before, string[] After)> Middle() => await Inner();
 
-static async Task<string[]> Inner()
+static async Task<(string[] Before, string[] After)> Inner()
 {
+    string[] before = LiveStack();
     await Task.Yield();
-    return [.. new StackTrace(fNeedFileInfo: false).GetFrames().Select(f => DiagnosticMethodInfo.Create(f) is { } m ? $"{m.DeclaringTypeName}.{m.Name}" : "?")];
+    return (before, LiveStack());
 }
+
+static string[] LiveStack() =>
+    [.. new StackTrace(skipFrames: 1, fNeedFileInfo: false).GetFrames().Select(f => DiagnosticMethodInfo.Create(f) is { } m ? $"{m.DeclaringTypeName}.{m.Name}" : "?")];
 
 static async Task<int> CompletedChain(int value) => await CompletedMiddle(value) + 1;
 

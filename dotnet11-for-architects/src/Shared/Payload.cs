@@ -26,7 +26,7 @@ public static class Payload
     }
 
     public static string ToFhirJson(Reading r) =>
-        $$"""{"resourceType":"Observation","id":"{{r.Id}}","status":"final","category":[{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/observation-category","code":"vital-signs"}]}],"code":{"coding":[{"system":"http://loinc.org","code":"8867-4","display":"Heart rate"}]},"subject":{"reference":"{{r.Patient}}"},"effectiveDateTime":"{{r.Taken}}","valueQuantity":{"value":{{r.BeatsPerMinute}},"unit":"/min","system":"http://unitsofmeasure.org","code":"/min"}}""";
+        $$$"""{"resourceType":"Observation","id":"{{{r.Id}}}","status":"final","category":[{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/observation-category","code":"vital-signs"}]}],"code":{"coding":[{"system":"http://loinc.org","code":"8867-4","display":"Heart rate"}]},"subject":{"reference":"{{{r.Patient}}}"},"effectiveDateTime":"{{{r.Taken}}}","valueQuantity":{"value":{{{r.BeatsPerMinute}}},"unit":"/min","system":"http://unitsofmeasure.org","code":"/min"}}""";
 
     public static byte[] JsonLines(int count)
     {
