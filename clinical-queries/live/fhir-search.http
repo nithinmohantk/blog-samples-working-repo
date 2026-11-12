@@ -1,0 +1,20 @@
+# Executed against HAPI FHIR 8.6.0 (R4) on 12 November 2026. Base: http://localhost:8090/fhir
+# The | and $ characters must be URL-encoded as %7C and %24 when sent.
+
+### Q1
+GET http://localhost:8090/fhir/Observation?patient=p1&code=http://loinc.org|85354-9&_sort=-date&_count=1
+
+### Q2 composite parameter
+GET http://localhost:8090/fhir/Observation?code=http://loinc.org|85354-9&component-code-value-quantity=http://loinc.org|8480-6$ge140
+
+### Q2 $lastn  (returned all 15 observations on this configuration)
+GET http://localhost:8090/fhir/Observation/$lastn?patient=p1&code=http://loinc.org|85354-9&max=1
+
+### Q3
+GET http://localhost:8090/fhir/Observation?patient=p1&code=http://loinc.org|4548-4&date=ge2025-11-12&_sort=date
+
+### Q4
+GET http://localhost:8090/fhir/Patient?_has:Observation:patient:code-value-quantity=http://loinc.org|4548-4$gt7.5&_has:MedicationRequest:subject:code=urn:example:formulary|MED-0001
+
+### Q4 with status
+GET http://localhost:8090/fhir/Patient?_has:Observation:patient:code-value-quantity=http://loinc.org|4548-4$gt7.5&_has:MedicationRequest:subject:code=urn:example:formulary|MED-0001&_has:MedicationRequest:subject:status=active

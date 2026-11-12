@@ -1,0 +1,70 @@
+-- Executed against EHRbase 2.39.0-SNAPSHOT on 12 November 2026. $ehr_id is passed in query_parameters.
+
+-- Q1  Latest blood pressure for one EHR
+SELECT o/data[at0001]/events[at0006]/time/value AS measured_at,
+       o/data[at0001]/events[at0006]/data[at0003]/items[at0004]/value/magnitude AS systolic,
+       o/data[at0001]/events[at0006]/data[at0003]/items[at0005]/value/magnitude AS diastolic
+FROM EHR e CONTAINS COMPOSITION c
+     CONTAINS OBSERVATION o[openEHR-EHR-OBSERVATION.blood_pressure.v2]
+WHERE e/ehr_id/value = $ehr_id
+ORDER BY o/data[at0001]/events[at0006]/time/value DESC
+LIMIT 1
+
+-- Q2  Every reading across all EHRs, newest first
+SELECT e/ehr_id/value AS ehr_id,
+       o/data[at0001]/events[at0006]/time/value AS measured_at,
+       o/data[at0001]/events[at0006]/data[at0003]/items[at0004]/value/magnitude AS systolic
+FROM EHR e CONTAINS COMPOSITION c
+     CONTAINS OBSERVATION o[openEHR-EHR-OBSERVATION.blood_pressure.v2]
+ORDER BY e/ehr_id/value, o/data[at0001]/events[at0006]/time/value DESC
+
+-- Q2 (EHRbase behaviour, not in the AQL specification)  Latest reading time per EHR
+SELECT e/ehr_id/value AS ehr_id,
+       MAX(o/data[at0001]/events[at0006]/time/value) AS latest
+FROM EHR e CONTAINS COMPOSITION c
+     CONTAINS OBSERVATION o[openEHR-EHR-OBSERVATION.blood_pressure.v2]
+
+-- Q3  HbA1c trend for one EHR over the last twelve months
+SELECT l/data[at0001]/events[at0002]/time/value AS measured_at,
+       a/items[at0001]/value/magnitude AS hba1c
+FROM EHR e CONTAINS COMPOSITION c
+     CONTAINS OBSERVATION l[openEHR-EHR-OBSERVATION.laboratory_test_result.v1]
+     CONTAINS CLUSTER a[openEHR-EHR-CLUSTER.laboratory_test_analyte.v1]
+WHERE e/ehr_id/value = $ehr_id
+  AND a/items[at0024]/value/defining_code/code_string = '4548-4'
+  AND l/data[at0001]/events[at0002]/time/value >= '2025-11-12T00:00:00Z'
+ORDER BY l/data[at0001]/events[at0002]/time/value ASC
+
+-- Q4  Active metformin and an HbA1c above 7.5, as a cross product within each EHR
+SELECT e/ehr_id/value AS ehr_id,
+       l/data[at0001]/events[at0002]/time/value AS measured_at,
+       a/items[at0001]/value/magnitude AS hba1c
+FROM EHR e CONTAINS (
+       ACTION m[openEHR-EHR-ACTION.medication.v1]
+       AND OBSERVATION l[openEHR-EHR-OBSERVATION.laboratory_test_result.v1]
+           CONTAINS CLUSTER a[openEHR-EHR-CLUSTER.laboratory_test_analyte.v1])
+WHERE m/description[at0017]/items[at0020]/value/defining_code/code_string = 'MED-0001'
+  AND m/ism_transition/current_state/defining_code/code_string = '245'
+  AND a/items[at0024]/value/defining_code/code_string = '4548-4'
+  AND a/items[at0001]/value/magnitude > 7.5
+ORDER BY e/ehr_id/value, l/data[at0001]/events[at0002]/time/value DESC
+
+-- Q5  Readings taken standing (at1000 = Standing)
+SELECT e/ehr_id/value AS ehr_id,
+       o/data[at0001]/events[at0006]/time/value AS measured_at,
+       o/data[at0001]/events[at0006]/data[at0003]/items[at0004]/value/magnitude AS systolic
+FROM EHR e CONTAINS COMPOSITION c
+     CONTAINS OBSERVATION o[openEHR-EHR-OBSERVATION.blood_pressure.v2]
+WHERE o/data[at0001]/events[at0006]/state[at0007]/items[at0008]/value/defining_code/code_string = 'at1000'
+
+-- Article "FHIR and openEHR: When to Use Which"  Readings at or above 140 for one EHR, with position
+SELECT c/uid/value AS composition,
+       o/data[at0001]/events[at0006]/time/value AS measured_at,
+       o/data[at0001]/events[at0006]/data[at0003]/items[at0004]/value/magnitude AS systolic,
+       o/data[at0001]/events[at0006]/data[at0003]/items[at0005]/value/magnitude AS diastolic,
+       o/data[at0001]/events[at0006]/state[at0007]/items[at0008]/value/value AS patient_position
+FROM EHR e CONTAINS COMPOSITION c
+     CONTAINS OBSERVATION o[openEHR-EHR-OBSERVATION.blood_pressure.v2]
+WHERE e/ehr_id/value = $ehr_id
+  AND o/data[at0001]/events[at0006]/data[at0003]/items[at0004]/value/magnitude >= 140
+ORDER BY o/data[at0001]/events[at0006]/time/value DESC

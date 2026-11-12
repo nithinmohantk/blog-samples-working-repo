@@ -1,0 +1,47 @@
+# Local test stack for the openEHR and FHIR query articles on dataa.dev.
+# EHRbase (openEHR) on http://localhost:8080/ehrbase/  and  HAPI FHIR (R4) on http://localhost:8090/fhir/
+#
+# FOR LOCAL TESTING WITH SYNTHETIC DATA ONLY.
+#  - Authentication is switched off on EHRbase and HAPI has none by default.
+#  - Every port is bound to 127.0.0.1, so nothing is reachable from the network.
+#  - No volumes: `docker compose down` discards all data.
+#
+#   docker compose up -d
+#   docker compose ps          # wait until ehrbase and hapi are running (first start takes a minute or two)
+#   docker compose down        # when finished
+services:
+
+  ehrbase:
+    image: ${EHRBASE_IMAGE:-ehrbase/ehrbase:next}
+    environment:
+      DB_URL: jdbc:postgresql://ehrdb:5432/ehrbase
+      DB_USER_ADMIN: ehrbase
+      DB_PASS_ADMIN: ehrbase
+      DB_USER: ehrbase_restricted
+      DB_PASS: ehrbase_restricted
+      SECURITY_AUTHTYPE: NONE
+    depends_on:
+      ehrdb:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:8080:8080"
+
+  ehrdb:
+    image: ${EHRBASE_POSTGRES_IMAGE:-ehrbase/ehrbase-v2-postgres:16.2}
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      EHRBASE_USER_ADMIN: ehrbase
+      EHRBASE_PASSWORD_ADMIN: ehrbase
+      EHRBASE_USER: ehrbase_restricted
+      EHRBASE_PASSWORD: ehrbase_restricted
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  hapi:
+    image: hapiproject/hapi:latest
+    ports:
+      - "127.0.0.1:8090:8080"
