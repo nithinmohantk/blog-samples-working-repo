@@ -1,0 +1,108 @@
+{
+  "_comment": "Synthetic notes and hand-written responses in the shape the extraction schema allows. The responses were written by hand to exercise the guard; they are not recorded model output.",
+  "notes": {
+    "note-1": {
+      "patient": "Patient/synthetic-0042",
+      "document": "DocumentReference/note-2026-09-03-0042",
+      "date": "2026-09-03",
+      "text": "Clinic note, 3 September 2026. 58-year-old with known type 2 diabetes and hypertension, attending for review.\nReports shortness of breath on exertion for two weeks. Denies chest pain. No fever.\nFather had a myocardial infarction at 62.\nPossible atrial fibrillation on examination, pulse irregular, ECG requested.\nHeart rate 88 /min, temperature 36.8 C, SpO2 96% on room air, weight 84 kg. BP 142/88 mmHg.\nPoint-of-care HbA1c 7.9 %."
+    },
+    "note-2": {
+      "patient": "Patient/synthetic-0043",
+      "document": "DocumentReference/note-2026-09-04-0043",
+      "date": "2026-09-04",
+      "text": "Weight 840 kg. Heart rate 72 /min."
+    }
+  },
+  "responses": {
+    "careful": {
+      "note": "note-1",
+      "content": {
+        "conditions": [
+          { "evidence": "known type 2 diabetes", "code": "44054006", "assertion": "present" },
+          { "evidence": "hypertension", "code": "38341003", "assertion": "present" },
+          { "evidence": "shortness of breath on exertion", "code": "267036007", "assertion": "present" },
+          { "evidence": "Denies chest pain", "code": "29857009", "assertion": "absent" },
+          { "evidence": "No fever", "code": "386661006", "assertion": "absent" },
+          { "evidence": "Father had a myocardial infarction at 62", "code": "22298006", "assertion": "family_history" },
+          { "evidence": "Possible atrial fibrillation on examination", "code": "49436004", "assertion": "uncertain" }
+        ],
+        "observations": [
+          { "evidence": "Heart rate 88 /min", "code": "8867-4", "value": 88, "unit": "/min" },
+          { "evidence": "temperature 36.8 C", "code": "8310-5", "value": 36.8, "unit": "Cel" },
+          { "evidence": "SpO2 96%", "code": "59408-5", "value": 96, "unit": "%" },
+          { "evidence": "weight 84 kg", "code": "29463-7", "value": 84, "unit": "kg" },
+          { "evidence": "HbA1c 7.9 %", "code": "4548-4", "value": 7.9, "unit": "%" }
+        ]
+      },
+      "expected": {
+        "c1": "for_review", "c2": "for_review", "c3": "for_review", "c4": "not_proposed", "c5": "not_proposed",
+        "c6": "not_proposed", "c7": "for_review", "o1": "for_review", "o2": "for_review", "o3": "for_review",
+        "o4": "for_review", "o5": "for_review"
+      }
+    },
+    "careless": {
+      "note": "note-1",
+      "content": {
+        "conditions": [
+          { "evidence": "history of asthma", "code": "195967001", "assertion": "present" },
+          { "evidence": "hypertension", "code": "38341003", "assertion": "present" },
+          { "evidence": "hypertension", "code": "38341003", "assertion": "present" },
+          { "evidence": "pulse irregular", "code": "uncoded", "assertion": "present" },
+          { "evidence": "Father had a myocardial infarction at 62", "code": "22298006", "assertion": "present" }
+        ],
+        "observations": [
+          { "evidence": "Heart rate 88 /min", "code": "8867-4", "value": 98, "unit": "/min" },
+          { "evidence": "temperature 36.8 C", "code": "8310-5", "value": 36.8, "unit": "other" },
+          { "evidence": "weight 84 kg", "code": "29463-7", "value": 84, "unit": "kg" }
+        ]
+      },
+      "expected": {
+        "c1": "blocked", "c2": "for_review", "c3": "duplicate", "c4": "for_review", "c5": "for_review",
+        "o1": "blocked", "o2": "blocked", "o3": "for_review"
+      }
+    },
+    "implausible": {
+      "note": "note-2",
+      "content": {
+        "conditions": [],
+        "observations": [
+          { "evidence": "Weight 840 kg", "code": "29463-7", "value": 840, "unit": "kg" },
+          { "evidence": "Heart rate 72 /min", "code": "8867-4", "value": 72, "unit": "/min" }
+        ]
+      },
+      "expected": { "o1": "for_review", "o2": "for_review" }
+    }
+  },
+  "malformed": [
+    { "name": "not JSON (truncated)", "raw": "{\"conditions\": [{\"evidence\": \"hypertension\", \"code\": \"38341003\"" },
+    { "name": "code outside the subset", "raw": "{\"conditions\":[{\"evidence\":\"hypertension\",\"code\":\"59621000\",\"assertion\":\"present\"}],\"observations\":[]}" },
+    { "name": "extra property", "raw": "{\"conditions\":[{\"evidence\":\"hypertension\",\"code\":\"38341003\",\"assertion\":\"present\",\"confidence\":0.99}],\"observations\":[]}" },
+    { "name": "missing property", "raw": "{\"conditions\":[],\"observations\":[{\"evidence\":\"weight 84 kg\",\"code\":\"29463-7\",\"value\":84}]}" },
+    { "name": "value is a string", "raw": "{\"conditions\":[],\"observations\":[{\"evidence\":\"weight 84 kg\",\"code\":\"29463-7\",\"value\":\"84\",\"unit\":\"kg\"}]}" }
+  ],
+  "review": {
+    "response": "careful",
+    "reviewer": { "reference": "Practitioner/synthetic-dr-0007", "display": "Dr A. Example (synthetic)" },
+    "device": { "reference": "Device/clinical-coding-assistant", "display": "Clinical coding assistant (structured output extraction)" },
+    "at": "2026-09-03T15:42:00+01:00",
+    "decisions": [
+      { "proposal": "c1", "action": "accept" },
+      { "proposal": "c2", "action": "accept" },
+      { "proposal": "c3", "action": "accept" },
+      { "proposal": "c7", "action": "accept_provisional" },
+      { "proposal": "o1", "action": "accept" },
+      { "proposal": "o2", "action": "accept" },
+      { "proposal": "o3", "action": "accept" },
+      { "proposal": "o4", "action": "accept" },
+      { "proposal": "o5", "action": "accept" }
+    ],
+    "refused": [
+      { "name": "accepting a negated finding", "decision": { "proposal": "c4", "action": "accept" } },
+      { "name": "accepting a family history item as the patient's condition", "decision": { "proposal": "c6", "action": "accept" } },
+      { "name": "deciding on a proposal that does not exist", "decision": { "proposal": "c99", "action": "accept" } },
+      { "name": "provisional acceptance of a measurement", "decision": { "proposal": "o1", "action": "accept_provisional" } },
+      { "name": "recoding to a code outside the subset", "decision": { "proposal": "c1", "action": "recode", "code": "73211009" } }
+    ]
+  }
+}

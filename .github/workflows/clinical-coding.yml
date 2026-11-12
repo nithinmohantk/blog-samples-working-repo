@@ -1,0 +1,137 @@
+name: Clinical coding sample
+
+on:
+  push:
+    paths:
+      - "clinical-coding-structured-outputs/**"
+      - ".github/workflows/clinical-coding.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write   # only to publish the result files to a results branch
+
+concurrency:
+  group: clinical-coding-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: clinical-coding-structured-outputs
+    env:
+      VALIDATOR_VERSION: "7.0.5"
+      VALIDATOR_SHA256: 9dfe9f305b0f9389eceade2a4a1c9a2740d7b0e614066fdf07a78b571c76d92f
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - uses: actions/cache@v4
+        with:
+          path: ~/.fhir/packages
+          key: fhir-packages-clinical-coding
+
+      - name: Python pipeline tests
+        id: python_tests
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          mkdir -p out/fhir
+          python python/test_clinical_coding.py out/bundle-py.json | tee out/python-tests.txt
+
+      - name: C# pipeline self-test
+        id: dotnet_tests
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          dotnet run --project tests/SelfTest -c Release -- . out/bundle-cs.json out/schema-cs.json 2>&1 | tee out/dotnet-tests.txt
+
+      - name: Build the Azure OpenAI client (C#) and print its request
+        id: dotnet_azure
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          dotnet build src/ClinicalCoding.AzureOpenAI -c Release -o out/azure-bin 2>&1 | tee out/dotnet-azure-build.txt
+          dotnet list src/ClinicalCoding.AzureOpenAI package > out/dotnet-azure-packages.txt
+          dotnet out/azure-bin/clinical-coding.dll request . > out/request-cs.json
+
+      - name: Import the Azure OpenAI client (Python) and print its request
+        id: python_azure
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          python -m pip install --quiet openai azure-identity
+          python -m pip freeze | grep -i -E "^(openai|azure-identity|azure-core|pydantic|httpx)=" | tee out/python-azure-packages.txt
+          python -c "import azure.identity, openai; from openai import APIStatusError, OpenAI; print('imports ok')" | tee out/python-azure.txt
+          python python/azure_extractor.py request > out/request-py.json
+
+      - name: Both languages produce the same schema, request and Bundle
+        id: same
+        continue-on-error: true
+        run: |
+          python - <<'PY' | tee out/same.txt
+          import json, sys
+          load = lambda name: json.load(open(f"out/{name}", encoding="utf-8"))
+          checks = {
+              "FHIR Bundle": load("bundle-py.json") == load("bundle-cs.json"),
+              "request (schema, name, strict flag, instructions)": load("request-py.json") == load("request-cs.json"),
+              "schema from the self-test": load("request-py.json")["schema"] == load("schema-cs.json"),
+          }
+          for name, same in checks.items():
+              print(f"{'same     ' if same else 'DIFFERENT'}  {name}")
+          sys.exit(0 if all(checks.values()) else 1)
+          PY
+
+      - name: Validate the Bundle with the HL7 validator and a terminology server
+        id: validate
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          curl -fsSL -o validator_cli.jar "https://github.com/hapifhir/org.hl7.fhir.core/releases/download/${VALIDATOR_VERSION}/validator_cli.jar"
+          echo "${VALIDATOR_SHA256}  validator_cli.jar" | sha256sum --check
+          cp out/bundle-cs.json out/fhir/bundle.json
+          python ../fhir-validation-ci/gate/fhir_gate.py gate --dir out/fhir --engine hl7 --tx https://tx.fhir.org --work out/validate | tee out/validate.txt
+
+      - name: Publish the results
+        if: always()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          rm -rf out/azure-bin
+          {
+            echo "commit: $GITHUB_SHA"
+            echo "run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+            echo "date: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            echo "python_tests: ${{ steps.python_tests.outcome }}"
+            echo "dotnet_tests: ${{ steps.dotnet_tests.outcome }}"
+            echo "dotnet_azure: ${{ steps.dotnet_azure.outcome }}"
+            echo "python_azure: ${{ steps.python_azure.outcome }}"
+            echo "same: ${{ steps.same.outcome }}"
+            echo "validate: ${{ steps.validate.outcome }}"
+            dotnet --version
+            python --version
+          } > out/run.txt
+          cat out/run.txt >> "$GITHUB_STEP_SUMMARY"
+          publish="$RUNNER_TEMP/publish"
+          rm -rf "$publish" && mkdir -p "$publish" && cp -r out/. "$publish/"
+          cd "$publish"
+          git init -q -b ci-results-clinical-coding
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -q -m "Clinical coding results for $GITHUB_SHA"
+          git push -f "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" ci-results-clinical-coding
+
+      - name: Fail the build if any check failed
+        if: steps.python_tests.outcome != 'success' || steps.dotnet_tests.outcome != 'success' || steps.dotnet_azure.outcome != 'success' || steps.python_azure.outcome != 'success' || steps.same.outcome != 'success' || steps.validate.outcome != 'success'
+        run: exit 1

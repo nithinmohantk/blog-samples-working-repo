@@ -1,0 +1,20 @@
+{
+  "_comment": "The closed set of codes the assistant may propose. The extraction schema's enums are generated from this file, and displays always come from here, never from the model. Synthetic teaching subset: not a clinical value set.",
+  "conditions": [
+    { "code": "44054006", "display": "Diabetes mellitus type 2 (disorder)", "hint": "type 2 diabetes" },
+    { "code": "38341003", "display": "Hypertensive disorder, systemic arterial (disorder)", "hint": "hypertension, high blood pressure" },
+    { "code": "195967001", "display": "Asthma (disorder)", "hint": "asthma" },
+    { "code": "49436004", "display": "Atrial fibrillation (disorder)", "hint": "atrial fibrillation, AF" },
+    { "code": "22298006", "display": "Myocardial infarction (disorder)", "hint": "heart attack, MI" },
+    { "code": "29857009", "display": "Chest pain (finding)", "hint": "chest pain" },
+    { "code": "267036007", "display": "Dyspnea (finding)", "hint": "shortness of breath, breathlessness" },
+    { "code": "386661006", "display": "Fever (finding)", "hint": "fever, pyrexia" }
+  ],
+  "observations": [
+    { "code": "8867-4", "display": "Heart rate", "unit": "/min", "category": "vital-signs", "low": 20, "high": 250 },
+    { "code": "8310-5", "display": "Body temperature", "unit": "Cel", "category": "vital-signs", "low": 30, "high": 43 },
+    { "code": "59408-5", "display": "Oxygen saturation in Arterial blood by Pulse oximetry", "unit": "%", "category": "vital-signs", "low": 50, "high": 100 },
+    { "code": "29463-7", "display": "Body weight", "unit": "kg", "category": "vital-signs", "low": 2, "high": 400 },
+    { "code": "4548-4", "display": "Hemoglobin A1c/Hemoglobin.total in Blood", "unit": "%", "category": "laboratory", "low": 3, "high": 20 }
+  ]
+}
