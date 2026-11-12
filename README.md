@@ -17,6 +17,7 @@ Each folder has its own README that says what the code does, how to run it, and 
 | `clinical-queries` | [Querying Clinical Data: AQL vs. FHIR Search vs. SQL on FHIR](https://www.dataa.dev/2026/08/08/querying-clinical-data-aql-vs-fhir-search-vs-sql-on-fhir/) | Python, SQL, C#, AQL |
 | `fhir-facade-openehr` | [A FHIR Facade over an openEHR Repository on Azure](https://www.dataa.dev/2026/08/15/fhir-facade-over-openehr-repository-on-azure-aspnet-core-entra-id-smart-scopes/) | C#, Python |
 | `azure-api-for-fhir-migration` | [Migrating from Azure API for FHIR to Azure Health Data Services](https://www.dataa.dev/2026/08/23/migrating-azure-api-for-fhir-to-azure-health-data-services-export-import-identity-cut-over-runbook/) | Python, C# |
+| `fhir-events-azure-functions` | [FHIR Subscriptions and Events on Azure: Keeping Downstream Systems in Step](https://www.dataa.dev/2026/08/30/fhir-subscriptions-and-events-on-azure-keeping-downstream-systems-in-step/) | C#, Python |
 
 ## Verification status
 
@@ -28,6 +29,7 @@ Not everything here has been compiled or run. The state at the time of the first
 * C# in `meai-two-clouds`, `a2a-mcp-interop/dotnet` and `secure-remote-mcp/dotnet`: **not yet compiled**. They depend on NuGet packages; run `dotnet build` before relying on them.
 * `clinical-queries/live`: AQL run on EHRbase 2.39.0 and FHIR searches run on HAPI FHIR 8.6.0, both local. See `RESULTS.md` there for what passed, what failed and what was not covered.
 * `azure-api-for-fhir-migration`: script tests and validator self-test pass; the validator was run in Docker against two HAPI FHIR servers. Not run against either Azure service.
+* `fhir-events-azure-functions`: core self-test and Python rule pass; the Function App was built and run in Docker with PostgreSQL and HAPI FHIR, where the replay script passed 22 of 22. Events were built by the script, not by Event Grid.
 * Nothing in this repository has been deployed to AWS or Azure.
 
 ## Healthcare samples
