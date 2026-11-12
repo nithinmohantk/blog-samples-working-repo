@@ -24,6 +24,7 @@ Each folder has its own README that says what the code does, how to run it, and 
 | `csharp15-unions` | [C# 15 Union Types in a Real Domain Model: Dispensed, Rejected or Referred](https://www.dataa.dev/2026/11/11/csharp-15-union-types-in-a-real-domain-model-dispensed-rejected-or-referred/) | C#, Python |
 | `terraform-testing-ci` | [Testing Infrastructure Code: terraform test, Mock Providers and a Policy Gate in CI](https://www.dataa.dev/2026/09/20/testing-infrastructure-code-terraform-test-mock-providers-policy-gate-ci/) | HCL, Python |
 | `terraform-two-clouds` | [One Contract, Two Clouds: A Network Baseline on AWS and Azure with Terraform](https://www.dataa.dev/2026/09/27/one-contract-two-clouds-network-baseline-aws-azure-terraform/) | HCL, Python |
+| `terraform-vs-opentofu` | [Terraform 1.16 and OpenTofu 1.13: Where They Have Diverged](https://www.dataa.dev/2026/10/04/terraform-1-16-and-opentofu-1-13-where-they-have-diverged/) | HCL, Python |
 
 ## Verification status
 
@@ -42,6 +43,7 @@ Not everything here has been compiled or run. The state at the time of the first
 * `csharp15-unions`: tests, experiments and a deliberately failing build run in GitHub Actions on SDK 11.0.100; see its README for each result.
 * `terraform-testing-ci`: tests, mutations and policy gate run in GitHub Actions on Terraform 1.16.3 and OpenTofu 1.12.6 against a mocked provider. Nothing is applied to a real account.
 * `terraform-two-clouds`: contract and cloud-specific tests run in GitHub Actions on Terraform 1.16.3 and OpenTofu 1.12.6 against mocked AWS and AzureRM providers. Nothing is applied to a real account.
+* `terraform-vs-opentofu`: 24 experiments run on Terraform 1.16.5 and OpenTofu 1.13.1 in GitHub Actions; see its README for the matrix.
 * Nothing in this repository has been deployed to AWS or Azure.
 
 ## Healthcare samples
