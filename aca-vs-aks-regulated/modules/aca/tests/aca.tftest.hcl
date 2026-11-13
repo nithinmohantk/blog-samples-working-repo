@@ -26,7 +26,7 @@ variables {
   registry_server            = "crrecordsprod.azurecr.io"
 }
 
-run "every_baseline_control_but_one_is_a_setting" {
+run "every_baseline_control_is_a_setting" {
   command = apply
 
   assert {
