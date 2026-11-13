@@ -1,0 +1,34 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    One source tree, three ways to publish it for AWS Lambda:
+      -p:Flavour=jit   framework-dependent, for the dotnet10 managed runtime
+      -p:Flavour=r2r   the same, precompiled with ReadyToRun
+      -p:Flavour=aot   Native AOT, a self-contained executable named bootstrap for provided.al2023
+    -p:ReflectionJson=true swaps the source-generated JSON for reflection, to show what Native AOT does with it.
+  -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>Quotes</RootNamespace>
+    <AssemblyName>Quotes.Function</AssemblyName>
+    <AWSProjectType>Lambda</AWSProjectType>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <DefineConstants Condition="'$(ReflectionJson)' == 'true'">$(DefineConstants);REFLECTION_JSON</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Flavour)' == 'r2r'">
+    <PublishReadyToRun>true</PublishReadyToRun>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Flavour)' == 'aot'">
+    <PublishAot>true</PublishAot>
+    <AssemblyName>bootstrap</AssemblyName>
+    <StripSymbols>true</StripSymbols>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Amazon.Lambda.Core" Version="2.8.0" />
+    <PackageReference Include="Amazon.Lambda.RuntimeSupport" Version="1.14.1" />
+    <PackageReference Include="Amazon.Lambda.Serialization.SystemTextJson" Version="2.4.4" />
+    <PackageReference Include="Amazon.Lambda.APIGatewayEvents" Version="2.7.1" />
+  </ItemGroup>
+</Project>
