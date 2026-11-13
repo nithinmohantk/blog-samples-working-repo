@@ -33,6 +33,18 @@ def digest(value) -> str:
     return hashlib.sha256(json.dumps(value, sort_keys=True, ensure_ascii=False).encode("utf-8")).hexdigest()[:12]
 
 
+def outline(tool, depth: int = 0) -> list[str]:
+    """Names, types and parameter names of a tool declaration and anything nested in it. No descriptions."""
+    if not isinstance(tool, dict):
+        return []
+    parameters = tool.get("parameters") or {}
+    line = "  " * depth + f"{tool.get('type')} {tool.get('name')} keys={sorted(tool)} params={sorted((parameters.get('properties') or {}))} required={parameters.get('required')}"
+    lines = [line]
+    for child in tool.get("tools") or []:
+        lines += outline(child, depth + 1)
+    return lines
+
+
 def shell_call(tools: list[dict], command: str) -> dict | None:
     """Builds a call to whichever shell tool the CLI declared, in the argument shape that tool's schema asks for."""
     for tool in tools:
@@ -113,6 +125,7 @@ class Handler(BaseHTTPRequestHandler):
             "tools_tokens": tools_tokens, "tools_digest": digest(tools),
             "tools": [{"type": tool.get("type"), "name": tool.get("name"), "parameters": sorted(((tool.get("parameters") or {}).get("properties") or {})),
                        "required": (tool.get("parameters") or {}).get("required"), "keys": sorted(tool)} for tool in tools],
+            "tool_outline": [line for tool in tools for line in outline(tool)],
             "item_keys": [sorted(item) if isinstance(item, dict) else None for item in items],
             "item_starts": [json.dumps(item.get("content") if isinstance(item, dict) and "content" in item else item, ensure_ascii=False)[:90] for item in items],
             "input_items": len(items), "input_tokens": input_tokens,

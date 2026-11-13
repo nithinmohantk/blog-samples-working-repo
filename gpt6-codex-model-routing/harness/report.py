@@ -16,6 +16,8 @@ for path in sorted(out.glob("requests-*.jsonl")):
     print(f"top-level fields: {', '.join(first['top_level_keys'])}")
     print(f"include: {first['include']}; tool_choice {first['tool_choice']}; parallel_tool_calls {first['parallel_tool_calls']}")
     print(f"{len(first['tools'])} tools: " + ", ".join(f"{tool['name'] or tool['type']}({','.join(tool['parameters'])})" for tool in first["tools"]))
+    if path.stem.endswith("default"):
+        print("\n".join("   " + line[:230] for line in first.get("tool_outline", [])))
     for kind, keys, start in zip(first["item_kinds"], first["item_keys"], first["item_starts"]):
         print(f"   item {kind}: keys {keys}; starts {start}")
     models = sorted({(request["model"], json.dumps(request["reasoning"])) for request in requests})
