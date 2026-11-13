@@ -29,7 +29,8 @@ mask() { sed -E 's/(AKIA|ASIA)[A-Z0-9]{12,}/\1************/g; s/(aws_secret_acce
   echo; echo "== 2. install"
   log "sudo apt-get install -y ./aws-emulator.deb"
   sudo apt-get install -y "$work/aws-emulator.deb" 2>&1 | tail -n 4
-  dpkg-query -W -f='package ${Package} ${Version}, installed size ${Installed-Size} KiB\n' aws-emulator
+  dpkg-query -W -f='package ${Package} ${Version}\n' aws-emulator
+  ls -l "$(readlink -f "$(command -v aws-emulator)")" | awk '{printf "binary %s, %.0f MiB\n", $9, $5/1048576}'
   log "aws-emulator -v"; aws-emulator -v
   log "aws-emulator --help"; aws-emulator --help 2>&1 | head -n 40
 } 2>&1 | tee "$out/01-install.txt"
@@ -89,8 +90,8 @@ python -u lab/coverage.py emulator:9297 "$out/coverage.json" 2>&1 | tee "$out/06
   echo "== 8. two emulators, and a restart"
   log "aws-emulator -p 9298 --telemetry off &"; start 9298
   log "python lab/instances.py isolation 9297 9298"; python lab/instances.py isolation 9297 9298
-  log "kill -TERM <pid of 9297>; ls ~/.aws/emulator/"
-  kill -TERM "$(cat "$work/pid-9297")"; sleep 1.5; ls "$HOME/.aws/emulator/" | tr '\n' ' '; echo
+  log "kill -TERM <pid of 9297>; ls ~/.aws/emulator/*/"
+  kill -TERM "$(cat "$work/pid-9297")"; sleep 2; for d in "$HOME"/.aws/emulator/*/; do printf '%s: %s file(s)\n' "$(basename "$d")" "$(ls -A "$d" | wc -l)"; done
   log "aws-emulator -p 9297 --telemetry off &"; start 9297
   log "python lab/instances.py count 9297"; python lab/instances.py count 9297
 } 2>&1 | mask | tee "$out/07-instances.txt"
@@ -113,30 +114,7 @@ python -u lab/coverage.py emulator:9297 "$out/coverage.json" 2>&1 | tee "$out/06
 
 {
   echo "== 10. published fidelity scores"
-  python - "$out" <<'PY'
-import gzip, json, os, sys, urllib.request
-out = sys.argv[1]
-headers = {"Accept": "application/vnd.github+json", **({"Authorization": "Bearer " + os.environ["GITHUB_TOKEN"]} if os.environ.get("GITHUB_TOKEN") else {})}
-def get(url, raw=False):
-    with urllib.request.urlopen(urllib.request.Request(url, headers=headers if "api.github.com" in url else {}), timeout=60) as r:
-        data = r.read()
-    return data if raw else json.loads(data)
-try:
-    release = get("https://api.github.com/repos/aws/aws-emulator/releases/latest")
-    print("release", release.get("tag_name"), "published", release.get("published_at"))
-    print("assets:", ", ".join(f"{a['name']} ({a['size']} bytes)" for a in release.get("assets", [])))
-    open(os.path.join(out, "release-notes.md"), "w").write(release.get("body") or "")
-    asset = next((a for a in release.get("assets", []) if "score" in a["name"].lower()), None)
-    if asset:
-        raw = get(asset["browser_download_url"], raw=True)
-        data = json.loads(gzip.decompress(raw) if asset["name"].endswith(".gz") else raw)
-        json.dump(data, open(os.path.join(out, "scores.json"), "w"))
-        print("scores file top level:", type(data).__name__, (list(data)[:12] if isinstance(data, dict) else f"{len(data)} items; first: {json.dumps(data[0])[:400]}"))
-    else:
-        print("no scores asset on the release")
-except Exception as error:
-    print("could not read the release:", type(error).__name__, error)
-PY
+  python -u lab/scores.py "$out"
 } 2>&1 | tee "$out/09-fidelity.txt"
 
 for port in 9297 9298; do kill -TERM "$(cat "$work/pid-$port")" 2>/dev/null; done

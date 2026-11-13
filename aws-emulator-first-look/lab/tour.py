@@ -1,4 +1,4 @@
-"""Eighteen small experiments against a local AWS endpoint, each recording what actually happened.
+"""Twenty-two small experiments against a local AWS endpoint, each recording what actually happened.
 
     python tour.py emulator:9297 out/tour-emulator.json
     python tour.py moto:5000     out/tour-moto.json
@@ -131,46 +131,73 @@ def drain(sqs, url: str, seconds: int = 6) -> list[str]:
     return bodies
 
 
-def sns_to_sqs():
-    sns, sqs = client("sns"), client("sqs")
-    url = sqs.create_queue(QueueName=f"lab-fanout-{suffix}")["QueueUrl"]
-    arn = sqs.get_queue_attributes(QueueUrl=url, AttributeNames=["QueueArn"])["Attributes"]["QueueArn"]
-    topic = sns.create_topic(Name=f"lab-topic-{suffix}")["TopicArn"]
-    sns.subscribe(TopicArn=topic, Protocol="sqs", Endpoint=arn)
-    sns.publish(TopicArn=topic, Message="order placed")
-    bodies = drain(sqs, url)
-    assert bodies, "published, and nothing arrived on the subscribed queue"
-    return {"delivered": True, "payload_is_sns_envelope": '"Type"' in bodies[0] and "order placed" in bodies[0]}
+def allow(sqs, url: str, queue_arn: str, service: str, source_arn: str) -> None:
+    """The resource policy AWS requires before a service may deliver to a queue."""
+    policy = {"Version": "2012-10-17", "Statement": [{"Effect": "Allow", "Principal": {"Service": service}, "Action": "sqs:SendMessage",
+                                                         "Resource": queue_arn, "Condition": {"ArnEquals": {"aws:SourceArn": source_arn}}}]}
+    sqs.set_queue_attributes(QueueUrl=url, Attributes={"Policy": json.dumps(policy)})
 
 
-def eventbridge_to_sqs():
-    events, sqs = client("events"), client("sqs")
-    url = sqs.create_queue(QueueName=f"lab-events-{suffix}")["QueueUrl"]
-    arn = sqs.get_queue_attributes(QueueUrl=url, AttributeNames=["QueueArn"])["Attributes"]["QueueArn"]
-    events.put_rule(Name=f"lab-rule-{suffix}", EventPattern=json.dumps({"source": ["lab.orders"]}))
-    events.put_targets(Rule=f"lab-rule-{suffix}", Targets=[{"Id": "q", "Arn": arn}])
-    put = events.put_events(Entries=[{"Source": "lab.orders", "DetailType": "OrderPlaced", "Detail": json.dumps({"id": "o-1"})}])
-    bodies = drain(sqs, url)
-    assert bodies, f"event accepted (failed entries: {put.get('FailedEntryCount')}), and nothing arrived on the target queue"
-    return {"delivered": True, "detail_type": json.loads(bodies[0]).get("detail-type")}
+def sns_to_sqs(with_policy: bool):
+    def experiment():
+        sns, sqs = client("sns"), client("sqs")
+        tag = "p" if with_policy else "n"
+        url = sqs.create_queue(QueueName=f"lab-fanout-{tag}-{suffix}")["QueueUrl"]
+        arn = sqs.get_queue_attributes(QueueUrl=url, AttributeNames=["QueueArn"])["Attributes"]["QueueArn"]
+        topic = sns.create_topic(Name=f"lab-topic-{tag}-{suffix}")["TopicArn"]
+        if with_policy:
+            allow(sqs, url, arn, "sns.amazonaws.com", topic)
+        sns.subscribe(TopicArn=topic, Protocol="sqs", Endpoint=arn)
+        sns.publish(TopicArn=topic, Message="order placed")
+        bodies = drain(sqs, url)
+        return {"delivered": bool(bodies), "sns_envelope": bool(bodies) and '"Type"' in bodies[0] and "order placed" in bodies[0]}
+    return experiment
+
+
+def eventbridge_to_sqs(with_policy: bool):
+    def experiment():
+        events, sqs = client("events"), client("sqs")
+        tag = "p" if with_policy else "n"
+        url = sqs.create_queue(QueueName=f"lab-events-{tag}-{suffix}")["QueueUrl"]
+        arn = sqs.get_queue_attributes(QueueUrl=url, AttributeNames=["QueueArn"])["Attributes"]["QueueArn"]
+        rule = events.put_rule(Name=f"lab-rule-{tag}-{suffix}", EventPattern=json.dumps({"source": ["lab.orders"]}))["RuleArn"]
+        if with_policy:
+            allow(sqs, url, arn, "events.amazonaws.com", rule)
+        events.put_targets(Rule=f"lab-rule-{tag}-{suffix}", Targets=[{"Id": "q", "Arn": arn}])
+        put = events.put_events(Entries=[{"Source": "lab.orders", "DetailType": "OrderPlaced", "Detail": json.dumps({"id": "o-1"})}])
+        bodies = drain(sqs, url)
+        return {"accepted": put.get("FailedEntryCount") == 0, "delivered": bool(bodies), "detail_type": json.loads(bodies[0]).get("detail-type") if bodies else None}
+    return experiment
 
 
 def lambda_invoke():
     iam, lam = client("iam"), client("lambda")
     role = iam.create_role(RoleName=f"lab-role-{suffix}", AssumeRolePolicyDocument=json.dumps(
         {"Version": "2012-10-17", "Statement": [{"Effect": "Allow", "Principal": {"Service": "lambda.amazonaws.com"}, "Action": "sts:AssumeRole"}]}))["Role"]["Arn"]
+    handler = (
+        "import getpass, os\n"
+        "def handler(event, context):\n"
+        "    home = os.path.expanduser('~')\n"
+        "    return {'doubled': event['n'] * 2, 'runs_as': getpass.getuser(),\n"
+        "            'can_list_home': os.path.isdir(home) and len(os.listdir(home)) > 0,\n"
+        "            'sees_emulator_files': os.path.isdir(os.path.join(home, '.aws', 'emulator'))}\n")
     package = io.BytesIO()
     with zipfile.ZipFile(package, "w") as archive:
-        archive.writestr("app.py", "def handler(event, context):\n    return {'doubled': event['n'] * 2}\n")
-    created = lam.create_function(FunctionName=f"lab-fn-{suffix}", Runtime="python3.13", Role=role, Handler="app.handler", Code={"ZipFile": package.getvalue()})
-    for _ in range(20):
+        archive.writestr("app.py", handler)
+    lam.create_function(FunctionName=f"lab-fn-{suffix}", Runtime="python3.13", Role=role, Handler="app.handler", Code={"ZipFile": package.getvalue()})
+    for _ in range(40):
         if lam.get_function_configuration(FunctionName=f"lab-fn-{suffix}").get("State", "Active") == "Active":
             break
         time.sleep(0.5)
-    result = lam.invoke(FunctionName=f"lab-fn-{suffix}", Payload=json.dumps({"n": 21}).encode())
-    payload = result["Payload"].read().decode()
-    assert '"doubled": 42' in payload or '"doubled":42' in payload, f"function created (state {created.get('State')}), invoke returned {payload[:120]!r} with FunctionError={result.get('FunctionError')}"
-    return {"invoke_result": payload}
+    timings, payload = [], {}
+    for _ in range(2):
+        started = time.perf_counter()
+        result = lam.invoke(FunctionName=f"lab-fn-{suffix}", Payload=json.dumps({"n": 21}).encode())
+        timings.append(round((time.perf_counter() - started) * 1000))
+        payload = json.loads(result["Payload"].read().decode() or "{}")
+    assert payload.get("doubled") == 42, f"invoke returned {payload}"
+    return {"result": payload["doubled"], "first_invoke_ms": timings[0], "second_invoke_ms": timings[1],
+            "runs_as": payload.get("runs_as"), "can_list_home": payload.get("can_list_home"), "sees_emulator_files": payload.get("sees_emulator_files")}
 
 
 def step_functions_execution():
@@ -255,24 +282,38 @@ def ec2_control_plane():
 
 
 def unsigned_request():
-    """A plain HTTPS request with no signature, as a web page or a stray script would send."""
-    url = kw["endpoint_url"] + "/?Action=ListQueues&Version=2012-11-05"
-    context = ssl.create_default_context(cafile=__import__("os").environ.get("AWS_CA_BUNDLE")) if url.startswith("https") else None
+    """A well-formed SQS ListQueues call with no signature, as a web page or a stray script could send."""
+    context = ssl.create_default_context(cafile=__import__("os").environ.get("AWS_CA_BUNDLE")) if kw["endpoint_url"].startswith("https") else None
+    request = urllib.request.Request(kw["endpoint_url"] + "/", data=b"{}", method="POST",
+                                     headers={"Content-Type": "application/x-amz-json-1.0", "X-Amz-Target": "AmazonSQS.ListQueues"})
     try:
-        with urllib.request.urlopen(url, timeout=10, context=context) as response:
+        with urllib.request.urlopen(request, timeout=10, context=context) as response:
             return {"status": response.status, "served": True}
     except urllib.error.HTTPError as error:
-        return {"status": error.code, "served": False, "body": error.read().decode()[:160]}
+        return {"status": error.code, "served": False, "body": error.read().decode()[:200]}
 
+
+def iam_user_without_permissions():
+    """A new IAM user with no policy at all, then an S3 call signed with that user's own key."""
+    iam = client("iam")
+    iam.create_user(UserName=f"lab-nobody-{suffix}")
+    key = iam.create_access_key(UserName=f"lab-nobody-{suffix}")["AccessKey"]
+    import boto3
+    nobody = boto3.session.Session(aws_access_key_id=key["AccessKeyId"], aws_secret_access_key=key["SecretAccessKey"], region_name="us-east-1")
+    time.sleep(1)
+    return {"list_buckets_as_user_with_no_policy": code_of(lambda: nobody.client("s3", **kw).list_buckets()),
+            "caller_arn_suffix": nobody.client("sts", **kw).get_caller_identity()["Arn"].split(":")[-1]}
 
 for name, experiment in [
     ("01 identity", identity), ("02 s3 round trip, 1 MiB", s3_round_trip), ("03 s3 versioning", s3_versioning), ("04 s3 presigned URL", s3_presigned_url),
     ("05 s3 bucket policy that denies reads", s3_bucket_policy_deny), ("06 dynamodb table lifecycle", dynamodb_lifecycle),
     ("07 dynamodb validation message", dynamodb_validation_message), ("08 sqs visibility timeout", sqs_visibility_timeout),
-    ("09 sns to sqs", sns_to_sqs), ("10 eventbridge to sqs", eventbridge_to_sqs), ("11 lambda create and invoke", lambda_invoke),
-    ("12 step functions execution", step_functions_execution), ("13 secrets manager versions", secrets_manager), ("14 kms encrypt and decrypt", kms_round_trip),
-    ("15 ssm secure parameter", ssm_parameter), ("16 kinesis put and get", kinesis_stream), ("17 cloudformation stack", cloudformation_stack),
-    ("18 ec2 vpc and subnet", ec2_control_plane), ("19 unsigned request", unsigned_request),
+    ("09 sns to sqs, no queue policy", sns_to_sqs(False)), ("10 sns to sqs, with queue policy", sns_to_sqs(True)),
+    ("11 eventbridge to sqs, no queue policy", eventbridge_to_sqs(False)), ("12 eventbridge to sqs, with queue policy", eventbridge_to_sqs(True)),
+    ("13 lambda create and invoke", lambda_invoke), ("14 step functions execution", step_functions_execution),
+    ("15 secrets manager versions", secrets_manager), ("16 kms encrypt and decrypt", kms_round_trip), ("17 ssm secure parameter", ssm_parameter),
+    ("18 kinesis put and get", kinesis_stream), ("19 cloudformation stack", cloudformation_stack), ("20 ec2 vpc and subnet", ec2_control_plane),
+    ("21 unsigned request", unsigned_request), ("22 iam user with no permissions", iam_user_without_permissions),
 ]:
     rec.run(name, experiment)
 rec.save(out_path)
