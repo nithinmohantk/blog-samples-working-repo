@@ -11,12 +11,12 @@ QuoteHandler handler = new();
 
 // SnapStart, managed runtime only. Lambda calls the first hook before it takes the snapshot of an initialised
 // environment and the second in every environment restored from it. Without SnapStart neither is called.
-SnapshotRestore.RegisterBeforeSnapshot(() =>
+Amazon.Lambda.Core.SnapshotRestore.RegisterBeforeSnapshot(() =>
 {
     handler.Warm();
     return ValueTask.CompletedTask;
 });
-SnapshotRestore.RegisterAfterRestore(() =>
+Amazon.Lambda.Core.SnapshotRestore.RegisterAfterRestore(() =>
 {
     handler.BecomeANewInstance();
     return ValueTask.CompletedTask;
