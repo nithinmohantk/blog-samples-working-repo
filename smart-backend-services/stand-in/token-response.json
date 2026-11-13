@@ -1,0 +1,6 @@
+{
+  "access_token": "(a signed JWT, not shown)",
+  "token_type": "bearer",
+  "expires_in": 300,
+  "scope": "system/Observation.rs system/Patient.rs"
+}

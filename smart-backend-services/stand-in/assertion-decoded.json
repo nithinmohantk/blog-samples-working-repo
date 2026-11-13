@@ -1,0 +1,15 @@
+{
+  "header": {
+    "alg": "ES384",
+    "kid": "8Bb090heMhXCSb7PjM7qQxU6OYLy984o8uu1XeW3FOI",
+    "typ": "JWT"
+  },
+  "claims": {
+    "iss": "reporting-service",
+    "sub": "reporting-service",
+    "aud": "http://127.0.0.1:5590/oauth/token",
+    "exp": 1794575697,
+    "jti": "b03aeb9686d74ee1b09ba9c44fd6b660"
+  },
+  "signature": "(96 bytes, not shown)"
+}

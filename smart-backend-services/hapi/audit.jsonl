@@ -1,0 +1,109 @@
+{"At":"2026-11-13T13:13:36.5475812+00:00","Area":"token","ClientId":"reporting-service","Decision":"issued","Detail":"asked \u0027system/Observation.rs system/Patient.rs\u0027, granted \u0027system/Observation.rs system/Patient.rs\u0027"}
+{"At":"2026-11-13T13:13:36.5580466+00:00","Area":"token","ClientId":"lab-loader","Decision":"issued","Detail":"asked \u0027system/Observation.cu system/Patient.r\u0027, granted \u0027system/Observation.cu system/Patient.r\u0027"}
+{"At":"2026-11-13T13:13:36.5611274+00:00","Area":"token","ClientId":"demographics-sync","Decision":"refused","Detail":"invalid_client: the signature does not verify"}
+{"At":"2026-11-13T13:13:36.5622194+00:00","Area":"token","ClientId":"demographics-sync","Decision":"refused","Detail":"invalid_client: alg \u0027none\u0027 is not RS384 or ES384"}
+{"At":"2026-11-13T13:13:36.5630099+00:00","Area":"token","ClientId":"demographics-sync","Decision":"refused","Detail":"invalid_client: alg \u0027HS384\u0027 is not RS384 or ES384"}
+{"At":"2026-11-13T13:13:36.5638182+00:00","Area":"token","ClientId":"demographics-sync","Decision":"refused","Detail":"invalid_client: no single RS384 key with kid \u0027bbe9pQ3R4gLmOE8D8AqHhySUDDTPi15yci-fuvH9k8s\u0027 in the registered key set"}
+{"At":"2026-11-13T13:13:36.5645816+00:00","Area":"token","ClientId":"demographics-sync","Decision":"refused","Detail":"invalid_client: no single ES384 key with kid \u0027some-other-key\u0027 in the registered key set"}
+{"At":"2026-11-13T13:13:36.5654129+00:00","Area":"token","ClientId":"demographics-sync","Decision":"refused","Detail":"invalid_client: typ is not JWT"}
+{"At":"2026-11-13T13:13:36.5662001+00:00","Area":"token","ClientId":"demographics-sync","Decision":"refused","Detail":"invalid_client: jku is not the registered JWK Set URL"}
+{"At":"2026-11-13T13:13:36.5668939+00:00","Area":"token","ClientId":"unknown-service","Decision":"refused","Detail":"invalid_client: unknown client"}
+{"At":"2026-11-13T13:13:36.5676406+00:00","Area":"token","ClientId":"demographics-sync","Decision":"refused","Detail":"invalid_client: iss and sub differ"}
+{"At":"2026-11-13T13:13:36.5691838+00:00","Area":"token","ClientId":"demographics-sync","Decision":"refused","Detail":"invalid_client: aud is not this token endpoint"}
+{"At":"2026-11-13T13:13:36.5708074+00:00","Area":"token","ClientId":"demographics-sync","Decision":"refused","Detail":"invalid_client: the assertion has expired"}
+{"At":"2026-11-13T13:13:36.5724095+00:00","Area":"token","ClientId":"demographics-sync","Decision":"refused","Detail":"invalid_client: exp is more than five minutes away"}
+{"At":"2026-11-13T13:13:36.5739458+00:00","Area":"token","ClientId":"demographics-sync","Decision":"refused","Detail":"invalid_client: no exp"}
+{"At":"2026-11-13T13:13:36.5755006+00:00","Area":"token","ClientId":"demographics-sync","Decision":"refused","Detail":"invalid_client: no usable jti"}
+{"At":"2026-11-13T13:13:36.5772372+00:00","Area":"token","ClientId":"demographics-sync","Decision":"issued","Detail":"asked \u0027system/Patient.rs\u0027, granted \u0027system/Patient.rs\u0027"}
+{"At":"2026-11-13T13:13:36.5787565+00:00","Area":"token","ClientId":"demographics-sync","Decision":"refused","Detail":"invalid_client: this assertion was used before"}
+{"At":"2026-11-13T13:13:36.5802763+00:00","Area":"token","ClientId":"demographics-sync","Decision":"refused","Detail":"invalid_client: the signature does not verify"}
+{"At":"2026-11-13T13:13:36.5810728+00:00","Area":"token","ClientId":"?","Decision":"refused","Detail":"invalid_client: the assertion is not a compact JWS"}
+{"At":"2026-11-13T13:13:36.5818116+00:00","Area":"token","ClientId":"?","Decision":"refused","Detail":"unsupported_grant_type: grant_type is not client_credentials"}
+{"At":"2026-11-13T13:13:36.5821701+00:00","Area":"token","ClientId":"?","Decision":"refused","Detail":"invalid_request: client assertion missing or of the wrong type"}
+{"At":"2026-11-13T13:13:36.583615+00:00","Area":"token","ClientId":"demographics-sync","Decision":"refused","Detail":"invalid_scope: \u0027system/*.read\u0027 is not a list of SMART v2 system scopes"}
+{"At":"2026-11-13T13:13:36.5850763+00:00","Area":"token","ClientId":"demographics-sync","Decision":"refused","Detail":"invalid_scope: \u0027patient/Patient.rs\u0027 is not a list of SMART v2 system scopes"}
+{"At":"2026-11-13T13:13:36.5865622+00:00","Area":"token","ClientId":"demographics-sync","Decision":"refused","Detail":"invalid_scope: nothing in \u0027system/Observation.rs\u0027 is within the registered \u0027system/Patient.rs\u0027"}
+{"At":"2026-11-13T13:13:36.5882364+00:00","Area":"token","ClientId":"demographics-sync","Decision":"issued","Detail":"asked \u0027system/Patient.cruds\u0027, granted \u0027system/Patient.rs\u0027"}
+{"At":"2026-11-13T13:13:36.5903423+00:00","Area":"token","ClientId":"demographics-sync","Decision":"issued","Detail":"asked \u0027system/Patient.cruds\u0027, granted \u0027system/Patient.rs\u0027"}
+{"At":"2026-11-13T13:13:36.5926979+00:00","Area":"token","ClientId":"demographics-sync","Decision":"issued","Detail":"asked \u0027system/Patient.cruds\u0027, granted \u0027system/Patient.rs\u0027"}
+{"At":"2026-11-13T13:13:36.5953913+00:00","Area":"token","ClientId":"reporting-service","Decision":"issued","Detail":"asked \u0027system/Patient.rs\u0027, granted \u0027system/Patient.rs\u0027"}
+{"At":"2026-11-13T13:13:36.5962322+00:00","Area":"token","ClientId":"reporting-service","Decision":"refused","Detail":"invalid_client: no single ES384 key with kid \u0027DWuADj8AJmE5ye6kW_DPsaH5sCMexkhVF7Lm3nxQ6QE\u0027 in the registered key set"}
+{"At":"2026-11-13T13:13:36.5968738+00:00","Area":"token","ClientId":"reporting-service","Decision":"refused","Detail":"invalid_client: no single ES384 key with kid \u0027Gm4i4jqAEhCZL___TyrmXjknuNOxzsjzzFW-HZ8D9BM\u0027 in the registered key set"}
+{"At":"2026-11-13T13:13:36.5974756+00:00","Area":"token","ClientId":"reporting-service","Decision":"refused","Detail":"invalid_client: no single ES384 key with kid \u0027Gm4i4jqAEhCZL___TyrmXjknuNOxzsjzzFW-HZ8D9BM\u0027 in the registered key set"}
+{"At":"2026-11-13T13:13:36.5980918+00:00","Area":"token","ClientId":"reporting-service","Decision":"refused","Detail":"invalid_client: no single ES384 key with kid \u0027Gm4i4jqAEhCZL___TyrmXjknuNOxzsjzzFW-HZ8D9BM\u0027 in the registered key set"}
+{"At":"2026-11-13T13:13:36.5987154+00:00","Area":"token","ClientId":"reporting-service","Decision":"refused","Detail":"invalid_client: no single ES384 key with kid \u0027Gm4i4jqAEhCZL___TyrmXjknuNOxzsjzzFW-HZ8D9BM\u0027 in the registered key set"}
+{"At":"2026-11-13T13:13:36.5993148+00:00","Area":"token","ClientId":"reporting-service","Decision":"refused","Detail":"invalid_client: no single ES384 key with kid \u0027Gm4i4jqAEhCZL___TyrmXjknuNOxzsjzzFW-HZ8D9BM\u0027 in the registered key set"}
+{"At":"2026-11-13T13:13:47.6019753+00:00","Area":"token","ClientId":"reporting-service","Decision":"issued","Detail":"asked \u0027system/Patient.rs\u0027, granted \u0027system/Patient.rs\u0027"}
+{"At":"2026-11-13T13:13:47.6036864+00:00","Area":"token","ClientId":"reporting-service","Decision":"issued","Detail":"asked \u0027system/Patient.rs\u0027, granted \u0027system/Patient.rs\u0027"}
+{"At":"2026-11-13T13:18:48.6045551+00:00","Area":"token","ClientId":"reporting-service","Decision":"refused","Detail":"invalid_client: no single ES384 key with kid \u0027QeMqQebt1c7tLKiggkmYlYWRB8UNdoUrrpQOgc-TE5M\u0027 in the registered key set"}
+{"At":"2026-11-13T13:18:48.60663+00:00","Area":"token","ClientId":"reporting-service","Decision":"issued","Detail":"asked \u0027system/Patient.rs\u0027, granted \u0027system/Patient.rs\u0027"}
+{"At":"2026-11-13T13:18:48.609916+00:00","Area":"token","ClientId":"test-seeder","Decision":"issued","Detail":"asked \u0027system/*.cruds\u0027, granted \u0027system/*.cruds\u0027"}
+{"At":"2026-11-13T13:18:48.6138627+00:00","Area":"fhir","ClientId":"test-seeder","Decision":"allowed","Detail":"POST Patient needs system/Patient.c"}
+{"At":"2026-11-13T13:18:48.7489934+00:00","Area":"fhir","ClientId":"test-seeder","Decision":"allowed","Detail":"POST Observation needs system/Observation.c"}
+{"At":"2026-11-13T13:18:48.8433163+00:00","Area":"fhir","ClientId":"test-seeder","Decision":"allowed","Detail":"POST Observation needs system/Observation.c"}
+{"At":"2026-11-13T13:18:48.867114+00:00","Area":"fhir","ClientId":"test-seeder","Decision":"allowed","Detail":"POST Observation needs system/Observation.c"}
+{"At":"2026-11-13T13:18:48.8905158+00:00","Area":"fhir","ClientId":"?","Decision":"401","Detail":"GET Patient/1: no bearer token"}
+{"At":"2026-11-13T13:18:48.8932849+00:00","Area":"token","ClientId":"reporting-service","Decision":"issued","Detail":"asked \u0027system/Observation.rs system/Patient.rs\u0027, granted \u0027system/Observation.rs system/Patient.rs\u0027"}
+{"At":"2026-11-13T13:18:48.8942286+00:00","Area":"fhir","ClientId":"?","Decision":"401","Detail":"GET Patient/1: the signature does not verify"}
+{"At":"2026-11-13T13:18:48.8950056+00:00","Area":"fhir","ClientId":"?","Decision":"401","Detail":"GET Patient/1: not an access token from this server"}
+{"At":"2026-11-13T13:18:48.8962974+00:00","Area":"fhir","ClientId":"reporting-service","Decision":"allowed","Detail":"GET Patient/1 needs system/Patient.r"}
+{"At":"2026-11-13T13:18:48.923252+00:00","Area":"fhir","ClientId":"reporting-service","Decision":"allowed","Detail":"GET Patient?identifier needs system/Patient.s"}
+{"At":"2026-11-13T13:18:48.9849309+00:00","Area":"fhir","ClientId":"reporting-service","Decision":"allowed","Detail":"GET Patient?_id\u0026_revinclude needs system/Patient.s system/Observation.r"}
+{"At":"2026-11-13T13:18:49.0292916+00:00","Area":"token","ClientId":"demographics-sync","Decision":"issued","Detail":"asked \u0027system/Patient.rs\u0027, granted \u0027system/Patient.rs\u0027"}
+{"At":"2026-11-13T13:18:49.0310691+00:00","Area":"fhir","ClientId":"demographics-sync","Decision":"allowed","Detail":"GET Patient/1 needs system/Patient.r"}
+{"At":"2026-11-13T13:18:49.0434319+00:00","Area":"fhir","ClientId":"demographics-sync","Decision":"403","Detail":"GET Observation?subject: the token does not grant system/Observation.s"}
+{"At":"2026-11-13T13:18:49.0446314+00:00","Area":"fhir","ClientId":"demographics-sync","Decision":"403","Detail":"GET Patient?_id\u0026_revinclude: the token does not grant system/Observation.r"}
+{"At":"2026-11-13T13:18:49.077403+00:00","Area":"fhir","ClientId":"demographics-sync","Decision":"403","Detail":"GET Patient?_has:Observation:subject:code: the token does not grant system/Observation.s"}
+{"At":"2026-11-13T13:18:49.0784229+00:00","Area":"fhir","ClientId":"reporting-service","Decision":"allowed","Detail":"GET Observation?subject:Patient.family needs system/Observation.s system/Patient.s"}
+{"At":"2026-11-13T13:18:49.1086199+00:00","Area":"fhir","ClientId":"reporting-service","Decision":"403","Detail":"GET Observation?subject.family: a chained parameter must name its type and go one level deep, as subject:Patient.name (\u0027subject.family\u0027)"}
+{"At":"2026-11-13T13:18:49.1099636+00:00","Area":"fhir","ClientId":"demographics-sync","Decision":"403","Detail":"POST Patient: the token does not grant system/Patient.c"}
+{"At":"2026-11-13T13:18:49.111679+00:00","Area":"fhir","ClientId":"demographics-sync","Decision":"403","Detail":"PUT Patient/1: the token does not grant system/Patient.u"}
+{"At":"2026-11-13T13:18:49.1125088+00:00","Area":"fhir","ClientId":"demographics-sync","Decision":"403","Detail":"DELETE Patient/1: the token does not grant system/Patient.d"}
+{"At":"2026-11-13T13:18:49.1144743+00:00","Area":"token","ClientId":"id-checker","Decision":"issued","Detail":"asked \u0027system/Patient.r\u0027, granted \u0027system/Patient.r\u0027"}
+{"At":"2026-11-13T13:18:49.1171225+00:00","Area":"fhir","ClientId":"id-checker","Decision":"allowed","Detail":"GET Patient/1 needs system/Patient.r"}
+{"At":"2026-11-13T13:18:49.126156+00:00","Area":"fhir","ClientId":"id-checker","Decision":"403","Detail":"GET Patient?family: the token does not grant system/Patient.s"}
+{"At":"2026-11-13T13:18:49.1274521+00:00","Area":"fhir","ClientId":"test-seeder","Decision":"403","Detail":"GET Patient/1/$everything: operations are not exposed through this gateway"}
+{"At":"2026-11-13T13:18:49.1286944+00:00","Area":"fhir","ClientId":"test-seeder","Decision":"403","Detail":"POST Patient/_search: search by POST is not exposed through this gateway; use GET"}
+{"At":"2026-11-13T13:18:49.1320793+00:00","Area":"token","ClientId":"lab-loader","Decision":"issued","Detail":"asked \u0027system/Observation.cu system/Patient.r\u0027, granted \u0027system/Observation.cu system/Patient.r\u0027"}
+{"At":"2026-11-13T13:18:49.1333026+00:00","Area":"fhir","ClientId":"lab-loader","Decision":"allowed","Detail":"POST Observation needs system/Observation.c"}
+{"At":"2026-11-13T13:18:49.1507805+00:00","Area":"fhir","ClientId":"lab-loader","Decision":"403","Detail":"GET Observation/5: the token does not grant system/Observation.r"}
+{"At":"2026-11-13T13:18:49.1528475+00:00","Area":"fhir","ClientId":"lab-loader","Decision":"403","Detail":"POST : the token does not grant system/Patient.u"}
+{"At":"2026-11-13T13:18:49.1541335+00:00","Area":"fhir","ClientId":"lab-loader","Decision":"allowed","Detail":"POST  needs system/Observation.c"}
+{"At":"2026-11-13T13:18:49.1946405+00:00","Area":"fhir","ClientId":"test-seeder","Decision":"allowed","Detail":"GET Observation?subject\u0026_summary needs system/Observation.s"}
+{"At":"2026-11-13T13:18:49.2124143+00:00","Area":"fhir","ClientId":"reporting-service","Decision":"allowed","Detail":"GET Observation?subject\u0026_count needs system/Observation.s"}
+{"At":"2026-11-13T13:18:49.2438721+00:00","Area":"fhir","ClientId":"reporting-service","Decision":"allowed","Detail":"GET ?_getpages"}
+{"At":"2026-11-13T13:18:49.2593547+00:00","Area":"fhir","ClientId":"test-seeder","Decision":"403","Detail":"GET ?_getpages: this page link was not issued to this client with these scopes"}
+{"At":"2026-11-13T13:18:49.2604287+00:00","Area":"fhir","ClientId":"reporting-service","Decision":"403","Detail":"GET ?_getpages: this page link was not issued to this client with these scopes"}
+{"At":"2026-11-13T13:18:49.2664992+00:00","Area":"token","ClientId":"demographics-sync","Decision":"issued","Detail":"asked \u0027system/Patient.rs\u0027, granted \u0027system/Patient.rs\u0027"}
+{"At":"2026-11-13T13:18:49.2681089+00:00","Area":"fhir","ClientId":"demographics-sync","Decision":"allowed","Detail":"GET Patient/1 needs system/Patient.r"}
+{"At":"2026-11-13T13:18:49.2681547+00:00","Area":"fhir","ClientId":"demographics-sync","Decision":"allowed","Detail":"GET Patient/1 needs system/Patient.r"}
+{"At":"2026-11-13T13:18:49.2691701+00:00","Area":"fhir","ClientId":"demographics-sync","Decision":"allowed","Detail":"GET Patient/1 needs system/Patient.r"}
+{"At":"2026-11-13T13:18:49.2693752+00:00","Area":"fhir","ClientId":"demographics-sync","Decision":"allowed","Detail":"GET Patient/1 needs system/Patient.r"}
+{"At":"2026-11-13T13:18:49.2701886+00:00","Area":"fhir","ClientId":"demographics-sync","Decision":"allowed","Detail":"GET Patient/1 needs system/Patient.r"}
+{"At":"2026-11-13T13:18:49.2710307+00:00","Area":"fhir","ClientId":"demographics-sync","Decision":"allowed","Detail":"GET Patient/1 needs system/Patient.r"}
+{"At":"2026-11-13T13:18:49.2721659+00:00","Area":"fhir","ClientId":"demographics-sync","Decision":"allowed","Detail":"GET Patient/1 needs system/Patient.r"}
+{"At":"2026-11-13T13:18:49.2731991+00:00","Area":"fhir","ClientId":"demographics-sync","Decision":"allowed","Detail":"GET Patient/1 needs system/Patient.r"}
+{"At":"2026-11-13T13:18:49.2736062+00:00","Area":"fhir","ClientId":"demographics-sync","Decision":"allowed","Detail":"GET Patient/1 needs system/Patient.r"}
+{"At":"2026-11-13T13:18:49.2759011+00:00","Area":"fhir","ClientId":"demographics-sync","Decision":"allowed","Detail":"GET Patient/1 needs system/Patient.r"}
+{"At":"2026-11-13T13:18:49.2761737+00:00","Area":"fhir","ClientId":"demographics-sync","Decision":"allowed","Detail":"GET Patient/1 needs system/Patient.r"}
+{"At":"2026-11-13T13:18:49.2771577+00:00","Area":"fhir","ClientId":"demographics-sync","Decision":"allowed","Detail":"GET Patient/1 needs system/Patient.r"}
+{"At":"2026-11-13T13:18:49.2790196+00:00","Area":"fhir","ClientId":"demographics-sync","Decision":"allowed","Detail":"GET Patient/1 needs system/Patient.r"}
+{"At":"2026-11-13T13:18:49.2791445+00:00","Area":"fhir","ClientId":"demographics-sync","Decision":"allowed","Detail":"GET Patient/1 needs system/Patient.r"}
+{"At":"2026-11-13T13:18:49.2798308+00:00","Area":"fhir","ClientId":"demographics-sync","Decision":"allowed","Detail":"GET Patient/1 needs system/Patient.r"}
+{"At":"2026-11-13T13:18:49.2802338+00:00","Area":"fhir","ClientId":"demographics-sync","Decision":"allowed","Detail":"GET Patient/1 needs system/Patient.r"}
+{"At":"2026-11-13T13:18:49.2804703+00:00","Area":"fhir","ClientId":"demographics-sync","Decision":"allowed","Detail":"GET Patient/1 needs system/Patient.r"}
+{"At":"2026-11-13T13:18:49.2822466+00:00","Area":"fhir","ClientId":"demographics-sync","Decision":"allowed","Detail":"GET Patient/1 needs system/Patient.r"}
+{"At":"2026-11-13T13:18:49.2829932+00:00","Area":"fhir","ClientId":"demographics-sync","Decision":"allowed","Detail":"GET Patient/1 needs system/Patient.r"}
+{"At":"2026-11-13T13:18:49.2866032+00:00","Area":"fhir","ClientId":"demographics-sync","Decision":"allowed","Detail":"GET Patient/1 needs system/Patient.r"}
+{"At":"2026-11-13T13:23:20.3341484+00:00","Area":"token","ClientId":"demographics-sync","Decision":"issued","Detail":"asked \u0027system/Patient.rs\u0027, granted \u0027system/Patient.rs\u0027"}
+{"At":"2026-11-13T13:23:20.3351543+00:00","Area":"fhir","ClientId":"demographics-sync","Decision":"allowed","Detail":"GET Patient/1 needs system/Patient.r"}
+{"At":"2026-11-13T13:23:50.3395099+00:00","Area":"fhir","ClientId":"?","Decision":"401","Detail":"GET Patient/1: expired"}
+{"At":"2026-11-13T13:23:50.3613398+00:00","Area":"fhir","ClientId":"?","Decision":"401","Detail":"GET Patient/1: not an access token from this server"}
+{"At":"2026-11-13T13:23:50.3641448+00:00","Area":"token","ClientId":"demographics-sync","Decision":"issued","Detail":"asked \u0027system/Patient.rs\u0027, granted \u0027system/Patient.rs\u0027"}
+{"At":"2026-11-13T13:23:50.3650447+00:00","Area":"fhir","ClientId":"demographics-sync","Decision":"allowed","Detail":"GET Patient/1 needs system/Patient.r"}
+{"At":"2026-11-13T13:13:37.5652911+00:00","Area":"token","ClientId":"python-batch","Decision":"issued","Detail":"asked \u0027system/Patient.rs\u0027, granted \u0027system/Patient.rs\u0027"}
+{"At":"2026-11-13T13:13:37.5704963+00:00","Area":"fhir","ClientId":"python-batch","Decision":"allowed","Detail":"GET Patient?_count needs system/Patient.s"}
+{"At":"2026-11-13T13:13:37.5854621+00:00","Area":"fhir","ClientId":"python-batch","Decision":"403","Detail":"GET Observation?_count: the token does not grant system/Observation.s"}
+{"At":"2026-11-13T13:13:37.5864544+00:00","Area":"token","ClientId":"python-batch","Decision":"refused","Detail":"invalid_client: this assertion was used before"}
+{"At":"2026-11-13T13:13:37.704982+00:00","Area":"token","ClientId":"python-batch","Decision":"refused","Detail":"invalid_client: exp is more than five minutes away"}
+{"At":"2026-11-13T13:13:37.8206568+00:00","Area":"token","ClientId":"python-batch","Decision":"refused","Detail":"invalid_scope: nothing in \u0027system/*.cruds\u0027 is within the registered \u0027system/Patient.rs\u0027"}

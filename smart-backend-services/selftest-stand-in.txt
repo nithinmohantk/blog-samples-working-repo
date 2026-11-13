@@ -1,0 +1,147 @@
+== scopes
+  asked system/Patient.rs                            -> system/Patient.rs
+  asked system/Patient.cruds                         -> system/Patient.rs
+  asked system/Patient.r system/Patient.s            -> system/Patient.rs
+  asked system/Encounter.rs                          -> (nothing)
+  asked system/*.rs                                  -> (nothing)
+  asked system/Observation.s system/Encounter.r      -> system/Observation.s
+  asked system/*.read                                -> not a v2 system scope
+  asked patient/Patient.rs                           -> not a v2 system scope
+  asked system/Patient.sr                            -> not a v2 system scope
+  asked system/Patient.                              -> not a v2 system scope
+  asked system/Observation.rs?category=laboratory    -> not a v2 system scope
+  asked openid                                       -> not a v2 system scope
+ok    twelve requests against a registration of Patient.rs and Observation.rs give the expected grant or refusal
+ok    a wildcard registration grants a wildcard request, and a typed one within it
+ok    write does not imply read, and read does not imply search
+== what a request needs
+  GET    Patient/123                                                    system/Patient.r
+  GET    Patient/123/_history/2                                         system/Patient.r
+  GET    Patient?family=Byrne                                           system/Patient.s
+  GET    Patient/_history                                               system/Patient.s
+  GET    Patient?_revinclude=Observation:subject                        system/Patient.s system/Observation.r
+  GET    Patient?_include=Patient:general-practitioner:Practitioner     system/Patient.s system/Practitioner.r
+  GET    Patient?_include=Patient:general-practitioner                  refused: _include must name its target type, as Source:parameter:Type ('Patient:general-practitioner')
+  GET    Patient?_include:iterate=*                                     system/Patient.s system/*.r
+  GET    Observation?subject:Patient.family=Byrne                       system/Observation.s system/Patient.s
+  GET    Observation?subject.family=Byrne                               refused: a chained parameter must name its type and go one level deep, as subject:Patient.name ('subject.family')
+  GET    Patient?_has:Observation:subject:code=1234-5                   system/Patient.s system/Observation.s
+  GET    Patient/123/Observation?code=1234-5                            system/Patient.r system/Observation.s
+  GET    Patient/123/$everything                                        refused: operations are not exposed through this gateway
+  GET    ?_type=Patient,Observation                                     system/*.s system/Patient.s system/Observation.s
+  GET    Patient?_filter=name eq x                                      refused: _filter is not exposed through this gateway
+  POST   Patient/_search                                                refused: search by POST is not exposed through this gateway; use GET
+  POST   Observation                                                    system/Observation.c
+  PUT    Patient/123                                                    system/Patient.u
+  PUT    Patient?identifier=x|1                                         system/Patient.u system/Patient.s
+  PATCH  Patient/123                                                    system/Patient.u
+  DELETE Patient/123                                                    system/Patient.d
+  DELETE Patient?identifier=x|1                                         system/Patient.d system/Patient.s
+  POST   (base) Bundle of POST Observation, PUT Patient/123, GET Encounter?subject=Patient/123 system/Observation.c system/Patient.u system/Encounter.s
+  POST   (base) Bundle of POST Patient                                  system/Patient.c system/Patient.s
+  POST   (base) Bundle of POST Patient/$match                           refused: Bundle entry POST Patient/$match: operations are not exposed through this gateway
+  POST   (base) Bundle of a Patient                                     refused: a POST to the base must be a batch or transaction Bundle
+ok    26 request shapes each need exactly the expected permissions, or are refused
+== discovery and a first token
+ok    discovery needs no token and is application/json
+ok    it advertises client_credentials, private_key_jwt, RS384 and ES384, and the asymmetric client capability
+ok    the capability statement is public too
+ok    an ES384 assertion from a client with a JWK Set URL gets a bearer token for 300 seconds
+ok    the token response may not be cached and carries no refresh token
+ok    the access token names the client, the scope and one FHIR server, and expires five minutes after issue
+ok    an RS384 assertion from a client with a registered JWK Set is accepted as well
+== what the token endpoint refuses
+  refused 401 invalid_client         an assertion signed with a key that is not the registered one
+             audit: invalid_client: the signature does not verify
+  refused 401 invalid_client         alg none with an empty signature
+             audit: invalid_client: alg 'none' is not RS384 or ES384
+  refused 401 invalid_client         alg HS384, signed with the public key as if it were a shared secret
+             audit: invalid_client: alg 'HS384' is not RS384 or ES384
+  refused 401 invalid_client         alg RS384 in the header of an assertion signed with an EC key
+             audit: invalid_client: no single RS384 key with kid '88nDSgX7Tznz1-xC7bgLzBpt8nLt58VblNOmh0ztKxA' in the registered key set
+  refused 401 invalid_client         a key ID that is not in the registered key set
+             audit: invalid_client: no single ES384 key with kid 'some-other-key' in the registered key set
+  refused 401 invalid_client         no typ in the header
+             audit: invalid_client: typ is not JWT
+  refused 401 invalid_client         a jku header pointing at a key set the caller controls
+             audit: invalid_client: jku is not the registered JWK Set URL
+  refused 401 invalid_client         a client that was never registered
+             audit: invalid_client: unknown client
+  refused 401 invalid_client         iss and sub that differ
+             audit: invalid_client: iss and sub differ
+  refused 401 invalid_client         an audience that is the FHIR base, not the token endpoint
+             audit: invalid_client: aud is not this token endpoint
+  refused 401 invalid_client         an assertion that expired a minute ago
+             audit: invalid_client: the assertion has expired
+  refused 401 invalid_client         an assertion valid for ten minutes
+             audit: invalid_client: exp is more than five minutes away
+  refused 401 invalid_client         an assertion with no exp
+             audit: invalid_client: no exp
+  refused 401 invalid_client         an assertion with no jti
+             audit: invalid_client: no usable jti
+  refused 401 invalid_client         the same assertion presented a second time
+             audit: invalid_client: this assertion was used before
+  refused 401 invalid_client         a payload changed after signing
+             audit: invalid_client: the signature does not verify
+  refused 401 invalid_client         text that is not a JWT
+             audit: invalid_client: the assertion is not a compact JWS
+  refused 400 unsupported_grant_type grant_type authorization_code
+             audit: unsupported_grant_type: grant_type is not client_credentials
+  refused 400 invalid_request        no client assertion
+             audit: invalid_request: client assertion missing or of the wrong type
+  refused 400 invalid_scope          a v1 scope, system/*.read
+             audit: invalid_scope: 'system/*.read' is not a list of SMART v2 system scopes
+  refused 400 invalid_scope          a patient-level scope
+             audit: invalid_scope: 'patient/Patient.rs' is not a list of SMART v2 system scopes
+  refused 400 invalid_scope          a scope outside the registration
+             audit: invalid_scope: nothing in 'system/Observation.rs' is within the registered 'system/Patient.rs'
+ok    22 bad token requests are each refused with the right error, and the audit log has the reason
+ok    no invalid_client response tells the caller which check failed
+ok    none of them made the server fetch a key set from a URL the caller chose
+ok    asking for more than the registration allows yields a token for the part that is allowed
+ok    the client treats a narrower grant as an error by default, and accepts it when told to
+ok    a repeated parameter is an invalid request
+== key rotation
+ok    a second token for the same client does not fetch its key set again
+ok    an unknown key ID within ten seconds of the last fetch is refused without another fetch, however often it is tried
+ok    after that, an unknown key ID triggers one fetch and the new key is accepted
+ok    a key removed from the published set is still accepted while the cached set is fresh
+ok    once the cache lifetime the client asked for has passed, the removed key is refused
+== the gateway, in front of the in-memory stand-in
+ok    a client with system/*.cruds creates a patient and three observations through the gateway
+ok    the Location header names the public address, not the server behind the gateway
+ok    no token: 401 with a Bearer challenge
+ok    a token whose scope was edited after signing: 401 invalid_token
+ok    a client assertion presented as an access token: 401
+ok    Patient.rs: read and search both succeed
+ok    Patient.rs and Observation.rs: a search that pulls in the patient's observations returns all three
+ok    Patient.rs only: reading a patient succeeds; searching observations is 403 and names the missing scope
+  asked of the FHIR server directly, the same search returns 3 Observation resources
+ok    Patient.rs only: the same patient search with _revinclude=Observation:subject is 403, though the FHIR server alone would answer it
+ok    Patient.rs only: a chained search and a _has search that ask about observations are 403
+ok    Patient.rs only: create, update and delete are 403
+ok    Patient.r only: read succeeds and search is 403
+ok    an operation and a search by POST are refused whatever the scope
+ok    Observation.cu: create succeeds, and reading back what was just written is 403
+ok    Observation.cu: a transaction of two observations succeeds; one that also updates a patient is 403 as a whole
+ok    nothing from the refused transaction was written: six observations exist
+ok    a paged search returns a next link at the public address, with a page token
+ok    the client that ran the search can follow it
+ok    another client, with every scope, cannot follow that link, and nobody can follow it without the page token
+ok    a request to another host through the same HttpClient carries no token
+== the client over time
+ok    twenty concurrent requests on a cold client result in one token request
+ok    thirty seconds before expiry the client replaces the token without being asked
+ok    the old token, presented after its five minutes, is 401
+ok    after the server restarts with a new signing key, the cached token gets 401 and the handler recovers with one new token
+== the audit trail
+  demographics-sync  allowed  GET Patient/1 needs system/Patient.r
+  demographics-sync  403      GET Observation?subject: the token does not grant system/Observation.s
+  demographics-sync  403      GET Patient?_id&_revinclude: the token does not grant system/Observation.r
+  demographics-sync  403      GET Patient?_has:Observation:subject:code: the token does not grant system/Observation.s
+  demographics-sync  403      POST Patient: the token does not grant system/Patient.c
+  demographics-sync  403      PUT Patient/1: the token does not grant system/Patient.u
+ok    103 audit events were written, and none contains a token, an assertion or a search value
+ok    every refusal at the gateway is in the audit trail with the client and the reason
+
+48 of 48 checks passed

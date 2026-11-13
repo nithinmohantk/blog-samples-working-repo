@@ -1,0 +1,17 @@
+{
+  "header": {
+    "alg": "ES384",
+    "kid": "rXKV6kei2yL_XDpEi4EhzFVTJFT8pRsw5uCDL2DrUqw",
+    "typ": "at+jwt"
+  },
+  "claims": {
+    "iss": "http://127.0.0.1:5590/",
+    "aud": "http://127.0.0.1:5590/fhir/",
+    "sub": "reporting-service",
+    "client_id": "reporting-service",
+    "scope": "system/Observation.rs system/Patient.rs",
+    "iat": 1794575577,
+    "exp": 1794575877,
+    "jti": "200c29ec99e349ac97af210e6675d7ef"
+  }
+}
