@@ -1,0 +1,20 @@
+ok    the agent is offered four tools and none that returns a task token
+ok    StartExecution advertises input and name, and not the state machine
+ok    a small credit is applied without a person
+ok    the credit call carries the execution name as its idempotency key
+ok    starting again under the same name does not run the workflow a second time
+ok    a larger credit waits for a person, and is applied after approval
+ok    a declined credit never reaches the state that moves money
+ok    an amount above the limit is refused with no approval asked and no credit
+ok    malformed input (amount as text) is refused before any task runs
+ok    malformed input (negative amount) is refused before any task runs
+ok    malformed input (missing case) is refused before any task runs
+ok    a case the system of record calls ineligible is refused with its reason
+ok    two transient failures of the credit call are retried by the workflow, not by the agent
+ok    when the credit call stays down the execution fails, and the agent is told FAILED
+ok    an approval nobody answers expires, and nothing is credited
+ok    an approval that arrives after expiry is refused and credits nothing
+ok    the emulator refuses an agent that names a state machine, as the connector documents
+ok    there is no tool the agent could use to approve its own request
+
+18 of 18 checks passed

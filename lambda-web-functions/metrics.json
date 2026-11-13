@@ -1,0 +1,19 @@
+{
+  "node": "v24.22.2",
+  "ioBound": {
+    "requests": 1280,
+    "wallSeconds": 2.25,
+    "sumOfRequestDurationsSeconds": 274.38,
+    "serverCpuSeconds": 0.18
+  },
+  "cpuBound": {
+    "requests": 20,
+    "wallSeconds": 7.63,
+    "sumOfRequestDurationsSeconds": 7.63,
+    "serverCpuSeconds": 10.59
+  },
+  "blocking": {
+    "longRequestSeconds": 2.84,
+    "healthCheckSeconds": 2.7
+  }
+}

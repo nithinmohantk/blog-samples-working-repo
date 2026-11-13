@@ -1,0 +1,8 @@
+Python 3.13.18
+boto3 1.44.2
+image amazon/aws-stepfunctions-local@sha256:ea8de9d3c489f889582e8d84aab67031e613e055ff4b94ccc41aa3af681efce2 created 2024-05-18T00:46:36.685329423Z
+Step Functions Local
+Version: 2.0.0
+Build: 2024-05-18
+[0;33m2026-11-13 01:15:14.479: Failed to load credentials from environment because Unable to load AWS credentials from environment variables (AWS_ACCESS_KEY_ID (or AWS_ACCESS_KEY) and AWS_SECRET_KEY (or AWS_SECRET_ACCESS_KEY))
+[0m[0;33m2026-11-13 01:15:14.532: Failed to load credentials from profile: default because profile file cannot be null

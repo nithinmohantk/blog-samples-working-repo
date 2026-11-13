@@ -1,0 +1,28 @@
+I/O-heavy API: 10M requests, 50 ms CPU inside a 300 ms request
+  web_function_always_on                   $     19.60
+  web_function_scaled_to_zero_off_hours    $     19.60
+  event_function_url_512mb                 $     22.00
+  event_function_http_api_512mb            $     32.00
+  app_runner_1vcpu_2gb                     $     56.16
+
+Streaming endpoint: 5M requests, 200 ms CPU inside a 3 s response
+  web_function_always_on                   $     33.95
+  web_function_scaled_to_zero_off_hours    $     33.95
+  event_function_url_512mb                 $    101.00
+  event_function_http_api_512mb            $    106.00
+  app_runner_1vcpu_2gb                     $     56.16
+
+CPU-bound API: 10M requests, 280 ms CPU inside a 300 ms request
+  web_function_always_on                   $     83.30
+  web_function_scaled_to_zero_off_hours    $     83.30
+  event_function_url_512mb                 $     22.00
+  event_function_http_api_512mb            $     32.00
+  app_runner_1vcpu_2gb                     $     56.16
+
+Internal tool: 60,000 requests in office hours, 50 ms CPU inside 300 ms
+  web_function_always_on                   $      2.86
+  web_function_scaled_to_zero_off_hours    $      1.02
+  event_function_url_512mb                 $      0.13
+  event_function_http_api_512mb            $      0.19
+  app_runner_1vcpu_2gb                     $     25.44
+

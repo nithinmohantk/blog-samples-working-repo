@@ -1,0 +1,175 @@
+{
+  "small_credit": {
+    "status": "SUCCEEDED",
+    "output": {
+      "outcome": "CREDITED",
+      "amountCents": 2500,
+      "creditId": "cr-000001",
+      "caseId": "C1001"
+    },
+    "path": [
+      "CheckInputShape",
+      "ValidateRequest",
+      "IsEligible",
+      "RouteByAmount",
+      "ApplyCredit",
+      "Credited"
+    ],
+    "events": 20
+  },
+  "repeat_same_name": {
+    "same_input": "DependencyFailedException: ExecutionAlreadyExists: Execution Already Exists: 'arn:aws:states:us-east-1:123456789012:execution:GoodwillCredit:credit-C1001-202611",
+    "different_input": "DependencyFailedException: ExecutionAlreadyExists: Execution Already Exists: 'arn:aws:states:us-east-1:123456789012:execution:GoodwillCredit:credit-C1001-202611"
+  },
+  "approved_credit": {
+    "status": "SUCCEEDED",
+    "output": {
+      "outcome": "CREDITED",
+      "amountCents": 20000,
+      "creditId": "cr-000001",
+      "caseId": "C1002"
+    },
+    "path": [
+      "CheckInputShape",
+      "ValidateRequest",
+      "IsEligible",
+      "RouteByAmount",
+      "ManagerApproval",
+      "ApprovalDecision",
+      "ApplyCredit",
+      "Credited"
+    ],
+    "events": 27,
+    "status_while_waiting": "RUNNING"
+  },
+  "declined_credit": {
+    "status": "SUCCEEDED",
+    "output": {
+      "outcome": "DECLINED",
+      "reason": "The approver declined the credit."
+    },
+    "path": [
+      "CheckInputShape",
+      "ValidateRequest",
+      "IsEligible",
+      "RouteByAmount",
+      "ManagerApproval",
+      "ApprovalDecision",
+      "Declined"
+    ],
+    "events": 22,
+    "status_while_waiting": "RUNNING"
+  },
+  "over_limit": {
+    "status": "SUCCEEDED",
+    "output": {
+      "outcome": "REJECTED",
+      "reason": "Above the limit for a goodwill credit. Open a refund case instead."
+    },
+    "path": [
+      "CheckInputShape",
+      "ValidateRequest",
+      "IsEligible",
+      "RouteByAmount",
+      "RejectOverLimit"
+    ],
+    "events": 15
+  },
+  "amount_as_text": {
+    "status": "SUCCEEDED",
+    "output": {
+      "outcome": "REJECTED",
+      "reason": "caseId must be a string and amountCents a positive number."
+    },
+    "path": [
+      "CheckInputShape",
+      "RejectInvalidInput"
+    ],
+    "events": 6
+  },
+  "negative_amount": {
+    "status": "SUCCEEDED",
+    "output": {
+      "outcome": "REJECTED",
+      "reason": "caseId must be a string and amountCents a positive number."
+    },
+    "path": [
+      "CheckInputShape",
+      "RejectInvalidInput"
+    ],
+    "events": 6
+  },
+  "missing_case": {
+    "status": "SUCCEEDED",
+    "output": {
+      "outcome": "REJECTED",
+      "reason": "caseId must be a string and amountCents a positive number."
+    },
+    "path": [
+      "CheckInputShape",
+      "RejectInvalidInput"
+    ],
+    "events": 6
+  },
+  "ineligible": {
+    "status": "SUCCEEDED",
+    "output": {
+      "outcome": "REJECTED",
+      "reason": "The case is closed."
+    },
+    "path": [
+      "CheckInputShape",
+      "ValidateRequest",
+      "IsEligible",
+      "RejectIneligible"
+    ],
+    "events": 13
+  },
+  "apply_recovers": {
+    "status": "SUCCEEDED",
+    "output": {
+      "outcome": "CREDITED",
+      "amountCents": 2500,
+      "creditId": "cr-000001",
+      "caseId": "C1008"
+    },
+    "path": [
+      "CheckInputShape",
+      "ValidateRequest",
+      "IsEligible",
+      "RouteByAmount",
+      "ApplyCredit",
+      "Credited"
+    ],
+    "events": 26,
+    "apply_attempts": 3
+  },
+  "apply_down": {
+    "status": "FAILED",
+    "output": null,
+    "path": [
+      "CheckInputShape",
+      "ValidateRequest",
+      "IsEligible",
+      "RouteByAmount",
+      "ApplyCredit"
+    ],
+    "events": 26
+  },
+  "approval_expired": {
+    "status": "SUCCEEDED",
+    "output": {
+      "outcome": "EXPIRED",
+      "reason": "Nobody approved the credit in time."
+    },
+    "path": [
+      "CheckInputShape",
+      "ValidateRequest",
+      "IsEligible",
+      "RouteByAmount",
+      "ManagerApproval",
+      "ApprovalExpired"
+    ],
+    "late_answer": "TaskTimedOut"
+  }
+}

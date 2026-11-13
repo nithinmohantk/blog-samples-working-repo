@@ -1,0 +1,16 @@
+✔ the listen address comes from AWS_LAMBDA_HTTP_ENDPOINT (1.496979ms)
+✔ health check answers before start-up work has finished (200.086784ms)
+✔ appointments can be listed and filtered (26.216451ms)
+✔ the platform request id is used, and only the last forwarded address is trusted (2.639954ms)
+✔ an unknown path is a 404 with a JSON body (2.147023ms)
+✔ events are streamed one at a time (51.709912ms)
+✔ 128 requests that wait on I/O are served concurrently by one process (271.50688ms)
+✔ the CPU-bound endpoint does its work and reports it (21.803499ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 718.753572

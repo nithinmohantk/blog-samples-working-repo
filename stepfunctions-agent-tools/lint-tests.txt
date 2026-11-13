@@ -1,0 +1,12 @@
+ok    the sample target and policy are consistent
+ok    an unpinned StartExecution is found
+ok    an exposed SendTaskSuccess is found
+ok    an operation the role does not allow is found
+ok    two workflows on one target are found
+ok    an unpinned connector version is found
+ok    a StartExecution with no description is found
+ok    execution access wider than the workflow is found
+ok    a wildcard action is found
+ok    a task-token permission the target does not need is found
+
+10 of 10 checks passed

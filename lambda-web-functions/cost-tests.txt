@@ -1,0 +1,14 @@
+ok    AWS example 1, server-side rendered app: 25.77 (published 25.78)
+ok    AWS example 2, I/O-heavy API: 19.60 (published 19.61)
+ok    AWS example 3, authorization middleware: 64.56 (published 64.56)
+ok    AWS example 4, LLM streaming endpoint: 33.95 (published 33.94)
+ok    App Runner example 2, lightweight API (AWS rounds daily figures): 25.44 (published 25.50)
+ok    event function, 1M requests x 1 s x 1 GB on Arm: 13.53 (published 13.53)
+ok    the same behind an HTTP API: 14.53 (published 14.53)
+ok    I/O-heavy: the web function costs less than the event function
+ok    streaming: the gap is widest where requests wait longest
+ok    CPU-bound: the web function is the more expensive of the two
+ok    low traffic: an always-on environment costs more than paying per request
+ok    an HTTP API adds exactly its per-request charge
+
+12 of 12 checks passed
