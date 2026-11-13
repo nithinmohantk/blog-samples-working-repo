@@ -36,6 +36,7 @@ Each folder has its own README that says what the code does, how to run it, and 
 | `hl7v2-adt-to-fhir` | [HL7 v2 ADT to FHIR in .NET 10: Synthetic Messages, Validated Output](https://www.dataa.dev/2026/03/14/hl7-v2-adt-to-fhir-in-dotnet-10-synthetic-messages-validated-output/) | C#, Python |
 | `smart-backend-services` | [SMART Backend Services: System-to-System FHIR Authorization in .NET 10](https://www.dataa.dev/2026/03/28/smart-backend-services-system-to-system-fhir-authorization-in-dotnet-10/) | C#, Python |
 | `small-api-cost-model` | [ECS Express Mode, App Runner or Lambda for a Small API](https://www.dataa.dev/2026/04/04/ecs-express-mode-app-runner-or-lambda-for-a-small-api/) | Python |
+| `sqlserver2025-vector-json` | [SQL Server 2025 for Architects: The Vector Type and Native JSON](https://www.dataa.dev/2026/04/25/sql-server-2025-for-architects-the-vector-type-and-native-json/) | T-SQL, C# |
 | `aws-emulator-first-look` | [AWS Emulator, Two Days In: A Lab Notebook](https://www.dataa.dev/2026/11/13/aws-emulator-two-days-in-a-lab-notebook/) | Bash, Python |
 
 ## Verification status
@@ -57,6 +58,7 @@ Not everything here has been compiled or run. The state at the time of the first
 * `terraform-two-clouds`: contract and cloud-specific tests run in GitHub Actions on Terraform 1.16.3 and OpenTofu 1.12.6 against mocked AWS and AzureRM providers. Nothing is applied to a real account.
 * `terraform-vs-opentofu`: 24 experiments run on Terraform 1.16.5 and OpenTofu 1.13.1 in GitHub Actions; see its README for the matrix.
 * `dotnet10-on-lambda`: three builds of one function run in the AWS Lambda base images under the Runtime Interface Emulator, in GitHub Actions. Timings are from the runner, not from Lambda. SnapStart is not exercised.
+* `sqlserver2025-vector-json`: experiments run against the SQL Server 2025 container (the image built most recently before 25 April 2026) in GitHub Actions, with synthetic vectors and documents. Timings are from the runner.
 * Nothing in this repository has been deployed to AWS or Azure.
 
 ## Healthcare samples

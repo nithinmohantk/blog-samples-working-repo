@@ -234,6 +234,7 @@ Outcome fromText = Lookup("nvarchar(max), no index", "json.query.text")!;
 Outcome? fromNative = Lookup("json, no index", "json.query.native");
 Must(db.Run(sql["json.computed"]), "add the computed column and its index");
 Outcome? fromComputed = Lookup("json, computed column with a B-tree index", "json.query.computed");
+long beforeJsonIndexKb = Convert.ToInt64(db.Run("SELECT SUM(used_page_count) * 8 FROM sys.dm_db_partition_stats").Scalar);
 ObserveAs("9.1", "CREATE JSON INDEX with PREVIEW_FEATURES off", sql["json.index"], "CREATE JSON INDEX IX_OrdersJ_doc ON dbo.OrdersJ (doc) FOR ('$.customer.country', '$.status');");
 Outcome? fromIndex = null, fromContains = null, fromHint = null;
 if (!JsonIndexExists())
@@ -244,7 +245,9 @@ if (!JsonIndexExists())
 if (JsonIndexExists())
 {
     Outcome kinds = db.Run("SELECT CAST(type_desc AS varchar(60)) FROM sys.indexes WHERE object_id = OBJECT_ID('dbo.OrdersJ') ORDER BY index_id");
-    Console.WriteLine($"  sys.indexes for dbo.OrdersJ: {string.Join(", ", kinds.Rows.Select(row => row[0]))}; the table is now {Convert.ToInt64(db.Run(sql["json.size"], ("@table", "dbo.OrdersJ")).Scalar) / 1024.0:F1} MB");
+    long withJsonIndexKb = Convert.ToInt64(db.Run("SELECT SUM(used_page_count) * 8 FROM sys.dm_db_partition_stats").Scalar);
+    Console.WriteLine($"  sys.indexes for dbo.OrdersJ: {string.Join(", ", kinds.Rows.Select(row => row[0]))}; the database grew by {(withJsonIndexKb - beforeJsonIndexKb) / 1024.0:F1} MB");
+    results["json_index_mb"] = Math.Round((withJsonIndexKb - beforeJsonIndexKb) / 1024.0, 1);
     fromIndex = Lookup("json, JSON index, JSON_VALUE(...) = N'MT'", "json.query.native");
     fromContains = Lookup("json, JSON index, JSON_CONTAINS(...) = 1", "json.query.contains");
     fromHint = Lookup("json, JSON index named in a hint", "json.query.hinted");
