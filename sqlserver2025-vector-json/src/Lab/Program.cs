@@ -216,34 +216,41 @@ Update("json, doc.modify(), same length, 20 characters", "json.modify.native", "
 
 Section("9. Finding the orders for one country, about 1 in 200");
 Dictionary<string, object> lookups = [];
-Outcome Lookup(string label, string block)
+Outcome? Lookup(string label, string block)
 {
-    List<double> times = [.. Enumerable.Range(0, 7).Select(_ => db.Run(sql[block]).Milliseconds)];
-    Outcome io = Must(db.Run("SET STATISTICS IO ON; " + sql[block] + " SET STATISTICS IO OFF;"), label);
+    List<double> times = [.. Enumerable.Range(0, 15).Select(_ => db.Run(sql[block]).Milliseconds)];
+    Outcome io = db.Run("SET STATISTICS IO ON; " + sql[block] + " SET STATISTICS IO OFF;");
+    if (!io.Ok)
+    {
+        Console.WriteLine($"  {label,-44} {io.Summary}");
+        return null;
+    }
     Console.WriteLine($"  {label,-44} {Convert.ToInt32(io.Rows[0][0]),4} orders   median {Median(times),6:F1} ms   {io.LogicalReads + io.LobReads,6:N0} pages read");
     lookups[label] = new { median_ms = Math.Round(Median(times), 1), pages = io.LogicalReads + io.LobReads };
     return io;
 }
-Outcome fromText = Lookup("nvarchar(max), no index", "json.query.text");
-Outcome fromNative = Lookup("json, no index", "json.query.native");
+Must(db.Run(sql["json.rebuild"]), "rebuild the tables");
+Outcome fromText = Lookup("nvarchar(max), no index", "json.query.text")!;
+Outcome? fromNative = Lookup("json, no index", "json.query.native");
 Must(db.Run(sql["json.computed"]), "add the computed column and its index");
-Outcome fromComputed = Lookup("json, computed column with a B-tree index", "json.query.computed");
-ObserveAs("8.1", "CREATE JSON INDEX with PREVIEW_FEATURES off", sql["json.index"], "CREATE JSON INDEX IX_OrdersJ_doc ON dbo.OrdersJ (doc) FOR ('$.customer.country', '$.status');");
-Outcome? fromIndex = null;
+Outcome? fromComputed = Lookup("json, computed column with a B-tree index", "json.query.computed");
+ObserveAs("9.1", "CREATE JSON INDEX with PREVIEW_FEATURES off", sql["json.index"], "CREATE JSON INDEX IX_OrdersJ_doc ON dbo.OrdersJ (doc) FOR ('$.customer.country', '$.status');");
+Outcome? fromIndex = null, fromContains = null, fromHint = null;
 if (!JsonIndexExists())
 {
-    Observe("8.2", "turn the preview features on", "ALTER DATABASE SCOPED CONFIGURATION SET PREVIEW_FEATURES = ON;");
-    ObserveAs("8.3", "CREATE JSON INDEX again", sql["json.index"], "CREATE JSON INDEX IX_OrdersJ_doc ON dbo.OrdersJ (doc) FOR ('$.customer.country', '$.status');");
+    Observe("9.2", "turn the preview features on", "ALTER DATABASE SCOPED CONFIGURATION SET PREVIEW_FEATURES = ON;");
+    ObserveAs("9.3", "CREATE JSON INDEX again", sql["json.index"], "CREATE JSON INDEX IX_OrdersJ_doc ON dbo.OrdersJ (doc) FOR ('$.customer.country', '$.status');");
 }
 if (JsonIndexExists())
 {
     Outcome kinds = db.Run("SELECT CAST(type_desc AS varchar(60)) FROM sys.indexes WHERE object_id = OBJECT_ID('dbo.OrdersJ') ORDER BY index_id");
     Console.WriteLine($"  sys.indexes for dbo.OrdersJ: {string.Join(", ", kinds.Rows.Select(row => row[0]))}; the table is now {Convert.ToInt64(db.Run(sql["json.size"], ("@table", "dbo.OrdersJ")).Scalar) / 1024.0:F1} MB");
-    fromIndex = Lookup("json, JSON index", "json.query.native");
-    Observe("8.4", "JSON_CONTAINS on the indexed column", "SELECT COUNT(*) FROM dbo.OrdersJ WHERE JSON_CONTAINS(doc, 'MT', '$.customer.country') = 1;");
+    fromIndex = Lookup("json, JSON index, JSON_VALUE(...) = N'MT'", "json.query.native");
+    fromContains = Lookup("json, JSON index, JSON_CONTAINS(...) = 1", "json.query.contains");
+    fromHint = Lookup("json, JSON index named in a hint", "json.query.hinted");
 }
 Check("every way of asking returns the same count and the same total",
-    new[] { fromNative, fromComputed, fromIndex }.Where(o => o is not null).All(o => Equals(o!.Rows[0][0], fromText.Rows[0][0]) && Equals(o.Rows[0][1], fromText.Rows[0][1])));
+    new[] { fromNative, fromComputed, fromIndex, fromContains, fromHint }.Where(o => o is not null).All(o => Equals(o!.Rows[0][0], fromText.Rows[0][0]) && Equals(o.Rows[0][1], fromText.Rows[0][1])));
 results["lookups"] = lookups;
 if (JsonIndexExists())
 {

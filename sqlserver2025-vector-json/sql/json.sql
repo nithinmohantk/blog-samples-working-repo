@@ -45,6 +45,22 @@ WHERE country = N'MT';
 -- name: json.index
 CREATE JSON INDEX IX_OrdersJ_doc ON dbo.OrdersJ (doc) FOR ('$.customer.country', '$.status');
 
+-- name: json.query.contains
+SELECT COUNT(*) AS orders, SUM(CAST(JSON_VALUE(doc, '$.total') AS decimal(12, 2))) AS total
+FROM dbo.OrdersJ
+WHERE JSON_CONTAINS(doc, 'MT', '$.customer.country') = 1;
+
+-- name: json.query.hinted
+SELECT COUNT(*) AS orders, SUM(CAST(JSON_VALUE(doc, '$.total') AS decimal(12, 2))) AS total
+FROM dbo.OrdersJ WITH (INDEX (IX_OrdersJ_doc))
+WHERE JSON_VALUE(doc, '$.customer.country') = N'MT';
+
+-- name: json.rebuild
+-- Compact every table after the updates, so the lookups that follow compare like with like.
+ALTER INDEX ALL ON dbo.OrdersN REBUILD;
+ALTER INDEX ALL ON dbo.OrdersJ REBUILD;
+ALTER INDEX ALL ON dbo.OrdersC REBUILD;
+
 -- name: json.modify.native
 -- Inside a transaction, so the log written by this one statement can be read before it commits.
 BEGIN TRANSACTION;
