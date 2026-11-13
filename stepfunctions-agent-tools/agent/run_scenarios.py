@@ -13,6 +13,7 @@ import time
 
 import boto3
 import botocore.config
+import botocore.exceptions
 
 from gateway_emulator import GatewayEmulator
 
@@ -26,6 +27,13 @@ sfn = boto3.client(
 target = json.loads((root / "gateway" / "target.json").read_text(encoding="utf-8"))
 definition = (root / "workflow" / "goodwill-credit.asl.json").read_text(encoding="utf-8")
 ROLE = "arn:aws:iam::123456789012:role/local-only"
+
+for attempt in range(60):  # the container accepts connections before the service inside it is ready
+    try:
+        sfn.list_state_machines()
+        break
+    except botocore.exceptions.BotoCoreError:
+        time.sleep(1)
 
 activity_arn = sfn.create_activity(name="ManagerApproval")["activityArn"]
 machine_arn = sfn.create_state_machine(name="GoodwillCredit", definition=definition, roleArn=ROLE)["stateMachineArn"]
