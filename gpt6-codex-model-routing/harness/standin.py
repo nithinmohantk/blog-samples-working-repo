@@ -139,7 +139,8 @@ class Handler(BaseHTTPRequestHandler):
             if isinstance(item, dict) and item.get("type") == "additional_tools":
                 tools += item.get("tools") or []
         instructions_tokens, tools_tokens, input_tokens = count(body.get("instructions") or ""), count(tools), count(items)
-        prompt_tokens = instructions_tokens + tools_tokens + input_tokens
+        # Tools declared in an input item are already inside input_tokens; only a top-level list is added.
+        prompt_tokens = instructions_tokens + count(body.get("tools") or "") + input_tokens
         self._record({
             "method": "POST", "path": self.path, "request": number, "agent": "main" if root else "other", "replied_with": next(iter(step)),
             "authorization": "Bearer <present>" if self.headers.get("Authorization", "").startswith("Bearer ") else "absent",

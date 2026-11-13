@@ -25,12 +25,12 @@ for path in sorted(out.glob("requests-*.jsonl")):
     models = sorted({(request["model"], json.dumps(request["reasoning"])) for request in requests})
     if len(models) > 1:
         print(f"models used in this run: {models}")
-    print(f"{'request':>7} {'agent':>6} {'model':>12} {'effort':>7} {'reply':>8} {'tools':>7} {'input items':>12} {'input tokens':>13} {'prompt tokens':>14} {'earlier items unchanged':>24}")
+    print(f"{'request':>7} {'agent':>6} {'model':>12} {'effort':>7} {'reply':>8} {'of which tools':>15} {'input items':>12} {'prompt tokens':>14} {'earlier items unchanged':>24}")
     previous = {}
     for request in requests:
         before = previous.get(request["agent"])
         prefix = before is None or request["item_digests"][:len(before["item_digests"])] == before["item_digests"]
-        print(f"{request['request']:>7} {request['agent']:>6} {request['model']:>12} {(request['reasoning'] or {}).get('effort', '-'):>7} {request['replied_with']:>8} {request['tools_tokens']:>7,} {request['input_items']:>12} {request['input_tokens']:>13,} {request['prompt_tokens']:>14,} {('-' if before is None else str(prefix)):>24}")
+        print(f"{request['request']:>7} {request['agent']:>6} {request['model']:>12} {(request['reasoning'] or {}).get('effort', '-'):>7} {request['replied_with']:>8} {request['tools_tokens']:>15,} {request['input_items']:>12} {request['prompt_tokens']:>14,} {('-' if before is None else str(prefix)):>24}")
         previous[request["agent"]] = request
     last = requests[-1]
     print("items in the last request: " + ", ".join(f"{kind} {tokens:,}" for kind, tokens in zip(last["item_kinds"], last["item_tokens"])))
