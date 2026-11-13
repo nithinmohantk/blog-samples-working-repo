@@ -1,0 +1,48 @@
+openai 2.16.0, tiktoken 0.12.0; tiktoken maps gpt-5 to o200k_base
+
+== 1. How much code is 400,000 tokens?
+language      files    lines     tokens  tokens per line  lines in 400,000 tokens
+C#              124   10,462    132,069             12.6                   31,686
+Python           97    7,374     99,145             13.4                   29,750
+Terraform        89    3,013     21,641              7.2                   55,691
+all four        310   20,849    252,855             12.1                   32,982
+ok    the count is repeatable: a second pass over the same files gives the same number
+
+== 2. What the published prices imply
+400,000 input tokens, none cached      $0.70
+400,000 input tokens, all cached       $0.07
+16,000 output tokens                   $0.22
+ok    a full window of input is $0.70, and $0.07 when all of it is cached
+ok    cached input is one tenth of the input price
+ok    the cacheable part of a prefix is 0 below 1,024 tokens and moves in steps of 128 above it
+ok    a 250,000-token repository and a 500-token question leave 149,500 tokens for reasoning and the answer
+
+  repository  questions   no caching   cache warm   saving
+      50,000          1        0.14$        0.14$       0%
+      50,000         10        1.44$        0.74$      49%
+      50,000         40        5.78$        2.71$      53%
+     150,000          1        0.32$        0.32$       0%
+     150,000         10        3.19$        1.07$      67%
+     150,000         40       12.78$        3.57$      72%
+     250,000          1        0.49$        0.49$       0%
+     250,000         10        4.94$        1.40$      72%
+     250,000         40       19.77$        4.42$      78%
+ok    ten questions about a 250,000-token repository: $4.94 without caching, $1.40 with a warm cache
+
+== 3. The client against the local stand-in
+8 C# files, 23,327 tokens of instructions and repository
+ok    the first request is retried after a 429 and then answered
+ok    nothing is cached on the first request
+ok    a different question about the same repository is served 23,296 cached tokens: the whole prefix, to the nearest step of 128
+ok    the second request costs less than a quarter of the first
+  first request  23,336 input, 0 cached, $0.0467
+  second request 23,337 input, 23,296 cached, $0.0100
+ok    the request puts the repository before the question, sets a cache key and does not store the response
+ok    an image is sent after the question as a data URL, and the repository is still served from the cache
+ok    one changed sentence in front of the repository and nothing is cached
+ok    a new snapshot of the repository has its own cache key and starts cold
+  refused locally: 390,041 tokens of repository leave 9,955 for the answer; 16,000 are needed.
+ok    a repository that leaves no room for the answer is refused before any request is sent
+ok    a token provider in place of a key reaches the server as a bearer token, as Entra ID sign-in to Foundry needs
+
+16 of 16 checks passed

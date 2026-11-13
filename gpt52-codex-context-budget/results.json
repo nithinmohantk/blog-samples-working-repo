@@ -1,0 +1,101 @@
+{
+ "C#": {
+  "files": 124,
+  "lines": 10462,
+  "tokens": 132069,
+  "tokens_per_line": 12.6
+ },
+ "Python": {
+  "files": 97,
+  "lines": 7374,
+  "tokens": 99145,
+  "tokens_per_line": 13.4
+ },
+ "Terraform": {
+  "files": 89,
+  "lines": 3013,
+  "tokens": 21641,
+  "tokens_per_line": 7.2
+ },
+ "all four": {
+  "files": 310,
+  "lines": 20849,
+  "tokens": 252855,
+  "tokens_per_line": 12.1
+ },
+ "sessions": [
+  {
+   "prefix": 50000,
+   "questions": 1,
+   "without": 0.14,
+   "with": 0.14,
+   "saving": 0.0
+  },
+  {
+   "prefix": 50000,
+   "questions": 10,
+   "without": 1.44,
+   "with": 0.74,
+   "saving": 0.49
+  },
+  {
+   "prefix": 50000,
+   "questions": 40,
+   "without": 5.78,
+   "with": 2.71,
+   "saving": 0.531
+  },
+  {
+   "prefix": 150000,
+   "questions": 1,
+   "without": 0.32,
+   "with": 0.32,
+   "saving": 0.0
+  },
+  {
+   "prefix": 150000,
+   "questions": 10,
+   "without": 3.19,
+   "with": 1.07,
+   "saving": 0.665
+  },
+  {
+   "prefix": 150000,
+   "questions": 40,
+   "without": 12.78,
+   "with": 3.57,
+   "saving": 0.721
+  },
+  {
+   "prefix": 250000,
+   "questions": 1,
+   "without": 0.49,
+   "with": 0.49,
+   "saving": 0.0
+  },
+  {
+   "prefix": 250000,
+   "questions": 10,
+   "without": 4.94,
+   "with": 1.4,
+   "saving": 0.717
+  },
+  {
+   "prefix": 250000,
+   "questions": 40,
+   "without": 19.77,
+   "with": 4.42,
+   "saving": 0.776
+  }
+ ],
+ "stand_in": {
+  "prefix_tokens": 23327,
+  "first_cost": 0.0467,
+  "second_cost": 0.01,
+  "second_cached": 23296
+ },
+ "checks": {
+  "passed": 16,
+  "total": 16
+ }
+}
