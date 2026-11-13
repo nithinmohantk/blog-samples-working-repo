@@ -86,6 +86,11 @@ resource "azurerm_kubernetes_cluster" "this" {
     }
   }
 
+  # Node pools are declared here, not provisioned on demand by the platform.
+  node_provisioning_profile {
+    mode = "Manual"
+  }
+
   network_profile {
     network_plugin      = "azure"
     network_plugin_mode = "overlay"
