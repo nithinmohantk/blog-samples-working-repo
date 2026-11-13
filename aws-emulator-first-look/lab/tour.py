@@ -175,13 +175,21 @@ def lambda_invoke():
     iam, lam = client("iam"), client("lambda")
     role = iam.create_role(RoleName=f"lab-role-{suffix}", AssumeRolePolicyDocument=json.dumps(
         {"Version": "2012-10-17", "Statement": [{"Effect": "Allow", "Principal": {"Service": "lambda.amazonaws.com"}, "Action": "sts:AssumeRole"}]}))["Role"]["Arn"]
+    # The function does its sum, then tries five things that touch the machine it runs on and reports each.
     handler = (
-        "import os\n"
+        "import os, socket, sys\n"
+        "def attempt(action):\n"
+        "    try:\n"
+        "        return str(action())\n"
+        "    except Exception as error:\n"
+        "        return 'failed: ' + type(error).__name__\n"
         "def handler(event, context):\n"
-        "    host_home = event['host_home']\n"
-        "    return {'doubled': event['n'] * 2, 'cwd': os.getcwd(), 'uid': os.getuid(),\n"
-        "            'can_list_host_home': os.path.isdir(host_home) and len(os.listdir(host_home)) > 0,\n"
-        "            'sees_emulator_credentials': os.path.exists(event['credentials_file'])}\n")
+        "    return {'doubled': event['n'] * 2, 'python': sys.version.split()[0],\n"
+        "            'getcwd': attempt(os.getcwd),\n"
+        "            'getuid': attempt(os.getuid),\n"
+        "            'entries_in_host_home': attempt(lambda: len(os.listdir(event['host_home']))),\n"
+        "            'bytes_of_credentials_file': attempt(lambda: len(open(event['credentials_file']).read())),\n"
+        "            'socket_to_endpoint': attempt(lambda: socket.create_connection(('127.0.0.1', event['port']), 2).close() or 'connected')}\n")
     package = io.BytesIO()
     with zipfile.ZipFile(package, "w") as archive:
         archive.writestr("app.py", handler)
@@ -194,13 +202,12 @@ def lambda_invoke():
     for _ in range(2):
         started = time.perf_counter()
         result = lam.invoke(FunctionName=f"lab-fn-{suffix}", Payload=json.dumps(
-            {"n": 21, "host_home": os.path.expanduser("~"), "credentials_file": os.environ.get("AWS_SHARED_CREDENTIALS_FILE", "/nonexistent")}).encode())
+            {"n": 21, "host_home": os.path.expanduser("~"), "port": int(kw["endpoint_url"].rsplit(":", 1)[1]),
+             "credentials_file": os.environ.get("AWS_SHARED_CREDENTIALS_FILE", "/nonexistent")}).encode())
         timings.append(round((time.perf_counter() - started) * 1000))
         payload = json.loads(result["Payload"].read().decode() or "{}")
     assert payload.get("doubled") == 42, f"invoke returned {payload}"
-    return {"result": payload["doubled"], "first_invoke_ms": timings[0], "second_invoke_ms": timings[1], "cwd": payload.get("cwd"),
-            "same_uid_as_caller": payload.get("uid") == os.getuid(), "can_list_host_home": payload.get("can_list_host_home"),
-            "sees_emulator_credentials": payload.get("sees_emulator_credentials")}
+    return {"result": payload.pop("doubled"), "first_invoke_ms": timings[0], "second_invoke_ms": timings[1], **payload}
 
 
 def step_functions_execution():
