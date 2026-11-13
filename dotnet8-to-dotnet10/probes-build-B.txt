@@ -1,0 +1,16 @@
+  Determining projects to restore...
+  Restored /tmp/Probes-sv1p947w/Probes/Probes.csproj (in 517 ms).
+/tmp/Probes-sv1p947w/Probes/Program.cs(91,38): warning ASP0000: Calling 'BuildServiceProvider' from application code results in an additional copy of singleton services being created. Consider alternatives such as dependency injecting services as parameters to 'Configure'. (https://aka.ms/AA5k895) [/tmp/Probes-sv1p947w/Probes/Probes.csproj::TargetFramework=net8.0]
+/tmp/Probes-sv1p947w/Probes/Program.cs(109,38): warning ASP0000: Calling 'BuildServiceProvider' from application code results in an additional copy of singleton services being created. Consider alternatives such as dependency injecting services as parameters to 'Configure'. (https://aka.ms/AA5k895) [/tmp/Probes-sv1p947w/Probes/Probes.csproj::TargetFramework=net8.0]
+/tmp/Probes-sv1p947w/Probes/Program.cs(121,38): warning ASP0000: Calling 'BuildServiceProvider' from application code results in an additional copy of singleton services being created. Consider alternatives such as dependency injecting services as parameters to 'Configure'. (https://aka.ms/AA5k895) [/tmp/Probes-sv1p947w/Probes/Probes.csproj::TargetFramework=net8.0]
+  Probes -> /tmp/Probes-sv1p947w/Probes/bin/Release/net8.0/Probes.dll
+
+Build succeeded.
+
+/tmp/Probes-sv1p947w/Probes/Program.cs(91,38): warning ASP0000: Calling 'BuildServiceProvider' from application code results in an additional copy of singleton services being created. Consider alternatives such as dependency injecting services as parameters to 'Configure'. (https://aka.ms/AA5k895) [/tmp/Probes-sv1p947w/Probes/Probes.csproj::TargetFramework=net8.0]
+/tmp/Probes-sv1p947w/Probes/Program.cs(109,38): warning ASP0000: Calling 'BuildServiceProvider' from application code results in an additional copy of singleton services being created. Consider alternatives such as dependency injecting services as parameters to 'Configure'. (https://aka.ms/AA5k895) [/tmp/Probes-sv1p947w/Probes/Probes.csproj::TargetFramework=net8.0]
+/tmp/Probes-sv1p947w/Probes/Program.cs(121,38): warning ASP0000: Calling 'BuildServiceProvider' from application code results in an additional copy of singleton services being created. Consider alternatives such as dependency injecting services as parameters to 'Configure'. (https://aka.ms/AA5k895) [/tmp/Probes-sv1p947w/Probes/Probes.csproj::TargetFramework=net8.0]
+    3 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:04.80

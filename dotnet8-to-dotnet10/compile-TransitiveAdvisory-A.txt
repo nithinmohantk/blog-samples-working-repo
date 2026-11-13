@@ -1,0 +1,3 @@
+  Determining projects to restore...
+  Restored /tmp/TransitiveAdvisory-wz9f2pm1/TransitiveAdvisory/TransitiveAdvisory.csproj (in 7.52 sec).
+  TransitiveAdvisory -> /tmp/TransitiveAdvisory-wz9f2pm1/TransitiveAdvisory/bin/Release/net8.0/TransitiveAdvisory.dll

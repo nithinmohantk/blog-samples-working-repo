@@ -1,0 +1,3 @@
+  Determining projects to restore...
+  Restored /tmp/AsyncLinqPackage-8e_pze1q/AsyncLinqPackage/AsyncLinqPackage.csproj (in 565 ms).
+  AsyncLinqPackage -> /tmp/AsyncLinqPackage-8e_pze1q/AsyncLinqPackage/bin/Release/net8.0/AsyncLinqPackage.dll

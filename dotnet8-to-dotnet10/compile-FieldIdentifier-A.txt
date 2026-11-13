@@ -1,0 +1,3 @@
+  Determining projects to restore...
+  Restored /tmp/FieldIdentifier-xifef9m4/FieldIdentifier/FieldIdentifier.csproj (in 70 ms).
+  FieldIdentifier -> /tmp/FieldIdentifier-xifef9m4/FieldIdentifier/bin/Release/net8.0/FieldIdentifier.dll

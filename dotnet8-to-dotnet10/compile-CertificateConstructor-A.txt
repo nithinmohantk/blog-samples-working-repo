@@ -1,0 +1,3 @@
+  Determining projects to restore...
+  Restored /tmp/CertificateConstructor-6exi20zo/CertificateConstructor/CertificateConstructor.csproj (in 58 ms).
+  CertificateConstructor -> /tmp/CertificateConstructor-6exi20zo/CertificateConstructor/bin/Release/net8.0/CertificateConstructor.dll

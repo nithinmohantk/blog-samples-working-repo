@@ -1,0 +1,16 @@
+  Determining projects to restore...
+  Restored /tmp/ForwardedHeadersNetworks-na8o3fhe/ForwardedHeadersNetworks/ForwardedHeadersNetworks.csproj (in 63 ms).
+/tmp/ForwardedHeadersNetworks-na8o3fhe/ForwardedHeadersNetworks/Program.cs(6,1): warning ASPDEPR005: 'ForwardedHeadersOptions.KnownNetworks' is obsolete: 'Please use KnownIPNetworks instead. For more information, visit https://aka.ms/aspnet/deprecate/005.' (https://aka.ms/aspnet/deprecate/005) [/tmp/ForwardedHeadersNetworks-na8o3fhe/ForwardedHeadersNetworks/ForwardedHeadersNetworks.csproj::TargetFramework=net10.0]
+/tmp/ForwardedHeadersNetworks-na8o3fhe/ForwardedHeadersNetworks/Program.cs(6,31): warning ASPDEPR005: 'IPNetwork' is obsolete: 'Please use System.Net.IPNetwork instead. For more information, visit https://aka.ms/aspnet/deprecate/005.' (https://aka.ms/aspnet/deprecate/005) [/tmp/ForwardedHeadersNetworks-na8o3fhe/ForwardedHeadersNetworks/ForwardedHeadersNetworks.csproj::TargetFramework=net10.0]
+/tmp/ForwardedHeadersNetworks-na8o3fhe/ForwardedHeadersNetworks/Program.cs(7,19): warning ASPDEPR005: 'ForwardedHeadersOptions.KnownNetworks' is obsolete: 'Please use KnownIPNetworks instead. For more information, visit https://aka.ms/aspnet/deprecate/005.' (https://aka.ms/aspnet/deprecate/005) [/tmp/ForwardedHeadersNetworks-na8o3fhe/ForwardedHeadersNetworks/ForwardedHeadersNetworks.csproj::TargetFramework=net10.0]
+  ForwardedHeadersNetworks -> /tmp/ForwardedHeadersNetworks-na8o3fhe/ForwardedHeadersNetworks/bin/Release/net10.0/ForwardedHeadersNetworks.dll
+
+Build succeeded.
+
+/tmp/ForwardedHeadersNetworks-na8o3fhe/ForwardedHeadersNetworks/Program.cs(6,1): warning ASPDEPR005: 'ForwardedHeadersOptions.KnownNetworks' is obsolete: 'Please use KnownIPNetworks instead. For more information, visit https://aka.ms/aspnet/deprecate/005.' (https://aka.ms/aspnet/deprecate/005) [/tmp/ForwardedHeadersNetworks-na8o3fhe/ForwardedHeadersNetworks/ForwardedHeadersNetworks.csproj::TargetFramework=net10.0]
+/tmp/ForwardedHeadersNetworks-na8o3fhe/ForwardedHeadersNetworks/Program.cs(6,31): warning ASPDEPR005: 'IPNetwork' is obsolete: 'Please use System.Net.IPNetwork instead. For more information, visit https://aka.ms/aspnet/deprecate/005.' (https://aka.ms/aspnet/deprecate/005) [/tmp/ForwardedHeadersNetworks-na8o3fhe/ForwardedHeadersNetworks/ForwardedHeadersNetworks.csproj::TargetFramework=net10.0]
+/tmp/ForwardedHeadersNetworks-na8o3fhe/ForwardedHeadersNetworks/Program.cs(7,19): warning ASPDEPR005: 'ForwardedHeadersOptions.KnownNetworks' is obsolete: 'Please use KnownIPNetworks instead. For more information, visit https://aka.ms/aspnet/deprecate/005.' (https://aka.ms/aspnet/deprecate/005) [/tmp/ForwardedHeadersNetworks-na8o3fhe/ForwardedHeadersNetworks/ForwardedHeadersNetworks.csproj::TargetFramework=net10.0]
+    3 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:01.80

@@ -1,0 +1,12 @@
+  Determining projects to restore...
+  Restored /tmp/WithOpenApiCall-7txjip5p/WithOpenApiCall/WithOpenApiCall.csproj (in 450 ms).
+/tmp/WithOpenApiCall-7txjip5p/WithOpenApiCall/Program.cs(3,1): warning ASPDEPR002: 'OpenApiEndpointConventionBuilderExtensions.WithOpenApi<TBuilder>(TBuilder)' is obsolete: 'WithOpenApi is deprecated and will be removed in a future release. For more information, visit https://aka.ms/aspnet/deprecate/002.' (https://aka.ms/aspnet/deprecate/002) [/tmp/WithOpenApiCall-7txjip5p/WithOpenApiCall/WithOpenApiCall.csproj::TargetFramework=net10.0]
+  WithOpenApiCall -> /tmp/WithOpenApiCall-7txjip5p/WithOpenApiCall/bin/Release/net10.0/WithOpenApiCall.dll
+
+Build succeeded.
+
+/tmp/WithOpenApiCall-7txjip5p/WithOpenApiCall/Program.cs(3,1): warning ASPDEPR002: 'OpenApiEndpointConventionBuilderExtensions.WithOpenApi<TBuilder>(TBuilder)' is obsolete: 'WithOpenApi is deprecated and will be removed in a future release. For more information, visit https://aka.ms/aspnet/deprecate/002.' (https://aka.ms/aspnet/deprecate/002) [/tmp/WithOpenApiCall-7txjip5p/WithOpenApiCall/WithOpenApiCall.csproj::TargetFramework=net10.0]
+    1 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:01.82

@@ -1,0 +1,12 @@
+  Determining projects to restore...
+  Restored /tmp/CertificateConstructor-q5rf8qoz/CertificateConstructor/CertificateConstructor.csproj (in 64 ms).
+/tmp/CertificateConstructor-q5rf8qoz/CertificateConstructor/Program.cs(7,42): warning SYSLIB0057: 'X509Certificate2.X509Certificate2(byte[])' is obsolete: 'Loading certificate data through the constructor or Import is obsolete. Use X509CertificateLoader instead to load certificates.' (https://aka.ms/dotnet-warnings/SYSLIB0057) [/tmp/CertificateConstructor-q5rf8qoz/CertificateConstructor/CertificateConstructor.csproj::TargetFramework=net10.0]
+  CertificateConstructor -> /tmp/CertificateConstructor-q5rf8qoz/CertificateConstructor/bin/Release/net10.0/CertificateConstructor.dll
+
+Build succeeded.
+
+/tmp/CertificateConstructor-q5rf8qoz/CertificateConstructor/Program.cs(7,42): warning SYSLIB0057: 'X509Certificate2.X509Certificate2(byte[])' is obsolete: 'Loading certificate data through the constructor or Import is obsolete. Use X509CertificateLoader instead to load certificates.' (https://aka.ms/dotnet-warnings/SYSLIB0057) [/tmp/CertificateConstructor-q5rf8qoz/CertificateConstructor/CertificateConstructor.csproj::TargetFramework=net10.0]
+    1 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:00.90

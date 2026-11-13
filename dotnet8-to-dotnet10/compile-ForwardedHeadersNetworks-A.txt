@@ -1,0 +1,3 @@
+  Determining projects to restore...
+  Restored /tmp/ForwardedHeadersNetworks-6woc3v3b/ForwardedHeadersNetworks/ForwardedHeadersNetworks.csproj (in 63 ms).
+  ForwardedHeadersNetworks -> /tmp/ForwardedHeadersNetworks-6woc3v3b/ForwardedHeadersNetworks/bin/Release/net8.0/ForwardedHeadersNetworks.dll

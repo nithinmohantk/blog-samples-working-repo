@@ -1,0 +1,3 @@
+  Determining projects to restore...
+  Restored /tmp/WithOpenApiCall-ro58pt3u/WithOpenApiCall/WithOpenApiCall.csproj (in 446 ms).
+  WithOpenApiCall -> /tmp/WithOpenApiCall-ro58pt3u/WithOpenApiCall/bin/Release/net8.0/WithOpenApiCall.dll

@@ -1,0 +1,16 @@
+  Determining projects to restore...
+  Restored /tmp/FieldIdentifier-98efpr8y/FieldIdentifier/FieldIdentifier.csproj (in 64 ms).
+/tmp/FieldIdentifier-98efpr8y/FieldIdentifier/Program.cs(10,22): warning CS9258: In language version 14.0, the 'field' keyword binds to a synthesized backing field for the property. To avoid generating a synthesized backing field, and to refer to the existing member, use 'this.field' or '@field' instead. [/tmp/FieldIdentifier-98efpr8y/FieldIdentifier/FieldIdentifier.csproj::TargetFramework=net10.0]
+/tmp/FieldIdentifier-98efpr8y/FieldIdentifier/Program.cs(11,15): warning CS9258: In language version 14.0, the 'field' keyword binds to a synthesized backing field for the property. To avoid generating a synthesized backing field, and to refer to the existing member, use 'this.field' or '@field' instead. [/tmp/FieldIdentifier-98efpr8y/FieldIdentifier/FieldIdentifier.csproj::TargetFramework=net10.0]
+/tmp/FieldIdentifier-98efpr8y/FieldIdentifier/Program.cs(6,17): warning CS0169: The field 'Reading.field' is never used [/tmp/FieldIdentifier-98efpr8y/FieldIdentifier/FieldIdentifier.csproj::TargetFramework=net10.0]
+  FieldIdentifier -> /tmp/FieldIdentifier-98efpr8y/FieldIdentifier/bin/Release/net10.0/FieldIdentifier.dll
+
+Build succeeded.
+
+/tmp/FieldIdentifier-98efpr8y/FieldIdentifier/Program.cs(10,22): warning CS9258: In language version 14.0, the 'field' keyword binds to a synthesized backing field for the property. To avoid generating a synthesized backing field, and to refer to the existing member, use 'this.field' or '@field' instead. [/tmp/FieldIdentifier-98efpr8y/FieldIdentifier/FieldIdentifier.csproj::TargetFramework=net10.0]
+/tmp/FieldIdentifier-98efpr8y/FieldIdentifier/Program.cs(11,15): warning CS9258: In language version 14.0, the 'field' keyword binds to a synthesized backing field for the property. To avoid generating a synthesized backing field, and to refer to the existing member, use 'this.field' or '@field' instead. [/tmp/FieldIdentifier-98efpr8y/FieldIdentifier/FieldIdentifier.csproj::TargetFramework=net10.0]
+/tmp/FieldIdentifier-98efpr8y/FieldIdentifier/Program.cs(6,17): warning CS0169: The field 'Reading.field' is never used [/tmp/FieldIdentifier-98efpr8y/FieldIdentifier/FieldIdentifier.csproj::TargetFramework=net10.0]
+    3 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:00.90

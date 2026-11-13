@@ -1,0 +1,11 @@
+  Determining projects to restore...
+  Restored /tmp/AsyncLinqPackage-54q2ms5s/AsyncLinqPackage/AsyncLinqPackage.csproj (in 226 ms).
+/tmp/AsyncLinqPackage-54q2ms5s/AsyncLinqPackage/Program.cs(2,37): error CS0121: The call is ambiguous between the following methods or properties: 'System.Linq.AsyncEnumerable.Where<TSource>(System.Collections.Generic.IAsyncEnumerable<TSource>, System.Func<TSource, bool>)' and 'System.Linq.AsyncEnumerable.Where<TSource>(System.Collections.Generic.IAsyncEnumerable<TSource>, System.Func<TSource, bool>)' [/tmp/AsyncLinqPackage-54q2ms5s/AsyncLinqPackage/AsyncLinqPackage.csproj::TargetFramework=net10.0]
+
+Build FAILED.
+
+/tmp/AsyncLinqPackage-54q2ms5s/AsyncLinqPackage/Program.cs(2,37): error CS0121: The call is ambiguous between the following methods or properties: 'System.Linq.AsyncEnumerable.Where<TSource>(System.Collections.Generic.IAsyncEnumerable<TSource>, System.Func<TSource, bool>)' and 'System.Linq.AsyncEnumerable.Where<TSource>(System.Collections.Generic.IAsyncEnumerable<TSource>, System.Func<TSource, bool>)' [/tmp/AsyncLinqPackage-54q2ms5s/AsyncLinqPackage/AsyncLinqPackage.csproj::TargetFramework=net10.0]
+    0 Warning(s)
+    1 Error(s)
+
+Time Elapsed 00:00:01.02

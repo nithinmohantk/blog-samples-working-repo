@@ -1,0 +1,3 @@
+  Determining projects to restore...
+  Restored /tmp/LegacyWebHost-cj0skrx2/LegacyWebHost/LegacyWebHost.csproj (in 57 ms).
+  LegacyWebHost -> /tmp/LegacyWebHost-cj0skrx2/LegacyWebHost/bin/Release/net8.0/LegacyWebHost.dll

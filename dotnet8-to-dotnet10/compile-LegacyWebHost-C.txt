@@ -1,0 +1,16 @@
+  Determining projects to restore...
+  Restored /tmp/LegacyWebHost-n8lm7wg_/LegacyWebHost/LegacyWebHost.csproj (in 63 ms).
+/tmp/LegacyWebHost-n8lm7wg_/LegacyWebHost/Program.cs(4,1): warning ASPDEPR008: 'IWebHost' is obsolete: 'IWebHost is obsolete. Use IHost instead. For more information, visit https://aka.ms/aspnet/deprecate/008.' (https://aka.ms/aspnet/deprecate/008) [/tmp/LegacyWebHost-n8lm7wg_/LegacyWebHost/LegacyWebHost.csproj::TargetFramework=net10.0]
+/tmp/LegacyWebHost-n8lm7wg_/LegacyWebHost/Program.cs(4,17): warning ASPDEPR008: 'WebHost' is obsolete: 'WebHost is obsolete. Use HostBuilder or WebApplicationBuilder instead. For more information, visit https://aka.ms/aspnet/deprecate/008.' (https://aka.ms/aspnet/deprecate/008) [/tmp/LegacyWebHost-n8lm7wg_/LegacyWebHost/LegacyWebHost.csproj::TargetFramework=net10.0]
+/tmp/LegacyWebHost-n8lm7wg_/LegacyWebHost/Program.cs(4,17): warning ASPDEPR008: 'IWebHostBuilder.Build()' is obsolete: 'IWebHost is obsolete. Use IHost instead. For more information, visit https://aka.ms/aspnet/deprecate/008.' (https://aka.ms/aspnet/deprecate/008) [/tmp/LegacyWebHost-n8lm7wg_/LegacyWebHost/LegacyWebHost.csproj::TargetFramework=net10.0]
+  LegacyWebHost -> /tmp/LegacyWebHost-n8lm7wg_/LegacyWebHost/bin/Release/net10.0/LegacyWebHost.dll
+
+Build succeeded.
+
+/tmp/LegacyWebHost-n8lm7wg_/LegacyWebHost/Program.cs(4,1): warning ASPDEPR008: 'IWebHost' is obsolete: 'IWebHost is obsolete. Use IHost instead. For more information, visit https://aka.ms/aspnet/deprecate/008.' (https://aka.ms/aspnet/deprecate/008) [/tmp/LegacyWebHost-n8lm7wg_/LegacyWebHost/LegacyWebHost.csproj::TargetFramework=net10.0]
+/tmp/LegacyWebHost-n8lm7wg_/LegacyWebHost/Program.cs(4,17): warning ASPDEPR008: 'WebHost' is obsolete: 'WebHost is obsolete. Use HostBuilder or WebApplicationBuilder instead. For more information, visit https://aka.ms/aspnet/deprecate/008.' (https://aka.ms/aspnet/deprecate/008) [/tmp/LegacyWebHost-n8lm7wg_/LegacyWebHost/LegacyWebHost.csproj::TargetFramework=net10.0]
+/tmp/LegacyWebHost-n8lm7wg_/LegacyWebHost/Program.cs(4,17): warning ASPDEPR008: 'IWebHostBuilder.Build()' is obsolete: 'IWebHost is obsolete. Use IHost instead. For more information, visit https://aka.ms/aspnet/deprecate/008.' (https://aka.ms/aspnet/deprecate/008) [/tmp/LegacyWebHost-n8lm7wg_/LegacyWebHost/LegacyWebHost.csproj::TargetFramework=net10.0]
+    3 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:01.19

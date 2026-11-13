@@ -1,0 +1,22 @@
+{
+  "_runtime": "8.0.23",
+  "aspnet.cookie_auth_on_api_endpoint": "302, Location /Account/Login",
+  "aspnet.handled_exception_is_logged": "500, 1 error log entry from the middleware",
+  "aspnet.hostbuilder_validates_scopes_in_development": "built without complaint",
+  "configuration.null_in_json": "Name=\u0027\u0027, Retries=3, Hosts=[\u0027\u0027, \u0027\u0027]",
+  "di.getkeyedservice_with_anykey": "returned the AnyKey registration",
+  "diagnostics.default_propagator_fields": "baggage, Correlation-Context, Request-Id, traceparent, tracestate",
+  "hosting.backgroundservice_sync_work_blocks_startup": "yes: StartAsync waited for it",
+  "http.factory_logs_header_values": "value written to the log",
+  "http.factory_primary_handler": "HttpClientHandler",
+  "json.nullable_jsondocument_property": "null",
+  "json.property_named_like_the_type_discriminator": "serializes {\u0022Type\u0022:\u0022dog\u0022,\u0022Type\u0022:\u0022Dog\u0022}",
+  "language.array_contains_in_expression_tree": "binds to Enumerable.Contains, interprets",
+  "net.mailaddress_consecutive_dots": "accepted first..last@example.org",
+  "net.uri_longer_than_65519": "throws UriFormatException",
+  "runtime.empty_environment_variable": "setting \u0022\u0022 deletes the variable",
+  "runtime.float_to_int_out_of_range": "(int)1e20=-2147483648, (int)NaN=-2147483648, (uint)-1.0=4294967295",
+  "runtime.server_gc_adaptation_mode": "server GC on, GCDynamicAdaptationMode 0",
+  "serialization.binaryformatter_with_the_opt_in": "serializes",
+  "xml.obsolete_property_is_serialized": "no"
+}

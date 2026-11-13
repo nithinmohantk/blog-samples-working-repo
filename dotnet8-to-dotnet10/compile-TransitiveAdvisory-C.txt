@@ -1,0 +1,14 @@
+  Determining projects to restore...
+/tmp/TransitiveAdvisory-zzcxpxs5/TransitiveAdvisory/TransitiveAdvisory.csproj : warning NU1903: Package 'Newtonsoft.Json' 10.0.1 has a known high severity vulnerability, https://github.com/advisories/GHSA-5crp-9r3c-p9vr
+  Restored /tmp/TransitiveAdvisory-zzcxpxs5/TransitiveAdvisory/TransitiveAdvisory.csproj (in 239 ms).
+/tmp/TransitiveAdvisory-zzcxpxs5/TransitiveAdvisory/TransitiveAdvisory.csproj : warning NU1903: Package 'Newtonsoft.Json' 10.0.1 has a known high severity vulnerability, https://github.com/advisories/GHSA-5crp-9r3c-p9vr [TargetFramework=net10.0]
+  TransitiveAdvisory -> /tmp/TransitiveAdvisory-zzcxpxs5/TransitiveAdvisory/bin/Release/net10.0/TransitiveAdvisory.dll
+
+Build succeeded.
+
+/tmp/TransitiveAdvisory-zzcxpxs5/TransitiveAdvisory/TransitiveAdvisory.csproj : warning NU1903: Package 'Newtonsoft.Json' 10.0.1 has a known high severity vulnerability, https://github.com/advisories/GHSA-5crp-9r3c-p9vr
+/tmp/TransitiveAdvisory-zzcxpxs5/TransitiveAdvisory/TransitiveAdvisory.csproj : warning NU1903: Package 'Newtonsoft.Json' 10.0.1 has a known high severity vulnerability, https://github.com/advisories/GHSA-5crp-9r3c-p9vr [TargetFramework=net10.0]
+    2 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:01.18

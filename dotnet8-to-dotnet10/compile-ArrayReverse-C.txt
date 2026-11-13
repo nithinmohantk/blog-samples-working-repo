@@ -1,0 +1,9 @@
+  Determining projects to restore...
+  Restored /tmp/ArrayReverse-m397m69q/ArrayReverse/ArrayReverse.csproj (in 63 ms).
+  ArrayReverse -> /tmp/ArrayReverse-m397m69q/ArrayReverse/bin/Release/net10.0/ArrayReverse.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:00.90

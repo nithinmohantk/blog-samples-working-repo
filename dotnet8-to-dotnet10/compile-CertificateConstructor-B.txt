@@ -1,0 +1,9 @@
+  Determining projects to restore...
+  Restored /tmp/CertificateConstructor-bcmsheqc/CertificateConstructor/CertificateConstructor.csproj (in 176 ms).
+  CertificateConstructor -> /tmp/CertificateConstructor-bcmsheqc/CertificateConstructor/bin/Release/net8.0/CertificateConstructor.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:01.01

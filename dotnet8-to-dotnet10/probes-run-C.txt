@@ -1,0 +1,22 @@
+{
+  "_runtime": "10.0.2",
+  "aspnet.cookie_auth_on_api_endpoint": "401, Location /Account/Login",
+  "aspnet.handled_exception_is_logged": "500, 0 error log entries from the middleware",
+  "aspnet.hostbuilder_validates_scopes_in_development": "refused at build: AggregateException",
+  "configuration.null_in_json": "Name=null, Retries=null, Hosts=[null, null]",
+  "di.getkeyedservice_with_anykey": "threw InvalidOperationException",
+  "diagnostics.default_propagator_fields": "baggage, Correlation-Context, traceparent, tracestate",
+  "hosting.backgroundservice_sync_work_blocks_startup": "no: StartAsync returned first",
+  "http.factory_logs_header_values": "value redacted",
+  "http.factory_primary_handler": "SocketsHttpHandler",
+  "json.nullable_jsondocument_property": "a JsonDocument of kind Null",
+  "json.property_named_like_the_type_discriminator": "throws InvalidOperationException",
+  "language.array_contains_in_expression_tree": "binds to MemoryExtensions.Contains, interpreter throws ArgumentException",
+  "net.mailaddress_consecutive_dots": "throws FormatException",
+  "net.uri_longer_than_65519": "accepted, 70020 characters",
+  "runtime.empty_environment_variable": "setting \u0022\u0022 keeps an empty variable",
+  "runtime.float_to_int_out_of_range": "(int)1e20=2147483647, (int)NaN=0, (uint)-1.0=0",
+  "runtime.server_gc_adaptation_mode": "server GC on, GCDynamicAdaptationMode 1",
+  "serialization.binaryformatter_with_the_opt_in": "throws PlatformNotSupportedException",
+  "xml.obsolete_property_is_serialized": "yes"
+}
