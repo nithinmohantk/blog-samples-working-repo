@@ -37,7 +37,8 @@ variables {
 }
 
 run "every_region_accepts_writes" {
-  command = plan
+  # Applied against the mock: each location carries a computed id, so Terraform cannot read the set at plan.
+  command = apply
 
   assert {
     condition     = azurerm_cosmosdb_account.this.multiple_write_locations_enabled
