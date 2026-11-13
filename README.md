@@ -26,6 +26,7 @@ Each folder has its own README that says what the code does, how to run it, and 
 | `terraform-two-clouds` | [One Contract, Two Clouds: A Network Baseline on AWS and Azure with Terraform](https://www.dataa.dev/2026/09/27/one-contract-two-clouds-network-baseline-aws-azure-terraform/) | HCL, Python |
 | `terraform-vs-opentofu` | [Terraform 1.16 and OpenTofu 1.13: Where They Have Diverged](https://www.dataa.dev/2026/10/04/terraform-1-16-and-opentofu-1-13-where-they-have-diverged/) | HCL, Python |
 | `aca-vs-aks-regulated` | [Azure Container Apps or AKS for a Regulated Workload: Who Patches What](https://www.dataa.dev/2026/10/11/azure-container-apps-or-aks-for-a-regulated-workload-who-patches-what/) | HCL, Python |
+| `lambda-web-functions` | [Lambda Web Functions: When a Function Becomes a Web Server](https://www.dataa.dev/2026/10/18/lambda-web-functions-when-a-function-becomes-a-web-server/) | JavaScript, Python |
 
 ## Verification status
 
