@@ -29,6 +29,7 @@ Each folder has its own README that says what the code does, how to run it, and 
 | `lambda-web-functions` | [Lambda Web Functions: When a Function Becomes a Web Server](https://www.dataa.dev/2026/10/18/lambda-web-functions-when-a-function-becomes-a-web-server/) | JavaScript, Python |
 | `azure-active-active` | [Multi-Region Active-Active on Azure for a .NET API: What Happens to the Write You Acknowledged](https://www.dataa.dev/2026/10/25/multi-region-active-active-on-azure-for-a-dotnet-api/) | C#, Python, HCL |
 | `stepfunctions-agent-tools` | [Step Functions as Agent Tools: Putting the Rules Where a Prompt Cannot Move Them](https://www.dataa.dev/2026/11/01/step-functions-as-agent-tools-rules-a-prompt-cannot-move/) | ASL, Python |
+| `patient-provider-platform` | [Reference Architecture: A Patient-Provider Platform over Two EHRs on Azure](https://www.dataa.dev/2025/11/10/case-study-enterprise-healthcare-integration-building-a-hipaa-compliant-patient-provider-platform/) | C#, Python |
 
 ## Verification status
 
