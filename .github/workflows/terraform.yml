@@ -6,6 +6,8 @@ on:
       - "terraform-testing-ci/**"
       - "terraform-two-clouds/**"
       - "terraform-vs-opentofu/**"
+      - "aca-vs-aks-regulated/**"
+      - "azure-active-active/**"
       - ".github/workflows/terraform.yml"
   workflow_dispatch:
 
@@ -39,7 +41,7 @@ jobs:
         continue-on-error: true
         run: |
           status=0
-          for sample in terraform-testing-ci terraform-two-clouds terraform-vs-opentofu; do
+          for sample in ${SAMPLES:-terraform-testing-ci terraform-two-clouds terraform-vs-opentofu aca-vs-aks-regulated azure-active-active}; do
             if [ -x "./$sample/ci.sh" ]; then
               "./$sample/ci.sh" "$GITHUB_WORKSPACE/out/$sample" || status=1
             fi

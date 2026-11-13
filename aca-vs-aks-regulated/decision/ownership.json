@@ -1,0 +1,18 @@
+{
+  "_comment": "Who does the work, for each operational duty. An assessment from Microsoft's documentation as read for this article, not a contractual statement. 'you' includes work you can automate but must configure, monitor and answer for.",
+  "duties": [
+    {"duty": "Kubernetes control plane availability and patching", "aca": "microsoft", "aks_automatic": "microsoft", "aks_standard": "microsoft"},
+    {"duty": "Kubernetes minor version upgrades", "aca": "microsoft", "aks_automatic": "microsoft", "aks_standard": "you"},
+    {"duty": "Node operating system patching", "aca": "microsoft", "aks_automatic": "microsoft", "aks_standard": "you"},
+    {"duty": "Node sizing, scaling and repair", "aca": "microsoft", "aks_automatic": "microsoft", "aks_standard": "you"},
+    {"duty": "Ingress controller and its upgrades", "aca": "microsoft", "aks_automatic": "microsoft", "aks_standard": "you"},
+    {"duty": "Add-ons and their compatibility with each upgrade", "aca": "microsoft", "aks_automatic": "shared", "aks_standard": "you"},
+    {"duty": "Admission policy and pod security settings", "aca": "microsoft", "aks_automatic": "shared", "aks_standard": "you"},
+    {"duty": "Network policy between workloads", "aca": "not_available", "aks_automatic": "you", "aks_standard": "you"},
+    {"duty": "Cluster access control (RBAC roles and bindings)", "aca": "not_applicable", "aks_automatic": "you", "aks_standard": "you"},
+    {"duty": "Container base image patching", "aca": "you", "aks_automatic": "you", "aks_standard": "you"},
+    {"duty": "Application identity, secrets and data access", "aca": "you", "aks_automatic": "you", "aks_standard": "you"},
+    {"duty": "Egress control and firewall rules", "aca": "you", "aks_automatic": "you", "aks_standard": "you"},
+    {"duty": "Evidence for auditors that the above is done", "aca": "you", "aks_automatic": "you", "aks_standard": "you"}
+  ]
+}

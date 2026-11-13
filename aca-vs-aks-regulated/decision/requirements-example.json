@@ -1,0 +1,12 @@
+{
+  "workload": "Patient records API: a stateless .NET service behind an internal gateway, with a PostgreSQL database and a message queue.",
+  "needs_kubernetes_api": false,
+  "needs_network_policy_between_services": false,
+  "needs_daemonsets_or_privileged": false,
+  "needs_custom_service_mesh": false,
+  "needs_windows_containers": false,
+  "needs_custom_node_configuration": false,
+  "needs_own_upgrade_schedule_per_pool": false,
+  "needs_bring_your_own_cni": false,
+  "team_operates_kubernetes_today": false
+}
