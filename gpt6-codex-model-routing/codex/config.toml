@@ -1,5 +1,5 @@
-# ~/.codex/config.toml: one model per kind of work.
-# Checked against the configuration schema published with Codex CLI 0.157.1. Not run through the CLI itself.
+# ~/.codex/config.toml: one model per kind of work. Loaded by Codex CLI 0.157.1 in the tests.
+# Profiles are separate files beside this one: deep.config.toml is selected with `codex --profile deep`.
 
 model = "gpt-6-sol"                     # everyday interactive and agentic coding
 model_reasoning_effort = "medium"
@@ -17,18 +17,3 @@ model_auto_compact_token_limit = 240000
 default_subagent_model = "gpt-6-luna"   # spawned workers do focused, high-volume steps
 default_subagent_reasoning_effort = "low"
 max_concurrent_threads_per_session = 4
-
-[profiles.deep]                          # codex --profile deep: hard design and debugging sessions
-model = "gpt-6-astra"
-model_reasoning_effort = "high"
-
-[profiles.bulk]                          # codex --profile bulk: mechanical edits across many files
-model = "gpt-6-luna"
-model_reasoning_effort = "medium"
-
-[profiles.ci]                            # codex --profile ci: unattended runs in a pipeline
-model = "gpt-6-sol"
-model_reasoning_effort = "low"
-sandbox_mode = "read-only"
-approval_policy = "never"
-service_tier = "flex"

@@ -15,7 +15,12 @@ for path in sorted(out.glob("requests-*.jsonl")):
     print(f"model {first['model']}, reasoning {first['reasoning']}, service_tier {first['service_tier']}, stream {first['stream']}, store {first['store']}, cache key sent {first['prompt_cache_key']}")
     print(f"top-level fields: {', '.join(first['top_level_keys'])}")
     print(f"include: {first['include']}; tool_choice {first['tool_choice']}; parallel_tool_calls {first['parallel_tool_calls']}")
-    print(f"{len(first['tools'])} tools: " + ", ".join(f"{tool['name'] or tool['type']}" for tool in first["tools"]))
+    print(f"{len(first['tools'])} tools: " + ", ".join(f"{tool['name'] or tool['type']}({','.join(tool['parameters'])})" for tool in first["tools"]))
+    for kind, keys, start in zip(first["item_kinds"], first["item_keys"], first["item_starts"]):
+        print(f"   item {kind}: keys {keys}; starts {start}")
+    models = sorted({(request["model"], json.dumps(request["reasoning"])) for request in requests})
+    if len(models) > 1:
+        print(f"models used in this run: {models}")
     print(f"{'request':>7} {'instructions':>13} {'tools':>7} {'input items':>12} {'input tokens':>13} {'prompt tokens':>14} {'same instructions and tools':>28} {'earlier items unchanged':>24}")
     previous = None
     for request in requests:

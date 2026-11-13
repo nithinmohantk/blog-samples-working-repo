@@ -92,8 +92,12 @@ class Handler(BaseHTTPRequestHandler):
             number = state["requests"]
             step = script[state["step"]] if state["step"] < len(script) else {"message": "Done."}
             state["step"] += 1
-        tools = body.get("tools") or []
         items = body.get("input") if isinstance(body.get("input"), list) else [body.get("input")]
+        # This CLI version declares its tools in an input item, not in a top-level field.
+        tools = list(body.get("tools") or [])
+        for item in items:
+            if isinstance(item, dict) and item.get("type") == "additional_tools":
+                tools += item.get("tools") or []
         instructions_tokens, tools_tokens, input_tokens = count(body.get("instructions") or ""), count(tools), count(items)
         prompt_tokens = instructions_tokens + tools_tokens + input_tokens
         self._record({
@@ -107,7 +111,10 @@ class Handler(BaseHTTPRequestHandler):
             "text": body.get("text"), "max_output_tokens": body.get("max_output_tokens"),
             "instructions_tokens": instructions_tokens, "instructions_digest": digest(body.get("instructions")),
             "tools_tokens": tools_tokens, "tools_digest": digest(tools),
-            "tools": [{"type": tool.get("type"), "name": tool.get("name"), "parameters": sorted(((tool.get("parameters") or {}).get("properties") or {}))} for tool in tools],
+            "tools": [{"type": tool.get("type"), "name": tool.get("name"), "parameters": sorted(((tool.get("parameters") or {}).get("properties") or {})),
+                       "required": (tool.get("parameters") or {}).get("required"), "keys": sorted(tool)} for tool in tools],
+            "item_keys": [sorted(item) if isinstance(item, dict) else None for item in items],
+            "item_starts": [json.dumps(item.get("content") if isinstance(item, dict) and "content" in item else item, ensure_ascii=False)[:90] for item in items],
             "input_items": len(items), "input_tokens": input_tokens,
             "item_digests": [digest(item) for item in items],
             "item_kinds": [(item.get("type") or "message") + (":" + item["role"] if isinstance(item, dict) and item.get("role") else "") if isinstance(item, dict) else "text" for item in items],
@@ -117,6 +124,8 @@ class Handler(BaseHTTPRequestHandler):
         })
 
         output_item = shell_call(tools, step["shell"]) if "shell" in step else None
+        if "tool" in step:
+            output_item = {"type": "function_call", "call_id": f"call_{state['step']}", "name": step["tool"], "arguments": json.dumps(step["arguments"]), "status": "completed"}
         if output_item is None:
             text = step.get("message", "The stand-in found no shell tool to call.")
             output_item = {"type": "message", "role": "assistant", "status": "completed", "content": [{"type": "output_text", "text": text, "annotations": []}]}

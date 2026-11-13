@@ -123,7 +123,10 @@ validator = jsonschema.Draft7Validator(schema)
 errors = [f"{'/'.join(map(str, error.path))}: {error.message}" for error in validator.iter_errors(config)]
 for error in errors:
     print("  " + error)
-check(f"config.toml is valid: {len(config)} top-level settings and {len(config['profiles'])} profiles", not errors)
+check(f"config.toml is valid: {len(config)} top-level settings", not errors)
+for name in ("deep", "bulk", "ci"):
+    profile = tomllib.loads((here / "codex" / f"{name}.config.toml").read_text(encoding="utf-8"))
+    check(f"{name}.config.toml is valid", not list(validator.iter_errors(profile)))
 
 
 def broken(change) -> bool:
@@ -132,9 +135,10 @@ def broken(change) -> bool:
     return any(True for _ in validator.iter_errors(candidate))
 
 
-check("the schema is strict enough to matter: a misspelt key in a profile is rejected", broken(lambda c: c["profiles"]["deep"].update(model_reasoning_efort="high")))
-check("so is a sandbox mode that does not exist", broken(lambda c: c.update(sandbox_mode="workspace")))
+check("the schema rejects a misspelt key in the agents table's sibling settings: a sandbox mode that does not exist", broken(lambda c: c.update(sandbox_mode="workspace")))
 check("and a compaction limit given as text", broken(lambda c: c.update(model_auto_compact_token_limit="240k")))
+legacy = {**config, "profiles": {"deep": {"model": "gpt-6-astra"}}}
+check("the schema still accepts a [profiles.deep] table, which this CLI version refuses to use with --profile: validation is not enough", not list(validator.iter_errors(legacy)))
 check("the compaction limit in the file is below the 272,000-token price step", config["model_auto_compact_token_limit"] < prices.long_context_over)
 described = schema["properties"]["model_auto_compact_token_limit"]["description"]
 print(f"  schema, model_auto_compact_token_limit: {described}")
