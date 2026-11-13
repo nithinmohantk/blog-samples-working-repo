@@ -20,7 +20,6 @@ docker pull -q "$DOTNET_IMAGE" > /dev/null && docker pull -q "$PROVIDED_IMAGE" >
   python --version; docker --version; nproc | sed 's/$/ vCPU on the runner/'
 } | tee "$out/versions.txt"
 
-for image in "$DOTNET_IMAGE" "$PROVIDED_IMAGE"; do echo "## $image"; docker image inspect "$image" --format '{{json .Config.Entrypoint}} {{json .Config.Cmd}} {{json .Config.Env}} {{.Config.WorkingDir}}'; docker run --rm --entrypoint /bin/sh "$image" -c 'ls -la /var/runtime | head -40; echo; cat /lambda-entrypoint.sh; echo; ls -la /var/runtime/bootstrap* ; file /var/runtime/bootstrap 2>/dev/null; head -c 600 /var/runtime/bootstrap | strings | head -20; ls /var/lang /var/lang/bin 2>/dev/null | head -30'; done > "$out/debug.txt" 2>&1
 echo "== build inside Amazon Linux 2023"
 docker run --rm -v "$PWD:/work:ro" -v "$out:/out" public.ecr.aws/amazonlinux/amazonlinux:2023 bash /work/tools/build.sh "$SDK"; [ $? -eq 0 ] || status=1
 cat "$out/build-versions.txt" >> "$out/versions.txt"

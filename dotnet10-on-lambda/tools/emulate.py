@@ -38,6 +38,12 @@ def docker(*arguments: str) -> str:
     return subprocess.run(["docker", *arguments], capture_output=True, text=True).stdout.strip()
 
 
+def where(image: str) -> str:
+    """In a zip deployment Lambda unpacks the package to /var/task and the OS-only runtime starts /var/task/bootstrap.
+    The base image for that runtime looks for the same file in /var/runtime, so that is where it is mounted."""
+    return "/var/runtime" if image == provided_image else "/var/task"
+
+
 def invoke(event: bytes, timeout: float = 30) -> tuple[float, dict]:
     request = urllib.request.Request(URL, data=event, headers={"Content-Type": "application/json"})
     started = time.perf_counter()
@@ -51,7 +57,7 @@ def start(folder: str, image: str, handler: str) -> float:
     docker("rm", "-f", NAME)
     began = time.perf_counter()
     docker("run", "-d", "--name", NAME, "-p", f"127.0.0.1:{PORT}:8080", "--memory", "512m", "--cpus", "1",
-           "-e", "AWS_LAMBDA_FUNCTION_MEMORY_SIZE=512", "-v", f"{out / 'publish' / folder}:/var/task:ro", image, handler)
+           "-e", "AWS_LAMBDA_FUNCTION_MEMORY_SIZE=512", "-v", f"{out / 'publish' / folder}:{where(image)}:ro", image, handler)
     return began
 
 
