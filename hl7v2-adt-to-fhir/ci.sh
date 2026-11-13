@@ -39,7 +39,7 @@ echo "== an independent check of the server state"
 python python/verify_server_state.py "$out" 2>&1 | tee "$out/verify.txt"; [ "${PIPESTATUS[0]}" -eq 0 ] || status=1
 
 echo "== the HL7 validator on what was sent"
-python python/validate_output.py "$root/validator_cli.jar" "$out" --tx https://tx.fhir.org 2>&1 | tee "$out/validation.txt"; [ "${PIPESTATUS[0]}" -eq 0 ] || status=1
+python python/validate_output.py "$root/validator_cli.jar" "$out" --tx https://tx.fhir.org https://tx.ontoserver.csiro.au/fhir 2>&1 | tee "$out/validation.txt"; [ "${PIPESTATUS[0]}" -eq 0 ] || status=1
 
 docker logs hapi-adt 2>&1 | grep -i "error\|exception" | tail -n 40 > "$out/hapi-errors.log"; docker rm -f hapi-adt > /dev/null 2>&1
 exit $status

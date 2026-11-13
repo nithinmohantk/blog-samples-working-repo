@@ -1,6 +1,6 @@
 """Runs the HL7 FHIR validator over what the converter produced and decides from its findings.
 
-    python validate_output.py validator_cli.jar <output dir> [--tx https://tx.fhir.org]
+    python validate_output.py validator_cli.jar <output dir> [--tx <terminology server> ...]
 
 Two folders are checked. Every Bundle in sent/ (what was posted to the server) must have no errors. Every
 resource in naive/ (v2 values copied across unchanged) must have at least one, which shows the validator is
@@ -40,19 +40,24 @@ def validate(jar: str, files: list[pathlib.Path], tx: str, work: pathlib.Path) -
 
 def main() -> int:
     jar, out = sys.argv[1], pathlib.Path(sys.argv[2])
-    tx = sys.argv[sys.argv.index("--tx") + 1] if "--tx" in sys.argv else "https://tx.fhir.org"
+    servers = sys.argv[sys.argv.index("--tx") + 1:] if "--tx" in sys.argv else ["https://tx.fhir.org"]
     sent, naive = sorted((out / "sent").glob("*.json")), sorted((out / "naive").glob("*.json"))
     if not sent or not naive:
         raise SystemExit("Nothing to validate: run the self-test against a FHIR server first.")
-    # A public terminology server has bad minutes. Its failures are not findings about the resources, so the run
-    # is repeated; if they persist they are reported as errors, because an unchecked code is not a checked one.
-    for attempt in range(1, 5):
-        findings = validate(jar, sent + naive, tx, out)
-        outages = sum("Error from " + tx in issue["message"] for issues in findings.values() for issue in issues)
+    # A terminology server that fails is not a finding about the resources. Each server is tried twice, then the
+    # next one in the list. If none answers, its failures stay in the result as errors: an unchecked code is not
+    # a checked one.
+    findings: dict[str, list[dict]] = {}
+    for tx in servers:
+        for attempt in (1, 2):
+            findings = validate(jar, sent + naive, tx, out)
+            outages = sum("Error from http" in issue["message"] for issues in findings.values() for issue in issues)
+            print(f"terminology server {tx}, attempt {attempt}: {'answered' if outages == 0 else f'{outages} request(s) failed'}")
+            if outages == 0:
+                break
+            time.sleep(20)
         if outages == 0:
             break
-        print(f"attempt {attempt}: {outages} finding(s) are failures of {tx}, not of the resources" + ("; trying again" if attempt < 4 else ""))
-        time.sleep(30 * attempt)
     (out / "validation.json").write_text(json.dumps(findings, indent=1) + "\n", encoding="utf-8")
 
     failed = False
