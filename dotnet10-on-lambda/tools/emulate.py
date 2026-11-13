@@ -52,11 +52,11 @@ def invoke(event: bytes, timeout: float = 30) -> tuple[float, dict]:
     return (time.perf_counter() - started) * 1000, body
 
 
-def start(folder: str, image: str, handler: str) -> float:
+def start(folder: str, image: str, handler: str, cpus: str = "1") -> float:
     """Starts a container the way Lambda sizes a 512 MB function, and returns when it was asked to start."""
     docker("rm", "-f", NAME)
     began = time.perf_counter()
-    docker("run", "-d", "--name", NAME, "-p", f"127.0.0.1:{PORT}:8080", "--memory", "512m", "--cpus", "1",
+    docker("run", "-d", "--name", NAME, "-p", f"127.0.0.1:{PORT}:8080", "--memory", "512m", "--cpus", cpus,
            "-e", "AWS_LAMBDA_FUNCTION_MEMORY_SIZE=512", "-v", f"{out / 'publish' / folder}:{where(image)}:ro", image, handler)
     return began
 
@@ -103,33 +103,40 @@ for name in events:
     print(f"{'ok  ' if same else 'FAIL'}  {name:20} {answer.get('statusCode', answer.get('error'))}  {(answer.get('body') or '')[:96]}")
 print(f"{'ok  ' if not failed else 'FAIL'}  all three builds gave byte-identical bodies and the same status for every request")
 
-print(f"\n== first request to a new container ({COLD_STARTS} containers each), then {WARM_REQUESTS} warm requests")
-print(f"{'build':30} {'start to first answer':>22} {'first request':>15} {'reported init':>14} {'warm p50':>9} {'warm p99':>9} {'memory':>8}")
-for label, folder, image, handler in BUILDS:
-    to_answer, first, reported, warm, memory = [], [], [], [], []
-    for _ in range(COLD_STARTS):
-        began = start(folder, image, handler)
-        milliseconds, _ = first_request(events["1-quote"])
-        to_answer.append((time.perf_counter() - began) * 1000)
-        first.append(milliseconds)
-        warm += [invoke(events["1-quote"])[0] for _ in range(WARM_REQUESTS // COLD_STARTS + 1)]
-        logs = subprocess.run(["docker", "logs", NAME], capture_output=True, text=True)
-        reported += [float(value) for value in re.findall(r"Init Duration: ([\d.]+) ms", logs.stdout + logs.stderr)[:1]]
-        usage = docker("stats", "--no-stream", "--format", "{{.MemUsage}}", NAME).split("/")[0].strip()
-        if usage.endswith("MiB"):
-            memory.append(float(usage[:-3]))
-        docker("rm", "-f", NAME)
-    warm.sort()
-    row = {
-        "start_to_first_answer_ms": round(statistics.median(to_answer)), "first_request_ms": round(statistics.median(first)),
-        "first_request_ms_min_max": [round(min(first)), round(max(first))],
-        "reported_init_ms": round(statistics.median(reported)) if reported else None,
-        "warm_p50_ms": round(statistics.median(warm), 2), "warm_p99_ms": round(warm[int(len(warm) * 0.99) - 1], 2),
-        "memory_mib": round(statistics.median(memory)) if memory else None,
-    }
-    results["builds"][label] = row
-    print(f"{label:30} {row['start_to_first_answer_ms']:>19} ms {row['first_request_ms']:>12} ms {str(row['reported_init_ms'] or '-'):>11} ms "
-          f"{row['warm_p50_ms']:>6} ms {row['warm_p99_ms']:>6} ms {str(row['memory_mib'] or '-'):>4} MiB")
+# Lambda gives a function CPU in proportion to its memory: one vCPU at 1,769 MB, so about 0.29 of one at 512 MB.
+for cpus in ("1", "0.29"):
+    print(f"\n== {cpus} CPU: first request to a new container ({COLD_STARTS} containers each), then {WARM_REQUESTS} warm requests")
+    print(f"{'build':30} {'start to first answer':>22} {'first request':>15} {'emulator init':>14} {'warm p50':>9} {'warm p99':>9} {'memory':>8}")
+    results["builds"][cpus] = {}
+    for label, folder, image, handler in BUILDS:
+        to_answer, first, reported, warm, memory = [], [], [], [], []
+        for attempt in range(COLD_STARTS):
+            began = start(folder, image, handler, cpus)
+            milliseconds, _ = first_request(events["1-quote"])
+            to_answer.append((time.perf_counter() - began) * 1000)
+            first.append(milliseconds)
+            warm += [invoke(events["1-quote"])[0] for _ in range(WARM_REQUESTS // COLD_STARTS + 1)]
+            logs = subprocess.run(["docker", "logs", NAME], capture_output=True, text=True)
+            text = logs.stdout + logs.stderr
+            # The emulator logs how long the runtime took to say it was ready to take the first event.
+            reported += [float(value) for value in re.findall(r"INIT REPORT\(durationMs: ([\d.]+)", text)[:1]]
+            if attempt == 0 and cpus == "1":
+                (out / f"emulator-log-{folder}.txt").write_text("\n".join(text.splitlines()[:14]) + "\n", encoding="utf-8")
+            usage = docker("stats", "--no-stream", "--format", "{{.MemUsage}}", NAME).split("/")[0].strip()
+            if usage.endswith("MiB"):
+                memory.append(float(usage[:-3]))
+            docker("rm", "-f", NAME)
+        warm.sort()
+        row = {
+            "start_to_first_answer_ms": round(statistics.median(to_answer)), "first_request_ms": round(statistics.median(first)),
+            "first_request_ms_min_max": [round(min(first)), round(max(first))],
+            "emulator_init_ms": round(statistics.median(reported)) if reported else None,
+            "warm_p50_ms": round(statistics.median(warm), 2), "warm_p99_ms": round(warm[int(len(warm) * 0.99) - 1], 2),
+            "memory_mib": round(statistics.median(memory)) if memory else None,
+        }
+        results["builds"][cpus][label] = row
+        print(f"{label:30} {row['start_to_first_answer_ms']:>19} ms {row['first_request_ms']:>12} ms {str(row['emulator_init_ms'] if row['emulator_init_ms'] is not None else '-'):>11} ms "
+              f"{row['warm_p50_ms']:>6} ms {row['warm_p99_ms']:>6} ms {str(row['memory_mib'] or '-'):>4} MiB")
 
 print("\n== the same function with reflection-based JSON")
 for label, folder, image, handler in REFLECTION:
