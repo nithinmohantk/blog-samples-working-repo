@@ -18,7 +18,7 @@ import openai
 import tiktoken
 from openai import OpenAI
 
-from codex_budget.budget import Prices, cacheable, count_repository, room_for_output, session_cost
+from codex_budget.budget import PlainText, Prices, cacheable, count_repository, room_for_output, session_cost
 from codex_budget.client import DoesNotFit, RepositorySession
 from standin.server import IMAGE_TOKENS, StandIn
 
@@ -26,7 +26,7 @@ here = pathlib.Path(__file__).resolve().parent.parent
 out = pathlib.Path(sys.argv[1])
 out.mkdir(parents=True, exist_ok=True)
 prices = Prices.load(here / "prices.json")
-encoder = tiktoken.get_encoding("o200k_base")
+encoder = PlainText(tiktoken.get_encoding("o200k_base"))
 passed = total = 0
 results: dict = {}
 

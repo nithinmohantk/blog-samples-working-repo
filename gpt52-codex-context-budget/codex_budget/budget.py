@@ -12,6 +12,17 @@ CACHE_MINIMUM = 1024   # a prompt shorter than this is never served from the cac
 CACHE_STEP = 128       # beyond the minimum, cached tokens are counted in steps of this size
 
 
+class PlainText:
+    """Wraps a tiktoken encoding so that source code is always counted as ordinary text. Without this, a file
+    that happens to contain the characters of a special token, such as a tokenizer test, stops the count."""
+
+    def __init__(self, encoding):
+        self._encoding = encoding
+
+    def encode(self, text: str) -> list[int]:
+        return self._encoding.encode(text, disallowed_special=())
+
+
 @dataclass(frozen=True)
 class Prices:
     input: float
