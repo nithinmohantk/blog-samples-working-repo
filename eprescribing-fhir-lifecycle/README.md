@@ -31,9 +31,9 @@ are on the `ci-results-healthcare` branch under `eprescribing-fhir-lifecycle/`.
 
 | Check | Result |
 | --- | --- |
-| The rules, no server | RULES |
-| The same rules through the FHIR server | SERVER |
-| Independent check of the server state, from Python | PYTHON |
+| The rules, no server | 10 of 10, including all 35 state and command pairs |
+| The same rules through the FHIR server | 23 of 23 |
+| Independent check of the server state, from Python | 10 of 10 |
 
 Scenarios run against the server: two supplies made by two pharmacies; a repeated dispense recognised and
 not repeated; two pharmacies claiming at once; release and re-claim; cancellation before a dispense that
