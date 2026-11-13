@@ -1,0 +1,34 @@
+# ~/.codex/config.toml: one model per kind of work.
+# Checked against the configuration schema published with Codex CLI 0.157.1. Not run through the CLI itself.
+
+model = "gpt-6-sol"                     # everyday interactive and agentic coding
+model_reasoning_effort = "medium"
+plan_mode_reasoning_effort = "high"     # think harder while planning, before any file is touched
+review_model = "gpt-6-astra"            # /review gets the most capable model
+
+sandbox_mode = "workspace-write"
+approval_policy = "on-request"
+approvals_reviewer = "user"             # escalations go to a person, not to the automatic reviewer
+
+# Compact the conversation before a request can cross 272,000 input tokens, where the price doubles.
+model_auto_compact_token_limit = 240000
+
+[agents]
+default_subagent_model = "gpt-6-luna"   # spawned workers do focused, high-volume steps
+default_subagent_reasoning_effort = "low"
+max_concurrent_threads_per_session = 4
+
+[profiles.deep]                          # codex --profile deep: hard design and debugging sessions
+model = "gpt-6-astra"
+model_reasoning_effort = "high"
+
+[profiles.bulk]                          # codex --profile bulk: mechanical edits across many files
+model = "gpt-6-luna"
+model_reasoning_effort = "medium"
+
+[profiles.ci]                            # codex --profile ci: unattended runs in a pipeline
+model = "gpt-6-sol"
+model_reasoning_effort = "low"
+sandbox_mode = "read-only"
+approval_policy = "never"
+service_tier = "flex"
