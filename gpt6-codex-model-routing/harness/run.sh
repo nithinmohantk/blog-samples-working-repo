@@ -25,8 +25,8 @@ done
 printf '# Notes\n\nA test repository. Nothing here is real.\n' > "$repo/NOTES.md"
 git -C "$repo" init -q && git -C "$repo" -c user.name=t -c user.email=t@example.invalid add -A && git -C "$repo" -c user.name=t -c user.email=t@example.invalid commit -q -m init
 
-scenario() { # name, script json, extra config lines, codex exec arguments...
-  local name="$1" script="$2" extra="$3"; shift 3
+scenario() { # name, script json, then everything after "codex"
+  local name="$1" script="$2"; shift 2
   local home="$work/home-$name"; mkdir -p "$home"; cp "$here"/../codex/*.config.toml "$home/"
   echo "$script" > "$work/$name.json"
   rm -f "$work/port"
@@ -34,19 +34,23 @@ scenario() { # name, script json, extra config lines, codex exec arguments...
   local server=$!
   for _ in $(seq 1 50); do [ -s "$work/port" ] && break; sleep 0.1; done
   # The example configuration from the article, plus a provider that points at the stand-in.
-  { printf 'model_provider = "standin"\n%s\n' "$extra"; cat "$here/../codex/config.toml"
+  { printf 'model_provider = "standin"\n'; cat "$here/../codex/config.toml"
     printf '\n[model_providers.standin]\nname = "Local stand-in"\nbase_url = "http://127.0.0.1:%s/v1"\nenv_key = "STANDIN_KEY"\nwire_api = "responses"\n' "$(cat "$work/port")"; } > "$home/config.toml"
-  echo "== $name: codex exec $*"
-  ( cd "$repo" && CODEX_HOME="$home" STANDIN_KEY="not-a-real-key" timeout 180 "$codex" exec "$@" "Read the notes and the modules, then say done." < /dev/null ) > "$out/codex-$name.txt" 2>&1
+  echo "== $name: codex $*"
+  ( cd "$repo" && CODEX_HOME="$home" STANDIN_KEY="not-a-real-key" timeout 240 "$codex" "$@" < /dev/null ) > "$out/codex-$name.txt" 2>&1
   echo "   exit code $? ; $(grep -c '"request"' "$out/requests-$name.jsonl" 2>/dev/null || echo 0) model requests"
   kill "$server" 2>/dev/null; wait "$server" 2>/dev/null
 }
 
+ask="Read the notes and the modules, then say done."
 six='[{"shell":"cat NOTES.md"},{"shell":"cat src/module_1.py"},{"shell":"cat src/module_2.py"},{"shell":"cat src/module_3.py"},{"shell":"cat src/module_4.py"},{"shell":"cat src/module_5.py"},{"message":"done"}]'
 two='[{"shell":"cat NOTES.md"},{"message":"done"}]'
-scenario default "$six" "" --sandbox read-only
-scenario deep "$two" "" --sandbox read-only --profile deep
-scenario ci "$two" "" --profile ci
-scenario compact "$six" "" --sandbox read-only -c model_auto_compact_token_limit=20000
-"$codex" exec review --help > "$out/codex-review-help.txt" 2>&1
+spawn='[{"tool":"spawn_agent","arguments":{"task_name":"count_functions","message":"Count the functions in src/module_1.py and reply with the number."}},{"tool":"wait_agent","arguments":{"timeout_ms":20000}},{"message":"done"}]'
+scenario default "$six" exec --sandbox read-only "$ask"
+scenario deep "$two" exec --sandbox read-only --profile deep "$ask"
+scenario ci "$two" exec --profile ci "$ask"
+scenario compact "$six" exec --sandbox read-only -c model_auto_compact_token_limit=20000 "$ask"
+scenario subagent "$spawn" exec --sandbox read-only "$ask"
+printf '\ndef added(value):\n    return value - 1\n' >> "$repo/src/module_1.py"
+scenario review '[{"review":"No findings."}]' exec review --uncommitted
 "$python" "$here/report.py" "$out" 2>&1 | tee "$out/harness.txt"

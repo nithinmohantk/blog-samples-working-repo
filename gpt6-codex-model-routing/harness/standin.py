@@ -22,7 +22,6 @@ port_file, record_file, script_file = sys.argv[1:4]
 script: list[dict] = json.load(open(script_file, encoding="utf-8"))
 lock = threading.Lock()
 state = {"step": 0, "requests": 0}
-SHELL_NAMES = ("exec_command", "shell", "shell_command", "local_shell", "container.exec", "unified_exec")
 
 
 def count(value) -> int:
@@ -45,24 +44,43 @@ def outline(tool, depth: int = 0) -> list[str]:
     return lines
 
 
-def shell_call(tools: list[dict], command: str) -> dict | None:
-    """Builds a call to whichever shell tool the CLI declared, in the argument shape that tool's schema asks for."""
+def find(tools: list[dict], name: str) -> tuple[str | None, dict] | None:
+    """Looks a tool up by name, at the top level or inside a namespace. Returns its namespace and declaration."""
     for tool in tools:
-        name = tool.get("name") or tool.get("type")
-        if name not in SHELL_NAMES:
-            continue
-        if tool.get("type") == "local_shell":
-            return {"type": "local_shell_call", "call_id": f"call_{state['step']}", "status": "completed",
-                    "action": {"type": "exec", "command": ["bash", "-lc", command]}}
-        properties = (tool.get("parameters") or {}).get("properties", {})
-        if "cmd" in properties:
-            arguments = {"cmd": command}
-        elif properties.get("command", {}).get("type") == "array":
-            arguments = {"command": ["bash", "-lc", command]}
-        else:
-            arguments = {"command": command}
-        return {"type": "function_call", "call_id": f"call_{state['step']}", "name": name, "arguments": json.dumps(arguments), "status": "completed"}
+        if tool.get("name") == name and tool.get("type") != "namespace":
+            return None, tool
+        for child in tool.get("tools") or []:
+            if child.get("name") == name:
+                return tool.get("name"), child
     return None
+
+
+def shell_call(tools: list[dict], command: str, call_id: str) -> dict | None:
+    """Asks Codex to run a shell command, in whichever form this CLI version declared.
+
+    With GPT-6 models the CLI declares one freeform tool, exec, that takes JavaScript and reaches the real tools
+    through a `tools` object. Older configurations declare a function tool that takes the command directly."""
+    found = find(tools, "exec")
+    if found and found[1].get("type") == "custom":
+        source = f"const result = await tools.exec_command({{cmd: {json.dumps(command)}}});\ntext(result.output);\n"
+        item = {"type": "custom_tool_call", "call_id": call_id, "name": "exec", "input": source, "status": "completed"}
+        if found[0]:
+            item["namespace"] = found[0]
+        return item
+    for name in ("exec_command", "shell", "shell_command"):
+        found = find(tools, name)
+        if found:
+            properties = (found[1].get("parameters") or {}).get("properties", {})
+            arguments = {"cmd": command} if "cmd" in properties else {"command": ["bash", "-lc", command] if properties.get("command", {}).get("type") == "array" else command}
+            return function_call(found[0], name, arguments, call_id)
+    return None
+
+
+def function_call(namespace: str | None, name: str, arguments: dict, call_id: str) -> dict:
+    item = {"type": "function_call", "call_id": call_id, "name": name, "arguments": json.dumps(arguments), "status": "completed"}
+    if namespace:
+        item["namespace"] = namespace
+    return item
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -99,12 +117,18 @@ class Handler(BaseHTTPRequestHandler):
             self._record({"method": "POST", "path": self.path, "keys": sorted(body) if isinstance(body, dict) else None})
             return self._json(404, {"error": {"message": "not found", "type": "invalid_request_error"}})
 
+        items = body.get("input") if isinstance(body.get("input"), list) else [body.get("input")]
+        text_of = json.dumps(items, ensure_ascii=False)
+        # The main agent is told it is `/root`. Anything else is a subagent or a helper request, and gets a plain reply.
+        root = "`/root`" in text_of or "multi_agent_role" not in text_of
         with lock:
             state["requests"] += 1
             number = state["requests"]
-            step = script[state["step"]] if state["step"] < len(script) else {"message": "Done."}
-            state["step"] += 1
-        items = body.get("input") if isinstance(body.get("input"), list) else [body.get("input")]
+            if root and "review" not in script[0]:
+                step = script[state["step"]] if state["step"] < len(script) else {"message": "Done."}
+                state["step"] += 1
+            else:
+                step = {"message": script[0].get("review", "Subagent finished: 120 functions.")}
         # This CLI version declares its tools in an input item, not in a top-level field.
         tools = list(body.get("tools") or [])
         for item in items:
@@ -113,7 +137,7 @@ class Handler(BaseHTTPRequestHandler):
         instructions_tokens, tools_tokens, input_tokens = count(body.get("instructions") or ""), count(tools), count(items)
         prompt_tokens = instructions_tokens + tools_tokens + input_tokens
         self._record({
-            "method": "POST", "path": self.path, "request": number,
+            "method": "POST", "path": self.path, "request": number, "agent": "main" if root else "other", "replied_with": next(iter(step)),
             "authorization": "Bearer <present>" if self.headers.get("Authorization", "").startswith("Bearer ") else "absent",
             "top_level_keys": sorted(body),
             "model": body.get("model"), "reasoning": body.get("reasoning"), "service_tier": body.get("service_tier"),
@@ -126,7 +150,6 @@ class Handler(BaseHTTPRequestHandler):
             "tools": [{"type": tool.get("type"), "name": tool.get("name"), "parameters": sorted(((tool.get("parameters") or {}).get("properties") or {})),
                        "required": (tool.get("parameters") or {}).get("required"), "keys": sorted(tool)} for tool in tools],
             "tool_outline": [line for tool in tools for line in outline(tool)],
-            "debug_exec": next(({"format": t.get("format"), "description": (t.get("description") or "")[:6000]} for ns in tools for t in (ns.get("tools") or []) if t.get("name") == "exec"), None) if number == 1 else None,
             "item_keys": [sorted(item) if isinstance(item, dict) else None for item in items],
             "item_starts": [json.dumps(item.get("content") if isinstance(item, dict) and "content" in item else item, ensure_ascii=False)[:90] for item in items],
             "input_items": len(items), "input_tokens": input_tokens,
@@ -137,13 +160,15 @@ class Handler(BaseHTTPRequestHandler):
             "headers": sorted(name.lower() for name in self.headers if name.lower().startswith(("openai", "x-", "session", "conversation", "originator", "version"))),
         })
 
-        output_item = shell_call(tools, step["shell"]) if "shell" in step else None
+        call_id = f"call_{number:04d}"
+        output_item = shell_call(tools, step["shell"], call_id) if "shell" in step else None
         if "tool" in step:
-            output_item = {"type": "function_call", "call_id": f"call_{state['step']}", "name": step["tool"], "arguments": json.dumps(step["arguments"]), "status": "completed"}
+            found = find(tools, step["tool"])
+            output_item = function_call(found[0] if found else None, step["tool"], step["arguments"], call_id)
         if output_item is None:
             text = step.get("message", "The stand-in found no shell tool to call.")
             output_item = {"type": "message", "role": "assistant", "status": "completed", "content": [{"type": "output_text", "text": text, "annotations": []}]}
-        output_item["id"] = ("msg_" if output_item["type"] == "message" else "fc_") + f"{number:04d}"
+        output_item["id"] = {"message": "msg_", "custom_tool_call": "ctc_"}.get(output_item["type"], "fc_") + f"{number:04d}"
         output_tokens = int(step.get("output_tokens", 200))
         usage = {"input_tokens": prompt_tokens, "input_tokens_details": {"cached_tokens": 0}, "output_tokens": output_tokens,
                  "output_tokens_details": {"reasoning_tokens": 0}, "total_tokens": prompt_tokens + output_tokens}
