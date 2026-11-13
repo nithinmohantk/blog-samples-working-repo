@@ -20,7 +20,7 @@ resource "azurerm_cosmosdb_account" "this" {
   multiple_write_locations_enabled = true
   automatic_failover_enabled       = true
 
-  local_authentication_disabled = true
+  local_authentication_enabled = false
   public_network_access_enabled = false
 
   consistency_policy {

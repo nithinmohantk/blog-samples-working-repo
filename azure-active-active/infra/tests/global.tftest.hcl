@@ -54,7 +54,7 @@ run "database_has_no_keys_and_no_public_endpoint" {
   command = plan
 
   assert {
-    condition     = azurerm_cosmosdb_account.this.local_authentication_disabled && !azurerm_cosmosdb_account.this.public_network_access_enabled
+    condition     = !azurerm_cosmosdb_account.this.local_authentication_enabled && !azurerm_cosmosdb_account.this.public_network_access_enabled
     error_message = "Key-based authentication and public network access must be off."
   }
 }
