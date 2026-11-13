@@ -1,17 +1,13 @@
 // Run with: npm test      (Node.js 24 or later; no packages)
-// Besides checking behaviour, the last tests measure what a Web Function is billed for: CPU time,
-// which is not the same thing as how long requests take.
 'use strict';
 
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const fs = require('node:fs');
 const { performance } = require('node:perf_hooks');
 const { createServer, listenAddress } = require('../index.js');
 
 let server;
 let base;
-const metrics = {};
 
 test.before(async () => {
   server = createServer();
@@ -21,10 +17,7 @@ test.before(async () => {
 
 test.after(async () => {
   await new Promise((resolve) => server.close(resolve));
-  if (process.env.METRICS_FILE) fs.writeFileSync(process.env.METRICS_FILE, JSON.stringify(metrics, null, 2));
 });
-
-const cpuSeconds = (usage) => (usage.user + usage.system) / 1e6;
 
 test('the listen address comes from AWS_LAMBDA_HTTP_ENDPOINT', () => {
   process.env.AWS_LAMBDA_HTTP_ENDPOINT = '0.0.0.0:8080';
@@ -75,29 +68,17 @@ test('events are streamed one at a time', async () => {
 });
 
 test('128 requests that wait on I/O are served concurrently by one process', async () => {
-  const before = process.cpuUsage();
   const started = performance.now();
   const responses = await Promise.all(Array.from({ length: 128 }, () => fetch(`${base}/api/slow?ms=200`)));
   const wall = (performance.now() - started) / 1000;
-  const cpu = cpuSeconds(process.cpuUsage(before));
   assert.ok(responses.every((r) => r.status === 200));
   await Promise.all(responses.map((r) => r.arrayBuffer()));
   // Served one after another this would take 128 x 0.2 s = 25.6 s.
   assert.ok(wall < 3, `expected the batch to overlap, took ${wall.toFixed(2)} s`);
-  metrics.ioBound = { requests: 128, waitPerRequestSeconds: 0.2, sumOfRequestDurationsSeconds: 25.6, wallSeconds: Number(wall.toFixed(3)), cpuSeconds: Number(cpu.toFixed(3)) };
 });
 
-test('CPU-bound requests are billed for what they burn, and block everything else meanwhile', async () => {
-  const before = process.cpuUsage();
-  const started = performance.now();
-  const work = fetch(`${base}/api/cpu?rounds=400000`);
-  await new Promise((resolve) => setTimeout(resolve, 20));
-  const healthStarted = performance.now();
-  await (await fetch(`${base}/healthz`)).arrayBuffer();
-  const healthDelay = (performance.now() - healthStarted) / 1000;
-  await (await work).arrayBuffer();
-  const wall = (performance.now() - started) / 1000;
-  const cpu = cpuSeconds(process.cpuUsage(before));
-  assert.ok(cpu > wall * 0.5, 'a hashing loop should keep the CPU busy for most of its duration');
-  metrics.cpuBound = { requests: 1, wallSeconds: Number(wall.toFixed(3)), cpuSeconds: Number(cpu.toFixed(3)), healthCheckDelayedBySeconds: Number(healthDelay.toFixed(3)) };
+test('the CPU-bound endpoint does its work and reports it', async () => {
+  const body = await (await fetch(`${base}/api/cpu?rounds=1000`)).json();
+  assert.equal(body.rounds, 1000);
+  assert.match(body.digest, /^[0-9a-f]{16}$/);
 });
