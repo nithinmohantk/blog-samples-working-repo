@@ -26,6 +26,8 @@ ENV = {
 }
 secrets = boto3.client("secretsmanager", endpoint_url=endpoint, region_name="eu-west-1", aws_access_key_id="testing", aws_secret_access_key="testing")
 KNOWN_TOKEN = "tok-synthetic-7f3a9c2e51b84d06"
+# Recorded from the pinned versions: the two tools differ here.
+NULL_IN_MOCKED_PLAN = {"terraform": "yes", "opentofu": "no"}
 rows: list[dict] = []
 unexpected = 0
 
@@ -127,12 +129,15 @@ for tool, label in ((terraform, "terraform"), (tofu, "opentofu")):
         cwd = workdir("variable")
         must(run(tool, cwd, "init"), "init")
         token_env = {"TF_VAR_api_token": KNOWN_TOKEN}
-        record(label, "variable: token in the JSON of the first plan", "present" if KNOWN_TOKEN in plan_json(tool, cwd, f"-var=name={name}", env=token_env) else "absent", "absent")
-        must(run(tool, cwd, "apply", "-auto-approve", f"-var=name={name}", env=token_env), "apply")
+        record(label, "variable: token in the JSON of the saved plan", "present" if KNOWN_TOKEN in plan_json(tool, cwd, f"-var=name={name}", env=token_env) else "absent", "absent")
+        record(label, "variable: token in the saved plan file", "present" if on_disk(cwd, KNOWN_TOKEN) else "absent", "absent")
+        without = run(tool, cwd, "apply", "-auto-approve", "tfplan")
+        message = next((line.strip() for line in without.stderr.splitlines() if line.startswith("Error:")), "")
+        record(label, "variable: applying the saved plan without the token", "applies" if without.returncode == 0 else "refused", "refused", message[:140])
+        saved = run(tool, cwd, "apply", "-auto-approve", "tfplan", env=token_env)
+        record(label, "variable: applying the saved plan with the token supplied again", "applies" if saved.returncode == 0 else "refused", "applies", (saved.stderr.strip().splitlines() or [""])[0][:140])
         record(label, "variable: token reached the store", "yes" if stored(name) == KNOWN_TOKEN else "no", "yes")
         record(label, "variable: token anywhere on disk after apply", ", ".join(on_disk(cwd, KNOWN_TOKEN)) or "nowhere", "nowhere")
-        saved = run(tool, cwd, "apply", "-auto-approve", "tfplan", env=token_env)
-        record(label, "variable: applying a saved plan with the token supplied again", "applies" if saved.returncode == 0 else "refused", "applies", (saved.stderr.strip().splitlines() or [""])[0][:140])
 
         # 6. Misuse is refused.
         cwd = workdir("misuse")
@@ -146,8 +151,14 @@ for tool, label in ((terraform, "terraform"), (tofu, "opentofu")):
         must(run(tool, cwd, "init"), "init")
         tested = run(tool, cwd, "test")
         last = (tested.stdout.strip().splitlines() or ["no output"])[-1]
-        record(label, "test: write-only value is null, version is asserted", "passes" if tested.returncode == 0 else "fails", "passes", last[:140])
+        record(label, "test: module tests against a mocked AWS provider", "passes" if tested.returncode == 0 else "fails", "passes", last[:140])
         (out / f"test-{label}.txt").write_text(tested.stdout + tested.stderr)
+        shutil.rmtree(cwd / "tests")
+        (cwd / "tests").mkdir()
+        shutil.copy(here / "probe" / "null_readback.tftest.hcl", cwd / "tests")
+        probe = run(tool, cwd, "test")
+        record(label, "probe: write-only value reads as null in a mocked plan", "yes" if probe.returncode == 0 else "no", NULL_IN_MOCKED_PLAN[label])
+        (out / f"probe-{label}.txt").write_text(probe.stdout + probe.stderr)
     except Exception as error:  # an experiment that cannot run is a result, and the remaining tool still runs
         record(label, "run aborted", "error", "completed", str(error).strip().splitlines()[-1][:300])
         (out / f"error-{label}.txt").write_text(str(error))

@@ -1,5 +1,5 @@
 # The AWS provider is mocked; the random provider runs for real and needs no credentials.
-# A write-only argument cannot be asserted on: it is null wherever a test can look. Assert on the version.
+# A test cannot usefully assert on the write-only value itself, so it asserts on the version that travels with it.
 
 mock_provider "aws" {}
 
@@ -13,11 +13,6 @@ run "version_is_tracked_and_value_is_not" {
   assert {
     condition     = aws_secretsmanager_secret_version.db.secret_string_wo_version == 1
     error_message = "The version argument should carry the default of 1."
-  }
-
-  assert {
-    condition     = aws_secretsmanager_secret_version.db.secret_string_wo == null
-    error_message = "A write-only argument should read back as null."
   }
 }
 

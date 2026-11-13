@@ -4,7 +4,7 @@
 set -uo pipefail
 out="$(mkdir -p "$1" && cd "$1" && pwd)"
 cd "$(dirname "$0")"
-TERRAFORM_VERSION="1.14.0"   # 19 November 2025
+TERRAFORM_VERSION="1.14.3"   # 17 December 2025
 TOFU_VERSION="1.11.0"        # 9 December 2025
 bin="$(mktemp -d)"
 curl -fsSL -o "$bin/terraform.zip" "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip" && unzip -q -o "$bin/terraform.zip" -d "$bin/tf" || exit 2
