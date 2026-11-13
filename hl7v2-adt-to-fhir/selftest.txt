@@ -1,0 +1,139 @@
+== reader
+ok    an A01 is read as seven segments with its type, trigger and control ID
+ok    PID-3 has two repetitions, each with its own authority and type
+ok    \T\ in an address comes out as an ampersand
+ok    \F\ \S\ \R\ \E\ give back the four delimiter characters
+ok    \X..\ hexadecimal data is decoded as UTF-8
+ok    \.br\ becomes a line break and highlighting escapes are dropped
+ok    a lone escape character is kept as sent
+ok    delimiters are taken from MSH-1 and MSH-2, not assumed
+ok    an MLLP frame around the message is ignored
+ok    two double quotes are an explicit null, not a value
+ok    four unreadable inputs are refused: no MSH, repeated delimiter, no control ID, a line that is not a segment
+== dates and times
+  1985                       no default offset  -> 1985
+  198503                     no default offset  -> 1985-03
+  19850312                   no default offset  -> 1985-03-12
+  20260310081500+0000        no default offset  -> 2026-03-10T08:15:00+00:00
+  202603100815+0100          no default offset  -> 2026-03-10T08:15:00+01:00
+  20260310081500.1234-0500   no default offset  -> 2026-03-10T08:15:00-05:00
+  20260310081500             default +00:00     -> 2026-03-10T08:15:00+00:00
+  20260310081500             no default offset  -> 2026-03-10
+  20260230                   no default offset  -> (not a time)
+  2026031025                 default +00:00     -> (not a time)
+  10/03/2026                 no default offset  -> (not a time)
+  (empty)                    no default offset  -> (not a time)
+ok    twelve dates and times convert at the precision given, and impossible ones are refused
+ok    a time with no offset is marked as assumed when the default is used
+== mapping
+  01-a01-admit.hl7                   Patient, Encounter, AllergyIntolerance, AllergyIntolerance, Provenance
+  02-a08-update.hl7                  Patient, AllergyIntolerance, AllergyIntolerance, AllergyIntolerance, Provenance
+      note: PV1 is not applied on A08: an encounter changes only through its own events.
+      note: AL1-3 coding system '99LOCAL' is not configured; the allergen is carried as text.
+  03-a03-discharge.hl7               Patient, Encounter, Provenance
+  04-a01-second-registration.hl7     Patient, Encounter, Provenance
+  05-a11-cancel-admit.hl7            Patient, Encounter, Provenance
+  06-a40-merge.hl7                   Patient, Provenance
+  07-a08-to-retired-record.hl7       Patient, Provenance
+  08-a04-older-sender.hl7            Patient, Encounter, AllergyIntolerance, Provenance
+      note: PID-8 'X' is not in table 0001; gender is recorded as unknown.
+      note: PID-16 'A' has no equivalent in the FHIR marital status codes; it is carried as text.
+      note: An NK1 with no name, telephone or address was left out: FHIR requires at least one of them.
+      note: AL1-2 'MA' has no FHIR allergy category; none is recorded.
+      note: Segment ZPD is not mapped (1 in this message).
+      note: At least one time had no offset; +00:00 was assumed.
+  09-a02-transfer.hl7                AR: ADT^A02 is not a message this interface converts.
+  10-a01-no-record-number.hl7        AE: PID-3 has no medical record number (type MR) from a known assigning authority.
+  11-a08-after-merge.hl7             Patient, AllergyIntolerance, AllergyIntolerance, AllergyIntolerance, Provenance
+      note: AL1-3 coding system '99LOCAL' is not configured; the allergen is carried as text.
+  12-a08-sparse-update.hl7           Patient, Provenance
+ok    A01 gives Patient, Encounter, two AllergyIntolerance and Provenance, with no notes
+ok    the Patient is written by its record number, not by a server id
+ok    the Encounter is written by its visit number
+ok    both identifiers carry a system resolved from authority and type
+ok    legal and maiden names keep their use; middle name and prefix are kept
+ok    sex F becomes gender female and the birth date is a FHIR date
+ok    home telephone, email and work telephone are told apart
+ok    the address keeps its two lines, with the escape resolved
+ok    NK1 becomes a contact with its role and its relationship
+ok    patient class I becomes an in-progress inpatient encounter
+ok    the encounter points at the patient in the same Bundle
+ok    location and attending doctor are carried without inventing resources
+ok    a reaction with a severity goes to reaction.severity; a severity alone goes to criticality
+ok    each allergy has an identifier derived from patient and allergen
+ok    the same message maps to the same Bundle, byte for byte
+ok    the Provenance id depends on the control ID
+ok    A08 updates the patient and allergies and leaves the encounter alone, with a note
+ok    an allergen from an unconfigured coding system is kept as text, with a note
+ok    A03 finishes the encounter at PV1-45 and orders by EVN-6
+ok    A11 cancels the encounter
+ok    a full PID speaks for every part of the patient; a sparse one only for what it sent or withdrew
+ok    A40 names the surviving and the retired record
+ok    a v2.3.1 A04 with no offsets maps, using the configured offset and saying so
+ok    a month-precision birth date stays month-precision
+ok    an unknown sex code becomes gender unknown, with a note
+ok    marital code A (separated in v2) is not passed off as A (annulled in FHIR)
+ok    \F\ in a street line gives a vertical bar; an explicit null gives no telecom
+ok    a contact with no name or telephone, an unmapped allergen type and a Z-segment are each reported
+ok    an A02 transfer is rejected (AR): this interface does not convert it
+ok    a patient with no record number is an error (AE)
+ok    an unknown assigning authority is an error (AE), not a guess
+ok    an authority given as an ISO object identifier needs no configuration
+ok    an admission with no visit number, or a patient class outside table 0004, is an error (AE)
+ok    a merge of a record into itself is an error (AE)
+== acknowledgements
+  MSH|^~\&|FHIRGW|REGION|ADTSYS|GENHOSP|20260314090000+0000||ACK^A01^ACK|ACK-MSG00001|P|2.5.1
+  MSA|AE|MSG00001|PID-3 \F\ is empty
+ok    the acknowledgement swaps sender and receiver and returns the control ID
+ok    free text in MSA-3 is escaped and reads back unchanged
+== against http://127.0.0.1:8082/fhir/
+ok     1. a01-admit: AA, Applied
+ok     2. a01-admit-sent-again: AA, Duplicate
+        message MSG00001 was applied before
+ok     3. a08-update: AA, Applied
+ok     4. a03-discharge: AA, Applied
+ok        the discharge carried no NK1, and the emergency contact is still on the patient
+ok        the discharge added an end to the stay and kept its start, location and doctor
+ok     5. a08-update-arriving-late: AA, Stale
+        event of 2026-03-10 11:30:00Z is older than 2026-03-12 13:30:00Z, already applied
+ok     6. a01-second-registration: AA, Applied
+ok     7. a11-cancel-admit: AA, Applied
+ok     8. a40-merge: AA, Applied
+ok     9. a08-to-retired-record: AE, PatientMerged
+        700002 is retired and replaced by Patient/2
+ok    10. a08-after-merge: AA, Applied
+ok    11. a04-older-sender: AA, Applied
+ok    12. a02-transfer: AR
+        ADT^A02 is not a message this interface converts.
+ok    13. a01-no-record-number: AE
+        PID-3 has no medical record number (type MR) from a known assigning authority.
+ok    14. a08-second-writer: AA, Applied
+ok    15. a write prepared before another writer's update is refused by the server
+        HTTP 409: HAPI-0550: HAPI-0989: Trying to update Patient/2/_history/4 but this is not the current version
+ok    16. a08-first-writer-retried: AA, Stale
+        event of 2026-03-14 10:00:00Z is older than 2026-03-14 10:05:00Z, already applied
+ok    17. a40-merge-of-a-record-never-seen: AA, Applied
+ok    18. a08-with-nothing-new: AA, Applied
+        Patient version before 6, after 6
+ok        an update that changes nothing writes no new Patient version
+ok    19. a08-sparse-update: AA, Applied
+ok        a sparse update kept the birth date, gender and marital status it did not mention
+ok        it removed the address sent as an explicit null and added the telephone
+  experiment, absolute reference to a local resource: Failed HTTP 400: HAPI-0507: Resource contains external reference to URL "http://127.0.0.1:8082/fhir/Patient/21" but this server is not configured to allow external references
+== what the server holds
+ok    one Patient per record number after every message
+  Patient/2 is version 6; Patient/10 is version 2
+ok    the surviving record has the latest address and telephone
+ok    it replaces both retired records, and the links survived two later updates
+ok    the retired record is inactive, points at the survivor and kept its own details
+ok    a record that was never received exists as an inactive stub
+ok    the inpatient stay is finished and was not reopened by the late update
+ok    the cancelled visit is cancelled
+  the cancelled visit still refers to Patient/10, the retired record: a merge here links records and does not move their data
+ok    the merge did not move the retired record's encounter
+ok    three allergies after five messages that carried them: no duplicates
+  events applied to Patient/2: A01 2026-03-10T08:15, A08 2026-03-10T11:30, A03 2026-03-12T13:30, A40 2026-03-13T10:00, A08 2026-03-14T09:00, A08 2026-03-14T10:05, A40 2026-03-14T11:00, A08 2026-03-14T12:00
+ok    eight Provenance records, in event order, and none for the two messages that were not applied
+ok    the notes of the awkward message travelled with its result
+
+84 of 84 checks passed

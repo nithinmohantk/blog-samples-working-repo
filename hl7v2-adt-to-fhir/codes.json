@@ -1,0 +1,23 @@
+{
+ "server": "https://tx.fhir.org/r4",
+ "codings": [
+  {
+   "system": "http://snomed.info/sct",
+   "code": "91935009",
+   "display_sent": "Allergy to peanut",
+   "result": true,
+   "display_on_server": "Allergy to peanut",
+   "version": "http://snomed.info/sct/900000000000207008/version/20250201",
+   "message": null
+  },
+  {
+   "system": "http://snomed.info/sct",
+   "code": "91936005",
+   "display_sent": "Allergy to penicillin",
+   "result": true,
+   "display_on_server": "Allergy to penicillin",
+   "version": "http://snomed.info/sct/900000000000207008/version/20250201",
+   "message": null
+  }
+ ]
+}

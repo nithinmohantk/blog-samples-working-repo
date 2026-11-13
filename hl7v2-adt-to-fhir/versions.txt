@@ -1,0 +1,5 @@
+.NET SDK 10.0.201, runtime 10.0.5
+Python 3.13.18
+openjdk version "21.0.13" 2026-10-20 LTS
+HL7 validator 6.8.2 sha256 b7e3de5494c6ea18e753942c1dea1aa37e6fa2b47ea30cfc046dc5b707104868
+hapiproject/hapi:v8.0.0

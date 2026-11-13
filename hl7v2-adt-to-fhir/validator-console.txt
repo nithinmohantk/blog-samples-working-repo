@@ -1,0 +1,93 @@
+$ java -jar /tmp/tmp.8qHWUpB1lS/validator_cli.jar /home/runner/work/blog-samples-working-repo/blog-samples-working-repo/out/hl7v2-adt-to-fhir/sent/01-a01-admit.json /home/runner/work/blog-samples-working-repo/blog-samples-working-repo/out/hl7v2-adt-to-fhir/sent/03-a08-update.json /home/runner/work/blog-samples-working-repo/blog-samples-working-repo/out/hl7v2-adt-to-fhir/sent/04-a03-discharge.json /home/runner/work/blog-samples-working-repo/blog-samples-working-repo/out/hl7v2-adt-to-fhir/sent/06-a01-second-registration.json /home/runner/work/blog-samples-working-repo/blog-samples-working-repo/out/hl7v2-adt-to-fhir/sent/07-a11-cancel-admit.json /home/runner/work/blog-samples-working-repo/blog-samples-working-repo/out/hl7v2-adt-to-fhir/sent/08-a40-merge.json /home/runner/work/blog-samples-working-repo/blog-samples-working-repo/out/hl7v2-adt-to-fhir/sent/10-a08-after-merge.json /home/runner/work/blog-samples-working-repo/blog-samples-working-repo/out/hl7v2-adt-to-fhir/sent/11-a04-older-sender.json /home/runner/work/blog-samples-working-repo/blog-samples-working-repo/out/hl7v2-adt-to-fhir/sent/14-a08-second-writer.json /home/runner/work/blog-samples-working-repo/blog-samples-working-repo/out/hl7v2-adt-to-fhir/sent/17-a40-merge-of-a-record-never-seen.json /home/runner/work/blog-samples-working-repo/blog-samples-working-repo/out/hl7v2-adt-to-fhir/sent/18-a08-with-nothing-new.json /home/runner/work/blog-samples-working-repo/blog-samples-working-repo/out/hl7v2-adt-to-fhir/sent/19-a08-sparse-update.json /home/runner/work/blog-samples-working-repo/blog-samples-working-repo/out/hl7v2-adt-to-fhir/naive/encounter.json /home/runner/work/blog-samples-working-repo/blog-samples-working-repo/out/hl7v2-adt-to-fhir/naive/patient.json -version 4.0.1 -tx n/a -output /home/runner/work/blog-samples-working-repo/blog-samples-working-repo/out/hl7v2-adt-to-fhir/validator-output.json
+exit code 0, 16 s
+
+[39mFHIR Validation tool Version 6.8.2 (Git# 778dfac38696). Built 2026-03-01T18:39:20.657Z (256 days old)
+[0;39m[39m  Java:   21.0.13 from /usr/lib/jvm/temurin-21-jdk-amd64 on amd64 (64bit). 3926MB available
+[0;39m[39m  Paths:  Current = /home/runner/work/blog-samples-working-repo/blog-samples-working-repo/hl7v2-adt-to-fhir, Package Cache = /home/runner/.fhir/packages
+[0;39m[39m  Params: /home/runner/work/blog-samples-working-repo/blog-samples-working-repo/out/hl7v2-adt-to-fhir/sent/01-a01-admit.json /home/runner/work/blog-samples-working-repo/blog-samples-working-repo/out/hl7v2-adt-to-fhir/sent/03-a08-update.json /home/runner/work/blog-samples-working-repo/blog-samples-working-repo/out/hl7v2-adt-to-fhir/sent/04-a03-discharge.json /home/runner/work/blog-samples-working-repo/blog-samples-working-repo/out/hl7v2-adt-to-fhir/sent/06-a01-second-registration.json /home/runner/work/blog-samples-working-repo/blog-samples-working-repo/out/hl7v2-adt-to-fhir/sent/07-a11-cancel-admit.json /home/runner/work/blog-samples-working-repo/blog-samples-working-repo/out/hl7v2-adt-to-fhir/sent/08-a40-merge.json /home/runner/work/blog-samples-working-repo/blog-samples-working-repo/out/hl7v2-adt-to-fhir/sent/10-a08-after-merge.json /home/runner/work/blog-samples-working-repo/blog-samples-working-repo/out/hl7v2-adt-to-fhir/sent/11-a04-older-sender.json /home/runner/work/blog-samples-working-repo/blog-samples-working-repo/out/hl7v2-adt-to-fhir/sent/14-a08-second-writer.json /home/runner/work/blog-samples-working-repo/blog-samples-working-repo/out/hl7v2-adt-to-fhir/sent/17-a40-merge-of-a-record-never-seen.json /home/runner/work/blog-samples-working-repo/blog-samples-working-repo/out/hl7v2-adt-to-fhir/sent/18-a08-with-nothing-new.json /home/runner/work/blog-samples-working-repo/blog-samples-working-repo/out/hl7v2-adt-to-fhir/sent/19-a08-sparse-update.json /home/runner/work/blog-samples-working-repo/blog-samples-working-repo/out/hl7v2-adt-to-fhir/naive/encounter.json /home/runner/work/blog-samples-working-repo/blog-samples-working-repo/out/hl7v2-adt-to-fhir/naive/patient.json -version 4.0.1 -tx n/a -output /home/runner/work/blog-samples-working-repo/blog-samples-working-repo/out/hl7v2-adt-to-fhir/validator-output.json
+[0;39m[39m  Locale: /
+[0;39m[39m  Jurisdiction: None specified (locale = )
+[0;39m[39m  Note that exceptions and validation failures may happen in the absence of a locale
+[0;39m[39mLoading
+[0;39m[39m  Loading FHIR v4.0.1 from hl7.fhir.r4.core#4.0.1
+[0;39m[39mInstalling hl7.fhir.r4.core#4.0.1 to the package cache
+[0;39m[39m  Fetching:
+[0;39m[39m
+[0;39m[39mInstalling hl7.fhir.r4.core#4.0.1
+[0;39m[39m done.
+[0;39m[39mInstalling hl7.fhir.xver-extensions#0.1.0 to the package cache
+[0;39m[39m  Fetching:
+[0;39m[39m
+[0;39m[39mInstalling hl7.fhir.xver-extensions#0.1.0
+[0;39m[39m done.
+[0;39m[39mInstalling hl7.terminology.r4#6.2.0 to the package cache
+[0;39m[39m  Fetching:
+[0;39m[39m
+[0;39m[39mInstalling hl7.terminology.r4#6.2.0
+[0;39m[39m done.
+[0;39m[39m  Load hl7.terminology.r4#6.2.0 - 4288 resources (00:08.444)
+[0;39m[39mInstalling hl7.fhir.uv.extensions.r4#5.2.0 to the package cache
+[0;39m[39m  Fetching:
+[0;39m[39m
+[0;39m[39mInstalling hl7.fhir.uv.extensions.r4#5.2.0
+[0;39m[39m done.
+[0;39m[39m  Load hl7.fhir.uv.extensions.r4#5.2.0 - 759 resources (00:01.749)
+[0;39m[39m  Loaded FHIR - 8265 resources (00:00.000)
+[0;39m[39m  Terminology server null - Version n/a: No Terminology Server (00:00.000)
+[0;39m[39mInstalling hl7.terminology#7.5.0 to the package cache
+[0;39m[39m  Fetching:
+[0;39m[39m
+[0;39m[39mInstalling hl7.terminology#7.5.0
+[0;39m[39m done.
+[0;39m[39m  Load hl7.terminology#7.5.0 - 4190 resources (00:01.049)
+[0;39m[39mInstalling hl7.fhir.uv.extensions#5.4.0 to the package cache
+[0;39m[39m  Fetching:
+[0;39m[39m
+[0;39m[39mInstalling hl7.fhir.uv.extensions#5.4.0
+[0;39m[39m done.
+[0;39m[39mInstalling hl7.terminology.r5#7.5.0 to the package cache
+[0;39m[39m  Fetching:
+[0;39m[39m
+[0;39m[39mInstalling hl7.terminology.r5#7.5.0
+[0;39m[39m done.
+[0;39m[39m  Load hl7.terminology.r5#7.5.0 - 4190 resources (00:01.385)
+[0;39m[39m  Load hl7.fhir.uv.extensions#5.4.0 - 885 resources (00:00.006)
+[0;39m[39m  Package Summary: [hl7.fhir.r4.core#4.0.1, hl7.fhir.xver-extensions#0.1.0, hl7.terminology.r4#6.2.0, hl7.fhir.uv.extensions.r4#5.2.0, hl7.terminology#7.5.0, hl7.terminology.r5#7.5.0, hl7.fhir.uv.extensions#5.4.0]
+[0;39m[39m  Terminology Cache at /tmp/default-tx-cache
+[0;39m[39m  Get set... 
+[0;39m[39m  ...go! (00:00.845)
+[0;39m[39mCached new session. Cache size = 1
+[0;39m[39mSources to validate: /home/runner/work/blog-samples-working-repo/blog-samples-working-repo/out/hl7v2-adt-to-fhir/sent/01-a01-admit.json/home/runner/work/blog-samples-working-repo/blog-samples-working-repo/out/hl7v2-adt-to-fhir/sent/03-a08-update.json/home/runner/work/blog-samples-working-repo/blog-samples-working-repo/out/hl7v2-adt-to-fhir/sent/04-a03-discharge.json/home/runner/work/blog-samples-working-repo/blog-samples-working-repo/out/hl7v2-adt-to-fhir/sent/06-a01-second-registration.json/home/runner/work/blog-samples-working-repo/blog-samples-working-repo/out/hl7v2-adt-to-fhir/sent/07-a11-cancel-admit.json/home/runner/work/blog-samples-working-repo/blog-samples-working-repo/out/hl7v2-adt-to-fhir/sent/08-a40-merge.json/home/runner/work/blog-samples-working-repo/blog-samples-working-repo/out/hl7v2-adt-to-fhir/sent/10-a08-after-merge.json/home/runner/work/blog-samples-working-repo/blog-samples-working-repo/out/hl7v2-adt-to-fhir/sent/11-a04-older-sender.json/home/runner/work/blog-samples-working-repo/blog-samples-working-repo/out/hl7v2-adt-to-fhir/sent/14-a08-second-writer.json/home/runner/work/blog-samples-working-repo/blog-samples-working-repo/out/hl7v2-adt-to-fhir/sent/17-a40-merge-of-a-record-never-seen.json/home/runner/work/blog-samples-working-repo/blog-samples-working-repo/out/hl7v2-adt-to-fhir/sent/18-a08-with-nothing-new.json/home/runner/work/blog-samples-working-repo/blog-samples-working-repo/out/hl7v2-adt-to-fhir/sent/19-a08-sparse-update.json/home/runner/work/blog-samples-working-repo/blog-samples-working-repo/out/hl7v2-adt-to-fhir/naive/encounter.json/home/runner/work/blog-samples-working-repo/blog-samples-working-repo/out/hl7v2-adt-to-fhir/naive/patient.json
+[0;39m[39mValidating
+[0;39m[39m  Validate /home/runner/work/blog-samples-working-repo/blog-samples-working-repo/out/hl7v2-adt-to-fhir/sent/01-a01-admit.json
+[0;39m[39m 00:00.417
+[0;39m[39m  Validate /home/runner/work/blog-samples-working-repo/blog-samples-working-repo/out/hl7v2-adt-to-fhir/sent/03-a08-update.json
+[0;39m[39m 00:00.065
+[0;39m[39m  Validate /home/runner/work/blog-samples-working-repo/blog-samples-working-repo/out/hl7v2-adt-to-fhir/sent/04-a03-discharge.json
+[0;39m[39m 00:00.055
+[0;39m[39m  Validate /home/runner/work/blog-samples-working-repo/blog-samples-working-repo/out/hl7v2-adt-to-fhir/sent/06-a01-second-registration.json
+[0;39m[39m 00:00.039
+[0;39m[39m  Validate /home/runner/work/blog-samples-working-repo/blog-samples-working-repo/out/hl7v2-adt-to-fhir/sent/07-a11-cancel-admit.json
+[0;39m[39m 00:00.039
+[0;39m[39m  Validate /home/runner/work/blog-samples-working-repo/blog-samples-working-repo/out/hl7v2-adt-to-fhir/sent/08-a40-merge.json
+[0;39m[39m 00:00.043
+[0;39m[39m  Validate /home/runner/work/blog-samples-working-repo/blog-samples-working-repo/out/hl7v2-adt-to-fhir/sent/10-a08-after-merge.json
+[0;39m[39m 00:00.045
+[0;39m[39m  Validate /home/runner/work/blog-samples-working-repo/blog-samples-working-repo/out/hl7v2-adt-to-fhir/sent/11-a04-older-sender.json
+[0;39m[39m 00:00.046
+[0;39m[39m  Validate /home/runner/work/blog-samples-working-repo/blog-samples-working-repo/out/hl7v2-adt-to-fhir/sent/14-a08-second-writer.json
+[0;39m[39m 00:00.051
+[0;39m[39m  Validate /home/runner/work/blog-samples-working-repo/blog-samples-working-repo/out/hl7v2-adt-to-fhir/sent/17-a40-merge-of-a-record-never-seen.json
+[0;39m[39m 00:00.032
+[0;39m[39m  Validate /home/runner/work/blog-samples-working-repo/blog-samples-working-repo/out/hl7v2-adt-to-fhir/sent/18-a08-with-nothing-new.json
+[0;39m[39m 00:00.038
+[0;39m[39m  Validate /home/runner/work/blog-samples-working-repo/blog-samples-working-repo/out/hl7v2-adt-to-fhir/sent/19-a08-sparse-update.json
+[0;39m[39m 00:00.025
+[0;39m[39m  Validate /home/runner/work/blog-samples-working-repo/blog-samples-working-repo/out/hl7v2-adt-to-fhir/naive/encounter.json
+[0;39m[39m 00:00.056
+[0;39m[39m  Validate /home/runner/work/blog-samples-working-repo/blog-samples-working-repo/out/hl7v2-adt-to-fhir/naive/patient.json
+[0;39m[39m 00:00.020
+[0;39m[39mDone. Times: Loading: 00:13.532, validation: 00:00.981 (#14). Memory = 843Mb
+[0;39m[39m
+[0;39m[39mDone. Times: Loading: 00:13.532, validation: 00:00.981 (#14). Max Memory = 3Gb
+[0;39m

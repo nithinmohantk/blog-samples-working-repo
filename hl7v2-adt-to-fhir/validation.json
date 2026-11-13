@@ -1,0 +1,595 @@
+{
+ "sent/01-a01-admit.json": [
+  {
+   "severity": "warning",
+   "message": "None of the codings provided are in the value set 'IdentifierType' (http://hl7.org/fhir/ValueSet/identifier-type|4.0.1), and a coding should come from this value set unless it has no suitable code (note that the validator cannot judge what is suitable) (codes = http://terminology.hl7.org/CodeSystem/v2-0203#PI)",
+   "location": "Bundle.entry[0].resource/*Patient/null*/.identifier[1].type"
+  },
+  {
+   "severity": "warning",
+   "message": "None of the codings provided are in the value set 'Patient Contact Relationship ' (http://hl7.org/fhir/ValueSet/patient-contactrelationship|4.0.1), and a coding should come from this value set unless it has no suitable code (note that the validator cannot judge what is suitable) (codes = http://terminology.hl7.org/CodeSystem/v2-0063#SPO)",
+   "location": "Bundle.entry[0].resource/*Patient/null*/.contact[0].relationship[1]"
+  },
+  {
+   "severity": "warning",
+   "message": "Constraint failed: dom-6: 'A resource should have narrative for robust management' (defined in http://hl7.org/fhir/StructureDefinition/DomainResource) (Best Practice Recommendation)",
+   "location": "Bundle.entry[0].resource/*Patient/null*/"
+  },
+  {
+   "severity": "warning",
+   "message": "None of the codings provided are in the value set 'IdentifierType' (http://hl7.org/fhir/ValueSet/identifier-type|4.0.1), and a coding should come from this value set unless it has no suitable code (note that the validator cannot judge what is suitable) (codes = http://terminology.hl7.org/CodeSystem/v2-0203#VN)",
+   "location": "Bundle.entry[1].resource/*Encounter/null*/.identifier[0].type"
+  },
+  {
+   "severity": "warning",
+   "message": "Constraint failed: dom-6: 'A resource should have narrative for robust management' (defined in http://hl7.org/fhir/StructureDefinition/DomainResource) (Best Practice Recommendation)",
+   "location": "Bundle.entry[1].resource/*Encounter/null*/"
+  },
+  {
+   "severity": "warning",
+   "message": "Constraint failed: dom-6: 'A resource should have narrative for robust management' (defined in http://hl7.org/fhir/StructureDefinition/DomainResource) (Best Practice Recommendation)",
+   "location": "Bundle.entry[2].resource/*AllergyIntolerance/null*/"
+  },
+  {
+   "severity": "warning",
+   "message": "Constraint failed: dom-6: 'A resource should have narrative for robust management' (defined in http://hl7.org/fhir/StructureDefinition/DomainResource) (Best Practice Recommendation)",
+   "location": "Bundle.entry[3].resource/*AllergyIntolerance/null*/"
+  },
+  {
+   "severity": "warning",
+   "message": "None of the codings provided are in the value set 'Provenance activity type' (http://hl7.org/fhir/ValueSet/provenance-activity-type|4.0.1), and a coding should come from this value set unless it has no suitable code (note that the validator cannot judge what is suitable) (codes = http://terminology.hl7.org/CodeSystem/v2-0003#A01)",
+   "location": "Bundle.entry[4].resource/*Provenance/d2c4358d-c23a-5a6a-8551-0dbf126fe50b*/.activity"
+  },
+  {
+   "severity": "warning",
+   "message": "Constraint failed: dom-6: 'A resource should have narrative for robust management' (defined in http://hl7.org/fhir/StructureDefinition/DomainResource) (Best Practice Recommendation)",
+   "location": "Bundle.entry[4].resource/*Provenance/d2c4358d-c23a-5a6a-8551-0dbf126fe50b*/"
+  }
+ ],
+ "sent/03-a08-update.json": [
+  {
+   "severity": "warning",
+   "message": "None of the codings provided are in the value set 'IdentifierType' (http://hl7.org/fhir/ValueSet/identifier-type|4.0.1), and a coding should come from this value set unless it has no suitable code (note that the validator cannot judge what is suitable) (codes = http://terminology.hl7.org/CodeSystem/v2-0203#PI)",
+   "location": "Bundle.entry[0].resource/*Patient/2*/.identifier[1].type"
+  },
+  {
+   "severity": "warning",
+   "message": "None of the codings provided are in the value set 'Patient Contact Relationship ' (http://hl7.org/fhir/ValueSet/patient-contactrelationship|4.0.1), and a coding should come from this value set unless it has no suitable code (note that the validator cannot judge what is suitable) (codes = http://terminology.hl7.org/CodeSystem/v2-0063#SPO)",
+   "location": "Bundle.entry[0].resource/*Patient/2*/.contact[0].relationship[1]"
+  },
+  {
+   "severity": "warning",
+   "message": "Constraint failed: dom-6: 'A resource should have narrative for robust management' (defined in http://hl7.org/fhir/StructureDefinition/DomainResource) (Best Practice Recommendation)",
+   "location": "Bundle.entry[0].resource/*Patient/2*/"
+  },
+  {
+   "severity": "warning",
+   "message": "Entry 0 matches the reference Patient/2 by type and id but its fullUrl http://127.0.0.1:8082/fhir/Patient/2 does not match the full target URL urn:uuid:2 by Bundle resolution rules",
+   "location": "Bundle.entry[1].resource/*AllergyIntolerance/null*/.patient"
+  },
+  {
+   "severity": "warning",
+   "message": "Constraint failed: dom-6: 'A resource should have narrative for robust management' (defined in http://hl7.org/fhir/StructureDefinition/DomainResource) (Best Practice Recommendation)",
+   "location": "Bundle.entry[1].resource/*AllergyIntolerance/null*/"
+  },
+  {
+   "severity": "warning",
+   "message": "Entry 0 matches the reference Patient/2 by type and id but its fullUrl http://127.0.0.1:8082/fhir/Patient/2 does not match the full target URL urn:uuid:2 by Bundle resolution rules",
+   "location": "Bundle.entry[2].resource/*AllergyIntolerance/null*/.patient"
+  },
+  {
+   "severity": "warning",
+   "message": "Constraint failed: dom-6: 'A resource should have narrative for robust management' (defined in http://hl7.org/fhir/StructureDefinition/DomainResource) (Best Practice Recommendation)",
+   "location": "Bundle.entry[2].resource/*AllergyIntolerance/null*/"
+  },
+  {
+   "severity": "warning",
+   "message": "Entry 0 matches the reference Patient/2 by type and id but its fullUrl http://127.0.0.1:8082/fhir/Patient/2 does not match the full target URL urn:uuid:2 by Bundle resolution rules",
+   "location": "Bundle.entry[3].resource/*AllergyIntolerance/null*/.patient"
+  },
+  {
+   "severity": "warning",
+   "message": "Constraint failed: dom-6: 'A resource should have narrative for robust management' (defined in http://hl7.org/fhir/StructureDefinition/DomainResource) (Best Practice Recommendation)",
+   "location": "Bundle.entry[3].resource/*AllergyIntolerance/null*/"
+  },
+  {
+   "severity": "warning",
+   "message": "Entry 0 matches the reference Patient/2 by type and id but its fullUrl http://127.0.0.1:8082/fhir/Patient/2 does not match the full target URL urn:uuid:2 by Bundle resolution rules",
+   "location": "Bundle.entry[4].resource/*Provenance/9bacaea7-f537-5e9e-88f1-30022fd8bded*/.target[0]"
+  },
+  {
+   "severity": "warning",
+   "message": "None of the codings provided are in the value set 'Provenance activity type' (http://hl7.org/fhir/ValueSet/provenance-activity-type|4.0.1), and a coding should come from this value set unless it has no suitable code (note that the validator cannot judge what is suitable) (codes = http://terminology.hl7.org/CodeSystem/v2-0003#A08)",
+   "location": "Bundle.entry[4].resource/*Provenance/9bacaea7-f537-5e9e-88f1-30022fd8bded*/.activity"
+  },
+  {
+   "severity": "warning",
+   "message": "Constraint failed: dom-6: 'A resource should have narrative for robust management' (defined in http://hl7.org/fhir/StructureDefinition/DomainResource) (Best Practice Recommendation)",
+   "location": "Bundle.entry[4].resource/*Provenance/9bacaea7-f537-5e9e-88f1-30022fd8bded*/"
+  }
+ ],
+ "sent/04-a03-discharge.json": [
+  {
+   "severity": "warning",
+   "message": "None of the codings provided are in the value set 'IdentifierType' (http://hl7.org/fhir/ValueSet/identifier-type|4.0.1), and a coding should come from this value set unless it has no suitable code (note that the validator cannot judge what is suitable) (codes = http://terminology.hl7.org/CodeSystem/v2-0203#PI)",
+   "location": "Bundle.entry[0].resource/*Patient/2*/.identifier[1].type"
+  },
+  {
+   "severity": "warning",
+   "message": "None of the codings provided are in the value set 'Patient Contact Relationship ' (http://hl7.org/fhir/ValueSet/patient-contactrelationship|4.0.1), and a coding should come from this value set unless it has no suitable code (note that the validator cannot judge what is suitable) (codes = http://terminology.hl7.org/CodeSystem/v2-0063#SPO)",
+   "location": "Bundle.entry[0].resource/*Patient/2*/.contact[0].relationship[1]"
+  },
+  {
+   "severity": "warning",
+   "message": "Constraint failed: dom-6: 'A resource should have narrative for robust management' (defined in http://hl7.org/fhir/StructureDefinition/DomainResource) (Best Practice Recommendation)",
+   "location": "Bundle.entry[0].resource/*Patient/2*/"
+  },
+  {
+   "severity": "warning",
+   "message": "None of the codings provided are in the value set 'IdentifierType' (http://hl7.org/fhir/ValueSet/identifier-type|4.0.1), and a coding should come from this value set unless it has no suitable code (note that the validator cannot judge what is suitable) (codes = http://terminology.hl7.org/CodeSystem/v2-0203#VN)",
+   "location": "Bundle.entry[1].resource/*Encounter/3*/.identifier[0].type"
+  },
+  {
+   "severity": "warning",
+   "message": "Constraint failed: dom-6: 'A resource should have narrative for robust management' (defined in http://hl7.org/fhir/StructureDefinition/DomainResource) (Best Practice Recommendation)",
+   "location": "Bundle.entry[1].resource/*Encounter/3*/"
+  },
+  {
+   "severity": "warning",
+   "message": "Entry 0 matches the reference Patient/2 by type and id but its fullUrl http://127.0.0.1:8082/fhir/Patient/2 does not match the full target URL urn:uuid:2 by Bundle resolution rules",
+   "location": "Bundle.entry[2].resource/*Provenance/9cb045c2-f38c-53de-990e-b93ebd29fded*/.target[0]"
+  },
+  {
+   "severity": "warning",
+   "message": "Entry 1 matches the reference Encounter/3 by type and id but its fullUrl http://127.0.0.1:8082/fhir/Encounter/3 does not match the full target URL urn:uuid:3 by Bundle resolution rules",
+   "location": "Bundle.entry[2].resource/*Provenance/9cb045c2-f38c-53de-990e-b93ebd29fded*/.target[1]"
+  },
+  {
+   "severity": "warning",
+   "message": "None of the codings provided are in the value set 'Provenance activity type' (http://hl7.org/fhir/ValueSet/provenance-activity-type|4.0.1), and a coding should come from this value set unless it has no suitable code (note that the validator cannot judge what is suitable) (codes = http://terminology.hl7.org/CodeSystem/v2-0003#A03)",
+   "location": "Bundle.entry[2].resource/*Provenance/9cb045c2-f38c-53de-990e-b93ebd29fded*/.activity"
+  },
+  {
+   "severity": "warning",
+   "message": "Constraint failed: dom-6: 'A resource should have narrative for robust management' (defined in http://hl7.org/fhir/StructureDefinition/DomainResource) (Best Practice Recommendation)",
+   "location": "Bundle.entry[2].resource/*Provenance/9cb045c2-f38c-53de-990e-b93ebd29fded*/"
+  }
+ ],
+ "sent/06-a01-second-registration.json": [
+  {
+   "severity": "warning",
+   "message": "Constraint failed: dom-6: 'A resource should have narrative for robust management' (defined in http://hl7.org/fhir/StructureDefinition/DomainResource) (Best Practice Recommendation)",
+   "location": "Bundle.entry[0].resource/*Patient/null*/"
+  },
+  {
+   "severity": "warning",
+   "message": "None of the codings provided are in the value set 'IdentifierType' (http://hl7.org/fhir/ValueSet/identifier-type|4.0.1), and a coding should come from this value set unless it has no suitable code (note that the validator cannot judge what is suitable) (codes = http://terminology.hl7.org/CodeSystem/v2-0203#VN)",
+   "location": "Bundle.entry[1].resource/*Encounter/null*/.identifier[0].type"
+  },
+  {
+   "severity": "warning",
+   "message": "Constraint failed: dom-6: 'A resource should have narrative for robust management' (defined in http://hl7.org/fhir/StructureDefinition/DomainResource) (Best Practice Recommendation)",
+   "location": "Bundle.entry[1].resource/*Encounter/null*/"
+  },
+  {
+   "severity": "warning",
+   "message": "None of the codings provided are in the value set 'Provenance activity type' (http://hl7.org/fhir/ValueSet/provenance-activity-type|4.0.1), and a coding should come from this value set unless it has no suitable code (note that the validator cannot judge what is suitable) (codes = http://terminology.hl7.org/CodeSystem/v2-0003#A01)",
+   "location": "Bundle.entry[2].resource/*Provenance/5a836790-830a-551f-9abd-b5eefdfaa57a*/.activity"
+  },
+  {
+   "severity": "warning",
+   "message": "Constraint failed: dom-6: 'A resource should have narrative for robust management' (defined in http://hl7.org/fhir/StructureDefinition/DomainResource) (Best Practice Recommendation)",
+   "location": "Bundle.entry[2].resource/*Provenance/5a836790-830a-551f-9abd-b5eefdfaa57a*/"
+  }
+ ],
+ "sent/07-a11-cancel-admit.json": [
+  {
+   "severity": "warning",
+   "message": "Constraint failed: dom-6: 'A resource should have narrative for robust management' (defined in http://hl7.org/fhir/StructureDefinition/DomainResource) (Best Practice Recommendation)",
+   "location": "Bundle.entry[0].resource/*Patient/10*/"
+  },
+  {
+   "severity": "warning",
+   "message": "None of the codings provided are in the value set 'IdentifierType' (http://hl7.org/fhir/ValueSet/identifier-type|4.0.1), and a coding should come from this value set unless it has no suitable code (note that the validator cannot judge what is suitable) (codes = http://terminology.hl7.org/CodeSystem/v2-0203#VN)",
+   "location": "Bundle.entry[1].resource/*Encounter/11*/.identifier[0].type"
+  },
+  {
+   "severity": "warning",
+   "message": "Constraint failed: dom-6: 'A resource should have narrative for robust management' (defined in http://hl7.org/fhir/StructureDefinition/DomainResource) (Best Practice Recommendation)",
+   "location": "Bundle.entry[1].resource/*Encounter/11*/"
+  },
+  {
+   "severity": "warning",
+   "message": "Entry 0 matches the reference Patient/10 by type and id but its fullUrl http://127.0.0.1:8082/fhir/Patient/10 does not match the full target URL urn:uuid:10 by Bundle resolution rules",
+   "location": "Bundle.entry[2].resource/*Provenance/9f59baf0-67ca-5dda-a1e7-3f5c330e7cbd*/.target[0]"
+  },
+  {
+   "severity": "warning",
+   "message": "Entry 1 matches the reference Encounter/11 by type and id but its fullUrl http://127.0.0.1:8082/fhir/Encounter/11 does not match the full target URL urn:uuid:11 by Bundle resolution rules",
+   "location": "Bundle.entry[2].resource/*Provenance/9f59baf0-67ca-5dda-a1e7-3f5c330e7cbd*/.target[1]"
+  },
+  {
+   "severity": "warning",
+   "message": "None of the codings provided are in the value set 'Provenance activity type' (http://hl7.org/fhir/ValueSet/provenance-activity-type|4.0.1), and a coding should come from this value set unless it has no suitable code (note that the validator cannot judge what is suitable) (codes = http://terminology.hl7.org/CodeSystem/v2-0003#A11)",
+   "location": "Bundle.entry[2].resource/*Provenance/9f59baf0-67ca-5dda-a1e7-3f5c330e7cbd*/.activity"
+  },
+  {
+   "severity": "warning",
+   "message": "Constraint failed: dom-6: 'A resource should have narrative for robust management' (defined in http://hl7.org/fhir/StructureDefinition/DomainResource) (Best Practice Recommendation)",
+   "location": "Bundle.entry[2].resource/*Provenance/9f59baf0-67ca-5dda-a1e7-3f5c330e7cbd*/"
+  }
+ ],
+ "sent/08-a40-merge.json": [
+  {
+   "severity": "warning",
+   "message": "None of the codings provided are in the value set 'IdentifierType' (http://hl7.org/fhir/ValueSet/identifier-type|4.0.1), and a coding should come from this value set unless it has no suitable code (note that the validator cannot judge what is suitable) (codes = http://terminology.hl7.org/CodeSystem/v2-0203#PI)",
+   "location": "Bundle.entry[0].resource/*Patient/2*/.identifier[1].type"
+  },
+  {
+   "severity": "warning",
+   "message": "None of the codings provided are in the value set 'Patient Contact Relationship ' (http://hl7.org/fhir/ValueSet/patient-contactrelationship|4.0.1), and a coding should come from this value set unless it has no suitable code (note that the validator cannot judge what is suitable) (codes = http://terminology.hl7.org/CodeSystem/v2-0063#SPO)",
+   "location": "Bundle.entry[0].resource/*Patient/2*/.contact[0].relationship[1]"
+  },
+  {
+   "severity": "warning",
+   "message": "Constraint failed: dom-6: 'A resource should have narrative for robust management' (defined in http://hl7.org/fhir/StructureDefinition/DomainResource) (Best Practice Recommendation)",
+   "location": "Bundle.entry[0].resource/*Patient/2*/"
+  },
+  {
+   "severity": "warning",
+   "message": "Constraint failed: dom-6: 'A resource should have narrative for robust management' (defined in http://hl7.org/fhir/StructureDefinition/DomainResource) (Best Practice Recommendation)",
+   "location": "Bundle.entry[1].resource/*Patient/10*/"
+  },
+  {
+   "severity": "warning",
+   "message": "Entry 0 matches the reference Patient/2 by type and id but its fullUrl http://127.0.0.1:8082/fhir/Patient/2 does not match the full target URL urn:uuid:2 by Bundle resolution rules",
+   "location": "Bundle.entry[2].resource/*Provenance/afad900d-d403-5d62-b04e-14d6378243b1*/.target[0]"
+  },
+  {
+   "severity": "warning",
+   "message": "None of the codings provided are in the value set 'Provenance activity type' (http://hl7.org/fhir/ValueSet/provenance-activity-type|4.0.1), and a coding should come from this value set unless it has no suitable code (note that the validator cannot judge what is suitable) (codes = http://terminology.hl7.org/CodeSystem/v2-0003#A40)",
+   "location": "Bundle.entry[2].resource/*Provenance/afad900d-d403-5d62-b04e-14d6378243b1*/.activity"
+  },
+  {
+   "severity": "warning",
+   "message": "Constraint failed: dom-6: 'A resource should have narrative for robust management' (defined in http://hl7.org/fhir/StructureDefinition/DomainResource) (Best Practice Recommendation)",
+   "location": "Bundle.entry[2].resource/*Provenance/afad900d-d403-5d62-b04e-14d6378243b1*/"
+  }
+ ],
+ "sent/10-a08-after-merge.json": [
+  {
+   "severity": "warning",
+   "message": "None of the codings provided are in the value set 'IdentifierType' (http://hl7.org/fhir/ValueSet/identifier-type|4.0.1), and a coding should come from this value set unless it has no suitable code (note that the validator cannot judge what is suitable) (codes = http://terminology.hl7.org/CodeSystem/v2-0203#PI)",
+   "location": "Bundle.entry[0].resource/*Patient/2*/.identifier[1].type"
+  },
+  {
+   "severity": "warning",
+   "message": "None of the codings provided are in the value set 'Patient Contact Relationship ' (http://hl7.org/fhir/ValueSet/patient-contactrelationship|4.0.1), and a coding should come from this value set unless it has no suitable code (note that the validator cannot judge what is suitable) (codes = http://terminology.hl7.org/CodeSystem/v2-0063#SPO)",
+   "location": "Bundle.entry[0].resource/*Patient/2*/.contact[0].relationship[1]"
+  },
+  {
+   "severity": "warning",
+   "message": "Constraint failed: dom-6: 'A resource should have narrative for robust management' (defined in http://hl7.org/fhir/StructureDefinition/DomainResource) (Best Practice Recommendation)",
+   "location": "Bundle.entry[0].resource/*Patient/2*/"
+  },
+  {
+   "severity": "warning",
+   "message": "Entry 0 matches the reference Patient/2 by type and id but its fullUrl http://127.0.0.1:8082/fhir/Patient/2 does not match the full target URL urn:uuid:2 by Bundle resolution rules",
+   "location": "Bundle.entry[1].resource/*AllergyIntolerance/null*/.patient"
+  },
+  {
+   "severity": "warning",
+   "message": "Constraint failed: dom-6: 'A resource should have narrative for robust management' (defined in http://hl7.org/fhir/StructureDefinition/DomainResource) (Best Practice Recommendation)",
+   "location": "Bundle.entry[1].resource/*AllergyIntolerance/null*/"
+  },
+  {
+   "severity": "warning",
+   "message": "Entry 0 matches the reference Patient/2 by type and id but its fullUrl http://127.0.0.1:8082/fhir/Patient/2 does not match the full target URL urn:uuid:2 by Bundle resolution rules",
+   "location": "Bundle.entry[2].resource/*AllergyIntolerance/null*/.patient"
+  },
+  {
+   "severity": "warning",
+   "message": "Constraint failed: dom-6: 'A resource should have narrative for robust management' (defined in http://hl7.org/fhir/StructureDefinition/DomainResource) (Best Practice Recommendation)",
+   "location": "Bundle.entry[2].resource/*AllergyIntolerance/null*/"
+  },
+  {
+   "severity": "warning",
+   "message": "Entry 0 matches the reference Patient/2 by type and id but its fullUrl http://127.0.0.1:8082/fhir/Patient/2 does not match the full target URL urn:uuid:2 by Bundle resolution rules",
+   "location": "Bundle.entry[3].resource/*AllergyIntolerance/null*/.patient"
+  },
+  {
+   "severity": "warning",
+   "message": "Constraint failed: dom-6: 'A resource should have narrative for robust management' (defined in http://hl7.org/fhir/StructureDefinition/DomainResource) (Best Practice Recommendation)",
+   "location": "Bundle.entry[3].resource/*AllergyIntolerance/null*/"
+  },
+  {
+   "severity": "warning",
+   "message": "Entry 0 matches the reference Patient/2 by type and id but its fullUrl http://127.0.0.1:8082/fhir/Patient/2 does not match the full target URL urn:uuid:2 by Bundle resolution rules",
+   "location": "Bundle.entry[4].resource/*Provenance/6d5f518f-4df5-5d94-847c-123eab96be4d*/.target[0]"
+  },
+  {
+   "severity": "warning",
+   "message": "None of the codings provided are in the value set 'Provenance activity type' (http://hl7.org/fhir/ValueSet/provenance-activity-type|4.0.1), and a coding should come from this value set unless it has no suitable code (note that the validator cannot judge what is suitable) (codes = http://terminology.hl7.org/CodeSystem/v2-0003#A08)",
+   "location": "Bundle.entry[4].resource/*Provenance/6d5f518f-4df5-5d94-847c-123eab96be4d*/.activity"
+  },
+  {
+   "severity": "warning",
+   "message": "Constraint failed: dom-6: 'A resource should have narrative for robust management' (defined in http://hl7.org/fhir/StructureDefinition/DomainResource) (Best Practice Recommendation)",
+   "location": "Bundle.entry[4].resource/*Provenance/6d5f518f-4df5-5d94-847c-123eab96be4d*/"
+  }
+ ],
+ "sent/11-a04-older-sender.json": [
+  {
+   "severity": "warning",
+   "message": "No code provided, and a code should be provided from the value set 'MaritalStatus' (http://hl7.org/fhir/ValueSet/marital-status|4.0.1)",
+   "location": "Bundle.entry[0].resource/*Patient/null*/.maritalStatus"
+  },
+  {
+   "severity": "warning",
+   "message": "Constraint failed: dom-6: 'A resource should have narrative for robust management' (defined in http://hl7.org/fhir/StructureDefinition/DomainResource) (Best Practice Recommendation)",
+   "location": "Bundle.entry[0].resource/*Patient/null*/"
+  },
+  {
+   "severity": "warning",
+   "message": "None of the codings provided are in the value set 'IdentifierType' (http://hl7.org/fhir/ValueSet/identifier-type|4.0.1), and a coding should come from this value set unless it has no suitable code (note that the validator cannot judge what is suitable) (codes = http://terminology.hl7.org/CodeSystem/v2-0203#VN)",
+   "location": "Bundle.entry[1].resource/*Encounter/null*/.identifier[0].type"
+  },
+  {
+   "severity": "warning",
+   "message": "Constraint failed: dom-6: 'A resource should have narrative for robust management' (defined in http://hl7.org/fhir/StructureDefinition/DomainResource) (Best Practice Recommendation)",
+   "location": "Bundle.entry[1].resource/*Encounter/null*/"
+  },
+  {
+   "severity": "warning",
+   "message": "Constraint failed: dom-6: 'A resource should have narrative for robust management' (defined in http://hl7.org/fhir/StructureDefinition/DomainResource) (Best Practice Recommendation)",
+   "location": "Bundle.entry[2].resource/*AllergyIntolerance/null*/"
+  },
+  {
+   "severity": "warning",
+   "message": "None of the codings provided are in the value set 'Provenance activity type' (http://hl7.org/fhir/ValueSet/provenance-activity-type|4.0.1), and a coding should come from this value set unless it has no suitable code (note that the validator cannot judge what is suitable) (codes = http://terminology.hl7.org/CodeSystem/v2-0003#A04)",
+   "location": "Bundle.entry[3].resource/*Provenance/b8b83ef4-ea05-56a2-95bb-87732f5e67b4*/.activity"
+  },
+  {
+   "severity": "warning",
+   "message": "Constraint failed: dom-6: 'A resource should have narrative for robust management' (defined in http://hl7.org/fhir/StructureDefinition/DomainResource) (Best Practice Recommendation)",
+   "location": "Bundle.entry[3].resource/*Provenance/b8b83ef4-ea05-56a2-95bb-87732f5e67b4*/"
+  }
+ ],
+ "sent/14-a08-second-writer.json": [
+  {
+   "severity": "warning",
+   "message": "None of the codings provided are in the value set 'IdentifierType' (http://hl7.org/fhir/ValueSet/identifier-type|4.0.1), and a coding should come from this value set unless it has no suitable code (note that the validator cannot judge what is suitable) (codes = http://terminology.hl7.org/CodeSystem/v2-0203#PI)",
+   "location": "Bundle.entry[0].resource/*Patient/2*/.identifier[1].type"
+  },
+  {
+   "severity": "warning",
+   "message": "None of the codings provided are in the value set 'Patient Contact Relationship ' (http://hl7.org/fhir/ValueSet/patient-contactrelationship|4.0.1), and a coding should come from this value set unless it has no suitable code (note that the validator cannot judge what is suitable) (codes = http://terminology.hl7.org/CodeSystem/v2-0063#SPO)",
+   "location": "Bundle.entry[0].resource/*Patient/2*/.contact[0].relationship[1]"
+  },
+  {
+   "severity": "warning",
+   "message": "Constraint failed: dom-6: 'A resource should have narrative for robust management' (defined in http://hl7.org/fhir/StructureDefinition/DomainResource) (Best Practice Recommendation)",
+   "location": "Bundle.entry[0].resource/*Patient/2*/"
+  },
+  {
+   "severity": "warning",
+   "message": "Entry 0 matches the reference Patient/2 by type and id but its fullUrl http://127.0.0.1:8082/fhir/Patient/2 does not match the full target URL urn:uuid:2 by Bundle resolution rules",
+   "location": "Bundle.entry[1].resource/*AllergyIntolerance/null*/.patient"
+  },
+  {
+   "severity": "warning",
+   "message": "Constraint failed: dom-6: 'A resource should have narrative for robust management' (defined in http://hl7.org/fhir/StructureDefinition/DomainResource) (Best Practice Recommendation)",
+   "location": "Bundle.entry[1].resource/*AllergyIntolerance/null*/"
+  },
+  {
+   "severity": "warning",
+   "message": "Entry 0 matches the reference Patient/2 by type and id but its fullUrl http://127.0.0.1:8082/fhir/Patient/2 does not match the full target URL urn:uuid:2 by Bundle resolution rules",
+   "location": "Bundle.entry[2].resource/*AllergyIntolerance/null*/.patient"
+  },
+  {
+   "severity": "warning",
+   "message": "Constraint failed: dom-6: 'A resource should have narrative for robust management' (defined in http://hl7.org/fhir/StructureDefinition/DomainResource) (Best Practice Recommendation)",
+   "location": "Bundle.entry[2].resource/*AllergyIntolerance/null*/"
+  },
+  {
+   "severity": "warning",
+   "message": "Entry 0 matches the reference Patient/2 by type and id but its fullUrl http://127.0.0.1:8082/fhir/Patient/2 does not match the full target URL urn:uuid:2 by Bundle resolution rules",
+   "location": "Bundle.entry[3].resource/*AllergyIntolerance/null*/.patient"
+  },
+  {
+   "severity": "warning",
+   "message": "Constraint failed: dom-6: 'A resource should have narrative for robust management' (defined in http://hl7.org/fhir/StructureDefinition/DomainResource) (Best Practice Recommendation)",
+   "location": "Bundle.entry[3].resource/*AllergyIntolerance/null*/"
+  },
+  {
+   "severity": "warning",
+   "message": "Entry 0 matches the reference Patient/2 by type and id but its fullUrl http://127.0.0.1:8082/fhir/Patient/2 does not match the full target URL urn:uuid:2 by Bundle resolution rules",
+   "location": "Bundle.entry[4].resource/*Provenance/c2199189-508b-5f0f-97ae-988cbeb12bd5*/.target[0]"
+  },
+  {
+   "severity": "warning",
+   "message": "None of the codings provided are in the value set 'Provenance activity type' (http://hl7.org/fhir/ValueSet/provenance-activity-type|4.0.1), and a coding should come from this value set unless it has no suitable code (note that the validator cannot judge what is suitable) (codes = http://terminology.hl7.org/CodeSystem/v2-0003#A08)",
+   "location": "Bundle.entry[4].resource/*Provenance/c2199189-508b-5f0f-97ae-988cbeb12bd5*/.activity"
+  },
+  {
+   "severity": "warning",
+   "message": "Constraint failed: dom-6: 'A resource should have narrative for robust management' (defined in http://hl7.org/fhir/StructureDefinition/DomainResource) (Best Practice Recommendation)",
+   "location": "Bundle.entry[4].resource/*Provenance/c2199189-508b-5f0f-97ae-988cbeb12bd5*/"
+  }
+ ],
+ "sent/17-a40-merge-of-a-record-never-seen.json": [
+  {
+   "severity": "warning",
+   "message": "None of the codings provided are in the value set 'IdentifierType' (http://hl7.org/fhir/ValueSet/identifier-type|4.0.1), and a coding should come from this value set unless it has no suitable code (note that the validator cannot judge what is suitable) (codes = http://terminology.hl7.org/CodeSystem/v2-0203#PI)",
+   "location": "Bundle.entry[0].resource/*Patient/2*/.identifier[1].type"
+  },
+  {
+   "severity": "warning",
+   "message": "None of the codings provided are in the value set 'Patient Contact Relationship ' (http://hl7.org/fhir/ValueSet/patient-contactrelationship|4.0.1), and a coding should come from this value set unless it has no suitable code (note that the validator cannot judge what is suitable) (codes = http://terminology.hl7.org/CodeSystem/v2-0063#SPO)",
+   "location": "Bundle.entry[0].resource/*Patient/2*/.contact[0].relationship[1]"
+  },
+  {
+   "severity": "warning",
+   "message": "Constraint failed: dom-6: 'A resource should have narrative for robust management' (defined in http://hl7.org/fhir/StructureDefinition/DomainResource) (Best Practice Recommendation)",
+   "location": "Bundle.entry[0].resource/*Patient/2*/"
+  },
+  {
+   "severity": "warning",
+   "message": "Entry 0 matches the reference Patient/2 by type and id but its fullUrl http://127.0.0.1:8082/fhir/Patient/2 does not match the full target URL urn:uuid:2 by Bundle resolution rules",
+   "location": "Bundle.entry[1].resource/*Patient/null*/.link[0].other"
+  },
+  {
+   "severity": "warning",
+   "message": "Constraint failed: dom-6: 'A resource should have narrative for robust management' (defined in http://hl7.org/fhir/StructureDefinition/DomainResource) (Best Practice Recommendation)",
+   "location": "Bundle.entry[1].resource/*Patient/null*/"
+  },
+  {
+   "severity": "warning",
+   "message": "Entry 0 matches the reference Patient/2 by type and id but its fullUrl http://127.0.0.1:8082/fhir/Patient/2 does not match the full target URL urn:uuid:2 by Bundle resolution rules",
+   "location": "Bundle.entry[2].resource/*Provenance/5bbeaf7e-1ca9-5669-b11c-1b3c03dab3c2*/.target[0]"
+  },
+  {
+   "severity": "warning",
+   "message": "None of the codings provided are in the value set 'Provenance activity type' (http://hl7.org/fhir/ValueSet/provenance-activity-type|4.0.1), and a coding should come from this value set unless it has no suitable code (note that the validator cannot judge what is suitable) (codes = http://terminology.hl7.org/CodeSystem/v2-0003#A40)",
+   "location": "Bundle.entry[2].resource/*Provenance/5bbeaf7e-1ca9-5669-b11c-1b3c03dab3c2*/.activity"
+  },
+  {
+   "severity": "warning",
+   "message": "Constraint failed: dom-6: 'A resource should have narrative for robust management' (defined in http://hl7.org/fhir/StructureDefinition/DomainResource) (Best Practice Recommendation)",
+   "location": "Bundle.entry[2].resource/*Provenance/5bbeaf7e-1ca9-5669-b11c-1b3c03dab3c2*/"
+  }
+ ],
+ "sent/18-a08-with-nothing-new.json": [
+  {
+   "severity": "warning",
+   "message": "None of the codings provided are in the value set 'IdentifierType' (http://hl7.org/fhir/ValueSet/identifier-type|4.0.1), and a coding should come from this value set unless it has no suitable code (note that the validator cannot judge what is suitable) (codes = http://terminology.hl7.org/CodeSystem/v2-0203#PI)",
+   "location": "Bundle.entry[0].resource/*Patient/2*/.identifier[1].type"
+  },
+  {
+   "severity": "warning",
+   "message": "None of the codings provided are in the value set 'Patient Contact Relationship ' (http://hl7.org/fhir/ValueSet/patient-contactrelationship|4.0.1), and a coding should come from this value set unless it has no suitable code (note that the validator cannot judge what is suitable) (codes = http://terminology.hl7.org/CodeSystem/v2-0063#SPO)",
+   "location": "Bundle.entry[0].resource/*Patient/2*/.contact[0].relationship[1]"
+  },
+  {
+   "severity": "warning",
+   "message": "Constraint failed: dom-6: 'A resource should have narrative for robust management' (defined in http://hl7.org/fhir/StructureDefinition/DomainResource) (Best Practice Recommendation)",
+   "location": "Bundle.entry[0].resource/*Patient/2*/"
+  },
+  {
+   "severity": "warning",
+   "message": "Entry 0 matches the reference Patient/2 by type and id but its fullUrl http://127.0.0.1:8082/fhir/Patient/2 does not match the full target URL urn:uuid:2 by Bundle resolution rules",
+   "location": "Bundle.entry[1].resource/*AllergyIntolerance/null*/.patient"
+  },
+  {
+   "severity": "warning",
+   "message": "Constraint failed: dom-6: 'A resource should have narrative for robust management' (defined in http://hl7.org/fhir/StructureDefinition/DomainResource) (Best Practice Recommendation)",
+   "location": "Bundle.entry[1].resource/*AllergyIntolerance/null*/"
+  },
+  {
+   "severity": "warning",
+   "message": "Entry 0 matches the reference Patient/2 by type and id but its fullUrl http://127.0.0.1:8082/fhir/Patient/2 does not match the full target URL urn:uuid:2 by Bundle resolution rules",
+   "location": "Bundle.entry[2].resource/*AllergyIntolerance/null*/.patient"
+  },
+  {
+   "severity": "warning",
+   "message": "Constraint failed: dom-6: 'A resource should have narrative for robust management' (defined in http://hl7.org/fhir/StructureDefinition/DomainResource) (Best Practice Recommendation)",
+   "location": "Bundle.entry[2].resource/*AllergyIntolerance/null*/"
+  },
+  {
+   "severity": "warning",
+   "message": "Entry 0 matches the reference Patient/2 by type and id but its fullUrl http://127.0.0.1:8082/fhir/Patient/2 does not match the full target URL urn:uuid:2 by Bundle resolution rules",
+   "location": "Bundle.entry[3].resource/*AllergyIntolerance/null*/.patient"
+  },
+  {
+   "severity": "warning",
+   "message": "Constraint failed: dom-6: 'A resource should have narrative for robust management' (defined in http://hl7.org/fhir/StructureDefinition/DomainResource) (Best Practice Recommendation)",
+   "location": "Bundle.entry[3].resource/*AllergyIntolerance/null*/"
+  },
+  {
+   "severity": "warning",
+   "message": "Entry 0 matches the reference Patient/2 by type and id but its fullUrl http://127.0.0.1:8082/fhir/Patient/2 does not match the full target URL urn:uuid:2 by Bundle resolution rules",
+   "location": "Bundle.entry[4].resource/*Provenance/352862f1-cb0c-596d-8612-d3588f088939*/.target[0]"
+  },
+  {
+   "severity": "warning",
+   "message": "None of the codings provided are in the value set 'Provenance activity type' (http://hl7.org/fhir/ValueSet/provenance-activity-type|4.0.1), and a coding should come from this value set unless it has no suitable code (note that the validator cannot judge what is suitable) (codes = http://terminology.hl7.org/CodeSystem/v2-0003#A08)",
+   "location": "Bundle.entry[4].resource/*Provenance/352862f1-cb0c-596d-8612-d3588f088939*/.activity"
+  },
+  {
+   "severity": "warning",
+   "message": "Constraint failed: dom-6: 'A resource should have narrative for robust management' (defined in http://hl7.org/fhir/StructureDefinition/DomainResource) (Best Practice Recommendation)",
+   "location": "Bundle.entry[4].resource/*Provenance/352862f1-cb0c-596d-8612-d3588f088939*/"
+  }
+ ],
+ "sent/19-a08-sparse-update.json": [
+  {
+   "severity": "warning",
+   "message": "No code provided, and a code should be provided from the value set 'MaritalStatus' (http://hl7.org/fhir/ValueSet/marital-status|4.0.1)",
+   "location": "Bundle.entry[0].resource/*Patient/16*/.maritalStatus"
+  },
+  {
+   "severity": "warning",
+   "message": "Constraint failed: dom-6: 'A resource should have narrative for robust management' (defined in http://hl7.org/fhir/StructureDefinition/DomainResource) (Best Practice Recommendation)",
+   "location": "Bundle.entry[0].resource/*Patient/16*/"
+  },
+  {
+   "severity": "warning",
+   "message": "Entry 0 matches the reference Patient/16 by type and id but its fullUrl http://127.0.0.1:8082/fhir/Patient/16 does not match the full target URL urn:uuid:16 by Bundle resolution rules",
+   "location": "Bundle.entry[1].resource/*Provenance/e9844823-f8b5-5275-8a66-61cc1a496298*/.target[0]"
+  },
+  {
+   "severity": "warning",
+   "message": "None of the codings provided are in the value set 'Provenance activity type' (http://hl7.org/fhir/ValueSet/provenance-activity-type|4.0.1), and a coding should come from this value set unless it has no suitable code (note that the validator cannot judge what is suitable) (codes = http://terminology.hl7.org/CodeSystem/v2-0003#A08)",
+   "location": "Bundle.entry[1].resource/*Provenance/e9844823-f8b5-5275-8a66-61cc1a496298*/.activity"
+  },
+  {
+   "severity": "warning",
+   "message": "Constraint failed: dom-6: 'A resource should have narrative for robust management' (defined in http://hl7.org/fhir/StructureDefinition/DomainResource) (Best Practice Recommendation)",
+   "location": "Bundle.entry[1].resource/*Provenance/e9844823-f8b5-5275-8a66-61cc1a496298*/"
+  }
+ ],
+ "naive/encounter.json": [
+  {
+   "severity": "warning",
+   "message": "The Coding provided (http://terminology.hl7.org/CodeSystem/v3-ActCode#I) was not found in the value set 'ActEncounterCode' (http://terminology.hl7.org/ValueSet/v3-ActEncounterCode|3.0.0), and a code should come from this value set unless it has no suitable code (note that the validator cannot judge what is suitable).  (error message = The provided code 'http://terminology.hl7.org/CodeSystem/v3-ActCode#I' was not found in the value set 'http://terminology.hl7.org/ValueSet/v3-ActEncounterCode|3.0.0')",
+   "location": "Encounter.class"
+  },
+  {
+   "severity": "error",
+   "message": "Not a valid date/time format: '20260310080000+0000'",
+   "location": "Encounter.period.start"
+  },
+  {
+   "severity": "warning",
+   "message": "Constraint failed: dom-6: 'A resource should have narrative for robust management' (defined in http://hl7.org/fhir/StructureDefinition/DomainResource) (Best Practice Recommendation)",
+   "location": "Encounter"
+  }
+ ],
+ "naive/patient.json": [
+  {
+   "severity": "error",
+   "message": "Identifier.system must be an absolute reference, not a local reference",
+   "location": "Patient.identifier[0]"
+  },
+  {
+   "severity": "error",
+   "message": "The System URI could not be determined for the code 'F' in the ValueSet 'http://hl7.org/fhir/ValueSet/administrative-gender|4.0.1'",
+   "location": "Patient.gender"
+  },
+  {
+   "severity": "error",
+   "message": "The value provided ('F') was not found in the value set 'AdministrativeGender' (http://hl7.org/fhir/ValueSet/administrative-gender|4.0.1), and a code is required from this value set  (error message = The System URI could not be determined for the code 'F' in the ValueSet 'http://hl7.org/fhir/ValueSet/administrative-gender|4.0.1'; The provided code '#F' was not found in the value set 'http://hl7.org/fhir/ValueSet/administrative-gender|4.0.1')",
+   "location": "Patient.gender"
+  },
+  {
+   "severity": "error",
+   "message": "Not a valid date format: '19850312'",
+   "location": "Patient.birthDate"
+  },
+  {
+   "severity": "warning",
+   "message": "Constraint failed: dom-6: 'A resource should have narrative for robust management' (defined in http://hl7.org/fhir/StructureDefinition/DomainResource) (Best Practice Recommendation)",
+   "location": "Patient"
+  }
+ ]
+}

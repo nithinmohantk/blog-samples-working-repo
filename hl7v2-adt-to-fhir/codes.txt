@@ -1,0 +1,4 @@
+ok    http://snomed.info/sct 91935009  sent 'Allergy to peanut'  server 'Allergy to peanut'
+ok    http://snomed.info/sct 91936005  sent 'Allergy to penicillin'  server 'Allergy to penicillin'
+
+2 distinct external coding(s) checked against https://tx.fhir.org/r4: all valid

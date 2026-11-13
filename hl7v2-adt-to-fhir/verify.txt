@@ -1,0 +1,17 @@
+ok    each of the four record numbers resolves to exactly one Patient
+  totals on the server: {'Patient': 4, 'Encounter': 3, 'AllergyIntolerance': 4, 'Provenance': 12}
+ok    the server holds 4 patients, 3 encounters, 4 allergies and 12 provenance records
+ok    exactly one of the two records for the same person is active
+ok    the retired records point at the survivor and the survivor points back
+ok    every identifier on every patient has a system and a value
+ok    dates of birth are FHIR dates at the precision received
+ok    the sparse update removed one address and nothing else
+ok    gender is a FHIR code on every patient that has one
+ok    each visit number resolves to exactly one Encounter
+ok    the stay is finished, the second registration cancelled, the outpatient visit in progress
+ok    every encounter period carries an offset
+ok    the survivor has three allergies, each once
+  Patient/2 has 6 versions
+ok    no provenance exists for the late update or the retried first writer
+
+13 of 13 checks passed

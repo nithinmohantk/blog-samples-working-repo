@@ -1,0 +1,40 @@
+ok    sent/01-a01-admit.json                         0 error(s), 9 warning(s)
+ok    sent/03-a08-update.json                        0 error(s), 12 warning(s)
+ok    sent/04-a03-discharge.json                     0 error(s), 9 warning(s)
+ok    sent/06-a01-second-registration.json           0 error(s), 5 warning(s)
+ok    sent/07-a11-cancel-admit.json                  0 error(s), 7 warning(s)
+ok    sent/08-a40-merge.json                         0 error(s), 7 warning(s)
+ok    sent/10-a08-after-merge.json                   0 error(s), 12 warning(s)
+ok    sent/11-a04-older-sender.json                  0 error(s), 7 warning(s)
+ok    sent/14-a08-second-writer.json                 0 error(s), 12 warning(s)
+ok    sent/17-a40-merge-of-a-record-never-seen.json  0 error(s), 8 warning(s)
+ok    sent/18-a08-with-nothing-new.json              0 error(s), 12 warning(s)
+ok    sent/19-a08-sparse-update.json                 0 error(s), 5 warning(s)
+ok    naive/encounter.json                           1 error(s), 2 warning(s)  (errors expected)
+        error at Encounter.period.start: Not a valid date/time format: '20260310080000+0000'
+ok    naive/patient.json                             4 error(s), 1 warning(s)  (errors expected)
+        error at Patient.identifier[0]: Identifier.system must be an absolute reference, not a local reference
+        error at Patient.gender: The System URI could not be determined for the code 'F' in the ValueSet 'http://hl7.org/fhir/ValueSet/administrative-gender|4.0.1'
+        error at Patient.gender: The value provided ('F') was not found in the value set 'AdministrativeGender' (http://hl7.org/fhir/ValueSet/administrative-gender|4.0.1), and a code is required from this value set  (error message = 
+        error at Patient.birthDate: Not a valid date format: '19850312'
+
+warnings, by message:
+   48 x Constraint failed: dom-6: 'A resource should have narrative for robust management' (defined in http://hl7.org/fhir/StructureDefinition/DomainResource) (Best Practice Recommendation)
+   20 x Entry 0 matches the reference Patient/2 by type and id but its fullUrl http://127.0.0.1:8082/fhir/Patient/2 does not match the full target URL urn:uuid:2 by Bundle resolution rules
+    8 x None of the codings provided are in the value set 'IdentifierType' (http://hl7.org/fhir/ValueSet/identifier-type|4.0.1), and a coding should come from this value set unless it has no suitable code (note that the validato
+    8 x None of the codings provided are in the value set 'Patient Contact Relationship ' (http://hl7.org/fhir/ValueSet/patient-contactrelationship|4.0.1), and a coding should come from this value set unless it has no suitable c
+    5 x None of the codings provided are in the value set 'IdentifierType' (http://hl7.org/fhir/ValueSet/identifier-type|4.0.1), and a coding should come from this value set unless it has no suitable code (note that the validato
+    5 x None of the codings provided are in the value set 'Provenance activity type' (http://hl7.org/fhir/ValueSet/provenance-activity-type|4.0.1), and a coding should come from this value set unless it has no suitable code (not
+    2 x None of the codings provided are in the value set 'Provenance activity type' (http://hl7.org/fhir/ValueSet/provenance-activity-type|4.0.1), and a coding should come from this value set unless it has no suitable code (not
+    2 x None of the codings provided are in the value set 'Provenance activity type' (http://hl7.org/fhir/ValueSet/provenance-activity-type|4.0.1), and a coding should come from this value set unless it has no suitable code (not
+    2 x No code provided, and a code should be provided from the value set 'MaritalStatus' (http://hl7.org/fhir/ValueSet/marital-status|4.0.1)
+    1 x Entry 1 matches the reference Encounter/3 by type and id but its fullUrl http://127.0.0.1:8082/fhir/Encounter/3 does not match the full target URL urn:uuid:3 by Bundle resolution rules
+    1 x None of the codings provided are in the value set 'Provenance activity type' (http://hl7.org/fhir/ValueSet/provenance-activity-type|4.0.1), and a coding should come from this value set unless it has no suitable code (not
+    1 x Entry 0 matches the reference Patient/10 by type and id but its fullUrl http://127.0.0.1:8082/fhir/Patient/10 does not match the full target URL urn:uuid:10 by Bundle resolution rules
+    1 x Entry 1 matches the reference Encounter/11 by type and id but its fullUrl http://127.0.0.1:8082/fhir/Encounter/11 does not match the full target URL urn:uuid:11 by Bundle resolution rules
+    1 x None of the codings provided are in the value set 'Provenance activity type' (http://hl7.org/fhir/ValueSet/provenance-activity-type|4.0.1), and a coding should come from this value set unless it has no suitable code (not
+    1 x None of the codings provided are in the value set 'Provenance activity type' (http://hl7.org/fhir/ValueSet/provenance-activity-type|4.0.1), and a coding should come from this value set unless it has no suitable code (not
+    1 x Entry 0 matches the reference Patient/16 by type and id but its fullUrl http://127.0.0.1:8082/fhir/Patient/16 does not match the full target URL urn:uuid:16 by Bundle resolution rules
+    1 x The Coding provided (http://terminology.hl7.org/CodeSystem/v3-ActCode#I) was not found in the value set 'ActEncounterCode' (http://terminology.hl7.org/ValueSet/v3-ActEncounterCode|3.0.0), and a code should come from this
+
+12 Bundles as sent and 2 naive resources validated: gate passed
