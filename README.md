@@ -34,6 +34,7 @@ Each folder has its own README that says what the code does, how to run it, and 
 | `dotnet8-to-dotnet10` | [Moving a .NET 8 API to .NET 10: What Breaks Between Two LTS Releases](https://www.dataa.dev/2026/02/07/moving-a-dotnet-8-api-to-dotnet-10-what-breaks-between-two-lts-releases/) | C#, Python |
 | `eprescribing-fhir-lifecycle` | [ePrescribing on FHIR R4: The Prescription Lifecycle as Resources and State Transitions](https://www.dataa.dev/2026/02/21/eprescribing-on-fhir-r4-the-prescription-lifecycle-as-resources-and-state-transitions/) | C#, Python |
 | `hl7v2-adt-to-fhir` | [HL7 v2 ADT to FHIR in .NET 10: Synthetic Messages, Validated Output](https://www.dataa.dev/2026/03/14/hl7-v2-adt-to-fhir-in-dotnet-10-synthetic-messages-validated-output/) | C#, Python |
+| `smart-backend-services` | [SMART Backend Services: System-to-System FHIR Authorization in .NET 10](https://www.dataa.dev/2026/03/28/smart-backend-services-system-to-system-fhir-authorization-in-dotnet-10/) | C#, Python |
 | `aws-emulator-first-look` | [AWS Emulator, Two Days In: A Lab Notebook](https://www.dataa.dev/2026/11/13/aws-emulator-two-days-in-a-lab-notebook/) | Bash, Python |
 
 ## Verification status
