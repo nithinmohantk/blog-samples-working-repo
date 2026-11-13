@@ -35,7 +35,7 @@ Docker. Outputs of the latest run are on the `ci-results-aws` branch under `step
 | Check | Result |
 | --- | --- |
 | Target and role policy lint | 0 findings |
-| Lint tests (ten broken variants are each found) | 10 of 10 |
+| Lint tests (the sample is clean; nine broken variants are each found) | 10 of 10 |
 | Workflow scenarios | 18 of 18 |
 
 | Scenario | Outcome | States entered |
