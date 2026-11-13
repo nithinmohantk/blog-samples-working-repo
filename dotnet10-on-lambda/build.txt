@@ -1,0 +1,7 @@
+name            flavour  reflection  seconds  files  folder_bytes  zip_bytes  trim_warnings
+jit             jit      false       2        9      493780        204718     none
+r2r             r2r      false       3        9      863300        353868     none
+aot             aot      false       13       1      7180560       3366891    none
+jit-reflection  jit      true        1        9      493780        204760     none
+aot-reflection  aot      true        11       1      7122656       3343574    IL2026 x4 IL3050 x4 
+  aot/bootstrap  7.2 MB

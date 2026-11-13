@@ -1,0 +1,27 @@
+== the same six requests to each build
+ok    1-quote              200  {"sku":"SKU-00042","quantity":3,"unitPrice":332.98,"net":998.94,"tax":229.76,"total":1228.70,"cu
+ok    2-no-tax             200  {"sku":"SKU-50000","quantity":10,"unitPrice":435.00,"net":4350.00,"tax":0.00,"total":4350.00,"cu
+ok    3-unknown-product    404  {"title":"Not found","detail":"There is no product NOPE."}
+ok    4-bad-quantity       400  {"title":"Bad request","detail":"A quote needs a sku and a quantity from 1 to 10000."}
+ok    5-not-json           400  {"title":"Bad request","detail":"The body is not a quote request."}
+ok    6-no-body            400  {"title":"Bad request","detail":"A quote needs a sku and a quantity from 1 to 10000."}
+ok    all four gave byte-identical bodies and the same status for every request
+
+== 1 CPU: first request to a new container (7 containers each), then 200 warm requests
+build                           start to first answer   first request  emulator init  warm p50  warm p99   memory
+managed runtime                                439 ms          254 ms         183 ms   1.35 ms   2.09 ms   32 MiB
+managed runtime, ReadyToRun                    401 ms          218 ms         167 ms   1.36 ms   2.01 ms   32 MiB
+Native AOT, OS-only runtime                    212 ms           30 ms          27 ms   1.22 ms   1.77 ms   22 MiB
+Native AOT, managed runtime                    225 ms           39 ms          36 ms   1.22 ms   1.83 ms   22 MiB
+
+== 0.29 CPU: first request to a new container (7 containers each), then 200 warm requests
+build                           start to first answer   first request  emulator init  warm p50  warm p99   memory
+managed runtime                               1060 ms          871 ms         641 ms    1.4 ms   79.9 ms   33 MiB
+managed runtime, ReadyToRun                    980 ms          792 ms         599 ms   1.42 ms  79.89 ms   32 MiB
+Native AOT, OS-only runtime                    286 ms           99 ms          96 ms   1.23 ms  70.63 ms   22 MiB
+Native AOT, managed runtime                    299 ms          104 ms         101 ms   1.24 ms   71.6 ms   22 MiB
+
+== the same function with reflection-based JSON
+  managed runtime, reflection JSON   200 {"sku":"SKU-00042","quantity":3,"unitPrice":332.98,"net":998.94,"tax":
+  Native AOT, reflection JSON        InvalidOperationException: Reflection-based serialization has been disabled for this application. Either use the source generator APIs or explicitly configure the 'JsonSerialize
+ok    reflection JSON works on the managed runtime and fails as Native AOT

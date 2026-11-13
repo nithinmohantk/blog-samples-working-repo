@@ -1,0 +1,11 @@
+ok    a quote for three units in Ireland is priced and taxed at 23%
+ok    the body is camelCase JSON with a content type
+ok    an unknown country is quoted without tax
+ok    property names are matched whatever their case
+ok    an unknown product is 404
+ok    no body, a quantity of zero, and text that is not JSON are each 400
+ok    the catalogue is the same in every build: first, middle and last prices
+ok    warming runs a request and leaves the instance as it was
+ok    after a restore the instance has a new identity and a clean count
+ok    responses carry the identity of the instance that produced them
+10 of 10 checks passed

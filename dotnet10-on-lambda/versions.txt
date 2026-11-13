@@ -1,0 +1,10 @@
+managed runtime image  public.ecr.aws/lambda/dotnet:10.2026.04.10.09
+  .NET runtime inside  10.0.5
+OS-only runtime image  public.ecr.aws/lambda/provided:al2023.2026.04.10.07
+image sizes            208 MB and 43 MB
+Python 3.13.18
+Docker version 29.4.2, build 055a478
+4 vCPU on the runner
+SDK 10.0.201, runtime 10.0.5
+Amazon Linux 2023.12.20261112
+clang version 15.0.7 (AWS 15.0.7-3.amzn2023.0.4)

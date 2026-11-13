@@ -1,0 +1,4 @@
+  Determining projects to restore...
+  Restored /build/src/Quotes.Function/Quotes.Function.csproj (in 687 ms).
+  Quotes.Function -> /build/src/Quotes.Function/bin/Release/net10.0/linux-x64/Quotes.Function.dll
+  Quotes.Function -> /out/publish/jit/

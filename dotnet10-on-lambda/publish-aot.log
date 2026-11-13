@@ -1,0 +1,7 @@
+  Determining projects to restore...
+/build/src/Quotes.Function/Quotes.Function.csproj : warning NU1903: Package 'Microsoft.DotNet.ILCompiler' 10.0.5 has a known high severity vulnerability, https://github.com/advisories/GHSA-p3jp-9v83-76w9
+  Restored /build/src/Quotes.Function/Quotes.Function.csproj (in 1.37 sec).
+/build/src/Quotes.Function/Quotes.Function.csproj : warning NU1903: Package 'Microsoft.DotNet.ILCompiler' 10.0.5 has a known high severity vulnerability, https://github.com/advisories/GHSA-p3jp-9v83-76w9
+  Quotes.Function -> /build/src/Quotes.Function/bin/Release/net10.0/linux-x64/bootstrap.dll
+  Generating native code
+  Quotes.Function -> /out/publish/aot/

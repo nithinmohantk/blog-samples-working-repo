@@ -1,0 +1,224 @@
+{
+ "images": {
+  "dotnet": "public.ecr.aws/lambda/dotnet:10.2026.04.10.09",
+  "provided": "public.ecr.aws/lambda/provided:al2023.2026.04.10.07"
+ },
+ "builds": {
+  "1": {
+   "managed runtime": {
+    "start_to_first_answer_ms": 439,
+    "first_request_ms": 254,
+    "first_request_ms_min_max": [
+     249,
+     257
+    ],
+    "emulator_init_ms": 183,
+    "warm_p50_ms": 1.35,
+    "warm_p99_ms": 2.09,
+    "memory_mib": 32
+   },
+   "managed runtime, ReadyToRun": {
+    "start_to_first_answer_ms": 401,
+    "first_request_ms": 218,
+    "first_request_ms_min_max": [
+     213,
+     224
+    ],
+    "emulator_init_ms": 167,
+    "warm_p50_ms": 1.36,
+    "warm_p99_ms": 2.01,
+    "memory_mib": 32
+   },
+   "Native AOT, OS-only runtime": {
+    "start_to_first_answer_ms": 212,
+    "first_request_ms": 30,
+    "first_request_ms_min_max": [
+     30,
+     31
+    ],
+    "emulator_init_ms": 27,
+    "warm_p50_ms": 1.22,
+    "warm_p99_ms": 1.77,
+    "memory_mib": 22
+   },
+   "Native AOT, managed runtime": {
+    "start_to_first_answer_ms": 225,
+    "first_request_ms": 39,
+    "first_request_ms_min_max": [
+     38,
+     41
+    ],
+    "emulator_init_ms": 36,
+    "warm_p50_ms": 1.22,
+    "warm_p99_ms": 1.83,
+    "memory_mib": 22
+   }
+  },
+  "0.29": {
+   "managed runtime": {
+    "start_to_first_answer_ms": 1060,
+    "first_request_ms": 871,
+    "first_request_ms_min_max": [
+     837,
+     901
+    ],
+    "emulator_init_ms": 641,
+    "warm_p50_ms": 1.4,
+    "warm_p99_ms": 79.9,
+    "memory_mib": 33
+   },
+   "managed runtime, ReadyToRun": {
+    "start_to_first_answer_ms": 980,
+    "first_request_ms": 792,
+    "first_request_ms_min_max": [
+     746,
+     797
+    ],
+    "emulator_init_ms": 599,
+    "warm_p50_ms": 1.42,
+    "warm_p99_ms": 79.89,
+    "memory_mib": 32
+   },
+   "Native AOT, OS-only runtime": {
+    "start_to_first_answer_ms": 286,
+    "first_request_ms": 99,
+    "first_request_ms_min_max": [
+     40,
+     110
+    ],
+    "emulator_init_ms": 96,
+    "warm_p50_ms": 1.23,
+    "warm_p99_ms": 70.63,
+    "memory_mib": 22
+   },
+   "Native AOT, managed runtime": {
+    "start_to_first_answer_ms": 299,
+    "first_request_ms": 104,
+    "first_request_ms_min_max": [
+     48,
+     113
+    ],
+    "emulator_init_ms": 101,
+    "warm_p50_ms": 1.24,
+    "warm_p99_ms": 71.6,
+    "memory_mib": 22
+   }
+  }
+ },
+ "answers": {
+  "managed runtime": {
+   "1-quote": {
+    "statusCode": 200,
+    "body": "{\"sku\":\"SKU-00042\",\"quantity\":3,\"unitPrice\":332.98,\"net\":998.94,\"tax\":229.76,\"total\":1228.70,\"currency\":\"EUR\"}"
+   },
+   "2-no-tax": {
+    "statusCode": 200,
+    "body": "{\"sku\":\"SKU-50000\",\"quantity\":10,\"unitPrice\":435.00,\"net\":4350.00,\"tax\":0.00,\"total\":4350.00,\"currency\":\"EUR\"}"
+   },
+   "3-unknown-product": {
+    "statusCode": 404,
+    "body": "{\"title\":\"Not found\",\"detail\":\"There is no product NOPE.\"}"
+   },
+   "4-bad-quantity": {
+    "statusCode": 400,
+    "body": "{\"title\":\"Bad request\",\"detail\":\"A quote needs a sku and a quantity from 1 to 10000.\"}"
+   },
+   "5-not-json": {
+    "statusCode": 400,
+    "body": "{\"title\":\"Bad request\",\"detail\":\"The body is not a quote request.\"}"
+   },
+   "6-no-body": {
+    "statusCode": 400,
+    "body": "{\"title\":\"Bad request\",\"detail\":\"A quote needs a sku and a quantity from 1 to 10000.\"}"
+   }
+  },
+  "managed runtime, ReadyToRun": {
+   "1-quote": {
+    "statusCode": 200,
+    "body": "{\"sku\":\"SKU-00042\",\"quantity\":3,\"unitPrice\":332.98,\"net\":998.94,\"tax\":229.76,\"total\":1228.70,\"currency\":\"EUR\"}"
+   },
+   "2-no-tax": {
+    "statusCode": 200,
+    "body": "{\"sku\":\"SKU-50000\",\"quantity\":10,\"unitPrice\":435.00,\"net\":4350.00,\"tax\":0.00,\"total\":4350.00,\"currency\":\"EUR\"}"
+   },
+   "3-unknown-product": {
+    "statusCode": 404,
+    "body": "{\"title\":\"Not found\",\"detail\":\"There is no product NOPE.\"}"
+   },
+   "4-bad-quantity": {
+    "statusCode": 400,
+    "body": "{\"title\":\"Bad request\",\"detail\":\"A quote needs a sku and a quantity from 1 to 10000.\"}"
+   },
+   "5-not-json": {
+    "statusCode": 400,
+    "body": "{\"title\":\"Bad request\",\"detail\":\"The body is not a quote request.\"}"
+   },
+   "6-no-body": {
+    "statusCode": 400,
+    "body": "{\"title\":\"Bad request\",\"detail\":\"A quote needs a sku and a quantity from 1 to 10000.\"}"
+   }
+  },
+  "Native AOT, OS-only runtime": {
+   "1-quote": {
+    "statusCode": 200,
+    "body": "{\"sku\":\"SKU-00042\",\"quantity\":3,\"unitPrice\":332.98,\"net\":998.94,\"tax\":229.76,\"total\":1228.70,\"currency\":\"EUR\"}"
+   },
+   "2-no-tax": {
+    "statusCode": 200,
+    "body": "{\"sku\":\"SKU-50000\",\"quantity\":10,\"unitPrice\":435.00,\"net\":4350.00,\"tax\":0.00,\"total\":4350.00,\"currency\":\"EUR\"}"
+   },
+   "3-unknown-product": {
+    "statusCode": 404,
+    "body": "{\"title\":\"Not found\",\"detail\":\"There is no product NOPE.\"}"
+   },
+   "4-bad-quantity": {
+    "statusCode": 400,
+    "body": "{\"title\":\"Bad request\",\"detail\":\"A quote needs a sku and a quantity from 1 to 10000.\"}"
+   },
+   "5-not-json": {
+    "statusCode": 400,
+    "body": "{\"title\":\"Bad request\",\"detail\":\"The body is not a quote request.\"}"
+   },
+   "6-no-body": {
+    "statusCode": 400,
+    "body": "{\"title\":\"Bad request\",\"detail\":\"A quote needs a sku and a quantity from 1 to 10000.\"}"
+   }
+  },
+  "Native AOT, managed runtime": {
+   "1-quote": {
+    "statusCode": 200,
+    "body": "{\"sku\":\"SKU-00042\",\"quantity\":3,\"unitPrice\":332.98,\"net\":998.94,\"tax\":229.76,\"total\":1228.70,\"currency\":\"EUR\"}"
+   },
+   "2-no-tax": {
+    "statusCode": 200,
+    "body": "{\"sku\":\"SKU-50000\",\"quantity\":10,\"unitPrice\":435.00,\"net\":4350.00,\"tax\":0.00,\"total\":4350.00,\"currency\":\"EUR\"}"
+   },
+   "3-unknown-product": {
+    "statusCode": 404,
+    "body": "{\"title\":\"Not found\",\"detail\":\"There is no product NOPE.\"}"
+   },
+   "4-bad-quantity": {
+    "statusCode": 400,
+    "body": "{\"title\":\"Bad request\",\"detail\":\"A quote needs a sku and a quantity from 1 to 10000.\"}"
+   },
+   "5-not-json": {
+    "statusCode": 400,
+    "body": "{\"title\":\"Bad request\",\"detail\":\"The body is not a quote request.\"}"
+   },
+   "6-no-body": {
+    "statusCode": 400,
+    "body": "{\"title\":\"Bad request\",\"detail\":\"A quote needs a sku and a quantity from 1 to 10000.\"}"
+   }
+  }
+ },
+ "reflection": {
+  "managed runtime, reflection JSON": {
+   "answered": true,
+   "outcome": "200 {\"sku\":\"SKU-00042\",\"quantity\":3,\"unitPrice\":332.98,\"net\":998.94,\"tax\":"
+  },
+  "Native AOT, reflection JSON": {
+   "answered": false,
+   "outcome": "InvalidOperationException: Reflection-based serialization has been disabled for this application. Either use the source generator APIs or explicitly configure the 'JsonSerialize"
+  }
+ }
+}

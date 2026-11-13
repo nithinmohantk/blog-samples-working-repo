@@ -1,0 +1,20 @@
+START RequestId: 70a1ee4f-f4e7-4f81-8d87-e32458ff385a Version: $LATEST
+2026-11-13T16:41:25.697Z	70a1ee4f-f4e7-4f81-8d87-e32458ff385a	fail	System.InvalidOperationException: Reflection-based serialization has been disabled for this application. Either use the source generator APIs or explicitly configure the 'JsonSerializerOptions.TypeInfoResolver' property.
+   at System.Text.Json.ThrowHelper.ThrowInvalidOperationException_JsonSerializerIsReflectionDisabled() + 0x27
+   at System.Text.Json.JsonSerializerOptions.ConfigureForJsonSerializer() + 0x2e
+   at System.Text.Json.JsonSerializer.GetTypeInfo(JsonSerializerOptions, Type) + 0x2d
+   at System.Text.Json.JsonSerializer.GetTypeInfo[T](JsonSerializerOptions) + 0x2b
+   at System.Text.Json.JsonSerializer.Deserialize[TValue](String, JsonSerializerOptions) + 0x27
+   at Quotes.QuoteHandler.Handle(APIGatewayHttpApiV2ProxyRequest request, ILambdaContext context) + 0x6e
+   at Amazon.Lambda.RuntimeSupport.HandlerWrapper.<>c__DisplayClass44_0`2.<GetHandlerWrapper>b__0(InvocationRequest invocation) + 0x63
+   at Amazon.Lambda.RuntimeSupport.LambdaBootstrap.<>c__DisplayClass26_0.<<InvokeOnceAsync>b__0>d.MoveNext() + 0x1d5
+END RequestId: 70a1ee4f-f4e7-4f81-8d87-e32458ff385a
+REPORT RequestId: 70a1ee4f-f4e7-4f81-8d87-e32458ff385a	Init Duration: 0.05 ms	Duration: 33.10 ms	Billed Duration: 34 ms	Memory Size: 512 MB	Max Memory Used: 512 MB	
+13 Nov 2026 16:41:25,658 [INFO] (rapid) exec '/var/runtime/bootstrap' (cwd=/var/task, handler=)
+13 Nov 2026 16:41:25,667 [INFO] (rapid) INIT START(type: on-demand, phase: init)
+13 Nov 2026 16:41:25,667 [INFO] (rapid) The extension's directory "/opt/extensions" does not exist, assuming no extensions to be loaded.
+13 Nov 2026 16:41:25,667 [INFO] (rapid) Starting runtime without AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_SESSION_TOKEN , Expected?: false
+13 Nov 2026 16:41:25,695 [INFO] (rapid) INIT RTDONE(status: success)
+13 Nov 2026 16:41:25,695 [INFO] (rapid) INIT REPORT(durationMs: 28.303000)
+13 Nov 2026 16:41:25,696 [INFO] (rapid) INVOKE START(requestId: 70a1ee4f-f4e7-4f81-8d87-e32458ff385a)
+13 Nov 2026 16:41:25,700 [INFO] (rapid) INVOKE RTDONE(status: success, produced bytes: 0, duration: 4.661000ms)
