@@ -1,10 +1,14 @@
 """Runs the HL7 FHIR validator over what the converter produced and decides from its findings.
 
-    python validate_output.py validator_cli.jar <output dir> [--tx <terminology server> ...]
+    python validate_output.py validator_cli.jar <output dir> [--tx <terminology server>]
 
 Two folders are checked. Every Bundle in sent/ (what was posted to the server) must have no errors. Every
 resource in naive/ (v2 values copied across unchanged) must have at least one, which shows the validator is
 looking. The validator's exit code is not used: the decision is read from the OperationOutcome it writes.
+
+By default no terminology server is used (-tx n/a), so the build does not depend on one: structure, cardinality,
+data types, invariants and the code systems that ship with FHIR are checked here, and codes from external systems
+such as SNOMED CT are checked by check_codes.py.
 """
 import json
 import pathlib
@@ -40,24 +44,11 @@ def validate(jar: str, files: list[pathlib.Path], tx: str, work: pathlib.Path) -
 
 def main() -> int:
     jar, out = sys.argv[1], pathlib.Path(sys.argv[2])
-    servers = sys.argv[sys.argv.index("--tx") + 1:] if "--tx" in sys.argv else ["https://tx.fhir.org"]
+    tx = sys.argv[sys.argv.index("--tx") + 1] if "--tx" in sys.argv else "n/a"
     sent, naive = sorted((out / "sent").glob("*.json")), sorted((out / "naive").glob("*.json"))
     if not sent or not naive:
         raise SystemExit("Nothing to validate: run the self-test against a FHIR server first.")
-    # A terminology server that fails is not a finding about the resources. Each server is tried twice, then the
-    # next one in the list. If none answers, its failures stay in the result as errors: an unchecked code is not
-    # a checked one.
-    findings: dict[str, list[dict]] = {}
-    for tx in servers:
-        for attempt in (1, 2):
-            findings = validate(jar, sent + naive, tx, out)
-            outages = sum("Error from http" in issue["message"] for issues in findings.values() for issue in issues)
-            print(f"terminology server {tx}, attempt {attempt}: {'answered' if outages == 0 else f'{outages} request(s) failed'}")
-            if outages == 0:
-                break
-            time.sleep(20)
-        if outages == 0:
-            break
+    findings = validate(jar, sent + naive, tx, out)
     (out / "validation.json").write_text(json.dumps(findings, indent=1) + "\n", encoding="utf-8")
 
     failed = False
