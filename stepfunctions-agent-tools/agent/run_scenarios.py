@@ -166,10 +166,20 @@ check("when the credit call stays down the execution fails, and the agent is tol
 
 short = gateway("HappyPath", short_arn)
 started = text(start(short, "credit-C1010-20261101", {"caseId": "C1010", "amountCents": 20000}))
+late = sfn.get_activity_task(activityArn=activity_arn, workerName="approvals-app")  # the request reaches the approver, who does not answer
 expired = wait(short, started["executionArn"])
 results["approval_expired"] = {"status": expired["status"], "output": json.loads(expired["output"]) if expired.get("output") else None, "path": path(history(started["executionArn"]))}
 check("an approval nobody answers expires, and nothing is credited",
       results["approval_expired"]["output"] == {"outcome": "EXPIRED", "reason": "Nobody approved the credit in time."} and "ApplyCredit" not in results["approval_expired"]["path"], str(results["approval_expired"]))
+
+try:
+    sfn.send_task_success(taskToken=late["taskToken"], output=json.dumps({"approved": True, "approver": "manager-7"}))
+    late_answer = "accepted"
+except botocore.exceptions.ClientError as error:
+    late_answer = error.response["Error"]["Code"]
+results["approval_expired"]["late_answer"] = late_answer
+check("an approval that arrives after expiry is refused and credits nothing",
+      late_answer != "accepted" and "ApplyCredit" not in path(history(started["executionArn"])), late_answer)
 
 hijack = gw.call("credit___StartExecution", {"input": "{}", "stateMachineArn": short_arn})
 check("the emulator refuses an agent that names a state machine, as the connector documents",
