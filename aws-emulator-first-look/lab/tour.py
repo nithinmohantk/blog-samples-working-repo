@@ -8,6 +8,7 @@ The same script runs against both, so the two columns in the article are like fo
 import hashlib
 import io
 import json
+import os
 import ssl
 import sys
 import time
@@ -69,7 +70,7 @@ def s3_presigned_url():
     s3.create_bucket(Bucket=bucket)
     s3.put_object(Bucket=bucket, Key="hello.txt", Body=b"hello")
     url = s3.generate_presigned_url("get_object", Params={"Bucket": bucket, "Key": "hello.txt"}, ExpiresIn=60)
-    context = ssl.create_default_context(cafile=__import__("os").environ.get("AWS_CA_BUNDLE")) if url.startswith("https") else None
+    context = ssl.create_default_context(cafile=os.environ.get("AWS_CA_BUNDLE")) if url.startswith("https") else None
     with urllib.request.urlopen(url, timeout=10, context=context) as response:
         return {"status": response.status, "body": response.read().decode()}
 
@@ -175,12 +176,12 @@ def lambda_invoke():
     role = iam.create_role(RoleName=f"lab-role-{suffix}", AssumeRolePolicyDocument=json.dumps(
         {"Version": "2012-10-17", "Statement": [{"Effect": "Allow", "Principal": {"Service": "lambda.amazonaws.com"}, "Action": "sts:AssumeRole"}]}))["Role"]["Arn"]
     handler = (
-        "import getpass, os\n"
+        "import os\n"
         "def handler(event, context):\n"
-        "    home = os.path.expanduser('~')\n"
-        "    return {'doubled': event['n'] * 2, 'runs_as': getpass.getuser(),\n"
-        "            'can_list_home': os.path.isdir(home) and len(os.listdir(home)) > 0,\n"
-        "            'sees_emulator_files': os.path.isdir(os.path.join(home, '.aws', 'emulator'))}\n")
+        "    host_home = event['host_home']\n"
+        "    return {'doubled': event['n'] * 2, 'cwd': os.getcwd(), 'uid': os.getuid(),\n"
+        "            'can_list_host_home': os.path.isdir(host_home) and len(os.listdir(host_home)) > 0,\n"
+        "            'sees_emulator_credentials': os.path.exists(event['credentials_file'])}\n")
     package = io.BytesIO()
     with zipfile.ZipFile(package, "w") as archive:
         archive.writestr("app.py", handler)
@@ -192,12 +193,14 @@ def lambda_invoke():
     timings, payload = [], {}
     for _ in range(2):
         started = time.perf_counter()
-        result = lam.invoke(FunctionName=f"lab-fn-{suffix}", Payload=json.dumps({"n": 21}).encode())
+        result = lam.invoke(FunctionName=f"lab-fn-{suffix}", Payload=json.dumps(
+            {"n": 21, "host_home": os.path.expanduser("~"), "credentials_file": os.environ.get("AWS_SHARED_CREDENTIALS_FILE", "/nonexistent")}).encode())
         timings.append(round((time.perf_counter() - started) * 1000))
         payload = json.loads(result["Payload"].read().decode() or "{}")
     assert payload.get("doubled") == 42, f"invoke returned {payload}"
-    return {"result": payload["doubled"], "first_invoke_ms": timings[0], "second_invoke_ms": timings[1],
-            "runs_as": payload.get("runs_as"), "can_list_home": payload.get("can_list_home"), "sees_emulator_files": payload.get("sees_emulator_files")}
+    return {"result": payload["doubled"], "first_invoke_ms": timings[0], "second_invoke_ms": timings[1], "cwd": payload.get("cwd"),
+            "same_uid_as_caller": payload.get("uid") == os.getuid(), "can_list_host_home": payload.get("can_list_host_home"),
+            "sees_emulator_credentials": payload.get("sees_emulator_credentials")}
 
 
 def step_functions_execution():
@@ -283,7 +286,7 @@ def ec2_control_plane():
 
 def unsigned_request():
     """A well-formed SQS ListQueues call with no signature, as a web page or a stray script could send."""
-    context = ssl.create_default_context(cafile=__import__("os").environ.get("AWS_CA_BUNDLE")) if kw["endpoint_url"].startswith("https") else None
+    context = ssl.create_default_context(cafile=os.environ.get("AWS_CA_BUNDLE")) if kw["endpoint_url"].startswith("https") else None
     request = urllib.request.Request(kw["endpoint_url"] + "/", data=b"{}", method="POST",
                                      headers={"Content-Type": "application/x-amz-json-1.0", "X-Amz-Target": "AmazonSQS.ListQueues"})
     try:
