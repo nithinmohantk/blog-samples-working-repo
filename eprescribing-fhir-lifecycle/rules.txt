@@ -1,0 +1,48 @@
+state x command -> next state, or the refusal
+  Open          Claim by A     Claimed
+  Open          Claim by B     Claimed
+  Open          Release by A   NotClaimed
+  Open          Dispense by A  NotClaimed
+  Open          Dispense by B  NotClaimed
+  Open          Cancel         Cancelled
+  Open          Expire         NotYetExpired
+  Claimed by A  Claim by A     AlreadyClaimed
+  Claimed by A  Claim by B     AlreadyClaimed
+  Claimed by A  Release by A   Open
+  Claimed by A  Dispense by A  Open
+  Claimed by A  Dispense by B  ClaimedByAnotherPharmacy
+  Claimed by A  Cancel         Cancelled
+  Claimed by A  Expire         NotYetExpired
+  Completed     Claim by A     Closed
+  Completed     Claim by B     Closed
+  Completed     Release by A   Closed
+  Completed     Dispense by A  Closed
+  Completed     Dispense by B  Closed
+  Completed     Cancel         Closed
+  Completed     Expire         Closed
+  Cancelled     Claim by A     Closed
+  Cancelled     Claim by B     Closed
+  Cancelled     Release by A   Closed
+  Cancelled     Dispense by A  Closed
+  Cancelled     Dispense by B  Closed
+  Cancelled     Cancel         Closed
+  Cancelled     Expire         Closed
+  Expired       Claim by A     Closed
+  Expired       Claim by B     Closed
+  Expired       Release by A   Closed
+  Expired       Dispense by A  Closed
+  Expired       Dispense by B  Closed
+  Expired       Cancel         Closed
+  Expired       Expire         Closed
+ok    all 35 state and command pairs give the expected result
+ok    a closed prescription refuses every command
+ok    the last authorised supply completes the prescription
+ok    a dispense clears the claim, so the next supply can come from another pharmacy
+ok    nothing can be claimed after the validity period
+ok    nothing can be dispensed after the validity period, even if claimed in time
+ok    nothing can be claimed before the validity period starts
+ok    expiry applies only once the validity period has ended
+ok    a decision never changes its input
+ok    supplies made never exceed supplies allowed over any sequence
+
+10 of 10 checks passed

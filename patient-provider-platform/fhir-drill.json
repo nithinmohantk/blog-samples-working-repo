@@ -1,0 +1,21 @@
+{
+  "server": {
+    "software": {
+      "name": "HAPI FHIR Server",
+      "version": "8.0.0"
+    },
+    "fhirVersion": "4.0.1"
+  },
+  "slot_etag": "W/\"1\"",
+  "concurrent_if_match": [
+    200,
+    409
+  ],
+  "stale_if_match": 409,
+  "conditional_create": [
+    201,
+    200,
+    200
+  ],
+  "appointments_found": 1
+}

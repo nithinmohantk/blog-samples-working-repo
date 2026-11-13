@@ -1,0 +1,12 @@
+ok    two supplies: MedicationRequest completed, Task completed
+ok    two supplies: one dispense by each pharmacy, in order
+ok    two supplies: the Task history shows every transition
+ok    claim race: the Task is accepted and has exactly one owner
+ok    claim race: claim, release, claim is three changes after creation
+ok    cancel: MedicationRequest cancelled with its reason, Task cancelled, nothing dispensed
+ok    withdrawn after one supply: MedicationRequest stopped with its reason, one dispense still on record
+ok    races: all 20 prescriptions are cancelled with no dispense or completed with exactly one
+ok    expired: MedicationRequest stopped, Task cancelled, nothing dispensed
+ok    python: two version-aware claims of one Task, one succeeds and one is refused
+
+10 of 10 checks passed

@@ -1,0 +1,10 @@
+ok    the server is FHIR R4
+ok    two updates with the same If-Match: one succeeds
+ok    and the other is refused with 412 or 409
+ok    a later update with the stale version is refused
+ok    the slot is busy
+ok    the first conditional create returns 201
+ok    the second and third create nothing and return 200
+ok    one Appointment exists for the identifier
+
+8 of 8 checks passed

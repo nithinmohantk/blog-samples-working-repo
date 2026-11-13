@@ -1,0 +1,100 @@
+{
+  "server": {
+    "software": {
+      "name": "HAPI FHIR Server",
+      "version": "8.0.0"
+    },
+    "fhirVersion": "4.0.1"
+  },
+  "two_supplies": {
+    "request": "completed",
+    "task": "completed",
+    "owner": null,
+    "dispensed_by": [
+      "Organization/pharmacy-a",
+      "Organization/pharmacy-b"
+    ],
+    "dispense_status": [
+      "completed"
+    ],
+    "task_versions": 5,
+    "task_trail": [
+      "requested",
+      "accepted",
+      "requested",
+      "accepted",
+      "completed"
+    ],
+    "reason": null
+  },
+  "claim_race": {
+    "request": "active",
+    "task": "accepted",
+    "owner": "Organization/pharmacy-b",
+    "dispensed_by": [],
+    "dispense_status": [],
+    "task_versions": 4,
+    "task_trail": [
+      "requested",
+      "accepted",
+      "requested",
+      "accepted"
+    ],
+    "reason": null
+  },
+  "cancel_before_dispense": {
+    "request": "cancelled",
+    "task": "cancelled",
+    "owner": null,
+    "dispensed_by": [],
+    "dispense_status": [],
+    "task_versions": 3,
+    "task_trail": [
+      "requested",
+      "accepted",
+      "cancelled"
+    ],
+    "reason": "Prescribed in error"
+  },
+  "cancel_after_first_supply": {
+    "request": "stopped",
+    "task": "cancelled",
+    "owner": null,
+    "dispensed_by": [
+      "Organization/pharmacy-a"
+    ],
+    "dispense_status": [
+      "completed"
+    ],
+    "task_versions": 4,
+    "task_trail": [
+      "requested",
+      "accepted",
+      "requested",
+      "cancelled"
+    ],
+    "reason": "Adverse reaction reported"
+  },
+  "cancel_dispense_races": {
+    "cancelled": 19,
+    "completed": 1
+  },
+  "expired": {
+    "request": "stopped",
+    "task": "cancelled",
+    "owner": null,
+    "dispensed_by": [],
+    "dispense_status": [],
+    "task_versions": 3,
+    "task_trail": [
+      "requested",
+      "accepted",
+      "cancelled"
+    ],
+    "reason": "Validity period ended"
+  },
+  "python_claim_race": [
+    200,
+    409
+  ]
+}

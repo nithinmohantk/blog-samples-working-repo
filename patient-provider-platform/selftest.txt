@@ -1,0 +1,22 @@
+ok    200 simultaneous requests for one slot: exactly one is booked
+ok    the other 199 are told the slot is taken
+ok    the booking wrote exactly one outbox event
+ok    a retried request gets its own booking back, not 'taken'
+ok    and does not write a second event
+ok    an unknown slot is refused
+ok    an empty idempotency key is refused
+ok    events that fail stay in the outbox
+ok    and are delivered on a later pass
+ok    the EHR holds each appointment once
+ok    a lost acknowledgement causes a second delivery
+ok    which the EHR recognises: still one appointment
+ok    after five failures the circuit opens and the EHR is left alone
+ok    patients could still book: all twelve events are waiting
+ok    after the cool-down one trial call is made, fails, and the circuit reopens
+ok    when the EHR returns, the backlog drains and the circuit closes
+ok    the audit trail records every delivery attempt
+ok    audit entries carry identifiers only
+ok    the FHIR Appointment is booked, references the slot and the patient, and carries the business identifier
+ok    and contains no name, birth date or contact detail
+
+20 of 20 checks passed
