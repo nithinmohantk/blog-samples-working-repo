@@ -16,11 +16,15 @@ if [ "$actual" != "$SCHEMA_SHA256" ]; then echo "schema checksum mismatch: $actu
 python -m pip install --quiet uv || exit 2
 venv="$(mktemp -d)/venv"
 python -m uv venv --quiet "$venv" || exit 2
-python -m uv pip install --quiet --python "$venv/bin/python" --exclude-newer "$AS_OF" jsonschema || exit 2
+python -m uv pip install --quiet --python "$venv/bin/python" --exclude-newer "$AS_OF" jsonschema tiktoken || exit 2
 {
   "$venv/bin/python" --version
   "$venv/bin/python" -c "from importlib.metadata import version; print('jsonschema', version('jsonschema'))"
   echo "Codex configuration schema at $CODEX_TAG, sha256 $actual"
 } | tee "$out/versions.txt"
 "$venv/bin/python" tests/run.py "$out" "$schema" 2>&1 | tee "$out/run.txt"
-exit "${PIPESTATUS[0]}"
+status="${PIPESTATUS[0]}"
+
+echo "== the Codex CLI against a local stand-in"
+bash harness/run.sh "$out" "$venv/bin/python" || status=1
+exit "$status"
