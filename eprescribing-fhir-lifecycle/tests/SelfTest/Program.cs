@@ -156,6 +156,16 @@ if (args.Length > 0)
     Check("server: 20 simultaneous cancel-and-dispense pairs, each ends cancelled with no dispense or completed with one", incoherent == 0, $"{incoherent} incoherent");
     Console.WriteLine($"      cancel won {cancelWon}, dispense won {dispenseWon}");
 
+    // Withdrawn after the first of two supplies.
+    string rx5 = await Prescribe(http, clock.GetUtcNow(), repeats: 1, validDays: 180);
+    ids["cancel_after_first_supply"] = rx5;
+    await store.ApplyAsync(await store.LoadAsync(rx5), new Command.Claim(PharmacyA));
+    await store.ApplyAsync(await store.LoadAsync(rx5), new Command.Dispense(PharmacyA, "disp-rx5-1"));
+    Check("server: the prescriber withdraws a prescription after its first supply", (await store.ApplyAsync(await store.LoadAsync(rx5), new Command.Cancel(Prescriber, "Adverse reaction reported"))).Outcome == ApplyOutcome.Applied);
+    loaded = await store.LoadAsync(rx5);
+    Check("server: it is closed as cancelled, stored as 'stopped' because a supply was made, and the supply stays on record",
+        loaded.Prescription is { State: PrescriptionState.Cancelled, SuppliesMade: 1 } && loaded.Request["status"]!.GetValue<string>() == "stopped");
+
     // Validity period.
     string rx4 = await Prescribe(http, clock.GetUtcNow(), repeats: 1, validDays: 30);
     ids["expired"] = rx4;

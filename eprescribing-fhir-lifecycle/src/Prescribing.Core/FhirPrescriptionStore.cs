@@ -22,6 +22,7 @@ public sealed record LoadedPrescription(
 public sealed class FhirPrescriptionStore(HttpClient http, TimeProvider clock)
 {
     public const string DispenseIdSystem = "https://example.org/fhir/dispense-id";
+    public const string ClosureSystem = "https://example.org/fhir/CodeSystem/prescription-closure";
     private static readonly MediaTypeHeaderValue FhirJson = new("application/fhir+json");
 
     public async Task<LoadedPrescription> LoadAsync(string requestId, CancellationToken cancellationToken = default)
@@ -39,7 +40,8 @@ public sealed class FhirPrescriptionStore(HttpClient http, TimeProvider clock)
             ("active", "accepted") => PrescriptionState.Claimed,
             ("completed", _) => PrescriptionState.Completed,
             ("cancelled", _) => PrescriptionState.Cancelled,
-            ("stopped", _) => PrescriptionState.Expired,
+            ("stopped", _) when ClosureCode(request) == "expired" => PrescriptionState.Expired,
+            ("stopped", _) => PrescriptionState.Cancelled,
             var other => throw new InvalidOperationException($"Unexpected status combination {other}."),
         };
 
@@ -88,11 +90,13 @@ public sealed class FhirPrescriptionStore(HttpClient http, TimeProvider clock)
 
         entries.Add(Update(task, $"Task/{loaded.TaskId}", loaded.TaskVersion));
 
+        // FHIR reserves "cancelled" for a prescription withdrawn before anything was supplied. Once a supply
+        // has been made, a withdrawal is "stopped", as is expiry; the status reason says which.
         string requestStatus = decision.Next.State switch
         {
             PrescriptionState.Completed => "completed",
-            PrescriptionState.Cancelled => "cancelled",
-            PrescriptionState.Expired => "stopped",
+            PrescriptionState.Cancelled when loaded.Prescription.SuppliesMade == 0 => "cancelled",
+            PrescriptionState.Cancelled or PrescriptionState.Expired => "stopped",
             _ => "active",
         };
         if (requestStatus != loaded.Request["status"]!.GetValue<string>())
@@ -101,7 +105,11 @@ public sealed class FhirPrescriptionStore(HttpClient http, TimeProvider clock)
             request["status"] = requestStatus;
             if (command is Command.Cancel cancel)
             {
-                request["statusReason"] = new JsonObject { ["text"] = cancel.Reason };
+                request["statusReason"] = Closure("withdrawn", cancel.Reason);
+            }
+            else if (command is Command.Expire)
+            {
+                request["statusReason"] = Closure("expired", "Validity period ended");
             }
 
             entries.Add(Update(request, $"MedicationRequest/{loaded.RequestId}", loaded.RequestVersion));
@@ -167,6 +175,14 @@ public sealed class FhirPrescriptionStore(HttpClient http, TimeProvider clock)
         ["resource"] = resource,
         ["request"] = new JsonObject { ["method"] = "PUT", ["url"] = url, ["ifMatch"] = $"W/\"{version}\"" },
     };
+
+    private static JsonObject Closure(string code, string text) => new()
+    {
+        ["coding"] = new JsonArray(new JsonObject { ["system"] = ClosureSystem, ["code"] = code }),
+        ["text"] = text,
+    };
+
+    private static string? ClosureCode(JsonObject request) => request["statusReason"]?["coding"]?[0]?["code"]?.GetValue<string>();
 
     private static string Version(JsonObject resource) => resource["meta"]!["versionId"]!.GetValue<string>();
 

@@ -75,6 +75,11 @@ observed["cancel_before_dispense"] = cancelled
 check("cancel: MedicationRequest cancelled with its reason, Task cancelled, nothing dispensed",
       (cancelled["request"], cancelled["task"], cancelled["dispensed_by"], cancelled["reason"]) == ("cancelled", "cancelled", [], "Prescribed in error"), cancelled)
 
+after_supply = picture(ids["cancel_after_first_supply"])
+observed["cancel_after_first_supply"] = after_supply
+check("withdrawn after one supply: MedicationRequest stopped with its reason, one dispense still on record",
+      (after_supply["request"], after_supply["task"], len(after_supply["dispensed_by"]), after_supply["reason"]) == ("stopped", "cancelled", 1, "Adverse reaction reported"), after_supply)
+
 incoherent = []
 outcomes = {"cancelled": 0, "completed": 0}
 for request_id in ids["cancel_dispense_races"]:

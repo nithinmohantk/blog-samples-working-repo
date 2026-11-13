@@ -32,6 +32,7 @@ Each folder has its own README that says what the code does, how to run it, and 
 | `patient-provider-platform` | [Reference Architecture: A Patient-Provider Platform over Two EHRs on Azure](https://www.dataa.dev/2025/11/10/case-study-enterprise-healthcare-integration-building-a-hipaa-compliant-patient-provider-platform/) | C#, Python |
 | `terraform-secrets-out-of-state` | [Keeping Secrets Out of Terraform State: Ephemeral Resources and Write-Only Arguments](https://www.dataa.dev/2026/01/10/keeping-secrets-out-of-terraform-state-ephemeral-resources-write-only-arguments/) | HCL, Python |
 | `dotnet8-to-dotnet10` | [Moving a .NET 8 API to .NET 10: What Breaks Between Two LTS Releases](https://www.dataa.dev/2026/02/07/moving-a-dotnet-8-api-to-dotnet-10-what-breaks-between-two-lts-releases/) | C#, Python |
+| `eprescribing-fhir-lifecycle` | [ePrescribing on FHIR R4: The Prescription Lifecycle as Resources and State Transitions](https://www.dataa.dev/2026/02/21/eprescribing-on-fhir-r4-the-prescription-lifecycle-as-resources-and-state-transitions/) | C#, Python |
 
 ## Verification status
 

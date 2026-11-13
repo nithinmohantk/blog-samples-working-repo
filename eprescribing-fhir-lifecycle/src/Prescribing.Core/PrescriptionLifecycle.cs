@@ -12,7 +12,7 @@ public enum PrescriptionState
     /// <summary>MedicationRequest completed, Task completed: every authorised supply has been made.</summary>
     Completed,
 
-    /// <summary>MedicationRequest cancelled, Task cancelled: withdrawn by the prescriber.</summary>
+    /// <summary>MedicationRequest cancelled, or stopped if a supply was already made; Task cancelled: withdrawn by the prescriber.</summary>
     Cancelled,
 
     /// <summary>MedicationRequest stopped, Task cancelled: the validity period ended with supplies outstanding.</summary>
