@@ -101,9 +101,10 @@ def agent_session(prices: PriceList, model: str, *, base: int, added_per_turn: i
         compacted = False
         extra = 0.0
         if compact_at is not None and base + history > compact_at:
-            # The summary is itself a request: it reads the conversation so far and writes the summary as output.
+            # The summary is itself a request. Codex sends it without its tool declarations, so it does not begin
+            # like the requests before it and cannot be read from the cache: the whole conversation is new input.
             so_far = base + history - added_per_turn
-            extra = prices.request(model, 0 if caching else so_far, min(cached, so_far) if caching else 0, 0, summary)
+            extra = prices.request(model, 0 if caching else so_far, 0, so_far if caching else 0, summary)
             history = summary + added_per_turn
             cached = min(cached, base)
             compacted = True

@@ -63,7 +63,7 @@ Not everything here has been compiled or run. The state at the time of the first
 * `dotnet10-on-lambda`: three builds of one function run in the AWS Lambda base images under the Runtime Interface Emulator, in GitHub Actions. Timings are from the runner, not from Lambda. SnapStart is not exercised.
 * `sqlserver2025-vector-json`: experiments run against the SQL Server 2025 container (the image built most recently before 25 April 2026) in GitHub Actions, with synthetic vectors and documents. Timings are from the runner.
 * `gpt52-codex-context-budget`: token counts, cost arithmetic and a Responses API client tested against a local stand-in in GitHub Actions. No request is sent to any model.
-* `gpt6-codex-model-routing`: cost arithmetic on published prices and a Codex configuration validated against the schema in the Codex repository, in GitHub Actions. No model is called and the Codex CLI is not run.
+* `gpt6-codex-model-routing`: cost arithmetic on published prices, and the Codex CLI run in GitHub Actions against a local stand-in that plays a script. No model is called.
 * Nothing in this repository has been deployed to AWS or Azure.
 
 ## Healthcare samples

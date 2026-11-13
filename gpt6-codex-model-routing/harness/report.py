@@ -1,14 +1,16 @@
-"""Summarises what the Codex CLI sent to the stand-in. Usage: report.py <output dir>"""
+"""Summarises what the Codex CLI sent to the stand-in, and checks it. Usage: report.py <output dir>"""
 import json
 import pathlib
 import sys
 
 out = pathlib.Path(sys.argv[1])
+runs: dict[str, list[dict]] = {}
 for path in sorted(out.glob("requests-*.jsonl")):
     entries = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines()]
     requests = [entry for entry in entries if entry.get("request")]
     others = [f"{entry['method']} {entry['path']}" for entry in entries if not entry.get("request")]
     print(f"\n== {path.stem.removeprefix('requests-')}: {len(requests)} model requests" + (f"; other calls: {sorted(set(others))}" if others else ""))
+    runs[path.stem.removeprefix("requests-")] = requests
     if not requests:
         continue
     first = requests[0]
@@ -33,3 +35,47 @@ for path in sorted(out.glob("requests-*.jsonl")):
     last = requests[-1]
     print("items in the last request: " + ", ".join(f"{kind} {tokens:,}" for kind, tokens in zip(last["item_kinds"], last["item_tokens"])))
     print(f"same cache key on every request: {len({request['prompt_cache_key_digest'] for request in requests}) == 1}")
+
+
+passed = total = 0
+
+
+def check(what: str, ok: bool) -> None:
+    global passed, total
+    total += 1
+    passed += ok
+    print(f"{'ok  ' if ok else 'FAIL'}  {what}")
+
+
+def sent(request: dict) -> tuple:
+    return request["model"], (request["reasoning"] or {}).get("effort"), request["service_tier"]
+
+
+print("\n== checks on what the CLI sent")
+default = runs.get("default", [])
+check("default configuration: seven requests, all to gpt-6-sol at medium effort", len(default) == 7 and {sent(r) for r in default} == {("gpt-6-sol", "medium", None)})
+check("every request repeats the earlier items unchanged and adds exactly two: the call and its output",
+      all(b["item_digests"][:len(a["item_digests"])] == a["item_digests"] and b["input_items"] == a["input_items"] + 2 for a, b in zip(default, default[1:])))
+check("the tool declarations and the cache key are identical on all seven", len({(r["tools_digest"], r["prompt_cache_key_digest"]) for r in default}) == 1 and default[0]["prompt_cache_key"])
+check("responses are not stored, and tools are declared in an input item, not a top-level field", all(r["store"] is False and "tools" not in r["top_level_keys"] and r["item_kinds"][0].startswith("additional_tools") for r in default))
+check("--profile deep sends gpt-6-astra at high effort", {sent(r) for r in runs.get("deep", [])} == {("gpt-6-astra", "high", None)})
+check("--profile ci sends gpt-6-sol at low effort on the flex tier", {sent(r) for r in runs.get("ci", [])} == {("gpt-6-sol", "low", "flex")})
+subagent = [r for r in runs.get("subagent", []) if r["agent"] == "other"]
+check("a spawned subagent's request goes to gpt-6-luna at low effort, as agents.default_subagent_model says", bool(subagent) and {sent(r) for r in subagent} == {("gpt-6-luna", "low", None)})
+if subagent:
+    print(f"      the subagent's first request carries {subagent[0]['prompt_tokens']:,} tokens before it has done anything")
+check("codex exec review sends gpt-6-astra, the review_model", bool(runs.get("review")) and {r["model"] for r in runs["review"]} == {"gpt-6-astra"})
+compact = runs.get("compact", [])
+summaries = [i for i, r in enumerate(compact) if r["replied_with"] == "summary"]
+check("with the limit at 20,000 tokens the CLI asks for a summary as soon as a reply reports more than that", bool(summaries) and all(compact[i - 1]["prompt_tokens"] > 20_000 for i in summaries))
+if summaries:
+    i = summaries[0]
+    before, request, after = compact[i - 1], compact[i], compact[i + 1]
+    check("the summary request carries no tool declarations, so it does not start like the request before it", request["tools_tokens"] < 10 and request["item_digests"][0] != before["item_digests"][0])
+    check("the request after it starts with the same seven items as the first request and is smaller than the one before the summary",
+          after["item_digests"][:7] == compact[0]["item_digests"][:7] and after["prompt_tokens"] < before["prompt_tokens"])
+    print(f"      before {before['prompt_tokens']:,} tokens, summary request {request['prompt_tokens']:,}, after {after['prompt_tokens']:,}; kinds after: {', '.join(after['item_kinds'][6:])}")
+legacy = (out / "codex-legacy.txt").read_text(encoding="utf-8") if (out / "codex-legacy.txt").exists() else ""
+check("a [profiles.deep] table in config.toml makes --profile deep fail with a message that calls it legacy", "legacy" in legacy and not runs.get("legacy"))
+print(f"\n{passed} of {total} checks passed")
+sys.exit(0 if passed == total else 1)

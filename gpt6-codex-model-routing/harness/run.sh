@@ -53,4 +53,10 @@ scenario compact "$six" exec --sandbox read-only -c model_auto_compact_token_lim
 scenario subagent "$spawn" exec --sandbox read-only "$ask"
 printf '\ndef added(value):\n    return value - 1\n' >> "$repo/src/module_1.py"
 scenario review '[{"review":"No findings."}]' exec review --uncommitted
+# The older way of writing a profile, which the configuration schema still accepts.
+legacy_home="$work/home-legacy"; mkdir -p "$legacy_home"
+{ cat "$here/../codex/config.toml"; printf '\n[profiles.deep]\nmodel = "gpt-6-astra"\n'; } > "$legacy_home/config.toml"
+( cd "$repo" && CODEX_HOME="$legacy_home" timeout 60 "$codex" exec --profile deep "$ask" < /dev/null ) 2>&1 | sed "s#$work#<temp>#g" > "$out/codex-legacy.txt"
+for file in "$out"/codex-*.txt; do sed -i "s#$work#<temp>#g" "$file"; done
 "$python" "$here/report.py" "$out" 2>&1 | tee "$out/harness.txt"
+exit "${PIPESTATUS[0]}"

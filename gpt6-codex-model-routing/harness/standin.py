@@ -121,10 +121,14 @@ class Handler(BaseHTTPRequestHandler):
         text_of = json.dumps(items, ensure_ascii=False)
         # The main agent is told it is `/root`. Anything else is a subagent or a helper request, and gets a plain reply.
         root = "`/root`" in text_of or "multi_agent_role" not in text_of
+        declares_tools = bool(body.get("tools")) or any(isinstance(item, dict) and item.get("type") == "additional_tools" for item in items)
         with lock:
             state["requests"] += 1
             number = state["requests"]
-            if root and "review" not in script[0]:
+            if not declares_tools:
+                # A request with no tools is Codex asking for a summary of the conversation so far: compaction.
+                step = {"summary": "Summary: NOTES.md says this is a test repository. The modules read so far each define 120 small functions. Remaining: read the other modules, then say done."}
+            elif root and "review" not in script[0]:
                 step = script[state["step"]] if state["step"] < len(script) else {"message": "Done."}
                 state["step"] += 1
             else:
@@ -166,7 +170,7 @@ class Handler(BaseHTTPRequestHandler):
             found = find(tools, step["tool"])
             output_item = function_call(found[0] if found else None, step["tool"], step["arguments"], call_id)
         if output_item is None:
-            text = step.get("message", "The stand-in found no shell tool to call.")
+            text = step.get("message") or step.get("summary") or "The stand-in found no shell tool to call."
             output_item = {"type": "message", "role": "assistant", "status": "completed", "content": [{"type": "output_text", "text": text, "annotations": []}]}
         output_item["id"] = {"message": "msg_", "custom_tool_call": "ctc_"}.get(output_item["type"], "fc_") + f"{number:04d}"
         output_tokens = int(step.get("output_tokens", 200))
