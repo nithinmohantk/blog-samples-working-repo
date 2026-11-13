@@ -1,0 +1,12 @@
+{
+  "name": "appointments-web-function",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A plain Node.js HTTP server that runs unchanged on a laptop and as a Lambda Web Function.",
+  "main": "index.js",
+  "engines": { "node": ">=24" },
+  "scripts": {
+    "start": "node index.js",
+    "test": "node --test test/"
+  }
+}
