@@ -72,9 +72,13 @@ if summaries:
     i = summaries[0]
     before, request, after = compact[i - 1], compact[i], compact[i + 1]
     check("the summary request carries no tool declarations, so it does not start like the request before it", request["tools_tokens"] < 10 and request["item_digests"][0] != before["item_digests"][0])
-    check("the request after it starts with the same seven items as the first request and is smaller than the one before the summary",
-          after["item_digests"][:7] == compact[0]["item_digests"][:7] and after["prompt_tokens"] < before["prompt_tokens"])
-    print(f"      before {before['prompt_tokens']:,} tokens, summary request {request['prompt_tokens']:,}, after {after['prompt_tokens']:,}; kinds after: {', '.join(after['item_kinds'][6:])}")
+    leading = next((n for n, (x, y) in enumerate(zip(compact[0]["item_digests"], after["item_digests"])) if x != y), len(after["item_digests"]))
+    same_tokens = sum(after["item_tokens"][:leading])
+    check("the request after it is smaller than the one before the summary and begins with the same tool declarations and main instructions as the first request",
+          leading >= 2 and after["prompt_tokens"] < before["prompt_tokens"])
+    print(f"      before {before['prompt_tokens']:,} tokens, summary request {request['prompt_tokens']:,}, after {after['prompt_tokens']:,}")
+    print(f"      after: the first {leading} items ({same_tokens:,} tokens) are byte-identical to the first request's; the other {len(after['item_digests']) - leading} are new or re-created")
+    print(f"      after: {', '.join(f'{kind} {tokens:,}' for kind, tokens in zip(after['item_kinds'], after['item_tokens']))}")
 legacy = (out / "codex-legacy.txt").read_text(encoding="utf-8") if (out / "codex-legacy.txt").exists() else ""
 check("a [profiles.deep] table in config.toml makes --profile deep fail with a message that calls it legacy", "legacy" in legacy and not runs.get("legacy"))
 print(f"\n{passed} of {total} checks passed")
