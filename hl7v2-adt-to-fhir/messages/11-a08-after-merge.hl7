@@ -1,0 +1,7 @@
+MSH|^~\&|ADTSYS|GENHOSP|FHIRGW|REGION|20260314090000+0000||ADT^A08^ADT_A01|MSG00011|P|2.5.1
+EVN|A08|20260314090000+0000
+PID|1||700001^^^GENHOSP^MR~PT-55-0193^^^REGION^PI||O'Brien^Aoife^Mary^^Ms^^L~Byrne^Aoife^^^^^M||19850312|F|||9 Sample Road^^Exampletown^^EX4 7QT^IE^H||^PRN^CP^^^^^^^^^+353 20 910 0199~^NET^Internet^aoife.obrien@example.org|^WPN^PH^^^^^^^^^+353 20 910 0155||M
+NK1|1|O'Brien^Cian|SPO^Spouse^HL70063||^PRN^CP^^^^^^^^^+353 20 910 0103||C^Emergency Contact^HL70131
+AL1|1|DA|91936005^Allergy to penicillin^SCT|SV|Rash|20190601
+AL1|2|FA|91935009^Allergy to peanut^SCT|MO
+AL1|3|EA|LATEX^Latex^99LOCAL|MI
