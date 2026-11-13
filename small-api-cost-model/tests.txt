@@ -1,0 +1,20 @@
+test_app_runner_floor_is_memory_only (test_model.Behaviour.test_app_runner_floor_is_memory_only) ... ok
+test_at_a_break_even_the_two_options_cost_the_same (test_model.Behaviour.test_at_a_break_even_the_two_options_cost_the_same) ... ok
+test_every_option_costs_more_with_more_traffic (test_model.Behaviour.test_every_option_costs_more_with_more_traffic) ... ok
+test_express_floor_is_task_load_balancer_and_three_addresses (test_model.Behaviour.test_express_floor_is_task_load_balancer_and_three_addresses) ... ok
+test_http_api_adds_one_dollar_per_million (test_model.Behaviour.test_http_api_adds_one_dollar_per_million) ... ok
+test_lambda_costs_nothing_without_traffic_and_containers_do (test_model.Behaviour.test_lambda_costs_nothing_without_traffic_and_containers_do) ... ok
+test_longer_waits_favour_containers (test_model.Behaviour.test_longer_waits_favour_containers) ... ok
+test_private_subnets_remove_the_address_charges (test_model.Behaviour.test_private_subnets_remove_the_address_charges) ... ok
+test_sharing_the_load_balancer_divides_its_fixed_cost (test_model.Behaviour.test_sharing_the_load_balancer_divides_its_fixed_cost) ... ok
+test_tasks_follow_the_busiest_minute (test_model.Behaviour.test_tasks_follow_the_busiest_minute) ... ok
+test_app_runner_example_lightweight_api (test_model.PublishedExamples.test_app_runner_example_lightweight_api) ... ok
+test_fargate_example_five_x86_tasks_ten_minutes_a_day (test_model.PublishedExamples.test_fargate_example_five_x86_tasks_ten_minutes_a_day) ... ok
+test_fargate_example_same_workload_on_arm (test_model.PublishedExamples.test_fargate_example_same_workload_on_arm) ... ok
+test_lambda_example_mobile_backend (test_model.PublishedExamples.test_lambda_example_mobile_backend) ... ok
+test_load_balancer_hour_charge_for_a_month (test_model.PublishedExamples.test_load_balancer_hour_charge_for_a_month) ... ok
+
+----------------------------------------------------------------------
+Ran 15 tests in 0.004s
+
+OK

@@ -1,0 +1,176 @@
+{
+ "assumptions": {
+  "requests_per_month": 0,
+  "duration_ms": 60,
+  "cpu_ms": 15,
+  "response_kb": 4,
+  "log_bytes_per_request": 300,
+  "busy_hours_per_day": 10,
+  "busy_share": 0.85,
+  "peak_to_average": 3.0
+ },
+ "monthly_usd": {
+  "ECS Express, 1 task": {
+   "100000": 36.44,
+   "1000000": 36.98,
+   "5000000": 44.65,
+   "20000000": 69.46,
+   "50000000": 131.74
+  },
+  "ECS Express, 2 tasks": {
+   "100000": 49.11,
+   "1000000": 49.64,
+   "5000000": 52.04,
+   "20000000": 76.85,
+   "50000000": 131.74
+  },
+  "ECS Express, 2 tasks, Graviton, ALB shared by 5": {
+   "100000": 26.52,
+   "1000000": 27.06,
+   "5000000": 29.46,
+   "20000000": 52.01,
+   "50000000": 101.65
+  },
+  "App Runner, 1 instance": {
+   "100000": 10.45,
+   "1000000": 14.73,
+   "5000000": 22.72,
+   "20000000": 48.16,
+   "50000000": 113.28
+  },
+  "Lambda, function URL": {
+   "100000": 0.11,
+   "1000000": 1.11,
+   "5000000": 5.55,
+   "20000000": 22.2,
+   "50000000": 55.5
+  },
+  "Lambda, HTTP API": {
+   "100000": 0.21,
+   "1000000": 2.11,
+   "5000000": 10.55,
+   "20000000": 42.2,
+   "50000000": 105.5
+  },
+  "Lambda, 1 provisioned, function URL": {
+   "100000": 5.58,
+   "1000000": 6.48,
+   "5000000": 10.48,
+   "20000000": 25.51,
+   "50000000": 55.56
+  }
+ },
+ "break_even_requests_per_month": {
+  "peak 3, 20 ms": {
+   "ECS Express, 1 task": null,
+   "ECS Express, 2 tasks": null,
+   "App Runner, 1 instance": null
+  },
+  "peak 3, 60 ms": {
+   "ECS Express, 1 task": null,
+   "ECS Express, 2 tasks": null,
+   "App Runner, 1 instance": null
+  },
+  "peak 3, 200 ms": {
+   "ECS Express, 1 task": null,
+   "ECS Express, 2 tasks": null,
+   "App Runner, 1 instance": null
+  },
+  "peak 3, 500 ms": {
+   "ECS Express, 1 task": 15157733,
+   "ECS Express, 2 tasks": 18833227,
+   "App Runner, 1 instance": 4028755
+  },
+  "peak 3, 1000 ms": {
+   "ECS Express, 1 task": 6146548,
+   "ECS Express, 2 tasks": 7236141,
+   "App Runner, 1 instance": 2073043
+  },
+  "peak 1.5, 20 ms": {
+   "ECS Express, 1 task": null,
+   "ECS Express, 2 tasks": null,
+   "App Runner, 1 instance": null
+  },
+  "peak 1.5, 60 ms": {
+   "ECS Express, 1 task": null,
+   "ECS Express, 2 tasks": null,
+   "App Runner, 1 instance": null
+  },
+  "peak 1.5, 200 ms": {
+   "ECS Express, 1 task": 39797305,
+   "ECS Express, 2 tasks": 48561948,
+   "App Runner, 1 instance": 13151845
+  },
+  "peak 1.5, 500 ms": {
+   "ECS Express, 1 task": 12094820,
+   "ECS Express, 2 tasks": 14238859,
+   "App Runner, 1 instance": 4028755
+  },
+  "peak 1.5, 1000 ms": {
+   "ECS Express, 1 task": 5368267,
+   "ECS Express, 2 tasks": 7236141,
+   "App Runner, 1 instance": 2073043
+  }
+ },
+ "detail": {
+  "ECS Express, 1 task": {
+   "compute": 12.76,
+   "load balancer": 24.17,
+   "task public IPv4": 5.17,
+   "logs": 0.75,
+   "data transfer out": 1.8
+  },
+  "ECS Express, 2 tasks": {
+   "compute": 18.02,
+   "load balancer": 24.17,
+   "task public IPv4": 7.3,
+   "logs": 0.75,
+   "data transfer out": 1.8
+  },
+  "ECS Express, 2 tasks, Graviton, ALB shared by 5": {
+   "compute": 14.42,
+   "load balancer": 5.19,
+   "task public IPv4": 7.3,
+   "logs": 0.75,
+   "data transfer out": 1.8
+  },
+  "App Runner, 1 instance": {
+   "compute": 20.17,
+   "logs": 0.75,
+   "data transfer out": 1.8
+  },
+  "Lambda, function URL": {
+   "requests": 1.0,
+   "compute": 2.0,
+   "logs": 0.75,
+   "data transfer out": 1.8
+  },
+  "Lambda, HTTP API": {
+   "requests": 1.0,
+   "compute": 2.0,
+   "HTTP API": 5.0,
+   "logs": 0.75,
+   "data transfer out": 1.8
+  },
+  "Lambda, 1 provisioned, function URL": {
+   "requests": 1.0,
+   "compute": 1.46,
+   "provisioned concurrency": 5.48,
+   "logs": 0.75,
+   "data transfer out": 1.8
+  }
+ },
+ "task_hour_usd": {
+  "compute": 0.01234,
+  "public_ipv4": 0.005
+ },
+ "floor_usd": {
+  "ECS Express, 1 task": 36.39,
+  "ECS Express, 2 tasks": 49.05,
+  "ECS Express, 2 tasks, Graviton, ALB shared by 5": 26.46,
+  "App Runner, 1 instance": 2.56,
+  "Lambda, function URL": 0.0,
+  "Lambda, HTTP API": 0.0,
+  "Lambda, 1 provisioned, function URL": 5.48
+ }
+}

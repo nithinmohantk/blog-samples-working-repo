@@ -1,0 +1,49 @@
+Monthly cost in USD, US East (N. Virginia) list prices, by requests per month
+
+                                                        0.1M        1M        5M       20M       50M
+ECS Express, 1 task                                    36.44     36.98     44.65     69.46    131.74
+ECS Express, 2 tasks                                   49.11     49.64     52.04     76.85    131.74
+ECS Express, 2 tasks, Graviton, ALB shared by 5        26.52     27.06     29.46     52.01    101.65
+App Runner, 1 instance                                 10.45     14.73     22.72     48.16    113.28
+Lambda, function URL                                    0.11      1.11      5.55     22.20     55.50
+Lambda, HTTP API                                        0.21      2.11     10.55     42.20    105.50
+Lambda, 1 provisioned, function URL                     5.58      6.48     10.48     25.51     55.56
+
+Where the money goes at 5 million requests a month
+
+ECS Express, 1 task                                   44.65  compute 12.76, load balancer 24.17, task public IPv4 5.17, logs 0.75, data transfer out 1.80
+ECS Express, 2 tasks                                  52.04  compute 18.02, load balancer 24.17, task public IPv4 7.30, logs 0.75, data transfer out 1.80
+ECS Express, 2 tasks, Graviton, ALB shared by 5       29.46  compute 14.42, load balancer 5.19, task public IPv4 7.30, logs 0.75, data transfer out 1.80
+App Runner, 1 instance                                22.72  compute 20.17, logs 0.75, data transfer out 1.80
+Lambda, function URL                                   5.55  requests 1.00, compute 2.00, logs 0.75, data transfer out 1.80
+Lambda, HTTP API                                      10.55  requests 1.00, compute 2.00, HTTP API 5.00, logs 0.75, data transfer out 1.80
+Lambda, 1 provisioned, function URL                   10.48  requests 1.00, compute 1.46, provisioned concurrency 5.48, logs 0.75, data transfer out 1.80
+
+Requests per month above which a container option is cheaper than Lambda with a function URL
+Each request needs 15 ms of CPU; what changes is how long it takes in total, and how spiky the traffic is
+
+  busiest minute at 3 times the average
+      20 ms per request:  ECS Express, 1 task: never,  ECS Express, 2 tasks: never,  App Runner, 1 instance: never
+      60 ms per request:  ECS Express, 1 task: never,  ECS Express, 2 tasks: never,  App Runner, 1 instance: never
+     200 ms per request:  ECS Express, 1 task: never,  ECS Express, 2 tasks: never,  App Runner, 1 instance: never
+     500 ms per request:  ECS Express, 1 task: 15.2M,  ECS Express, 2 tasks: 18.8M,  App Runner, 1 instance: 4.0M
+    1000 ms per request:  ECS Express, 1 task: 6.1M,  ECS Express, 2 tasks: 7.2M,  App Runner, 1 instance: 2.1M
+  busiest minute at 1.5 times the average
+      20 ms per request:  ECS Express, 1 task: never,  ECS Express, 2 tasks: never,  App Runner, 1 instance: never
+      60 ms per request:  ECS Express, 1 task: never,  ECS Express, 2 tasks: never,  App Runner, 1 instance: never
+     200 ms per request:  ECS Express, 1 task: 39.8M,  ECS Express, 2 tasks: 48.6M,  App Runner, 1 instance: 13.2M
+     500 ms per request:  ECS Express, 1 task: 12.1M,  ECS Express, 2 tasks: 14.2M,  App Runner, 1 instance: 4.0M
+    1000 ms per request:  ECS Express, 1 task: 5.4M,  ECS Express, 2 tasks: 7.2M,  App Runner, 1 instance: 2.1M
+
+One 0.25 vCPU, 0.5 GB Fargate task for an hour: 0.01234 for compute and 0.005 for its public IPv4 address,
+so the address adds 41% to the price of the task
+
+The floor: what each option costs with no traffic at all
+
+  ECS Express, 1 task                                   36.39
+  ECS Express, 2 tasks                                  49.05
+  ECS Express, 2 tasks, Graviton, ALB shared by 5       26.46
+  App Runner, 1 instance                                 2.56
+  Lambda, function URL                                   0.00
+  Lambda, HTTP API                                       0.00
+  Lambda, 1 provisioned, function URL                    5.48
