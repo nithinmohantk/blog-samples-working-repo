@@ -36,8 +36,9 @@ FakeEhr flaky = new(failuresBeforeSuccess: 2);
 CircuitBreaker breaker = new(failureThreshold: 5, openFor: TimeSpan.FromSeconds(60), clock);
 OutboxDispatcher dispatcher = new(ledger, flaky, breaker, audit);
 DispatchReport pass1 = await dispatcher.DispatchPendingAsync();
+int stillPending = ledger.PendingEvents().Count;
 DispatchReport pass2 = await dispatcher.DispatchPendingAsync();
-Check("events that fail stay in the outbox", pass1 is { Delivered: 0, Failed: 2 } && ledger.PendingEvents().Count == 2);
+Check("events that fail stay in the outbox", pass1 is { Delivered: 0, Failed: 2 } && stillPending == 2);
 Check("and are delivered on a later pass", pass2 is { Delivered: 2, Failed: 0 } && ledger.PendingEvents().Count == 0);
 Check("the EHR holds each appointment once", flaky.Stored.Count == 2 && flaky.Stored.Values.All(count => count == 1));
 

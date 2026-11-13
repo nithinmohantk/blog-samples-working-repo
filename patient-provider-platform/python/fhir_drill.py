@@ -78,12 +78,12 @@ appointment = {
     "slot": [{"reference": "Slot/slot-drill-1"}],
     "participant": [{"actor": {"reference": "Patient/synthetic-0042"}, "status": "accepted"}],
 }
-condition = f"identifier={urllib.parse.quote(SYSTEM, safe='')}|appt-drill-000001"
+condition = "identifier=" + urllib.parse.quote(f"{SYSTEM}|appt-drill-000001", safe="")
 creates = [call("POST", "Appointment", appointment, {"If-None-Exist": condition})[0] for _ in range(3)]
 observed["conditional_create"] = creates
 check("the first conditional create returns 201", creates[0] == 201, creates)
 check("the second and third create nothing and return 200", creates[1:] == [200, 200], creates)
-total = call("GET", f"Appointment?identifier={urllib.parse.quote(SYSTEM, safe='')}|appt-drill-000001&_summary=count")[2].get("total")
+total = call("GET", "Appointment?_summary=count&identifier=" + urllib.parse.quote(f"{SYSTEM}|appt-drill-000001", safe=""))[2].get("total")
 observed["appointments_found"] = total
 check("one Appointment exists for the identifier", total == 1, total)
 
