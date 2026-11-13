@@ -119,6 +119,9 @@ for tool, label in ((terraform, "terraform"), (tofu, "opentofu")):
         record(label, "rotate: a second plan with the same version", {0: "no changes", 2: "changes"}.get(again.returncode, f"error {again.returncode}"), "no changes")
         must(run(tool, cwd, "apply", "-auto-approve", f"-var=name={name}"), "apply")
         record(label, "rotate: stored password after re-applying the same version", "unchanged" if stored(name) == secret else "changed", "unchanged")
+        bump = must(run(tool, cwd, "plan", f"-var=name={name}", "-var=password_version=2"), "plan").stdout
+        record(label, "rotate: what the plan for version 2 proposes", next((line.strip() for line in bump.splitlines() if line.startswith("Plan:")), "no changes"), "Plan: 1 to add, 0 to change, 1 to destroy.")
+        record(label, "rotate: the plan output names the write-only value", "yes" if "secret_string_wo " in bump and "write-only" not in bump.lower() else "no", "no")
         must(run(tool, cwd, "apply", "-auto-approve", f"-var=name={name}", "-var=password_version=2"), "apply")
         rotated = stored(name)
         record(label, "rotate: stored password after version 2", "changed" if rotated != secret else "unchanged", "changed")
