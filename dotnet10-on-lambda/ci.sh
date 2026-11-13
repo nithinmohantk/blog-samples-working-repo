@@ -20,6 +20,8 @@ docker pull -q "$DOTNET_IMAGE" > /dev/null && docker pull -q "$PROVIDED_IMAGE" >
   python --version; docker --version; nproc | sed 's/$/ vCPU on the runner/'
 } | tee "$out/versions.txt"
 
+# The managed runtime's start-up script, kept with the results because it decides how a package is started.
+docker run --rm --entrypoint /bin/cat "$DOTNET_IMAGE" /var/runtime/bootstrap > "$out/managed-runtime-bootstrap.sh.txt"
 echo "== build inside Amazon Linux 2023"
 docker run --rm -v "$PWD:/work:ro" -v "$out:/out" public.ecr.aws/amazonlinux/amazonlinux:2023 bash /work/tools/build.sh "$SDK"; [ $? -eq 0 ] || status=1
 cat "$out/build-versions.txt" >> "$out/versions.txt"

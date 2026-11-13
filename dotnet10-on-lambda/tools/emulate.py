@@ -23,25 +23,24 @@ here = pathlib.Path(__file__).resolve().parent.parent
 events = {path.stem: path.read_bytes() for path in sorted((here / "events").glob("*.json"))}
 PORT, NAME, COLD_STARTS, WARM_REQUESTS = 9100, "lambda-emulated", 7, 200
 URL = f"http://127.0.0.1:{PORT}/2015-03-31/functions/function/invocations"
-BUILDS = [  # label, publish folder, image, handler argument
-    ("managed runtime", "jit", dotnet_image, "Quotes.Function"),
-    ("managed runtime, ReadyToRun", "r2r", dotnet_image, "Quotes.Function"),
-    ("Native AOT", "aot", provided_image, "bootstrap"),
+TASK, RUNTIME = "/var/task", "/var/runtime"
+BUILDS = [  # label, publish folder, image, handler argument, where the package is mounted
+    ("managed runtime", "jit", dotnet_image, "Quotes.Function", TASK),
+    ("managed runtime, ReadyToRun", "r2r", dotnet_image, "Quotes.Function", TASK),
+    # In a zip deployment to provided.al2023, Lambda unpacks the package to /var/task and starts /var/task/bootstrap.
+    # The base image for that runtime looks for the same file in /var/runtime, so that is where it is mounted.
+    ("Native AOT, OS-only runtime", "aot", provided_image, "bootstrap", RUNTIME),
+    # The managed runtime's own start-up script hands over to an executable named bootstrap if the package has one.
+    ("Native AOT, managed runtime", "aot", dotnet_image, "bootstrap", TASK),
 ]
 REFLECTION = [
-    ("managed runtime, reflection JSON", "jit-reflection", dotnet_image, "Quotes.Function"),
-    ("Native AOT, reflection JSON", "aot-reflection", provided_image, "bootstrap"),
+    ("managed runtime, reflection JSON", "jit-reflection", dotnet_image, "Quotes.Function", TASK),
+    ("Native AOT, reflection JSON", "aot-reflection", provided_image, "bootstrap", RUNTIME),
 ]
 
 
 def docker(*arguments: str) -> str:
     return subprocess.run(["docker", *arguments], capture_output=True, text=True).stdout.strip()
-
-
-def where(image: str) -> str:
-    """In a zip deployment Lambda unpacks the package to /var/task and the OS-only runtime starts /var/task/bootstrap.
-    The base image for that runtime looks for the same file in /var/runtime, so that is where it is mounted."""
-    return "/var/runtime" if image == provided_image else "/var/task"
 
 
 def invoke(event: bytes, timeout: float = 30) -> tuple[float, dict]:
@@ -52,12 +51,12 @@ def invoke(event: bytes, timeout: float = 30) -> tuple[float, dict]:
     return (time.perf_counter() - started) * 1000, body
 
 
-def start(folder: str, image: str, handler: str, cpus: str = "1") -> float:
+def start(folder: str, image: str, handler: str, mount: str, cpus: str = "1") -> float:
     """Starts a container the way Lambda sizes a 512 MB function, and returns when it was asked to start."""
     docker("rm", "-f", NAME)
     began = time.perf_counter()
     docker("run", "-d", "--name", NAME, "-p", f"127.0.0.1:{PORT}:8080", "--memory", "512m", "--cpus", cpus,
-           "-e", "AWS_LAMBDA_FUNCTION_MEMORY_SIZE=512", "-v", f"{out / 'publish' / folder}:{where(image)}:ro", image, handler)
+           "-e", "AWS_LAMBDA_FUNCTION_MEMORY_SIZE=512", "-v", f"{out / 'publish' / folder}:{mount}:ro", image, handler)
     return began
 
 
@@ -90,8 +89,8 @@ results: dict = {"images": {"dotnet": dotnet_image, "provided": provided_image},
 failed = False
 
 print("== the same six requests to each build")
-for label, folder, image, handler in BUILDS:
-    start(folder, image, handler)
+for label, folder, image, handler, mount in BUILDS:
+    start(folder, image, handler, mount)
     first_request(events["1-quote"])
     results["answers"][label] = {name: comparable(invoke(event)[1]) for name, event in events.items()}
     docker("rm", "-f", NAME)
@@ -101,17 +100,17 @@ for name in events:
     same = all(results["answers"][label][name] == answer for label, *_ in BUILDS)
     failed |= not same
     print(f"{'ok  ' if same else 'FAIL'}  {name:20} {answer.get('statusCode', answer.get('error'))}  {(answer.get('body') or '')[:96]}")
-print(f"{'ok  ' if not failed else 'FAIL'}  all three builds gave byte-identical bodies and the same status for every request")
+print(f"{'ok  ' if not failed else 'FAIL'}  all four gave byte-identical bodies and the same status for every request")
 
 # Lambda gives a function CPU in proportion to its memory: one vCPU at 1,769 MB, so about 0.29 of one at 512 MB.
 for cpus in ("1", "0.29"):
     print(f"\n== {cpus} CPU: first request to a new container ({COLD_STARTS} containers each), then {WARM_REQUESTS} warm requests")
     print(f"{'build':30} {'start to first answer':>22} {'first request':>15} {'emulator init':>14} {'warm p50':>9} {'warm p99':>9} {'memory':>8}")
     results["builds"][cpus] = {}
-    for label, folder, image, handler in BUILDS:
+    for label, folder, image, handler, mount in BUILDS:
         to_answer, first, reported, warm, memory = [], [], [], [], []
         for attempt in range(COLD_STARTS):
-            began = start(folder, image, handler, cpus)
+            began = start(folder, image, handler, mount, cpus)
             milliseconds, _ = first_request(events["1-quote"])
             to_answer.append((time.perf_counter() - began) * 1000)
             first.append(milliseconds)
@@ -121,7 +120,7 @@ for cpus in ("1", "0.29"):
             # The emulator logs how long the runtime took to say it was ready to take the first event.
             reported += [float(value) for value in re.findall(r"INIT REPORT\(durationMs: ([\d.]+)", text)[:1]]
             if attempt == 0 and cpus == "1":
-                (out / f"emulator-log-{folder}.txt").write_text("\n".join(text.splitlines()[:14]) + "\n", encoding="utf-8")
+                (out / f"emulator-log-{label.replace(', ', '-').replace(' ', '-')}.txt").write_text("\n".join(text.splitlines()[:14]) + "\n", encoding="utf-8")
             usage = docker("stats", "--no-stream", "--format", "{{.MemUsage}}", NAME).split("/")[0].strip()
             if usage.endswith("MiB"):
                 memory.append(float(usage[:-3]))
@@ -139,8 +138,8 @@ for cpus in ("1", "0.29"):
               f"{row['warm_p50_ms']:>6} ms {row['warm_p99_ms']:>6} ms {str(row['memory_mib'] or '-'):>4} MiB")
 
 print("\n== the same function with reflection-based JSON")
-for label, folder, image, handler in REFLECTION:
-    start(folder, image, handler)
+for label, folder, image, handler, mount in REFLECTION:
+    start(folder, image, handler, mount)
     try:
         _, response = first_request(events["1-quote"])
     except Exception as error:  # noqa: BLE001 - a build that cannot answer is the finding
