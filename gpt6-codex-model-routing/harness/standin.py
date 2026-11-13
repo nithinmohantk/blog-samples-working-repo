@@ -126,6 +126,7 @@ class Handler(BaseHTTPRequestHandler):
             "tools": [{"type": tool.get("type"), "name": tool.get("name"), "parameters": sorted(((tool.get("parameters") or {}).get("properties") or {})),
                        "required": (tool.get("parameters") or {}).get("required"), "keys": sorted(tool)} for tool in tools],
             "tool_outline": [line for tool in tools for line in outline(tool)],
+            "debug_exec": next(({"format": t.get("format"), "description": (t.get("description") or "")[:6000]} for ns in tools for t in (ns.get("tools") or []) if t.get("name") == "exec"), None) if number == 1 else None,
             "item_keys": [sorted(item) if isinstance(item, dict) else None for item in items],
             "item_starts": [json.dumps(item.get("content") if isinstance(item, dict) and "content" in item else item, ensure_ascii=False)[:90] for item in items],
             "input_items": len(items), "input_tokens": input_tokens,
