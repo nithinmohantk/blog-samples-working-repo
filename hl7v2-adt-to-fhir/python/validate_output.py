@@ -44,7 +44,15 @@ def main() -> int:
     sent, naive = sorted((out / "sent").glob("*.json")), sorted((out / "naive").glob("*.json"))
     if not sent or not naive:
         raise SystemExit("Nothing to validate: run the self-test against a FHIR server first.")
-    findings = validate(jar, sent + naive, tx, out)
+    # A public terminology server has bad minutes. Its failures are not findings about the resources, so the run
+    # is repeated; if they persist they are reported as errors, because an unchecked code is not a checked one.
+    for attempt in range(1, 5):
+        findings = validate(jar, sent + naive, tx, out)
+        outages = sum("Error from " + tx in issue["message"] for issues in findings.values() for issue in issues)
+        if outages == 0:
+            break
+        print(f"attempt {attempt}: {outages} finding(s) are failures of {tx}, not of the resources" + ("; trying again" if attempt < 4 else ""))
+        time.sleep(30 * attempt)
     (out / "validation.json").write_text(json.dumps(findings, indent=1) + "\n", encoding="utf-8")
 
     failed = False

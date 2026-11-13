@@ -30,9 +30,14 @@ public sealed record ResourceKey(string System, string Value)
     public override string ToString() => $"{System}|{Value}";
 }
 
+/// <param name="Replaces">
+/// The parts of the Patient this message speaks for, because it sent a value or an explicit null for them.
+/// Everything else on a patient the server already holds is left as it is.
+/// </param>
 public sealed record MapResult(
     string ControlId, string Trigger, DateTimeOffset EventTime, string ProvenanceId,
-    ResourceKey Patient, ResourceKey? PriorPatient, JsonObject Bundle, IReadOnlyList<string> Notes);
+    ResourceKey Patient, ResourceKey? PriorPatient, ResourceKey? Visit, IReadOnlyList<string> Replaces,
+    JsonObject Bundle, IReadOnlyList<string> Notes);
 
 /// <summary>
 /// Converts one ADT message into one FHIR R4 transaction Bundle. It reads nothing but the message and its options,
@@ -99,7 +104,11 @@ public sealed class AdtMapper(MapperOptions options)
         string patientUrl = Urn($"patient|{patientKey}");
         JsonArray entries = [];
 
-        JsonObject patient = Patient(pid, message.All("NK1"), Time, notes);
+        JsonObject patient = Patient(pid, [.. message.All("NK1")], Time, notes);
+        // An empty field says nothing; a value or two double quotes says "this is the state now".
+        (string Slot, int Field)[] slots = [("name", 5), ("birthDate", 7), ("gender", 8), ("address", 11), ("telecom:home", 13), ("telecom:work", 14), ("maritalStatus", 16), ("deceased", 30)];
+        List<string> replaces = [.. slots.Where(slot => pid.Raw(slot.Field).Length > 0).Select(slot => slot.Slot)];
+        if (message.First("NK1") is not null) { replaces.Add("contact"); }
         entries.Add(Entry(patientUrl, patient, "PUT", $"Patient?{patientKey.Query}"));
 
         ResourceKey? prior = null;
@@ -111,11 +120,13 @@ public sealed class AdtMapper(MapperOptions options)
         }
 
         string? encounterUrl = null;
+        ResourceKey? visitKey = null;
         Hl7Segment? pv1 = message.First("PV1");
         if (trigger is "A01" or "A03" or "A04" or "A11")
         {
             if (pv1 is null) { throw new MappingException("AE", $"{trigger} needs a PV1 segment."); }
             ResourceKey visit = Key(pv1, 19, 0, "VN") ?? throw new MappingException("AE", "PV1-19 has no visit number from a known assigning authority.");
+            visitKey = visit;
             encounterUrl = Urn($"encounter|{visit}");
             entries.Add(Entry(encounterUrl, Encounter(pv1, trigger, visit, patientUrl, Time, notes), "PUT", $"Encounter?{visit.Query}"));
         }
@@ -165,12 +176,12 @@ public sealed class AdtMapper(MapperOptions options)
         if (assumed) { notes.Add($"At least one time had no offset; {Format(offset!.Value)} was assumed."); }
 
         JsonObject bundle = new() { ["resourceType"] = "Bundle", ["type"] = "transaction", ["entry"] = entries };
-        return new MapResult(message.ControlId, trigger, eventTime, provenanceId, patientKey, prior, bundle, notes);
+        return new MapResult(message.ControlId, trigger, eventTime, provenanceId, patientKey, prior, visitKey, replaces, bundle, notes);
     }
 
     // ---- Patient -------------------------------------------------------------------------------------------
 
-    private JsonObject Patient(Hl7Segment pid, IEnumerable<Hl7Segment> nextOfKin, Func<string, V2Time?> time, List<string> notes)
+    private JsonObject Patient(Hl7Segment pid, IReadOnlyList<Hl7Segment> nextOfKin, Func<string, V2Time?> time, List<string> notes)
     {
         JsonObject patient = new() { ["resourceType"] = "Patient" };
         JsonArray identifiers = [];

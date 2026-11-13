@@ -6,7 +6,7 @@ cd "$(dirname "$0")"
 status=0
 SDK="10.0.201"                                  # 12 March 2026, carries runtime 10.0.5
 VALIDATOR="6.8.2"                               # 1 March 2026
-VALIDATOR_SHA256="${VALIDATOR_SHA256:-}"
+VALIDATOR_SHA256="b7e3de5494c6ea18e753942c1dea1aa37e6fa2b47ea30cfc046dc5b707104868"
 HAPI_IMAGE="${HAPI_IMAGE:-hapiproject/hapi:v8.0.0}"
 FHIR="http://127.0.0.1:8082/fhir"
 
@@ -19,7 +19,7 @@ dotnet="$root/sdk/dotnet"
 
 curl -fsSL -o "$root/validator_cli.jar" "https://github.com/hapifhir/org.hl7.fhir.core/releases/download/$VALIDATOR/validator_cli.jar" || exit 2
 actual="$(sha256sum "$root/validator_cli.jar" | cut -d' ' -f1)"
-if [ -n "$VALIDATOR_SHA256" ] && [ "$actual" != "$VALIDATOR_SHA256" ]; then echo "validator checksum mismatch: $actual"; exit 2; fi
+if [ "$actual" != "$VALIDATOR_SHA256" ]; then echo "validator checksum mismatch: $actual"; exit 2; fi
 
 {
   echo ".NET SDK $("$dotnet" --version), runtime $("$dotnet" --list-runtimes | awk '/Microsoft.NETCore.App/ {print $2}')"

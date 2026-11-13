@@ -81,12 +81,25 @@ public sealed class FhirApplier(HttpClient http)
 
             // The update names the version that was just read. If another writer got in between, the server refuses.
             survivor = $"Patient/{id}";
-            patient["id"] = id;
-            patientEntry["fullUrl"] = new Uri(http.BaseAddress!, survivor).ToString();
-            patientEntry["request"] = new JsonObject { ["method"] = "PUT", ["url"] = survivor, ["ifMatch"] = $"W/\"{current["meta"]!["versionId"]!.GetValue<string>()}\"" };
-            // A v2 snapshot replaces what v2 owns. Links come from merges, not from PID, and must survive the update.
-            if (current["link"] is JsonArray links) { patient["link"] = links.DeepClone(); }
+            patient = Overlay(current, patient, mapped.Replaces);
+            patientEntry["resource"] = patient;
+            Pin(patientEntry, current, survivor);
             Repoint(entries, placeholder, survivor);
+        }
+
+        // The same for an encounter that already exists: a discharge adds to the admission, it does not replace it.
+        if (mapped.Visit is ResourceKey visit && entries.FirstOrDefault(e => e!["resource"]!["resourceType"]!.GetValue<string>() == "Encounter") is JsonObject encounterEntry)
+        {
+            JsonObject? stay;
+            try { stay = await FindOneAsync("Encounter", visit, cancel); }
+            catch (InvalidOperationException error) { return new Prepared(ApplyOutcome.Failed, error.Message, null); }
+            if (stay is not null)
+            {
+                string was = encounterEntry["fullUrl"]!.GetValue<string>(), now = $"Encounter/{stay["id"]!.GetValue<string>()}";
+                encounterEntry["resource"] = Overlay(stay, encounterEntry["resource"]!.AsObject(), []);
+                Pin(encounterEntry, stay, now);
+                Repoint(entries, was, now);
+            }
         }
 
         if (mapped.PriorPatient is ResourceKey priorKey)
@@ -175,6 +188,61 @@ public sealed class FhirApplier(HttpClient http)
         if (response.StatusCode is HttpStatusCode.NotFound or HttpStatusCode.Gone) { return null; }
         response.EnsureSuccessStatusCode();
         return JsonNode.Parse(await response.Content.ReadAsStringAsync(cancel))!.AsObject();
+    }
+
+    /// <summary>
+    /// Starts from what the server holds and lays the message over it. HL7 v2 is not a snapshot: a field left
+    /// empty means "nothing to say", so a PUT built from the message alone would delete what it did not mention.
+    /// </summary>
+    private static JsonObject Overlay(JsonObject current, JsonObject mapped, IReadOnlyList<string> replaces)
+    {
+        JsonObject merged = (JsonObject)current.DeepClone();
+        merged.Remove("meta");
+        merged.Remove("text");
+        foreach (string slot in replaces)
+        {
+            switch (slot)
+            {
+                case "telecom:home" or "telecom:work":
+                    JsonArray kept = [.. (merged["telecom"]?.AsArray() ?? []).Where(t => (t!["use"]?.GetValue<string>() == "work") != (slot == "telecom:work")).Select(t => t!.DeepClone())];
+                    merged.Remove("telecom");
+                    if (kept.Count > 0) { merged["telecom"] = kept; }
+                    break;
+                case "deceased": merged.Remove("deceasedBoolean"); merged.Remove("deceasedDateTime"); break;
+                default: merged.Remove(slot); break;
+            }
+        }
+        foreach ((string name, JsonNode? value) in mapped)
+        {
+            switch (name)
+            {
+                case "telecom":
+                    merged["telecom"] = new JsonArray([.. (merged["telecom"]?.AsArray() ?? []).Select(t => t!.DeepClone()), .. value!.AsArray().Select(t => t!.DeepClone())]);
+                    break;
+                case "identifier":
+                    // Identifiers accumulate: no ADT message here can say that a number no longer belongs to a patient.
+                    JsonArray known = [.. (merged["identifier"]?.AsArray() ?? []).Select(i => i!.DeepClone())];
+                    foreach (JsonNode? sent in value!.AsArray())
+                    {
+                        if (!known.Any(i => i!["system"]?.GetValue<string>() == sent!["system"]?.GetValue<string>() && i["value"]?.GetValue<string>() == sent["value"]?.GetValue<string>())) { known.Add(sent!.DeepClone()); }
+                    }
+                    merged["identifier"] = known;
+                    break;
+                case "period" when merged["period"] is JsonObject period:
+                    foreach ((string edge, JsonNode? instant) in value!.AsObject()) { period[edge] = instant!.DeepClone(); }
+                    break;
+                default: merged[name] = value!.DeepClone(); break;
+            }
+        }
+        return merged;
+    }
+
+    /// <summary>Turns "write by identifier" into "update this id, at the version just read".</summary>
+    private void Pin(JsonObject entry, JsonObject current, string reference)
+    {
+        entry["resource"]!["id"] = current["id"]!.GetValue<string>();
+        entry["fullUrl"] = new Uri(http.BaseAddress!, reference).ToString();
+        entry["request"] = new JsonObject { ["method"] = "PUT", ["url"] = reference, ["ifMatch"] = $"W/\"{current["meta"]!["versionId"]!.GetValue<string>()}\"" };
     }
 
     private static string? LinkOfType(JsonObject patient, string type) =>

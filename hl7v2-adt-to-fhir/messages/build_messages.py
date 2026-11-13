@@ -100,6 +100,11 @@ MESSAGES = {
         msh("A08", "MSG00011", "20260314090000+0000", structure="ADT_A01"), segment("EVN", {1: "A08", 2: "20260314090000+0000"}),
         segment("PID", {1: "1"} | AOIFE_MOVED | {14: "^WPN^PH^^^^^^^^^+353 20 910 0155"}), SPOUSE, PENICILLIN, PEANUT, LATEX,
     ],
+    # A sparse update: only what changed. The address is withdrawn with an explicit null; everything not sent stays.
+    "12-a08-sparse-update.hl7": [
+        msh("A08", "MSG00016", "20260314130000+0000", structure="ADT_A01"), segment("EVN", {1: "A08", 2: "20260314130000+0000"}),
+        segment("PID", {1: "1", 3: "700003^^^GENHOSP^MR", 5: "Walsh^Tom^^^^^L", 11: '""', 13: "^PRN^PH^^^^^^^^^+353 20 910 0188"}),
+    ],
 }
 
 for name, lines in MESSAGES.items():

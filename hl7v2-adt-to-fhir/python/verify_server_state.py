@@ -42,7 +42,7 @@ patients = {number: by_number("Patient", mrn, number) for number in ("700001", "
 check("each of the four record numbers resolves to exactly one Patient", all(len(found) == 1 for found in patients.values()), str({k: len(v) for k, v in patients.items()}))
 totals = {resource: get(f"{resource}?_summary=count")["total"] for resource in ("Patient", "Encounter", "AllergyIntolerance", "Provenance")}
 print(f"  totals on the server: {totals}")
-check("the server holds 4 patients, 3 encounters, 4 allergies and 10 provenance records", totals == {"Patient": 4, "Encounter": 3, "AllergyIntolerance": 4, "Provenance": 10}, str(totals))
+check("the server holds 4 patients, 3 encounters, 4 allergies and 12 provenance records", totals == {"Patient": 4, "Encounter": 3, "AllergyIntolerance": 4, "Provenance": 12}, str(totals))
 
 survivor, retired, outpatient, stub = (patients[n][0] for n in ("700001", "700002", "700003", "700009"))
 check("exactly one of the two records for the same person is active", survivor.get("active") is True and retired.get("active") is False)
@@ -51,6 +51,7 @@ check("the retired records point at the survivor and the survivor points back", 
     and sorted(link["other"]["reference"] for link in survivor.get("link", []) if link["type"] == "replaces") == sorted([f"Patient/{retired['id']}", f"Patient/{stub['id']}"]))
 check("every identifier on every patient has a system and a value", all(i.get("system") and i.get("value") for p in (survivor, retired, outpatient, stub) for i in p["identifier"]))
 check("dates of birth are FHIR dates at the precision received", survivor["birthDate"] == "1985-03-12" and outpatient["birthDate"] == "1980-11")
+check("the sparse update removed one address and nothing else", "address" not in outpatient and "address" in survivor and outpatient["name"][0]["family"] == "Walsh")
 check("gender is a FHIR code on every patient that has one", all(p.get("gender") in (None, "male", "female", "other", "unknown") for p in (survivor, retired, outpatient, stub)) and outpatient["gender"] == "unknown")
 
 encounters = {number: by_number("Encounter", visit, number) for number in ("V9001", "V9002", "V9003")}
@@ -67,7 +68,7 @@ history = get(f"Patient/{survivor['id']}/_history?_count=50")
 print(f"  Patient/{survivor['id']} has {history.get('total', len(history.get('entry', [])))} versions")
 events = search("Provenance", target=f"Patient/{survivor['id']}")
 controls = sorted(p["entity"][0]["what"]["identifier"]["value"] for p in events)
-check("no provenance exists for the late update or the retried first writer", "MSG00002-LATE" not in controls and "MSG00012" not in controls and len(controls) == 7, str(controls))
+check("no provenance exists for the late update or the retried first writer", "MSG00002-LATE" not in controls and "MSG00012" not in controls and len(controls) == 8, str(controls))
 
 (out / "server-state.json").write_text(json.dumps({"totals": totals, "statuses": statuses, "survivor": survivor, "retired": retired, "stub": stub, "outpatient": outpatient}, indent=1) + "\n", encoding="utf-8")
 print(f"\n{passed} of {passed + failed} checks passed")

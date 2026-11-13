@@ -125,6 +125,8 @@ Check("A08 updates the patient and allergies and leaves the encounter alone, wit
 Check("an allergen from an unconfigured coding system is kept as text, with a note", Resource(a08, "AllergyIntolerance", 2)["code"]!["coding"] is null && S(Resource(a08, "AllergyIntolerance", 2)["code"]!["text"]) == "Latex" && a08.Notes.Any(n => n.Contains("99LOCAL")));
 Check("A03 finishes the encounter at PV1-45 and orders by EVN-6", S(Resource(a03, "Encounter")["status"]) == "finished" && S(Resource(a03, "Encounter")["period"]!["end"]) == "2026-03-12T13:30:00+00:00" && a03.EventTime == new DateTimeOffset(2026, 3, 12, 13, 30, 0, TimeSpan.Zero));
 Check("A11 cancels the encounter", S(Resource(a11, "Encounter")["status"]) == "cancelled" && S(Resource(a11, "Encounter")["class"]!["code"]) == "EMER");
+Check("a full PID speaks for every part of the patient; a sparse one only for what it sent or withdrew", a01.Replaces.SequenceEqual(["name", "birthDate", "gender", "address", "telecom:home", "telecom:work", "maritalStatus", "contact"])
+    && mapped["12-a08-sparse-update.hl7"].Replaces.SequenceEqual(["name", "address", "telecom:home"]) && Resource(mapped["12-a08-sparse-update.hl7"], "Patient")["address"] is null, string.Join(",", mapped["12-a08-sparse-update.hl7"].Replaces));
 Check("A40 names the surviving and the retired record", a40.Patient.Value == "700001" && a40.PriorPatient?.Value == "700002" && Count(a40, "Encounter") == 0);
 
 JsonObject tom = Resource(a04, "Patient");
@@ -203,6 +205,9 @@ if (fhirBase is not null)
     await Send("a01-admit-sent-again", Read("01-a01-admit.hl7"), "AA", ApplyOutcome.Duplicate);
     await Send("a08-update", Read("02-a08-update.hl7"), "AA", ApplyOutcome.Applied);
     await Send("a03-discharge", Read("03-a03-discharge.hl7"), "AA", ApplyOutcome.Applied);
+    JsonObject afterDischarge = (await Search($"Patient?identifier={Escape(Mrn, "700001")}"))[0], stayAfterDischarge = (await Search($"Encounter?identifier={Escape(Visit, "V9001")}"))[0];
+    Check("    the discharge carried no NK1, and the emergency contact is still on the patient", S(afterDischarge["contact"]?[0]?["name"]?["family"]) == "O'Brien" && afterDischarge["identifier"]!.AsArray().Count == 2);
+    Check("    the discharge added an end to the stay and kept its start, location and doctor", S(stayAfterDischarge["period"]!["start"]) == "2026-03-10T08:00:00+00:00" && S(stayAfterDischarge["period"]!["end"]) == "2026-03-12T13:30:00+00:00" && stayAfterDischarge["participant"] is not null && S(stayAfterDischarge["meta"]!["versionId"]) == "2");
     await Send("a08-update-arriving-late", Read("02-a08-update.hl7").Replace("MSG00002", "MSG00002-LATE"), "AA", ApplyOutcome.Stale);
     await Send("a01-second-registration", Read("04-a01-second-registration.hl7"), "AA", ApplyOutcome.Applied);
     await Send("a11-cancel-admit", Read("05-a11-cancel-admit.hl7"), "AA", ApplyOutcome.Applied);
@@ -217,7 +222,7 @@ if (fhirBase is not null)
     string later = Read("11-a08-after-merge.hl7");
     MapResult first = Map(later.Replace("MSG00011", "MSG00012").Replace("20260314090000", "20260314100000"));
     Prepared held = await applier.PrepareAsync(first);
-    await Send("a08-second-writer", later.Replace("MSG00011", "MSG00013").Replace("20260314090000", "20260314100500"), "AA", ApplyOutcome.Applied);
+    await Send("a08-second-writer", later.Replace("MSG00011", "MSG00013").Replace("20260314090000", "20260314100500").Replace("0155", "0156"), "AA", ApplyOutcome.Applied);
     ApplyResult collided = await applier.SendAsync(held);
     step++;
     Check($"{step,2}. a write prepared before another writer's update is refused by the server", collided.Outcome == ApplyOutcome.Conflict, $"{collided.Outcome} {collided.Detail}");
@@ -225,9 +230,38 @@ if (fhirBase is not null)
     await Send("a08-first-writer-retried", later.Replace("MSG00011", "MSG00012").Replace("20260314090000", "20260314100000"), "AA", ApplyOutcome.Stale);
     await Send("a40-merge-of-a-record-never-seen", later.Replace("MSG00011", "MSG00014").Replace("20260314090000", "20260314110000").Replace("A08", "A40") + "MRG|700009^^^GENHOSP^MR\n", "AA", ApplyOutcome.Applied);
 
+
+    // An update that changes nothing in the Patient: is a new version written?
+    string versionBefore = S((await Search($"Patient?identifier={Escape(Mrn, "700001")}"))[0]["meta"]!["versionId"]);
+    await Send("a08-with-nothing-new", later.Replace("MSG00011", "MSG00015").Replace("20260314090000", "20260314120000"), "AA", ApplyOutcome.Applied);
+    string versionAfter = S((await Search($"Patient?identifier={Escape(Mrn, "700001")}"))[0]["meta"]!["versionId"]);
+    Console.WriteLine($"        Patient version before {versionBefore}, after {versionAfter}");
+    Check("    an update that changes nothing writes no new Patient version", versionBefore == versionAfter, $"{versionBefore} -> {versionAfter}");
+
+    await Send("a08-sparse-update", Read("12-a08-sparse-update.hl7"), "AA", ApplyOutcome.Applied);
+    JsonObject tomNow = (await Search($"Patient?identifier={Escape(Mrn, "700003")}"))[0];
+    Check("    a sparse update kept the birth date, gender and marital status it did not mention", S(tomNow["birthDate"]) == "1980-11" && S(tomNow["gender"]) == "unknown" && S(tomNow["maritalStatus"]!["text"]) == "Separated");
+    Check("    it removed the address sent as an explicit null and added the telephone", tomNow["address"] is null && S(tomNow["telecom"]![0]!["value"]).EndsWith("0188"));
+
+    // Reported, not asserted: does this server accept an absolute reference to one of its own resources in a transaction?
+    string stubId = S((await Search($"Patient?identifier={Escape(Mrn, "700009")}"))[0]["id"]);
+    JsonObject absolute = new()
+    {
+        ["resourceType"] = "Bundle", ["type"] = "transaction",
+        ["entry"] = new JsonArray(new JsonObject
+        {
+            ["fullUrl"] = $"urn:uuid:{AdtMapper.Uuid("experiment")}",
+            ["resource"] = new JsonObject { ["resourceType"] = "List", ["status"] = "current", ["mode"] = "working", ["subject"] = new JsonObject { ["reference"] = $"{fhirBase}Patient/{stubId}" } },
+            ["request"] = new JsonObject { ["method"] = "POST", ["url"] = "List" },
+        }),
+    };
+    ApplyResult experiment = await applier.SendAsync(new Prepared(null, "", absolute));
+    string stored = experiment.Outcome == ApplyOutcome.Applied ? S((await Search("List?_count=1"))[0]["subject"]!["reference"]) : "";
+    Console.WriteLine($"  experiment, absolute reference to a local resource: {experiment.Outcome} {experiment.Detail}{(stored.Length > 0 ? $"stored as {stored}" : "")}");
+
     Console.WriteLine("== what the server holds");
     List<JsonObject> survivors = await Search($"Patient?identifier={Escape(Mrn, "700001")}"), retired = await Search($"Patient?identifier={Escape(Mrn, "700002")}"), stub = await Search($"Patient?identifier={Escape(Mrn, "700009")}");
-    Check("one Patient per record number after sixteen messages", survivors.Count == 1 && retired.Count == 1 && stub.Count == 1, $"{survivors.Count} {retired.Count} {stub.Count}");
+    Check("one Patient per record number after every message", survivors.Count == 1 && retired.Count == 1 && stub.Count == 1, $"{survivors.Count} {retired.Count} {stub.Count}");
     JsonObject aoife = survivors[0], duplicate = retired[0];
     string aoifeId = S(aoife["id"]), duplicateId = S(duplicate["id"]);
     Console.WriteLine($"  Patient/{aoifeId} is version {S(aoife["meta"]!["versionId"])}; Patient/{duplicateId} is version {S(duplicate["meta"]!["versionId"])}");
@@ -245,10 +279,10 @@ if (fhirBase is not null)
     Check("the merge did not move the retired record's encounter", cancelledSubject == $"Patient/{duplicateId}");
 
     List<JsonObject> allergies = await Search($"AllergyIntolerance?patient=Patient/{aoifeId}&_count=50");
-    Check("three allergies after four messages that carried them: no duplicates", allergies.Count == 3, $"{allergies.Count}");
+    Check("three allergies after five messages that carried them: no duplicates", allergies.Count == 3, $"{allergies.Count}");
     List<JsonObject> history = await Search($"Provenance?target=Patient/{aoifeId}&_sort=when&_count=50");
     Console.WriteLine($"  events applied to Patient/{aoifeId}: {string.Join(", ", history.Select(p => $"{S(p["activity"]!["coding"]![0]!["code"])} {S(p["occurredDateTime"])[..16]}"))}");
-    Check("seven Provenance records, in event order, and none for the two messages that were not applied", history.Count == 7 && history.Select(p => S(p["entity"]![0]!["what"]!["identifier"]!["value"])).SequenceEqual(["MSG00001", "MSG00002", "MSG00003", "MSG00006", "MSG00011", "MSG00013", "MSG00014"]),
+    Check("eight Provenance records, in event order, and none for the two messages that were not applied", history.Count == 8 && history.Select(p => S(p["entity"]![0]!["what"]!["identifier"]!["value"])).SequenceEqual(["MSG00001", "MSG00002", "MSG00003", "MSG00006", "MSG00011", "MSG00013", "MSG00014", "MSG00015"]),
         string.Join(",", history.Select(p => S(p["entity"]![0]!["what"]!["identifier"]!["value"]))));
     Check("the notes of the awkward message travelled with its result", olderSender.Notes.Count >= 5, $"{olderSender.Notes.Count}");
 
