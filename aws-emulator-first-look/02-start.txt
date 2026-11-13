@@ -1,0 +1,40 @@
+== 3. start
+
+$ aws-emulator -p 9297 --telemetry off &
+port 9297 healthy after 0.17 s
+{"timestamp":"2026-11-13T09:43:31.943635Z","level":"INFO","fields":{"message":"aws-emulator emulator starting"},"target":"aws_emulator"}
+This emulator collects usage and error telemetry: disabled (via the embedding configuration) — to turn it back on, remove every opt-out setting and restart
+{"timestamp":"2026-11-13T09:43:31.978970Z","level":"INFO","fields":{"message":"request authentication enabled","credentials_file":"/home/runner/.aws/emulator/9297/emulator_credentials"},"target":"aws_emulator_server"}
+{"timestamp":"2026-11-13T09:43:31.979075Z","level":"INFO","fields":{"message":"emulator server information","endpoint_url":"https://127.0.0.1:9297","health_check_url":"https://127.0.0.1:9297/__admin/health","config_file":"/home/runner/.aws/emulator/9297/config","ca_file":"/home/runner/.aws/emulator/9297/ca.pem","java_truststore_file":"/home/runner/.aws/emulator/9297/truststore.p12"},"target":"aws_emulator_server"}
+
+$ ls -l ~/.aws/emulator/9297/
+-rw------- 570 ca.pem
+-rw------- 150 config
+-rw------- 116 emulator_credentials
+-rw------- 552 truststore.p12
+
+$ curl --cacert ~/.aws/emulator/9297/ca.pem https://127.0.0.1:9297/__admin/health
+ok
+290 MiB resident
+
+$ aws sts get-caller-identity
+{
+    "UserId": "AIDAH5I7GEMO7ADXNFAZU",
+    "Account": "000000000000",
+    "Arn": "arn:aws:iam::000000000000:user/emulator"
+}
+
+$ aws s3api create-bucket --bucket first-light
+{
+    "Location": "/first-light",
+    "BucketArn": "arn:aws:s3:::first-light"
+}
+
+$ aws s3api list-buckets --query 'Buckets[].Name'
+[
+    "first-light"
+]
+
+$ aws dynamodb create-table --table-name ab ...   (a name that is too short)
+
+aws: [ERROR]: An error occurred (ValidationException) when calling the CreateTable operation: 1 validation error detected: Value 'ab' at 'tableName' failed to satisfy constraint: Member must have length greater than or equal to 3

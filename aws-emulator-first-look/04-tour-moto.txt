@@ -1,0 +1,22 @@
+works        100.9 ms  01 identity  {"account": "123456789012", "arn": "arn:aws:sts::123456789012:user/moto"}
+works        178.6 ms  02 s3 round trip, 1 MiB  {"bytes": 1048576, "listed": ["data/blob.bin"], "missing_key": "NoSuchKey"}
+works         26.2 ms  03 s3 versioning  {"versions": 2, "first_version_reads": "one"}
+works         17.9 ms  04 s3 presigned URL  {"status": 200, "body": "hello"}
+works         18.2 ms  05 s3 bucket policy that denies reads  {"read_after_deny_policy": "403"}
+works        103.4 ms  06 dynamodb table lifecycle  {"status_at_once": "ACTIVE", "write_at_once": "no error", "seconds_to_active": 0.0, "conditional_put_on_existing": "ConditionalCheckFailedException", "item_total": "42"}
+works          5.9 ms  07 dynamodb validation message  {"message": "accepted"}
+works       3045.0 ms  08 sqs visibility timeout  {"first_receive_count": "1", "while_hidden": 0, "after_timeout_receive_count": "2", "queue_url_host": "127.0.0.1:5000"}
+works         81.9 ms  09 sns to sqs, no queue policy  {"delivered": true, "sns_envelope": true}
+works         79.7 ms  10 sns to sqs, with queue policy  {"delivered": true, "sns_envelope": true}
+works         45.3 ms  11 eventbridge to sqs, no queue policy  {"accepted": true, "delivered": true, "detail_type": "OrderPlaced"}
+works         31.6 ms  12 eventbridge to sqs, with queue policy  {"accepted": true, "delivered": true, "detail_type": "OrderPlaced"}
+works      14854.9 ms  13 lambda create and invoke  {"result": 42, "first_invoke_ms": 14113, "second_invoke_ms": 592, "python": "3.13.17", "getcwd": "/var/task", "getuid": "993", "entries_in_host_home": "failed: FileNotFoundError", "bytes_of_credentials_file": "failed: FileNotFoundError", "socket_to_endpoint": 
+differs    10131.7 ms  14 step functions execution  {"differs": "status RUNNING, output None"}
+works         21.8 ms  15 secrets manager versions  {"current": "second", "previous": "first"}
+works         36.7 ms  16 kms encrypt and decrypt  {"ciphertext_bytes": 78, "ciphertext_contains_plaintext": false}
+works        481.7 ms  17 ssm secure parameter  {"without_decryption_is_plaintext": false, "with_decryption": "synthetic-value"}
+works        150.3 ms  18 kinesis put and get  {"records": 1}
+works        241.7 ms  19 cloudformation stack  {"stack_status": "CREATE_COMPLETE", "queue_created": true}
+works        236.7 ms  20 ec2 vpc and subnet  {"vpc": "vpc-...", "subnet": "subnet-...", "overlapping_subnet": "InvalidSubnet.Conflict"}
+works          3.3 ms  21 unsigned request  {"status": 200, "served": true}
+works       1090.0 ms  22 iam user with no permissions  {"list_buckets_as_user_with_no_policy": "no error", "caller_arn_suffix": "user/lab-nobody-563061"}

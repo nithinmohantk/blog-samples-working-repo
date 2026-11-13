@@ -1,0 +1,33 @@
+== 9. terraform against the emulator
+Terraform v1.16.5
+
+$ terraform init
+- Installing hashicorp/random v3.9.1...
+- Installed hashicorp/random v3.9.1 (signed by HashiCorp)
+- Installing hashicorp/aws v6.73.0...
+- Installed hashicorp/aws v6.73.0 (signed by HashiCorp)
+Terraform has been successfully initialized!
+
+$ terraform apply -auto-approve -var name=lab/terraform
+ephemeral.random_password.db: Opening...
+ephemeral.random_password.db: Opening complete after 0s
+aws_secretsmanager_secret.db: Creating...
+aws_secretsmanager_secret.db: Creation complete after 0s [id=arn:aws:secretsmanager:us-east-1:000000000000:secret:lab/terraform-i3jLJW]
+aws_secretsmanager_secret_version.db: Creating...
+aws_secretsmanager_secret_version.db: Creation complete after 0s [id=arn:aws:secretsmanager:us-east-1:000000000000:secret:lab/terraform-i3jLJW|terraform-AMzUyujKe1Bbtakon3bNNAFgBe]
+ephemeral.random_password.db: Closing...
+ephemeral.random_password.db: Closing complete after 0s
+
+Apply complete! Resources: 2 added, 0 changed, 0 destroyed.
+
+Outputs:
+
+secret_arn = "arn:aws:secretsmanager:us-east-1:000000000000:secret:lab/terraform-i3jLJW"
+
+$ aws secretsmanager get-secret-value --secret-id lab/terraform --query 'length(SecretString)'
+32
+
+$ terraform destroy -auto-approve
+aws_secretsmanager_secret.db: Destruction complete after 0s
+
+Destroy complete! Resources: 2 destroyed.

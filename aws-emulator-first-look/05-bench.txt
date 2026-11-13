@@ -1,0 +1,34 @@
+{
+  "target": "emulator:9297",
+  "put_item": {
+    "calls": 1000,
+    "p50_ms": 0.98,
+    "p95_ms": 1.07,
+    "max_ms": 7.34,
+    "total_s": 0.99
+  },
+  "get_item": {
+    "calls": 1000,
+    "p50_ms": 0.97,
+    "p95_ms": 1.0,
+    "max_ms": 1.69,
+    "total_s": 0.97
+  }
+}
+{
+  "target": "moto:5000",
+  "put_item": {
+    "calls": 1000,
+    "p50_ms": 2.07,
+    "p95_ms": 2.19,
+    "max_ms": 18.65,
+    "total_s": 2.12
+  },
+  "get_item": {
+    "calls": 1000,
+    "p50_ms": 2.17,
+    "p95_ms": 2.29,
+    "max_ms": 3.14,
+    "total_s": 2.19
+  }
+}

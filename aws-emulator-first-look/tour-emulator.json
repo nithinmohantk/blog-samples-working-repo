@@ -1,0 +1,222 @@
+{
+  "target": "emulator:9297",
+  "rows": [
+    {
+      "experiment": "01 identity",
+      "outcome": "works",
+      "ms": 47.9,
+      "observed": {
+        "account": "000000000000",
+        "arn": "arn:aws:iam::000000000000:user/emulator"
+      }
+    },
+    {
+      "experiment": "02 s3 round trip, 1 MiB",
+      "outcome": "works",
+      "ms": 57.2,
+      "observed": {
+        "bytes": 1048576,
+        "listed": [
+          "data/blob.bin"
+        ],
+        "missing_key": "NoSuchKey"
+      }
+    },
+    {
+      "experiment": "03 s3 versioning",
+      "outcome": "works",
+      "ms": 17.2,
+      "observed": {
+        "versions": 2,
+        "first_version_reads": "one"
+      }
+    },
+    {
+      "experiment": "04 s3 presigned URL",
+      "outcome": "works",
+      "ms": 11.6,
+      "observed": {
+        "status": 200,
+        "body": "hello"
+      }
+    },
+    {
+      "experiment": "05 s3 bucket policy that denies reads",
+      "outcome": "works",
+      "ms": 13.4,
+      "observed": {
+        "read_after_deny_policy": "AccessDenied"
+      }
+    },
+    {
+      "experiment": "06 dynamodb table lifecycle",
+      "outcome": "works",
+      "ms": 3017.5,
+      "observed": {
+        "status_at_once": "CREATING",
+        "write_at_once": "ResourceNotFoundException",
+        "seconds_to_active": 3.0,
+        "conditional_put_on_existing": "ConditionalCheckFailedException",
+        "item_total": "42"
+      }
+    },
+    {
+      "experiment": "07 dynamodb validation message",
+      "outcome": "works",
+      "ms": 6.5,
+      "observed": {
+        "code": "ValidationException",
+        "message": "1 validation error detected: Value 'ab' at 'tableName' failed to satisfy constraint: Member must have length greater than or equal to 3"
+      }
+    },
+    {
+      "experiment": "08 sqs visibility timeout",
+      "outcome": "works",
+      "ms": 3013.3,
+      "observed": {
+        "first_receive_count": "1",
+        "while_hidden": 0,
+        "after_timeout_receive_count": "2",
+        "queue_url_host": "sqs.us-east-1.amazonaws.com"
+      }
+    },
+    {
+      "experiment": "09 sns to sqs, no queue policy",
+      "outcome": "works",
+      "ms": 6035.7,
+      "observed": {
+        "delivered": false,
+        "sns_envelope": false
+      }
+    },
+    {
+      "experiment": "10 sns to sqs, with queue policy",
+      "outcome": "works",
+      "ms": 19.4,
+      "observed": {
+        "delivered": true,
+        "sns_envelope": true
+      }
+    },
+    {
+      "experiment": "11 eventbridge to sqs, no queue policy",
+      "outcome": "works",
+      "ms": 6042.3,
+      "observed": {
+        "accepted": true,
+        "delivered": false,
+        "detail_type": null
+      }
+    },
+    {
+      "experiment": "12 eventbridge to sqs, with queue policy",
+      "outcome": "works",
+      "ms": 19.1,
+      "observed": {
+        "accepted": true,
+        "delivered": true,
+        "detail_type": "OrderPlaced"
+      }
+    },
+    {
+      "experiment": "13 lambda create and invoke",
+      "outcome": "works",
+      "ms": 749.2,
+      "observed": {
+        "result": 42,
+        "first_invoke_ms": 109,
+        "second_invoke_ms": 107,
+        "python": "3.14.0.alpha",
+        "getcwd": "/var/task",
+        "getuid": "failed: OSError",
+        "entries_in_host_home": "failed: OSError",
+        "bytes_of_credentials_file": "failed: OSError",
+        "socket_to_endpoint": "failed: OSError"
+      }
+    },
+    {
+      "experiment": "14 step functions execution",
+      "outcome": "works",
+      "ms": 534.7,
+      "observed": {
+        "status": "SUCCEEDED",
+        "output": {
+          "outcome": "CREDITED"
+        }
+      }
+    },
+    {
+      "experiment": "15 secrets manager versions",
+      "outcome": "works",
+      "ms": 11.6,
+      "observed": {
+        "current": "second",
+        "previous": "first"
+      }
+    },
+    {
+      "experiment": "16 kms encrypt and decrypt",
+      "outcome": "works",
+      "ms": 12.5,
+      "observed": {
+        "ciphertext_bytes": 80,
+        "ciphertext_contains_plaintext": false
+      }
+    },
+    {
+      "experiment": "17 ssm secure parameter",
+      "outcome": "works",
+      "ms": 26.7,
+      "observed": {
+        "without_decryption_is_plaintext": false,
+        "with_decryption": "synthetic-value"
+      }
+    },
+    {
+      "experiment": "18 kinesis put and get",
+      "outcome": "works",
+      "ms": 1021.0,
+      "observed": {
+        "records": 1
+      }
+    },
+    {
+      "experiment": "19 cloudformation stack",
+      "outcome": "works",
+      "ms": 522.6,
+      "observed": {
+        "stack_status": "CREATE_COMPLETE",
+        "queue_created": true
+      }
+    },
+    {
+      "experiment": "20 ec2 vpc and subnet",
+      "outcome": "works",
+      "ms": 69.7,
+      "observed": {
+        "vpc": "vpc-...",
+        "subnet": "subnet-...",
+        "overlapping_subnet": "InvalidSubnet.Conflict"
+      }
+    },
+    {
+      "experiment": "21 unsigned request",
+      "outcome": "works",
+      "ms": 2.0,
+      "observed": {
+        "status": 404,
+        "served": false,
+        "body": "{\"__type\":\"UnknownService\",\"message\":\"no emulated service is registered for 'amazonsqs'\"}"
+      }
+    },
+    {
+      "experiment": "22 iam user with no permissions",
+      "outcome": "works",
+      "ms": 1085.2,
+      "observed": {
+        "list_buckets_as_user_with_no_policy": "no error",
+        "caller_arn_suffix": "user/lab-nobody-563038"
+      }
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+== 8. two emulators, and a restart
+
+$ aws-emulator -p 9298 --telemetry off &
+port 9298 healthy after 0.17 s
+
+$ python lab/instances.py isolation 9297 9298
+port 9297: buckets ['first-light', 'lab-bucket-563038', 'lab-policy-563038', 'lab-presign-563038', 'lab-versions-563038', 'only-in-the-first'], access key ...A577
+port 9298: buckets [], access key ...5DAC
+
+$ kill -TERM <pid of 9297>; ls ~/.aws/emulator/*/
+9297: 0 file(s)
+9298: 4 file(s)
+
+$ aws-emulator -p 9297 --telemetry off &
+port 9297 healthy after 0.17 s
+
+$ python lab/instances.py count 9297
+port 9297: 0 bucket(s) [], access key ...8C65

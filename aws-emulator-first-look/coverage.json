@@ -1,0 +1,2501 @@
+{
+ "target": "emulator:9297",
+ "boto3": "1.44.2",
+ "tally": {
+  "answers": 256,
+  "not implemented (501)": 78,
+  "no parameterless read operation": 66,
+  "error 403": 5,
+  "error 400": 22,
+  "transport": 3,
+  "error 404": 4,
+  "error 401": 1,
+  "error 500": 1
+ },
+ "rows": [
+  {
+   "service": "accessanalyzer",
+   "operation": "ListAnalyzers",
+   "result": "answers",
+   "ms": 6.0
+  },
+  {
+   "service": "account",
+   "operation": "GetAccountInformation",
+   "result": "answers",
+   "ms": 3.8
+  },
+  {
+   "service": "account-access",
+   "operation": "ListApplications",
+   "result": "not implemented (501)",
+   "ms": 4.0
+  },
+  {
+   "service": "account-access-runtime",
+   "result": "no parameterless read operation"
+  },
+  {
+   "service": "acm",
+   "operation": "GetAccountConfiguration",
+   "result": "answers",
+   "ms": 3.3
+  },
+  {
+   "service": "acm-pca",
+   "operation": "ListCertificateAuthorities",
+   "result": "answers",
+   "ms": 2.9
+  },
+  {
+   "service": "agent-registry",
+   "result": "no parameterless read operation"
+  },
+  {
+   "service": "agent-registry-control",
+   "operation": "ListRegistries",
+   "result": "not implemented (501)",
+   "ms": 3.4
+  },
+  {
+   "service": "aiops",
+   "operation": "ListInvestigationGroups",
+   "result": "answers",
+   "ms": 2.9
+  },
+  {
+   "service": "amp",
+   "operation": "GetDefaultScraperConfiguration",
+   "result": "answers",
+   "ms": 3.4
+  },
+  {
+   "service": "amplify",
+   "operation": "ListApps",
+   "result": "answers",
+   "ms": 3.0
+  },
+  {
+   "service": "amplifybackend",
+   "operation": "ListS3Buckets",
+   "result": "answers",
+   "ms": 3.3
+  },
+  {
+   "service": "amplifyuibuilder",
+   "result": "no parameterless read operation"
+  },
+  {
+   "service": "apigateway",
+   "operation": "GetAccount",
+   "result": "answers",
+   "ms": 3.3
+  },
+  {
+   "service": "apigatewaymanagementapi",
+   "result": "no parameterless read operation"
+  },
+  {
+   "service": "apigatewayv2",
+   "operation": "GetApis",
+   "result": "answers",
+   "ms": 3.4
+  },
+  {
+   "service": "appconfig",
+   "operation": "GetAccountSettings",
+   "result": "answers",
+   "ms": 3.1
+  },
+  {
+   "service": "appconfigdata",
+   "result": "no parameterless read operation"
+  },
+  {
+   "service": "appfabric",
+   "operation": "ListAppBundles",
+   "result": "answers",
+   "ms": 3.1
+  },
+  {
+   "service": "appflow",
+   "operation": "DescribeConnectorProfiles",
+   "result": "not implemented (501)",
+   "ms": 3.9
+  },
+  {
+   "service": "appintegrations",
+   "operation": "ListApplications",
+   "result": "not implemented (501)",
+   "ms": 3.4
+  },
+  {
+   "service": "application-autoscaling",
+   "result": "no parameterless read operation"
+  },
+  {
+   "service": "application-insights",
+   "operation": "ListApplications",
+   "result": "answers",
+   "ms": 3.0
+  },
+  {
+   "service": "application-signals",
+   "operation": "ListGroupingAttributeDefinitions",
+   "result": "answers",
+   "ms": 3.2
+  },
+  {
+   "service": "applicationcostprofiler",
+   "operation": "ListReportDefinitions",
+   "result": "answers",
+   "ms": 3.1
+  },
+  {
+   "service": "appmesh",
+   "operation": "ListMeshes",
+   "result": "answers",
+   "ms": 3.3
+  },
+  {
+   "service": "apprunner",
+   "operation": "ListAutoScalingConfigurations",
+   "result": "not implemented (501)",
+   "ms": 4.1
+  },
+  {
+   "service": "appstream",
+   "operation": "DescribeAppBlockBuilderAppBlockAssociations",
+   "result": "not implemented (501)",
+   "ms": 4.7
+  },
+  {
+   "service": "appsync",
+   "operation": "ListApis",
+   "result": "answers",
+   "ms": 3.3
+  },
+  {
+   "service": "arc-region-switch",
+   "operation": "ListPlans",
+   "result": "answers",
+   "ms": 3.4
+  },
+  {
+   "service": "arc-zonal-shift",
+   "operation": "GetAutoshiftObserverNotificationStatus",
+   "result": "answers",
+   "ms": 2.9
+  },
+  {
+   "service": "artifact",
+   "operation": "GetAccountSettings",
+   "result": "answers",
+   "ms": 3.1
+  },
+  {
+   "service": "athena",
+   "operation": "ListApplicationDPUSizes",
+   "result": "not implemented (501)",
+   "ms": 4.2
+  },
+  {
+   "service": "auditmanager",
+   "operation": "GetAccountStatus",
+   "result": "not implemented (501)",
+   "ms": 3.8
+  },
+  {
+   "service": "autoscaling",
+   "operation": "DescribeAccountLimits",
+   "result": "answers",
+   "ms": 3.2
+  },
+  {
+   "service": "autoscaling-plans",
+   "operation": "DescribeScalingPlans",
+   "result": "answers",
+   "ms": 3.0
+  },
+  {
+   "service": "b2bi",
+   "operation": "ListCapabilities",
+   "result": "answers",
+   "ms": 3.0
+  },
+  {
+   "service": "backup",
+   "operation": "DescribeGlobalSettings",
+   "result": "not implemented (501)",
+   "ms": 3.8
+  },
+  {
+   "service": "backup-gateway",
+   "operation": "ListGateways",
+   "result": "answers",
+   "ms": 2.8
+  },
+  {
+   "service": "backupsearch",
+   "operation": "ListSearchJobs",
+   "result": "answers",
+   "ms": 2.7
+  },
+  {
+   "service": "batch",
+   "operation": "DescribeComputeEnvironments",
+   "result": "answers",
+   "ms": 2.9
+  },
+  {
+   "service": "bcm-dashboards",
+   "operation": "ListDashboards",
+   "result": "answers",
+   "ms": 3.0
+  },
+  {
+   "service": "bcm-data-exports",
+   "operation": "ListExports",
+   "result": "answers",
+   "ms": 2.7
+  },
+  {
+   "service": "bcm-pricing-calculator",
+   "operation": "GetPreferences",
+   "result": "answers",
+   "ms": 2.9
+  },
+  {
+   "service": "bcm-recommended-actions",
+   "operation": "ListRecommendedActions",
+   "result": "answers",
+   "ms": 2.9
+  },
+  {
+   "service": "bedrock",
+   "operation": "GetAccountDataRetention",
+   "result": "answers",
+   "ms": 3.7
+  },
+  {
+   "service": "bedrock-agent",
+   "operation": "ListAgents",
+   "result": "answers",
+   "ms": 3.0
+  },
+  {
+   "service": "bedrock-agent-runtime",
+   "operation": "ListSessions",
+   "result": "answers",
+   "ms": 2.9
+  },
+  {
+   "service": "bedrock-agentcore",
+   "operation": "ListABTests",
+   "result": "answers",
+   "ms": 2.9
+  },
+  {
+   "service": "bedrock-agentcore-control",
+   "operation": "GetTokenVault",
+   "result": "answers",
+   "ms": 3.4
+  },
+  {
+   "service": "bedrock-data-automation",
+   "operation": "ListBlueprints",
+   "result": "answers",
+   "ms": 3.0
+  },
+  {
+   "service": "bedrock-data-automation-runtime",
+   "result": "no parameterless read operation"
+  },
+  {
+   "service": "bedrock-runtime",
+   "operation": "ListAsyncInvokes",
+   "result": "answers",
+   "ms": 2.9
+  },
+  {
+   "service": "billing",
+   "operation": "ListBillingViewSegments",
+   "result": "not implemented (501)",
+   "ms": 3.3
+  },
+  {
+   "service": "billingconductor",
+   "operation": "ListAccountAssociations",
+   "result": "error 403",
+   "ms": 3.3
+  },
+  {
+   "service": "braket",
+   "result": "no parameterless read operation"
+  },
+  {
+   "service": "budgets",
+   "result": "no parameterless read operation"
+  },
+  {
+   "service": "ce",
+   "operation": "GetAnomalyMonitors",
+   "result": "answers",
+   "ms": 3.6
+  },
+  {
+   "service": "chatbot",
+   "operation": "DescribeChimeWebhookConfigurations",
+   "result": "answers",
+   "ms": 3.1
+  },
+  {
+   "service": "chime",
+   "operation": "GetGlobalSettings",
+   "result": "not implemented (501)",
+   "ms": 3.4
+  },
+  {
+   "service": "chime-sdk-identity",
+   "operation": "ListAppInstances",
+   "result": "answers",
+   "ms": 2.9
+  },
+  {
+   "service": "chime-sdk-media-pipelines",
+   "operation": "ListMediaCapturePipelines",
+   "result": "answers",
+   "ms": 2.9
+  },
+  {
+   "service": "chime-sdk-meetings",
+   "result": "no parameterless read operation"
+  },
+  {
+   "service": "chime-sdk-messaging",
+   "operation": "GetMessagingSessionEndpoint",
+   "result": "not implemented (501)",
+   "ms": 3.3
+  },
+  {
+   "service": "chime-sdk-voice",
+   "operation": "GetGlobalSettings",
+   "result": "not implemented (501)",
+   "ms": 3.4
+  },
+  {
+   "service": "cleanrooms",
+   "operation": "ListCollaborations",
+   "result": "answers",
+   "ms": 3.3
+  },
+  {
+   "service": "cleanroomsml",
+   "operation": "ListAudienceExportJobs",
+   "result": "not implemented (501)",
+   "ms": 3.4
+  },
+  {
+   "service": "cloud9",
+   "operation": "DescribeEnvironmentMemberships",
+   "result": "not implemented (501)",
+   "ms": 2.9
+  },
+  {
+   "service": "cloudcontrol",
+   "operation": "ListResourceRequests",
+   "result": "answers",
+   "ms": 2.6
+  },
+  {
+   "service": "clouddirectory",
+   "operation": "ListDevelopmentSchemaArns",
+   "result": "not implemented (501)",
+   "ms": 3.4
+  },
+  {
+   "service": "cloudformation",
+   "operation": "DescribeAccountLimits",
+   "result": "answers",
+   "ms": 3.0
+  },
+  {
+   "service": "cloudfront",
+   "operation": "GetRealtimeLogConfig",
+   "result": "error 400",
+   "ms": 5.1
+  },
+  {
+   "service": "cloudfront-keyvaluestore",
+   "result": "no parameterless read operation"
+  },
+  {
+   "service": "cloudhsm",
+   "operation": "DescribeHsm",
+   "result": "error 400",
+   "ms": 2.9
+  },
+  {
+   "service": "cloudhsmv2",
+   "operation": "DescribeBackups",
+   "result": "not implemented (501)",
+   "ms": 2.8
+  },
+  {
+   "service": "cloudsearch",
+   "operation": "DescribeDomains",
+   "result": "answers",
+   "ms": 2.6
+  },
+  {
+   "service": "cloudsearchdomain",
+   "result": "no parameterless read operation"
+  },
+  {
+   "service": "cloudtrail",
+   "operation": "DescribeQuery",
+   "result": "error 400",
+   "ms": 3.8
+  },
+  {
+   "service": "cloudtrail-data",
+   "result": "no parameterless read operation"
+  },
+  {
+   "service": "cloudwatch",
+   "operation": "DescribeAlarmHistory",
+   "result": "answers",
+   "ms": 2.8
+  },
+  {
+   "service": "cloudwatchomni",
+   "operation": "GetIntelligenceConfiguration",
+   "result": "not implemented (501)",
+   "ms": 3.4
+  },
+  {
+   "service": "codeartifact",
+   "operation": "ListDomains",
+   "result": "answers",
+   "ms": 2.6
+  },
+  {
+   "service": "codebuild",
+   "operation": "ListBuildBatches",
+   "result": "answers",
+   "ms": 2.6
+  },
+  {
+   "service": "codecatalyst",
+   "operation": "GetUserDetails",
+   "result": "transport: NoAuthTokenError",
+   "ms": 0.6
+  },
+  {
+   "service": "codecommit",
+   "operation": "GetBranch",
+   "result": "error 400",
+   "ms": 5.2
+  },
+  {
+   "service": "codeconnections",
+   "operation": "ListConnections",
+   "result": "answers",
+   "ms": 2.6
+  },
+  {
+   "service": "codedeploy",
+   "operation": "ListApplications",
+   "result": "answers",
+   "ms": 2.6
+  },
+  {
+   "service": "codeguru-reviewer",
+   "operation": "ListRepositoryAssociations",
+   "result": "answers",
+   "ms": 2.6
+  },
+  {
+   "service": "codeguru-security",
+   "operation": "GetAccountConfiguration",
+   "result": "answers",
+   "ms": 2.5
+  },
+  {
+   "service": "codeguruprofiler",
+   "operation": "GetFindingsReportAccountSummary",
+   "result": "answers",
+   "ms": 2.6
+  },
+  {
+   "service": "codepipeline",
+   "operation": "ListActionTypes",
+   "result": "answers",
+   "ms": 3.3
+  },
+  {
+   "service": "codestar-connections",
+   "operation": "ListConnections",
+   "result": "answers",
+   "ms": 2.5
+  },
+  {
+   "service": "codestar-notifications",
+   "operation": "ListEventTypes",
+   "result": "answers",
+   "ms": 2.8
+  },
+  {
+   "service": "cognito-identity",
+   "result": "no parameterless read operation"
+  },
+  {
+   "service": "cognito-idp",
+   "result": "no parameterless read operation"
+  },
+  {
+   "service": "cognito-sync",
+   "operation": "ListIdentityPoolUsage",
+   "result": "not implemented (501)",
+   "ms": 3.1
+  },
+  {
+   "service": "comprehend",
+   "operation": "ListDatasets",
+   "result": "not implemented (501)",
+   "ms": 4.2
+  },
+  {
+   "service": "comprehendmedical",
+   "operation": "ListEntitiesDetectionV2Jobs",
+   "result": "answers",
+   "ms": 2.9
+  },
+  {
+   "service": "compute-optimizer",
+   "operation": "DescribeRecommendationExportJobs",
+   "result": "error 403",
+   "ms": 3.6
+  },
+  {
+   "service": "compute-optimizer-automation",
+   "operation": "GetEnrollmentConfiguration",
+   "result": "answers",
+   "ms": 2.6
+  },
+  {
+   "service": "config",
+   "operation": "DescribeAggregationAuthorizations",
+   "result": "answers",
+   "ms": 3.0
+  },
+  {
+   "service": "connect",
+   "operation": "ListInstances",
+   "result": "answers",
+   "ms": 3.4
+  },
+  {
+   "service": "connect-contact-lens",
+   "result": "no parameterless read operation"
+  },
+  {
+   "service": "connectcampaigns",
+   "operation": "ListCampaigns",
+   "result": "answers",
+   "ms": 2.7
+  },
+  {
+   "service": "connectcampaignsv2",
+   "operation": "ListCampaigns",
+   "result": "answers",
+   "ms": 2.6
+  },
+  {
+   "service": "connectcases",
+   "operation": "ListDomains",
+   "result": "answers",
+   "ms": 2.6
+  },
+  {
+   "service": "connecthealth",
+   "operation": "ListDomains",
+   "result": "answers",
+   "ms": 2.6
+  },
+  {
+   "service": "connectparticipant",
+   "result": "no parameterless read operation"
+  },
+  {
+   "service": "continuum",
+   "operation": "ListCollectors",
+   "result": "not implemented (501)",
+   "ms": 3.7
+  },
+  {
+   "service": "controlcatalog",
+   "operation": "ListCommonControls",
+   "result": "answers",
+   "ms": 119.4
+  },
+  {
+   "service": "controltower",
+   "operation": "ListBaselines",
+   "result": "answers",
+   "ms": 3.7
+  },
+  {
+   "service": "cost-optimization-hub",
+   "operation": "GetPreferences",
+   "result": "answers",
+   "ms": 2.8
+  },
+  {
+   "service": "cur",
+   "operation": "DescribeReportDefinitions",
+   "result": "answers",
+   "ms": 2.7
+  },
+  {
+   "service": "customer-profiles",
+   "operation": "ListDomains",
+   "result": "answers",
+   "ms": 2.7
+  },
+  {
+   "service": "databrew",
+   "operation": "ListDatasets",
+   "result": "answers",
+   "ms": 2.6
+  },
+  {
+   "service": "dataexchange",
+   "operation": "ListDataGrants",
+   "result": "answers",
+   "ms": 2.6
+  },
+  {
+   "service": "datapipeline",
+   "operation": "ListPipelines",
+   "result": "answers",
+   "ms": 2.6
+  },
+  {
+   "service": "datasync",
+   "operation": "ListAgents",
+   "result": "not implemented (501)",
+   "ms": 3.1
+  },
+  {
+   "service": "datazone",
+   "operation": "ListDomains",
+   "result": "answers",
+   "ms": 2.9
+  },
+  {
+   "service": "dax",
+   "operation": "DescribeClusters",
+   "result": "answers",
+   "ms": 2.6
+  },
+  {
+   "service": "deadline",
+   "operation": "ListAvailableMeteredProducts",
+   "result": "not implemented (501)",
+   "ms": 4.5
+  },
+  {
+   "service": "detective",
+   "operation": "ListGraphs",
+   "result": "answers",
+   "ms": 2.8
+  },
+  {
+   "service": "devicefarm",
+   "operation": "GetAccountSettings",
+   "result": "not implemented (501)",
+   "ms": 3.3
+  },
+  {
+   "service": "devops-agent",
+   "operation": "GetAccountUsage",
+   "result": "not implemented (501)",
+   "ms": 3.7
+  },
+  {
+   "service": "devops-guru",
+   "operation": "DescribeAccountHealth",
+   "result": "answers",
+   "ms": 2.5
+  },
+  {
+   "service": "directconnect",
+   "operation": "DescribeConnections",
+   "result": "answers",
+   "ms": 2.6
+  },
+  {
+   "service": "discovery",
+   "operation": "DescribeAgents",
+   "result": "not implemented (501)",
+   "ms": 3.0
+  },
+  {
+   "service": "dlm",
+   "operation": "GetLifecyclePolicies",
+   "result": "answers",
+   "ms": 2.6
+  },
+  {
+   "service": "dms",
+   "operation": "DescribeAccountAttributes",
+   "result": "not implemented (501)",
+   "ms": 3.6
+  },
+  {
+   "service": "docdb",
+   "operation": "DescribeCertificates",
+   "result": "answers",
+   "ms": 3.3
+  },
+  {
+   "service": "docdb-elastic",
+   "operation": "ListClusterSnapshots",
+   "result": "answers",
+   "ms": 2.6
+  },
+  {
+   "service": "drs",
+   "operation": "DescribeJobs",
+   "result": "not implemented (501)",
+   "ms": 3.6
+  },
+  {
+   "service": "ds",
+   "operation": "DescribeDirectories",
+   "result": "answers",
+   "ms": 2.7
+  },
+  {
+   "service": "ds-data",
+   "result": "no parameterless read operation"
+  },
+  {
+   "service": "dsql",
+   "operation": "ListClusters",
+   "result": "answers",
+   "ms": 2.7
+  },
+  {
+   "service": "dynamodb",
+   "operation": "DescribeEndpoints",
+   "result": "answers",
+   "ms": 3.0
+  },
+  {
+   "service": "dynamodbstreams",
+   "operation": "ListStreams",
+   "result": "answers",
+   "ms": 2.6
+  },
+  {
+   "service": "ebs",
+   "result": "no parameterless read operation"
+  },
+  {
+   "service": "ec2",
+   "operation": "DescribeAccountAttributes",
+   "result": "answers",
+   "ms": 3.6
+  },
+  {
+   "service": "ec2-instance-connect",
+   "result": "no parameterless read operation"
+  },
+  {
+   "service": "ecr",
+   "operation": "DescribePullThroughCacheRules",
+   "result": "answers",
+   "ms": 3.0
+  },
+  {
+   "service": "ecr-public",
+   "operation": "DescribeRegistries",
+   "result": "answers",
+   "ms": 3.3
+  },
+  {
+   "service": "ecs",
+   "operation": "DescribeCapacityProviders",
+   "result": "answers",
+   "ms": 3.1
+  },
+  {
+   "service": "efs",
+   "operation": "DescribeAccessPoints",
+   "result": "answers",
+   "ms": 2.8
+  },
+  {
+   "service": "eks",
+   "operation": "DescribeAddonVersions",
+   "result": "answers",
+   "ms": 9.1
+  },
+  {
+   "service": "eks-auth",
+   "result": "no parameterless read operation"
+  },
+  {
+   "service": "elasticache",
+   "operation": "DescribeCacheClusters",
+   "result": "answers",
+   "ms": 3.9
+  },
+  {
+   "service": "elasticbeanstalk",
+   "operation": "DescribeAccountAttributes",
+   "result": "answers",
+   "ms": 3.1
+  },
+  {
+   "service": "elb",
+   "operation": "DescribeAccountLimits",
+   "result": "not implemented (501)",
+   "ms": 4.0
+  },
+  {
+   "service": "elbv2",
+   "operation": "DescribeAccountLimits",
+   "result": "answers",
+   "ms": 3.4
+  },
+  {
+   "service": "elementalinference",
+   "operation": "ListDictionaries",
+   "result": "answers",
+   "ms": 2.9
+  },
+  {
+   "service": "emr",
+   "operation": "DescribeJobFlows",
+   "result": "error 400",
+   "ms": 3.5
+  },
+  {
+   "service": "emr-containers",
+   "operation": "ListJobTemplates",
+   "result": "answers",
+   "ms": 2.8
+  },
+  {
+   "service": "emr-serverless",
+   "operation": "ListApplications",
+   "result": "answers",
+   "ms": 2.6
+  },
+  {
+   "service": "endusermessaging",
+   "operation": "ListBrandProfiles",
+   "result": "answers",
+   "ms": 2.6
+  },
+  {
+   "service": "entityresolution",
+   "operation": "ListIdMappingWorkflows",
+   "result": "answers",
+   "ms": 2.7
+  },
+  {
+   "service": "es",
+   "operation": "DescribeInboundCrossClusterSearchConnections",
+   "result": "not implemented (501)",
+   "ms": 3.4
+  },
+  {
+   "service": "eventbridgev2",
+   "operation": "ListEventBuses",
+   "result": "answers",
+   "ms": 2.7
+  },
+  {
+   "service": "events",
+   "operation": "DescribeEventBus",
+   "result": "answers",
+   "ms": 2.6
+  },
+  {
+   "service": "evs",
+   "operation": "GetAccountSettings",
+   "result": "answers",
+   "ms": 2.6
+  },
+  {
+   "service": "firehose",
+   "operation": "ListDeliveryStreams",
+   "result": "answers",
+   "ms": 2.5
+  },
+  {
+   "service": "fis",
+   "operation": "ListActions",
+   "result": "answers",
+   "ms": 3.0
+  },
+  {
+   "service": "fms",
+   "operation": "GetAdminAccount",
+   "result": "error 400",
+   "ms": 3.1
+  },
+  {
+   "service": "forecast",
+   "operation": "ListDatasetGroups",
+   "result": "answers",
+   "ms": 2.5
+  },
+  {
+   "service": "forecastquery",
+   "result": "no parameterless read operation"
+  },
+  {
+   "service": "frauddetector",
+   "operation": "DescribeModelVersions",
+   "result": "not implemented (501)",
+   "ms": 3.8
+  },
+  {
+   "service": "freetier",
+   "operation": "GetAccountPlanState",
+   "result": "error 400",
+   "ms": 3.3
+  },
+  {
+   "service": "fsx",
+   "operation": "DescribeBackups",
+   "result": "answers",
+   "ms": 2.8
+  },
+  {
+   "service": "gamelift",
+   "operation": "DescribeEC2InstanceLimits",
+   "result": "not implemented (501)",
+   "ms": 3.8
+  },
+  {
+   "service": "gameliftstreams",
+   "operation": "ListApplications",
+   "result": "answers",
+   "ms": 2.7
+  },
+  {
+   "service": "geo-maps",
+   "result": "no parameterless read operation"
+  },
+  {
+   "service": "geo-places",
+   "result": "no parameterless read operation"
+  },
+  {
+   "service": "geo-routes",
+   "result": "no parameterless read operation"
+  },
+  {
+   "service": "glacier",
+   "result": "no parameterless read operation"
+  },
+  {
+   "service": "globalaccelerator",
+   "operation": "ListAccelerators",
+   "result": "answers",
+   "ms": 2.9
+  },
+  {
+   "service": "glue",
+   "operation": "DescribeInboundIntegrations",
+   "result": "not implemented (501)",
+   "ms": 6.3
+  },
+  {
+   "service": "grafana",
+   "operation": "ListVersions",
+   "result": "answers",
+   "ms": 3.1
+  },
+  {
+   "service": "greengrass",
+   "operation": "GetServiceRoleForAccount",
+   "result": "answers",
+   "ms": 2.7
+  },
+  {
+   "service": "greengrassv2",
+   "operation": "GetServiceRoleForAccount",
+   "result": "answers",
+   "ms": 2.5
+  },
+  {
+   "service": "groundstation",
+   "operation": "ListConfigs",
+   "result": "answers",
+   "ms": 2.6
+  },
+  {
+   "service": "guardduty",
+   "operation": "GetInvitationsCount",
+   "result": "answers",
+   "ms": 2.8
+  },
+  {
+   "service": "health",
+   "operation": "DescribeAffectedEntitiesForOrganization",
+   "result": "error 400",
+   "ms": 3.0
+  },
+  {
+   "service": "healthlake",
+   "operation": "ListDataTransformationJobs",
+   "result": "answers",
+   "ms": 2.6
+  },
+  {
+   "service": "iam",
+   "operation": "GetAccountAuthorizationDetails",
+   "result": "answers",
+   "ms": 3.5
+  },
+  {
+   "service": "iam-toolbox",
+   "result": "no parameterless read operation"
+  },
+  {
+   "service": "identitystore",
+   "operation": "ListIdentityStores",
+   "result": "not implemented (501)",
+   "ms": 3.0
+  },
+  {
+   "service": "imagebuilder",
+   "operation": "ListComponentBuildVersions",
+   "result": "answers",
+   "ms": 3.0
+  },
+  {
+   "service": "importexport",
+   "operation": "ListJobs",
+   "result": "transport: ResponseParserError",
+   "ms": 2.5
+  },
+  {
+   "service": "inspector",
+   "operation": "DescribeCrossAccountAccessRole",
+   "result": "not implemented (501)",
+   "ms": 3.5
+  },
+  {
+   "service": "inspector-scan",
+   "result": "no parameterless read operation"
+  },
+  {
+   "service": "inspector2",
+   "operation": "DescribeOrganizationConfiguration",
+   "result": "not implemented (501)",
+   "ms": 4.4
+  },
+  {
+   "service": "interconnect",
+   "operation": "ListConnections",
+   "result": "answers",
+   "ms": 2.7
+  },
+  {
+   "service": "internetmonitor",
+   "operation": "ListInternetEvents",
+   "result": "answers",
+   "ms": 5.3
+  },
+  {
+   "service": "invoicing",
+   "operation": "ListInvoiceUnits",
+   "result": "answers",
+   "ms": 2.7
+  },
+  {
+   "service": "iot",
+   "operation": "DescribeAccountAuditConfiguration",
+   "result": "answers",
+   "ms": 3.3
+  },
+  {
+   "service": "iot-data",
+   "operation": "ListRetainedMessages",
+   "result": "answers",
+   "ms": 2.7
+  },
+  {
+   "service": "iot-jobs-data",
+   "result": "no parameterless read operation"
+  },
+  {
+   "service": "iot-managed-integrations",
+   "operation": "GetCustomEndpoint",
+   "result": "error 404",
+   "ms": 3.7
+  },
+  {
+   "service": "iotdeviceadvisor",
+   "operation": "GetEndpoint",
+   "result": "answers",
+   "ms": 2.7
+  },
+  {
+   "service": "iotfleetwise",
+   "operation": "GetEncryptionConfiguration",
+   "result": "not implemented (501)",
+   "ms": 3.5
+  },
+  {
+   "service": "iotsecuretunneling",
+   "operation": "ListTunnels",
+   "result": "answers",
+   "ms": 2.6
+  },
+  {
+   "service": "iotsitewise",
+   "operation": "DescribeDefaultEncryptionConfiguration",
+   "result": "answers",
+   "ms": 3.3
+  },
+  {
+   "service": "iotthingsgraph",
+   "operation": "DescribeNamespace",
+   "result": "not implemented (501)",
+   "ms": 3.1
+  },
+  {
+   "service": "iottwinmaker",
+   "operation": "GetPricingPlan",
+   "result": "answers",
+   "ms": 2.7
+  },
+  {
+   "service": "iotwireless",
+   "operation": "GetEventConfigurationByResourceTypes",
+   "result": "not implemented (501)",
+   "ms": 3.8
+  },
+  {
+   "service": "ivs",
+   "operation": "ListAdConfigurations",
+   "result": "answers",
+   "ms": 2.7
+  },
+  {
+   "service": "ivs-realtime",
+   "operation": "ListCompositions",
+   "result": "answers",
+   "ms": 2.6
+  },
+  {
+   "service": "ivschat",
+   "operation": "ListLoggingConfigurations",
+   "result": "answers",
+   "ms": 2.6
+  },
+  {
+   "service": "kafka",
+   "operation": "GetCompatibleKafkaVersions",
+   "result": "answers",
+   "ms": 3.1
+  },
+  {
+   "service": "kafkaconnect",
+   "operation": "ListConnectors",
+   "result": "answers",
+   "ms": 2.6
+  },
+  {
+   "service": "kendra",
+   "operation": "ListIndices",
+   "result": "answers",
+   "ms": 2.6
+  },
+  {
+   "service": "kendra-ranking",
+   "operation": "ListRescoreExecutionPlans",
+   "result": "answers",
+   "ms": 2.5
+  },
+  {
+   "service": "keyspaces",
+   "operation": "ListKeyspaces",
+   "result": "answers",
+   "ms": 2.6
+  },
+  {
+   "service": "keyspacesstreams",
+   "operation": "ListStreams",
+   "result": "answers",
+   "ms": 2.8
+  },
+  {
+   "service": "kinesis",
+   "operation": "DescribeAccountSettings",
+   "result": "answers",
+   "ms": 3.4
+  },
+  {
+   "service": "kinesis-video-archived-media",
+   "operation": "GetDASHStreamingSessionURL",
+   "result": "error 400",
+   "ms": 3.3
+  },
+  {
+   "service": "kinesis-video-media",
+   "result": "no parameterless read operation"
+  },
+  {
+   "service": "kinesis-video-signaling",
+   "result": "no parameterless read operation"
+  },
+  {
+   "service": "kinesis-video-webrtc-storage",
+   "result": "no parameterless read operation"
+  },
+  {
+   "service": "kinesisanalytics",
+   "operation": "ListApplications",
+   "result": "answers",
+   "ms": 3.3
+  },
+  {
+   "service": "kinesisanalyticsv2",
+   "operation": "ListApplications",
+   "result": "answers",
+   "ms": 2.9
+  },
+  {
+   "service": "kinesisvideo",
+   "operation": "DescribeEdgeConfiguration",
+   "result": "error 400",
+   "ms": 3.3
+  },
+  {
+   "service": "kms",
+   "operation": "DescribeCustomKeyStores",
+   "result": "answers",
+   "ms": 2.7
+  },
+  {
+   "service": "lakeformation",
+   "operation": "DescribeLakeFormationIdentityCenterConfiguration",
+   "result": "not implemented (501)",
+   "ms": 3.5
+  },
+  {
+   "service": "lambda",
+   "operation": "GetAccountSettings",
+   "result": "answers",
+   "ms": 2.7
+  },
+  {
+   "service": "lambda-core",
+   "operation": "ListNetworkConnectors",
+   "result": "answers",
+   "ms": 2.6
+  },
+  {
+   "service": "lambda-microvms",
+   "operation": "ListManagedMicrovmImages",
+   "result": "answers",
+   "ms": 2.6
+  },
+  {
+   "service": "lambda-web",
+   "operation": "GetWebAccountSettings",
+   "result": "answers",
+   "ms": 2.6
+  },
+  {
+   "service": "launch-wizard",
+   "operation": "ListDeployments",
+   "result": "answers",
+   "ms": 2.7
+  },
+  {
+   "service": "lex-models",
+   "operation": "GetBots",
+   "result": "answers",
+   "ms": 2.6
+  },
+  {
+   "service": "lex-runtime",
+   "result": "no parameterless read operation"
+  },
+  {
+   "service": "lexv2-models",
+   "operation": "ListBots",
+   "result": "answers",
+   "ms": 3.1
+  },
+  {
+   "service": "lexv2-runtime",
+   "result": "no parameterless read operation"
+  },
+  {
+   "service": "license-manager",
+   "operation": "GetServiceSettings",
+   "result": "not implemented (501)",
+   "ms": 3.4
+  },
+  {
+   "service": "license-manager-linux-subscriptions",
+   "operation": "GetServiceSettings",
+   "result": "answers",
+   "ms": 2.6
+  },
+  {
+   "service": "license-manager-user-subscriptions",
+   "operation": "ListIdentityProviders",
+   "result": "answers",
+   "ms": 2.6
+  },
+  {
+   "service": "lightsail",
+   "operation": "GetActiveNames",
+   "result": "answers",
+   "ms": 2.8
+  },
+  {
+   "service": "location",
+   "operation": "ListGeofenceCollections",
+   "result": "answers",
+   "ms": 2.7
+  },
+  {
+   "service": "logs",
+   "operation": "DescribeConfigurationTemplates",
+   "result": "answers",
+   "ms": 5.5
+  },
+  {
+   "service": "lookoutequipment",
+   "operation": "ListDataIngestionJobs",
+   "result": "not implemented (501)",
+   "ms": 3.2
+  },
+  {
+   "service": "m2",
+   "operation": "GetSignedBluinsightsUrl",
+   "result": "answers",
+   "ms": 2.7
+  },
+  {
+   "service": "machinelearning",
+   "operation": "DescribeBatchPredictions",
+   "result": "not implemented (501)",
+   "ms": 3.4
+  },
+  {
+   "service": "macie2",
+   "operation": "DescribeBuckets",
+   "result": "not implemented (501)",
+   "ms": 4.6
+  },
+  {
+   "service": "mailmanager",
+   "operation": "ListAddonInstances",
+   "result": "not implemented (501)",
+   "ms": 3.6
+  },
+  {
+   "service": "managedblockchain",
+   "operation": "ListAccessors",
+   "result": "answers",
+   "ms": 2.7
+  },
+  {
+   "service": "managedblockchain-query",
+   "result": "no parameterless read operation"
+  },
+  {
+   "service": "marketplace-agreement",
+   "operation": "ListAgreementCharges",
+   "result": "answers",
+   "ms": 2.8
+  },
+  {
+   "service": "marketplace-catalog",
+   "result": "no parameterless read operation"
+  },
+  {
+   "service": "marketplace-deployment",
+   "result": "no parameterless read operation"
+  },
+  {
+   "service": "marketplace-discovery",
+   "operation": "ListPurchaseOptions",
+   "result": "answers",
+   "ms": 5.4
+  },
+  {
+   "service": "marketplace-entitlement",
+   "result": "no parameterless read operation"
+  },
+  {
+   "service": "marketplace-reporting",
+   "result": "no parameterless read operation"
+  },
+  {
+   "service": "marketplacecommerceanalytics",
+   "result": "no parameterless read operation"
+  },
+  {
+   "service": "mediaconnect",
+   "operation": "ListBridges",
+   "result": "answers",
+   "ms": 2.8
+  },
+  {
+   "service": "mediaconvert",
+   "operation": "DescribeEndpoints",
+   "result": "answers",
+   "ms": 3.3
+  },
+  {
+   "service": "medialive",
+   "operation": "DescribeAccountConfiguration",
+   "result": "answers",
+   "ms": 3.0
+  },
+  {
+   "service": "mediapackage",
+   "operation": "ListChannels",
+   "result": "answers",
+   "ms": 2.7
+  },
+  {
+   "service": "mediapackage-vod",
+   "operation": "ListAssets",
+   "result": "answers",
+   "ms": 2.6
+  },
+  {
+   "service": "mediapackagev2",
+   "operation": "ListChannelGroups",
+   "result": "answers",
+   "ms": 3.1
+  },
+  {
+   "service": "mediastore",
+   "operation": "DescribeContainer",
+   "result": "error 400",
+   "ms": 2.9
+  },
+  {
+   "service": "mediastore-data",
+   "operation": "ListItems",
+   "result": "answers",
+   "ms": 2.5
+  },
+  {
+   "service": "mediatailor",
+   "operation": "ListChannels",
+   "result": "not implemented (501)",
+   "ms": 3.0
+  },
+  {
+   "service": "medical-imaging",
+   "operation": "ListDatastores",
+   "result": "answers",
+   "ms": 2.6
+  },
+  {
+   "service": "memorydb",
+   "operation": "DescribeACLs",
+   "result": "answers",
+   "ms": 2.7
+  },
+  {
+   "service": "meteringmarketplace",
+   "result": "no parameterless read operation"
+  },
+  {
+   "service": "mgh",
+   "operation": "ListApplicationStates",
+   "result": "not implemented (501)",
+   "ms": 2.9
+  },
+  {
+   "service": "mgn",
+   "operation": "DescribeJobs",
+   "result": "not implemented (501)",
+   "ms": 3.6
+  },
+  {
+   "service": "migration-hub-refactor-spaces",
+   "operation": "ListEnvironments",
+   "result": "answers",
+   "ms": 2.6
+  },
+  {
+   "service": "migrationhub-config",
+   "operation": "DescribeHomeRegionControls",
+   "result": "answers",
+   "ms": 2.6
+  },
+  {
+   "service": "migrationhuborchestrator",
+   "operation": "ListPlugins",
+   "result": "not implemented (501)",
+   "ms": 2.9
+  },
+  {
+   "service": "migrationhubstrategy",
+   "operation": "GetLatestAssessmentId",
+   "result": "error 404",
+   "ms": 3.0
+  },
+  {
+   "service": "mpa",
+   "operation": "ListApprovalTeams",
+   "result": "answers",
+   "ms": 2.5
+  },
+  {
+   "service": "mq",
+   "operation": "DescribeBrokerEngineTypes",
+   "result": "not implemented (501)",
+   "ms": 2.9
+  },
+  {
+   "service": "mturk",
+   "operation": "GetAccountBalance",
+   "result": "answers",
+   "ms": 2.8
+  },
+  {
+   "service": "mwaa",
+   "operation": "ListEnvironments",
+   "result": "answers",
+   "ms": 2.6
+  },
+  {
+   "service": "mwaa-serverless",
+   "operation": "ListWorkflows",
+   "result": "answers",
+   "ms": 2.6
+  },
+  {
+   "service": "neptune",
+   "operation": "DescribeDBClusterEndpoints",
+   "result": "not implemented (501)",
+   "ms": 3.7
+  },
+  {
+   "service": "neptune-graph",
+   "operation": "ListExportTasks",
+   "result": "answers",
+   "ms": 2.6
+  },
+  {
+   "service": "neptunedata",
+   "operation": "GetEngineStatus",
+   "result": "answers",
+   "ms": 2.7
+  },
+  {
+   "service": "network-firewall",
+   "operation": "DescribeContainerAssociation",
+   "result": "not implemented (501)",
+   "ms": 3.6
+  },
+  {
+   "service": "network-security-manager",
+   "operation": "ListAdminAccounts",
+   "result": "not implemented (501)",
+   "ms": 3.1
+  },
+  {
+   "service": "networkflowmonitor",
+   "operation": "ListMonitors",
+   "result": "answers",
+   "ms": 2.5
+  },
+  {
+   "service": "networkmanager",
+   "operation": "DescribeGlobalNetworks",
+   "result": "answers",
+   "ms": 2.6
+  },
+  {
+   "service": "networkmonitor",
+   "operation": "ListMonitors",
+   "result": "answers",
+   "ms": 2.5
+  },
+  {
+   "service": "notifications",
+   "operation": "GetNotificationsAccessForOrganization",
+   "result": "answers",
+   "ms": 2.6
+  },
+  {
+   "service": "notificationscontacts",
+   "operation": "ListEmailContacts",
+   "result": "answers",
+   "ms": 2.5
+  },
+  {
+   "service": "nova-act",
+   "operation": "ListWorkflowDefinitions",
+   "result": "answers",
+   "ms": 2.6
+  },
+  {
+   "service": "oam",
+   "operation": "ListLinks",
+   "result": "answers",
+   "ms": 2.6
+  },
+  {
+   "service": "observabilityadmin",
+   "operation": "GetTelemetryEnrichmentStatus",
+   "result": "error 404",
+   "ms": 3.2
+  },
+  {
+   "service": "odb",
+   "operation": "GetOciOnboardingStatus",
+   "result": "not implemented (501)",
+   "ms": 3.7
+  },
+  {
+   "service": "omics",
+   "operation": "ListAnnotationImportJobs",
+   "result": "not implemented (501)",
+   "ms": 3.9
+  },
+  {
+   "service": "opensearch",
+   "operation": "DescribeInboundConnections",
+   "result": "answers",
+   "ms": 2.8
+  },
+  {
+   "service": "opensearchserverless",
+   "operation": "GetAccountSettings",
+   "result": "answers",
+   "ms": 2.6
+  },
+  {
+   "service": "organizations",
+   "operation": "DescribeOrganization",
+   "result": "answers",
+   "ms": 2.6
+  },
+  {
+   "service": "osis",
+   "operation": "ListPipelineBlueprints",
+   "result": "answers",
+   "ms": 2.6
+  },
+  {
+   "service": "outposts",
+   "operation": "ListCapacityTasks",
+   "result": "answers",
+   "ms": 2.7
+  },
+  {
+   "service": "partnercentral-account",
+   "result": "no parameterless read operation"
+  },
+  {
+   "service": "partnercentral-benefits",
+   "result": "no parameterless read operation"
+  },
+  {
+   "service": "partnercentral-channel",
+   "result": "no parameterless read operation"
+  },
+  {
+   "service": "partnercentral-revenue-measurement",
+   "result": "no parameterless read operation"
+  },
+  {
+   "service": "partnercentral-selling",
+   "result": "no parameterless read operation"
+  },
+  {
+   "service": "payment-cryptography",
+   "operation": "GetDefaultKeyReplicationRegions",
+   "result": "answers",
+   "ms": 3.0
+  },
+  {
+   "service": "payment-cryptography-data",
+   "result": "no parameterless read operation"
+  },
+  {
+   "service": "pca-connector-ad",
+   "operation": "ListConnectors",
+   "result": "answers",
+   "ms": 2.6
+  },
+  {
+   "service": "pca-connector-scep",
+   "operation": "ListConnectors",
+   "result": "answers",
+   "ms": 2.7
+  },
+  {
+   "service": "pcs",
+   "operation": "ListClusters",
+   "result": "answers",
+   "ms": 2.6
+  },
+  {
+   "service": "personalize",
+   "operation": "ListBatchInferenceJobs",
+   "result": "not implemented (501)",
+   "ms": 3.2
+  },
+  {
+   "service": "personalize-events",
+   "result": "no parameterless read operation"
+  },
+  {
+   "service": "personalize-runtime",
+   "operation": "GetActionRecommendations",
+   "result": "error 400",
+   "ms": 2.8
+  },
+  {
+   "service": "pi",
+   "result": "no parameterless read operation"
+  },
+  {
+   "service": "pinpoint",
+   "operation": "GetApps",
+   "result": "answers",
+   "ms": 2.8
+  },
+  {
+   "service": "pinpoint-email",
+   "operation": "GetAccount",
+   "result": "not implemented (501)",
+   "ms": 3.0
+  },
+  {
+   "service": "pinpoint-sms-voice",
+   "operation": "ListConfigurationSets",
+   "result": "answers",
+   "ms": 2.6
+  },
+  {
+   "service": "pinpoint-sms-voice-v2",
+   "operation": "DescribeAccountAttributes",
+   "result": "not implemented (501)",
+   "ms": 3.8
+  },
+  {
+   "service": "pipes",
+   "operation": "ListPipes",
+   "result": "answers",
+   "ms": 2.6
+  },
+  {
+   "service": "polly",
+   "operation": "DescribeVoices",
+   "result": "answers",
+   "ms": 3.4
+  },
+  {
+   "service": "pricing",
+   "operation": "DescribeServices",
+   "result": "answers",
+   "ms": 245.9
+  },
+  {
+   "service": "pricing-plan-manager",
+   "operation": "ListSubscriptions",
+   "result": "answers",
+   "ms": 3.3
+  },
+  {
+   "service": "proton",
+   "operation": "GetAccountSettings",
+   "result": "not implemented (501)",
+   "ms": 3.2
+  },
+  {
+   "service": "qapps",
+   "result": "no parameterless read operation"
+  },
+  {
+   "service": "qbusiness",
+   "operation": "ListApplications",
+   "result": "answers",
+   "ms": 2.6
+  },
+  {
+   "service": "qconnect",
+   "operation": "ListAssistants",
+   "result": "answers",
+   "ms": 2.9
+  },
+  {
+   "service": "quicksight",
+   "operation": "ListApprovalPolicies",
+   "result": "not implemented (501)",
+   "ms": 7.7
+  },
+  {
+   "service": "ram",
+   "operation": "GetResourceShareInvitations",
+   "result": "answers",
+   "ms": 2.8
+  },
+  {
+   "service": "rbin",
+   "result": "no parameterless read operation"
+  },
+  {
+   "service": "rds",
+   "operation": "DescribeAccountAttributes",
+   "result": "answers",
+   "ms": 3.7
+  },
+  {
+   "service": "rds-data",
+   "result": "no parameterless read operation"
+  },
+  {
+   "service": "redshift",
+   "operation": "DescribeAccountAttributes",
+   "result": "answers",
+   "ms": 3.0
+  },
+  {
+   "service": "redshift-data",
+   "operation": "ListDatabases",
+   "result": "error 400",
+   "ms": 2.9
+  },
+  {
+   "service": "redshift-serverless",
+   "operation": "GetCredentials",
+   "result": "not implemented (501)",
+   "ms": 3.1
+  },
+  {
+   "service": "rekognition",
+   "operation": "DescribeProjects",
+   "result": "answers",
+   "ms": 2.6
+  },
+  {
+   "service": "repostspace",
+   "operation": "ListSpaces",
+   "result": "answers",
+   "ms": 2.6
+  },
+  {
+   "service": "resiliencehub",
+   "operation": "ListAppAssessments",
+   "result": "answers",
+   "ms": 2.6
+  },
+  {
+   "service": "resiliencehubv2",
+   "operation": "ListDependencies",
+   "result": "not implemented (501)",
+   "ms": 3.4
+  },
+  {
+   "service": "resource-explorer-2",
+   "operation": "GetAccountLevelServiceConfiguration",
+   "result": "not implemented (501)",
+   "ms": 2.9
+  },
+  {
+   "service": "resource-groups",
+   "operation": "GetAccountSettings",
+   "result": "answers",
+   "ms": 2.6
+  },
+  {
+   "service": "resourcegroupstaggingapi",
+   "operation": "DescribeReportCreation",
+   "result": "not implemented (501)",
+   "ms": 2.8
+  },
+  {
+   "service": "rolesanywhere",
+   "operation": "ListCrls",
+   "result": "answers",
+   "ms": 2.5
+  },
+  {
+   "service": "route53",
+   "operation": "GetCheckerIpRanges",
+   "result": "answers",
+   "ms": 3.6
+  },
+  {
+   "service": "route53-recovery-cluster",
+   "operation": "ListRoutingControls",
+   "result": "answers",
+   "ms": 2.8
+  },
+  {
+   "service": "route53-recovery-control-config",
+   "operation": "ListClusters",
+   "result": "answers",
+   "ms": 2.6
+  },
+  {
+   "service": "route53-recovery-readiness",
+   "operation": "ListCells",
+   "result": "answers",
+   "ms": 2.6
+  },
+  {
+   "service": "route53domains",
+   "operation": "GetContactReachabilityStatus",
+   "result": "not implemented (501)",
+   "ms": 3.0
+  },
+  {
+   "service": "route53globalresolver",
+   "operation": "ListAccessSources",
+   "result": "not implemented (501)",
+   "ms": 3.0
+  },
+  {
+   "service": "route53profiles",
+   "operation": "ListProfileAssociations",
+   "result": "answers",
+   "ms": 2.6
+  },
+  {
+   "service": "route53resolver",
+   "operation": "ListFirewallConfigs",
+   "result": "answers",
+   "ms": 2.7
+  },
+  {
+   "service": "rtbfabric",
+   "operation": "ListRequesterGateways",
+   "result": "answers",
+   "ms": 2.6
+  },
+  {
+   "service": "rum",
+   "operation": "ListAppMonitors",
+   "result": "answers",
+   "ms": 2.5
+  },
+  {
+   "service": "s3",
+   "operation": "ListBuckets",
+   "result": "answers",
+   "ms": 3.6
+  },
+  {
+   "service": "s3control",
+   "result": "no parameterless read operation"
+  },
+  {
+   "service": "s3files",
+   "operation": "ListFileSystems",
+   "result": "answers",
+   "ms": 2.9
+  },
+  {
+   "service": "s3outposts",
+   "operation": "ListEndpoints",
+   "result": "answers",
+   "ms": 2.6
+  },
+  {
+   "service": "s3tables",
+   "operation": "GetTable",
+   "result": "error 400",
+   "ms": 3.2
+  },
+  {
+   "service": "s3vectors",
+   "operation": "GetIndex",
+   "result": "error 400",
+   "ms": 3.0
+  },
+  {
+   "service": "sagemaker",
+   "operation": "GetSagemakerServicecatalogPortfolioStatus",
+   "result": "answers",
+   "ms": 3.3
+  },
+  {
+   "service": "sagemaker-a2i-runtime",
+   "result": "no parameterless read operation"
+  },
+  {
+   "service": "sagemaker-edge",
+   "result": "no parameterless read operation"
+  },
+  {
+   "service": "sagemaker-featurestore-runtime",
+   "result": "no parameterless read operation"
+  },
+  {
+   "service": "sagemaker-geospatial",
+   "operation": "ListEarthObservationJobs",
+   "result": "answers",
+   "ms": 2.8
+  },
+  {
+   "service": "sagemaker-metrics",
+   "result": "no parameterless read operation"
+  },
+  {
+   "service": "sagemaker-runtime",
+   "result": "no parameterless read operation"
+  },
+  {
+   "service": "sagemakerjobruntime",
+   "result": "no parameterless read operation"
+  },
+  {
+   "service": "sagemakertrainingsessionruntime",
+   "result": "no parameterless read operation"
+  },
+  {
+   "service": "savingsplans",
+   "operation": "DescribeSavingsPlans",
+   "result": "answers",
+   "ms": 6.4
+  },
+  {
+   "service": "scheduler",
+   "operation": "ListScheduleGroups",
+   "result": "answers",
+   "ms": 2.7
+  },
+  {
+   "service": "schemas",
+   "operation": "GetResourcePolicy",
+   "result": "error 400",
+   "ms": 3.2
+  },
+  {
+   "service": "sdb",
+   "operation": "ListDomains",
+   "result": "error 400",
+   "ms": 2.9
+  },
+  {
+   "service": "secretsmanager",
+   "operation": "GetRandomPassword",
+   "result": "answers",
+   "ms": 2.7
+  },
+  {
+   "service": "security-ir",
+   "operation": "ListCases",
+   "result": "answers",
+   "ms": 2.6
+  },
+  {
+   "service": "securityagent",
+   "operation": "ListAgentSpaces",
+   "result": "not implemented (501)",
+   "ms": 3.6
+  },
+  {
+   "service": "securityhub",
+   "operation": "DescribeActionTargets",
+   "result": "error 401",
+   "ms": 5.4
+  },
+  {
+   "service": "securitylake",
+   "operation": "GetDataLakeExceptionSubscription",
+   "result": "error 403",
+   "ms": 3.0
+  },
+  {
+   "service": "serverlessrepo",
+   "operation": "ListApplications",
+   "result": "answers",
+   "ms": 2.6
+  },
+  {
+   "service": "service-quotas",
+   "operation": "GetAssociationForServiceQuotaTemplate",
+   "result": "error 400",
+   "ms": 5.9
+  },
+  {
+   "service": "servicecatalog",
+   "operation": "DescribeProduct",
+   "result": "error 400",
+   "ms": 3.6
+  },
+  {
+   "service": "servicecatalog-appregistry",
+   "operation": "GetConfiguration",
+   "result": "not implemented (501)",
+   "ms": 2.8
+  },
+  {
+   "service": "servicediscovery",
+   "operation": "ListNamespaces",
+   "result": "answers",
+   "ms": 2.7
+  },
+  {
+   "service": "ses",
+   "operation": "DescribeActiveReceiptRuleSet",
+   "result": "answers",
+   "ms": 2.8
+  },
+  {
+   "service": "sesv2",
+   "operation": "GetAccount",
+   "result": "answers",
+   "ms": 3.2
+  },
+  {
+   "service": "shield",
+   "operation": "DescribeAttackStatistics",
+   "result": "answers",
+   "ms": 2.9
+  },
+  {
+   "service": "signer",
+   "operation": "ListSigningJobs",
+   "result": "answers",
+   "ms": 2.7
+  },
+  {
+   "service": "signer-data",
+   "result": "no parameterless read operation"
+  },
+  {
+   "service": "signin",
+   "operation": "GetConsoleAuthorizationConfiguration",
+   "result": "transport: SSLError",
+   "ms": 91.3
+  },
+  {
+   "service": "simpledbv2",
+   "operation": "ListExports",
+   "result": "answers",
+   "ms": 3.4
+  },
+  {
+   "service": "sms-voice",
+   "operation": "ListConfigurationSets",
+   "result": "answers",
+   "ms": 2.6
+  },
+  {
+   "service": "snow-device-management",
+   "operation": "ListDevices",
+   "result": "error 403",
+   "ms": 2.9
+  },
+  {
+   "service": "snowball",
+   "operation": "DescribeAddresses",
+   "result": "answers",
+   "ms": 2.7
+  },
+  {
+   "service": "sns",
+   "operation": "GetSMSAttributes",
+   "result": "answers",
+   "ms": 2.7
+  },
+  {
+   "service": "socialmessaging",
+   "operation": "ListLinkedWhatsAppBusinessAccounts",
+   "result": "answers",
+   "ms": 2.6
+  },
+  {
+   "service": "sqs",
+   "operation": "ListQueues",
+   "result": "answers",
+   "ms": 2.6
+  },
+  {
+   "service": "ssm",
+   "operation": "DescribeActivations",
+   "result": "answers",
+   "ms": 2.7
+  },
+  {
+   "service": "ssm-contacts",
+   "operation": "ListContacts",
+   "result": "answers",
+   "ms": 2.9
+  },
+  {
+   "service": "ssm-guiconnect",
+   "operation": "GetConnectionRecordingPreferences",
+   "result": "error 404",
+   "ms": 2.9
+  },
+  {
+   "service": "ssm-incidents",
+   "operation": "ListIncidentRecords",
+   "result": "answers",
+   "ms": 3.5
+  },
+  {
+   "service": "ssm-quicksetup",
+   "operation": "GetServiceSettings",
+   "result": "answers",
+   "ms": 2.6
+  },
+  {
+   "service": "ssm-sap",
+   "operation": "GetApplication",
+   "result": "error 400",
+   "ms": 3.3
+  },
+  {
+   "service": "sso",
+   "result": "no parameterless read operation"
+  },
+  {
+   "service": "sso-admin",
+   "operation": "ListApplicationProviders",
+   "result": "answers",
+   "ms": 3.7
+  },
+  {
+   "service": "sso-oidc",
+   "result": "no parameterless read operation"
+  },
+  {
+   "service": "stepfunctions",
+   "operation": "ListActivities",
+   "result": "answers",
+   "ms": 2.9
+  },
+  {
+   "service": "storagegateway",
+   "operation": "DescribeTapeArchives",
+   "result": "not implemented (501)",
+   "ms": 3.5
+  },
+  {
+   "service": "sts",
+   "operation": "GetCallerIdentity",
+   "result": "answers",
+   "ms": 2.7
+  },
+  {
+   "service": "supplychain",
+   "operation": "ListInstances",
+   "result": "answers",
+   "ms": 2.6
+  },
+  {
+   "service": "support",
+   "operation": "DescribeCases",
+   "result": "error 400",
+   "ms": 3.0
+  },
+  {
+   "service": "support-app",
+   "operation": "GetAccountAlias",
+   "result": "answers",
+   "ms": 2.5
+  },
+  {
+   "service": "supportauthz",
+   "operation": "ListSupportPermitRequests",
+   "result": "not implemented (501)",
+   "ms": 2.7
+  },
+  {
+   "service": "sustainability",
+   "result": "no parameterless read operation"
+  },
+  {
+   "service": "swf",
+   "result": "no parameterless read operation"
+  },
+  {
+   "service": "synthetics",
+   "operation": "DescribeCanaries",
+   "result": "answers",
+   "ms": 2.7
+  },
+  {
+   "service": "taxsettings",
+   "operation": "GetTaxExemptionTypes",
+   "result": "answers",
+   "ms": 3.6
+  },
+  {
+   "service": "textract",
+   "operation": "ListAdapterVersions",
+   "result": "answers",
+   "ms": 2.7
+  },
+  {
+   "service": "timestream-influxdb",
+   "operation": "ListDbBackups",
+   "result": "not implemented (501)",
+   "ms": 3.1
+  },
+  {
+   "service": "timestream-query",
+   "operation": "DescribeAccountSettings",
+   "result": "not implemented (501)",
+   "ms": 3.0
+  },
+  {
+   "service": "timestream-write",
+   "operation": "DescribeEndpoints",
+   "result": "error 500",
+   "ms": 20.9
+  },
+  {
+   "service": "transcribe",
+   "operation": "ListCallAnalyticsCategories",
+   "result": "answers",
+   "ms": 2.7
+  },
+  {
+   "service": "transfer",
+   "operation": "ListCertificates",
+   "result": "answers",
+   "ms": 2.6
+  },
+  {
+   "service": "translate",
+   "operation": "ListLanguages",
+   "result": "not implemented (501)",
+   "ms": 2.9
+  },
+  {
+   "service": "trustedadvisor",
+   "operation": "ListChecks",
+   "result": "error 403",
+   "ms": 2.9
+  },
+  {
+   "service": "uxc",
+   "operation": "GetAccountCustomizations",
+   "result": "answers",
+   "ms": 2.5
+  },
+  {
+   "service": "verifiedpermissions",
+   "operation": "ListPolicyStoreAliases",
+   "result": "answers",
+   "ms": 2.6
+  },
+  {
+   "service": "voice-id",
+   "operation": "ListDomains",
+   "result": "answers",
+   "ms": 2.5
+  },
+  {
+   "service": "vpc-lattice",
+   "operation": "ListDomainVerifications",
+   "result": "not implemented (501)",
+   "ms": 3.4
+  },
+  {
+   "service": "waf",
+   "operation": "GetChangeToken",
+   "result": "answers",
+   "ms": 3.0
+  },
+  {
+   "service": "waf-regional",
+   "operation": "GetChangeToken",
+   "result": "answers",
+   "ms": 2.8
+  },
+  {
+   "service": "wafv2",
+   "operation": "GetRuleGroup",
+   "result": "error 400",
+   "ms": 3.9
+  },
+  {
+   "service": "wellarchitected",
+   "operation": "GetGlobalSettings",
+   "result": "answers",
+   "ms": 2.9
+  },
+  {
+   "service": "wickr",
+   "operation": "ListNetworks",
+   "result": "answers",
+   "ms": 2.6
+  },
+  {
+   "service": "wisdom",
+   "operation": "ListAssistants",
+   "result": "answers",
+   "ms": 2.5
+  },
+  {
+   "service": "workdocs",
+   "operation": "DescribeActivities",
+   "result": "not implemented (501)",
+   "ms": 3.2
+  },
+  {
+   "service": "workmail",
+   "operation": "ListOrganizations",
+   "result": "not implemented (501)",
+   "ms": 3.4
+  },
+  {
+   "service": "workmailmessageflow",
+   "result": "no parameterless read operation"
+  },
+  {
+   "service": "workspaces",
+   "operation": "DescribeAccount",
+   "result": "answers",
+   "ms": 2.7
+  },
+  {
+   "service": "workspaces-instances",
+   "operation": "ListInstanceTypes",
+   "result": "answers",
+   "ms": 56.1
+  },
+  {
+   "service": "workspaces-thin-client",
+   "operation": "ListDevices",
+   "result": "not implemented (501)",
+   "ms": 3.7
+  },
+  {
+   "service": "workspaces-web",
+   "operation": "ListBrowserSettings",
+   "result": "not implemented (501)",
+   "ms": 3.6
+  },
+  {
+   "service": "xray",
+   "operation": "GetEncryptionConfig",
+   "result": "answers",
+   "ms": 2.8
+  }
+ ]
+}

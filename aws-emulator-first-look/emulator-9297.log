@@ -1,0 +1,5 @@
+{"timestamp":"2026-11-13T09:45:11.790187Z","level":"INFO","fields":{"message":"aws-emulator emulator starting"},"target":"aws_emulator"}
+This emulator collects usage and error telemetry: disabled (via the embedding configuration) — to turn it back on, remove every opt-out setting and restart
+{"timestamp":"2026-11-13T09:45:11.825481Z","level":"INFO","fields":{"message":"request authentication enabled","credentials_file":"/home/runner/.aws/emulator/9297/emulator_credentials"},"target":"aws_emulator_server"}
+{"timestamp":"2026-11-13T09:45:11.825566Z","level":"INFO","fields":{"message":"emulator server information","endpoint_url":"https://127.0.0.1:9297","health_check_url":"https://127.0.0.1:9297/__admin/health","config_file":"/home/runner/.aws/emulator/9297/config","ca_file":"/home/runner/.aws/emulator/9297/ca.pem","java_truststore_file":"/home/runner/.aws/emulator/9297/truststore.p12"},"target":"aws_emulator_server"}
+{"timestamp":"2026-11-13T09:45:24.753531Z","level":"INFO","fields":{"message":"shutdown signal received; stopping emulator server"},"target":"aws_emulator_server"}

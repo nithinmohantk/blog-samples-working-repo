@@ -1,0 +1,26 @@
+== 10. published fidelity scores
+release v1.0.341 published 2026-11-13T06:37:06Z
+fixes listed in the release notes: 68
+43548 fidelity tests: 26157 pass, 17308 fail, 83 skipped (60.2% of those scored)
+355 services have at least one test
+why tests fail: ? 10899, status 3631, body 2604, headers 152, transport 13, binding 9
+service                        pass  total      %
+s3                             1926   2828    68%
+dynamodb                       1448   2134    68%
+sqs                            1073   1526    70%
+sns                             484    640    76%
+lambda                         1696   2997    57%
+iam                             737   1236    60%
+sts                             127    254    50%
+secretsmanager                  304    443    69%
+sfn                             738    982    75%
+eventbridge                     723    966    75%
+kms                             393    505    78%
+ec2                            1048   2496    42%
+cloudformation                  843   4261    20%
+kinesis                         260    408    64%
+ssm                             208    753    28%
+apigateway                      819   1217    67%
+ecs                             489    934    52%
+rds                             333    773    43%
+bedrockruntime                  102    183    56%

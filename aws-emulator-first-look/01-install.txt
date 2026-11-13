@@ -1,0 +1,49 @@
+== 1. download and verify
+
+$ curl -fsSLO https://downloads.aws.com/aws-emulator/packages/aws-emulator/LTS/latest/aws-emulator_amd64.deb (and .sig)
+aws-emulator.deb  176502892 bytes
+aws-emulator.deb.sig  638 bytes
+d9d0d66c13de98be2c019780a423a104abaa8f00526ace1f578b264e8a456312  aws-emulator.deb
+
+$ gpg --fingerprint ssm-publishing@amazon.com
+fingerprint 98BCF336A3BE53B734E967C52E5BF49BD940F624
+matches the fingerprint in the user guide
+
+$ gpg --verify aws-emulator.deb.sig aws-emulator.deb
+gpg:                using RSA key 98BCF336A3BE53B734E967C52E5BF49BD940F624
+gpg: Good signature from "SSM Publishing <ssm-publishing@amazon.com>" [unknown]
+
+== 2. install
+
+$ sudo apt-get install -y ./aws-emulator.deb
+
+No user sessions are running outdated binaries.
+
+No VM guests are running outdated hypervisor (qemu) binaries on this host.
+package aws-emulator 1.0.341-1
+binary /opt/aws-emulator/bin/aws-emulator, 951 MiB
+
+$ aws-emulator -v
+Version: 1.0.341
+Release date: 2026.11.13
+Commit: 7eb5bf3e83f51302e9d7bc7ffd19e2ebc91fbccc
+
+$ aws-emulator --help
+Usage: <emulator> [OPTIONS]
+  Starts an instance of the AWS Emulator.
+
+Global options:
+  -b, --bind <ip>            Address to bind. Default: 127.0.0.1 (EMULATOR_BIND_ADDRESS).
+  -p, --port <port>          Port to listen on; 0 picks a free one. Default: 9297
+                             (EMULATOR_DATA_PORT).
+  -h, --help                 Display this help.
+  -v, --version              Display the emulator version, release date and commit.
+  -t, --telemetry on|off     Usage telemetry for this run. Default: on; off always wins over
+                             EMULATOR_TELEMETRY and the config file, on cannot override them.
+  -a, --auth on|off          Require SigV4 signatures with this run's keys, written to
+                             <port>/emulator_credentials in its home folder. Default: on.
+  --idle-timeout <seconds>   Emulator exits after <seconds> without an API call.
+
+Admin routes:
+  GET /__admin/health
+      Return code of 200 indicates emulator working correctly.

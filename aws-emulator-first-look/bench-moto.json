@@ -1,0 +1,17 @@
+{
+  "target": "moto:5000",
+  "put_item": {
+    "calls": 1000,
+    "p50_ms": 2.07,
+    "p95_ms": 2.19,
+    "max_ms": 18.65,
+    "total_s": 2.12
+  },
+  "get_item": {
+    "calls": 1000,
+    "p50_ms": 2.17,
+    "p95_ms": 2.29,
+    "max_ms": 3.14,
+    "total_s": 2.19
+  }
+}

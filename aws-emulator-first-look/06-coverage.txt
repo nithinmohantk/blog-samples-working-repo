@@ -1,0 +1,12 @@
+436 services in boto3 1.44.2
+   256  answers
+    78  not implemented (501)
+    66  no parameterless read operation
+    22  error 400
+     5  error 403
+     4  error 404
+     3  transport
+     1  error 401
+     1  error 500
+after the survey:
+638 MiB resident
