@@ -14,6 +14,6 @@ python -m pip install --quiet "moto[server]" boto3 || exit 2
 export TF_PLUGIN_CACHE_DIR="$bin/plugins"; mkdir -p "$TF_PLUGIN_CACHE_DIR"
 moto_server -H 127.0.0.1 -p 5000 > "$out/moto.log" 2>&1 & moto=$!
 for i in $(seq 1 30); do curl -fsS http://127.0.0.1:5000/moto-api/ > /dev/null 2>&1 && break; sleep 1; done
-python run_experiments.py "$bin/tf/terraform" "$bin/tofu/tofu" "$out" 2>&1 | tee "$out/experiments.txt"; status="${PIPESTATUS[0]}"
+python -u run_experiments.py "$bin/tf/terraform" "$bin/tofu/tofu" "$out" 2>&1 | tee "$out/experiments.txt"; status="${PIPESTATUS[0]}"
 kill $moto 2>/dev/null
 exit "$status"

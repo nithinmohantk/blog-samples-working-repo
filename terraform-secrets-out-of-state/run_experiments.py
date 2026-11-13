@@ -33,7 +33,7 @@ unexpected = 0
 
 
 def run(tool: str, cwd: pathlib.Path, *args: str, env: dict | None = None) -> subprocess.CompletedProcess:
-    return subprocess.run([tool, *args, "-no-color"], cwd=cwd, env={**ENV, **(env or {})}, capture_output=True, text=True, timeout=600)
+    return subprocess.run([tool, *args, "-no-color"], cwd=cwd, env={**ENV, **(env or {})}, capture_output=True, text=True, timeout=240)
 
 
 def must(result: subprocess.CompletedProcess, what: str) -> subprocess.CompletedProcess:
