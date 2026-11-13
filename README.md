@@ -56,6 +56,7 @@ Not everything here has been compiled or run. The state at the time of the first
 * `terraform-testing-ci`: tests, mutations and policy gate run in GitHub Actions on Terraform 1.16.3 and OpenTofu 1.12.6 against a mocked provider. Nothing is applied to a real account.
 * `terraform-two-clouds`: contract and cloud-specific tests run in GitHub Actions on Terraform 1.16.3 and OpenTofu 1.12.6 against mocked AWS and AzureRM providers. Nothing is applied to a real account.
 * `terraform-vs-opentofu`: 24 experiments run on Terraform 1.16.5 and OpenTofu 1.13.1 in GitHub Actions; see its README for the matrix.
+* `dotnet10-on-lambda`: three builds of one function run in the AWS Lambda base images under the Runtime Interface Emulator, in GitHub Actions. Timings are from the runner, not from Lambda. SnapStart is not exercised.
 * Nothing in this repository has been deployed to AWS or Azure.
 
 ## Healthcare samples
