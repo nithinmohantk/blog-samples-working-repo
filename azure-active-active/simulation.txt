@@ -1,0 +1,10 @@
+north_fails
+  multi_write_last_writer_wins     accepted 1265  taken 735  unavailable   0  lost  9  compensated  0  agree True
+  multi_write_first_writer_wins    accepted 1265  taken 735  unavailable   0  lost  0  compensated  9  agree True
+  single_writer_per_slot           accepted 1236  taken 717  unavailable  47  lost  0  compensated  0  agree True
+  active_passive                   accepted 1259  taken 711  unavailable  30  lost 16  compensated  0  agree True
+west_fails
+  multi_write_last_writer_wins     accepted 1265  taken 735  unavailable   0  lost  9  compensated  0  agree True
+  multi_write_first_writer_wins    accepted 1265  taken 735  unavailable   0  lost  0  compensated  9  agree True
+  single_writer_per_slot           accepted 1235  taken 692  unavailable  73  lost  0  compensated  0  agree True
+  active_passive                   accepted 1256  taken 744  unavailable   0  lost  0  compensated  0  agree True

@@ -1,0 +1,4 @@
+Terraform v1.16.3
+on linux_amd64
+OpenTofu v1.12.6
+on linux_amd64

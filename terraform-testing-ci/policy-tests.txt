@@ -1,0 +1,11 @@
+ok    destroying a clinical bucket is refused
+ok    destroying an internal bucket is allowed
+ok    a plan with no buckets has no findings
+ok    real plan of the module: no findings
+ok    real plan of the hand-written bucket: four findings
+ok      force_destroy on clinical data
+ok      encryption that is not SSE-KMS
+ok      public access block partly off
+ok      versioning missing
+
+9 of 9 checks passed

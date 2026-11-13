@@ -1,0 +1,7 @@
+
+Error: Unsupported argument
+
+  on tests-terraform-only/plan_time_values.tftest.hcl line 6, in mock_provider "aws":
+   6:   override_during = plan
+
+An argument named "override_during" is not expected here.

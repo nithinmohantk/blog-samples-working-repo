@@ -1,0 +1,5 @@
+DENY  aws_s3_bucket.scratch: force_destroy is on for a bucket classified as clinical.
+DENY  aws_s3_bucket.scratch: default encryption is AES256, not aws:kms with a customer-managed key.
+DENY  aws_s3_bucket.scratch: public access block leaves block_public_policy, restrict_public_buckets off.
+DENY  aws_s3_bucket.scratch: versioning is not enabled.
+1 bucket(s) in the plan, 4 finding(s)

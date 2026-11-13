@@ -1,0 +1,13 @@
+tests/aks.tftest.hcl... in progress
+  run "one_baseline_control_is_not_a_cluster_setting"... pass
+  run "api_server_is_private_and_entra_only"... pass
+  run "egress_leaves_through_the_landing_zone_route"... pass
+  run "network_policy_engine_is_on"... pass
+  run "patching_is_automatic_inside_a_window"... pass
+  run "policy_and_threat_detection_are_on"... pass
+  run "system_pool_is_reserved_and_spread"... pass
+  run "rejects_an_unknown_environment"... pass
+tests/aks.tftest.hcl... tearing down
+tests/aks.tftest.hcl... pass
+
+Success! 8 passed, 0 failed.

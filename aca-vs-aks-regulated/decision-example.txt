@@ -1,0 +1,3 @@
+Recommendation: Azure Container Apps
+  because  Nothing in the requirements needs the Kubernetes API or node access.
+  because  Microsoft patches the nodes, the Kubernetes layer and the ingress; your duties shrink to the image, identity, egress and evidence.

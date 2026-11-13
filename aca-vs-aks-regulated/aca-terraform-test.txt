@@ -1,0 +1,11 @@
+tests/aca.tftest.hcl... in progress
+  run "every_baseline_control_is_a_setting"... pass
+  run "environment_is_internal_and_closed_to_the_internet"... pass
+  run "app_ingress_is_internal_and_https_only"... pass
+  run "image_is_pulled_with_the_managed_identity"... pass
+  run "dedicated_profile_spans_three_zones_worth_of_nodes"... pass
+  run "rejects_an_unknown_environment"... pass
+tests/aca.tftest.hcl... tearing down
+tests/aca.tftest.hcl... pass
+
+Success! 6 passed, 0 failed.

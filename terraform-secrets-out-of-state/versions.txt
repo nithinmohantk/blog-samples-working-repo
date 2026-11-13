@@ -1,0 +1,7 @@
+Terraform v1.14.3
+OpenTofu v1.11.0
+Python 3.13.18
+moto 5.2.5 boto3 1.44.2
+ required_version = ">= 1.11.0"
+ version = "6.15.0"
+ version = "3.7.2"

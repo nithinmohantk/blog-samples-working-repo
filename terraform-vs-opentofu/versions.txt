@@ -1,0 +1,9 @@
+Terraform v1.16.5
+on linux_amd64
+
+Your version of Terraform is out of date! The latest version
+is 1.17.2. You can update by downloading from https://developer.hashicorp.com/terraform/install
+OpenTofu v1.13.1
+on linux_amd64
+2bc2fcfff033265c9e02ca0351f01794eb122f62a9b2a49a3294b9e49eaab5e4  terraform.zip
+8ccbc6f8ee21d2827715f3c6e08a9b3e0209b1e62057c05067ef117e047c1a80  tofu.zip

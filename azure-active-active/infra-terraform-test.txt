@@ -1,0 +1,12 @@
+tests/global.tftest.hcl... in progress
+  run "every_region_accepts_writes"... pass
+  run "database_has_no_keys_and_no_public_endpoint"... pass
+  run "conflicts_go_to_the_application"... pass
+  run "regions_are_equal_peers"... pass
+  run "the_probe_asks_for_readiness"... pass
+  run "rejects_a_single_region"... pass
+  run "rejects_a_region_with_no_origin"... pass
+tests/global.tftest.hcl... tearing down
+tests/global.tftest.hcl... pass
+
+Success! 7 passed, 0 failed.

@@ -1,0 +1,2 @@
+modules/aca: 3 resources (azurerm_user_assigned_identity, azurerm_container_app_environment, azurerm_container_app), 50 arguments set, 78 lines of HCL
+modules/aks: 3 resources (azurerm_user_assigned_identity, azurerm_kubernetes_cluster, azurerm_kubernetes_cluster_node_pool), 72 arguments set, 106 lines of HCL

@@ -1,0 +1,4 @@
+10.0.404
+Python 3.13.18
+Terraform v1.16.3
+OpenTofu v1.12.6

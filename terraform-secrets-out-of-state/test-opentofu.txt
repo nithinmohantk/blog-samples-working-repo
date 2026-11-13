@@ -1,0 +1,5 @@
+tests/write_only.tftest.hcl... pass
+  run "version_is_tracked_and_value_is_not"... pass
+  run "rejects_a_fractional_version"... pass
+
+Success! 2 passed, 0 failed.

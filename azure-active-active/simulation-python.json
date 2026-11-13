@@ -1,0 +1,102 @@
+{
+  "north_fails": {
+    "multi_write_last_writer_wins": {
+      "accepted": 1265,
+      "refused_slot_taken": 735,
+      "refused_unavailable": 0,
+      "failed_over": 54,
+      "conflicts": 9,
+      "silently_lost": 9,
+      "compensated": 0,
+      "acknowledged_then_not_held": 9,
+      "final_bookings": 1256,
+      "regions_agree": true
+    },
+    "multi_write_first_writer_wins": {
+      "accepted": 1265,
+      "refused_slot_taken": 735,
+      "refused_unavailable": 0,
+      "failed_over": 54,
+      "conflicts": 9,
+      "silently_lost": 0,
+      "compensated": 9,
+      "acknowledged_then_not_held": 9,
+      "final_bookings": 1256,
+      "regions_agree": true
+    },
+    "single_writer_per_slot": {
+      "accepted": 1236,
+      "refused_slot_taken": 717,
+      "refused_unavailable": 47,
+      "failed_over": 0,
+      "conflicts": 0,
+      "silently_lost": 0,
+      "compensated": 0,
+      "acknowledged_then_not_held": 0,
+      "final_bookings": 1236,
+      "regions_agree": true
+    },
+    "active_passive": {
+      "accepted": 1259,
+      "refused_slot_taken": 711,
+      "refused_unavailable": 30,
+      "failed_over": 0,
+      "conflicts": 0,
+      "silently_lost": 16,
+      "compensated": 0,
+      "acknowledged_then_not_held": 16,
+      "final_bookings": 1243,
+      "regions_agree": true
+    }
+  },
+  "west_fails": {
+    "multi_write_last_writer_wins": {
+      "accepted": 1265,
+      "refused_slot_taken": 735,
+      "refused_unavailable": 0,
+      "failed_over": 66,
+      "conflicts": 9,
+      "silently_lost": 9,
+      "compensated": 0,
+      "acknowledged_then_not_held": 9,
+      "final_bookings": 1256,
+      "regions_agree": true
+    },
+    "multi_write_first_writer_wins": {
+      "accepted": 1265,
+      "refused_slot_taken": 735,
+      "refused_unavailable": 0,
+      "failed_over": 66,
+      "conflicts": 9,
+      "silently_lost": 0,
+      "compensated": 9,
+      "acknowledged_then_not_held": 9,
+      "final_bookings": 1256,
+      "regions_agree": true
+    },
+    "single_writer_per_slot": {
+      "accepted": 1235,
+      "refused_slot_taken": 692,
+      "refused_unavailable": 73,
+      "failed_over": 0,
+      "conflicts": 0,
+      "silently_lost": 0,
+      "compensated": 0,
+      "acknowledged_then_not_held": 0,
+      "final_bookings": 1235,
+      "regions_agree": true
+    },
+    "active_passive": {
+      "accepted": 1256,
+      "refused_slot_taken": 744,
+      "refused_unavailable": 0,
+      "failed_over": 0,
+      "conflicts": 0,
+      "silently_lost": 0,
+      "compensated": 0,
+      "acknowledged_then_not_held": 0,
+      "final_bookings": 1256,
+      "regions_agree": true
+    }
+  }
+}

@@ -1,0 +1,1 @@
+STALE: modules/network-baseline-azure/contract_variables.tf

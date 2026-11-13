@@ -1,0 +1,2 @@
+DENY  module.discharge_summaries.aws_s3_bucket.this: the plan destroys a bucket classified as clinical. This needs a signed-off change, not a merge.
+2 bucket(s) in the plan, 1 finding(s)

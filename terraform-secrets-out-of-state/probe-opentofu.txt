@@ -1,0 +1,14 @@
+tests/null_readback.tftest.hcl... fail
+  run "write_only_value_reads_as_null"... fail
+
+Failure! 0 passed, 1 failed.
+
+Error: Test assertion failed
+
+  on tests/null_readback.tftest.hcl line 14, in run "write_only_value_reads_as_null":
+  14:     condition     = aws_secretsmanager_secret_version.db.secret_string_wo == null
+    ├────────────────
+    │ Diff: 
+    │     (sensitive value) -> null
+
+The write-only argument did not read back as null.

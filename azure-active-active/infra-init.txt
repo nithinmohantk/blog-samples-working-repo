@@ -1,0 +1,12 @@
+Initializing the backend...
+
+Initializing provider plugins...
+- Reusing previous version of hashicorp/azurerm from the dependency lock file
+- Installing hashicorp/azurerm v5.2.0...
+- Installed hashicorp/azurerm v5.2.0 (signed by HashiCorp)
+
+Terraform has made some changes to the provider dependency selections recorded
+in the .terraform.lock.hcl file. Review those changes and commit them to your
+version control system if they represent changes you intended to make.
+
+Terraform has been successfully initialized!

@@ -1,0 +1,6 @@
+tests/null_readback.tftest.hcl... in progress
+  run "write_only_value_reads_as_null"... pass
+tests/null_readback.tftest.hcl... tearing down
+tests/null_readback.tftest.hcl... pass
+
+Success! 1 passed, 0 failed.

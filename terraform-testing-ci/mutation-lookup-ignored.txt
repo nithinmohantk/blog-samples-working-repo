@@ -1,0 +1,33 @@
+tests/unit.tftest.hcl... in progress
+  run "name_carries_environment_and_account"... pass
+  run "explicit_account_id_skips_the_lookup"... pass
+  run "account_id_is_looked_up_when_not_given"... fail
+
+Error: Test assertion failed
+
+  on tests/unit.tftest.hcl line 66, in run "account_id_is_looked_up_when_not_given":
+  66:     condition     = aws_s3_bucket.this.bucket == "clinical-docs-dev-444455556666"
+    ├────────────────
+    │ Diff:
+    │ --- actual
+    │ +++ expected
+    │ - "clinical-docs-dev-000000000000"
+    │ + "clinical-docs-dev-444455556666"
+
+
+The looked-up account id must be used in the name.
+  run "default_encryption_uses_the_customer_key"... pass
+  run "public_access_is_blocked_four_ways"... pass
+  run "versioning_is_on"... pass
+  run "policy_denies_plain_http"... pass
+  run "superseded_versions_are_kept_for_a_year_by_default"... pass
+  run "rejects_a_malformed_name"... pass
+  run "rejects_force_destroy_in_prod"... pass
+  run "rejects_short_retention_for_clinical_data"... pass
+  run "allows_short_retention_for_internal_data"... pass
+  run "rejects_a_key_that_is_not_a_kms_arn"... pass
+  run "apply_with_mocks_exposes_outputs"... pass
+tests/unit.tftest.hcl... tearing down
+tests/unit.tftest.hcl... fail
+
+Failure! 13 passed, 1 failed.

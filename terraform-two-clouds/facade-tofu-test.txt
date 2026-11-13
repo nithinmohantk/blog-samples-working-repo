@@ -1,0 +1,5 @@
+tests/facade.tftest.hcl... pass
+  run "aws_through_the_facade"... pass
+  run "azure_through_the_facade"... pass
+
+Success! 2 passed, 0 failed.

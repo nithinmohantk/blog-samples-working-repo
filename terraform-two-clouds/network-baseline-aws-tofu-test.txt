@@ -1,0 +1,17 @@
+tests/aws.tftest.hcl... pass
+  run "subnets_never_assign_public_addresses"... pass
+  run "resources_are_named_for_the_workload"... pass
+  run "flow_logs_capture_all_traffic_to_s3"... pass
+  run "log_bucket_is_encrypted_private_and_expires"... pass
+tests/contract.tftest.hcl... pass
+  run "subnets_are_named_and_sized_the_same_way"... pass
+  run "subnet_count_is_honoured"... pass
+  run "tags_carry_workload_and_environment"... pass
+  run "identifiers_are_exposed_after_apply"... pass
+  run "rejects_an_address_space_that_is_too_small"... pass
+  run "rejects_text_that_is_not_a_cidr"... pass
+  run "rejects_five_subnets"... pass
+  run "rejects_short_log_retention"... pass
+  run "rejects_a_name_with_a_hyphen"... pass
+
+Success! 13 passed, 0 failed.

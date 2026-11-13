@@ -1,0 +1,26 @@
+01-baseline                              terraform=pass  tofu=pass 
+02-state-encryption                      terraform=fail  tofu=pass 
+03-variables-in-backend                  terraform=fail  tofu=pass 
+04-provider-for-each                     terraform=fail  tofu=pass 
+05-exclude-flag                          terraform=fail  tofu=pass 
+06-enabled-meta-argument                 terraform=fail  tofu=pass 
+07-prevent-destroy-from-a-variable       terraform=fail  tofu=pass 
+08-lifecycle-destroy-false               terraform=pass  tofu=fail 
+09-import-block-in-a-module              terraform=pass  tofu=fail 
+10-ephemeral-variable                    terraform=pass  tofu=pass 
+11-tofu-file-takes-precedence            terraform=pass  tofu=pass 
+12-required-version-names-terraform      terraform=pass  tofu=pass 
+13-required-version-far-ahead            terraform=fail  tofu=pass 
+13b-language-block-far-ahead             terraform=fail  tofu=fail 
+13c-required-version-in-a-tofu-file      terraform=pass  tofu=fail 
+14-const-variable                        terraform=pass  tofu=pass 
+15-deprecated-variable                   terraform=pass  tofu=pass 
+16-state-show-json                       terraform=pass  tofu=pass 
+17-contains-null                         terraform=pass  tofu=pass 
+18-convert-function                      terraform=pass  tofu=pass 
+19-lock-file-registry-address            terraform=pass  tofu=pass 
+20-state-handover                        terraform=pass  tofu=pass 
+21-encrypted-state-handover              terraform=fail  tofu=fail 
+22-override-during-plan                  terraform=pass  tofu=fail 
+
+24 experiments, 0 unexpected result(s)

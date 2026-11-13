@@ -1,0 +1,11 @@
+ok    north reports ready and names itself
+ok    a booking through north is created and decided in north
+ok    the same request retried gets the same answer, not a conflict
+ok    a different patient asking for the same slot is refused
+ok    a booking with no idempotency key is refused
+ok    after a drain, north fails its readiness probe
+ok    and is still alive: liveness and readiness are different questions
+ok    west is ready to take the traffic
+ok    a new booking is served by west
+
+9 of 9 checks passed

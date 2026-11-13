@@ -1,0 +1,11 @@
+ok    a stateless API with no Kubernetes needs: Azure Container Apps, 0 caution(s)
+ok    the same, and the team already runs Kubernetes: Azure Container Apps, 1 caution(s)
+ok    an operator and custom resources: AKS Automatic, 0 caution(s)
+ok    network policy between services, no Kubernetes skills: AKS Automatic, 1 caution(s)
+ok    a node agent and staged upgrades: AKS Standard, 0 caution(s)
+ok    only custom node configuration: AKS Standard, 1 caution(s)
+ok    bring your own CNI, no Kubernetes skills: AKS Standard, 1 caution(s)
+ok    an unknown fact is refused, not ignored
+ok    duties that are yours: 4 on Container Apps, 6 on AKS Automatic, 12 on AKS Standard
+
+9 of 9 checks passed

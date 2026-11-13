@@ -1,0 +1,17 @@
+
+Initializing the backend...
+
+Initializing provider plugins...
+- Reusing previous version of hashicorp/aws from the dependency lock file
+- Installing hashicorp/aws v6.63.0...
+- Installed hashicorp/aws v6.63.0 (signed, key ID 0C0AF313E5FD9F80)
+
+Providers are signed by their developers.
+If you'd like to know more about provider signing, you can read about it here:
+https://opentofu.org/docs/cli/plugins/signing/
+
+OpenTofu has made some changes to the provider dependency selections recorded
+in the .terraform.lock.hcl file. Review those changes and commit them to your
+version control system if they represent changes you intended to make.
+
+OpenTofu has been successfully initialized!

@@ -1,0 +1,54 @@
+
+== Terraform v1.14.3
+ok    terraform  classic: password in the state file                         2 times
+ok    terraform  classic: password in the JSON of the next plan              present
+ok    terraform  migrate: old password in the new state file                 absent  [Plan: 1 to add, 0 to change, 2 to destroy.]
+ok    terraform  migrate: old password in the state backup                   present
+ok    terraform  migrate: the stored secret was replaced by a new one        yes
+ok    terraform  ephemeral: a 32-character password reached the store        yes
+ok    terraform  ephemeral: password anywhere on disk after apply            nowhere
+ok    terraform  ephemeral: password in the JSON of the next plan            absent
+ok    terraform  ephemeral: what the state holds for the write-only pair     value null, version 1
+ok    terraform  ephemeral: ephemeral resource has an entry in state         no
+ok    terraform  rotate: a second plan with the same version                 no changes
+ok    terraform  rotate: stored password after re-applying the same version  unchanged
+ok    terraform  rotate: what the plan for version 2 proposes                Plan: 1 to add, 0 to change, 1 to destroy.
+ok    terraform  rotate: stored password after version 2                     changed
+ok    terraform  rotate: either password anywhere on disk                    nowhere
+ok    terraform  variable: token in the JSON of the saved plan               absent
+ok    terraform  variable: token in the saved plan file                      absent
+ok    terraform  variable: applying the saved plan without the token         refused  [Error: No value for required variable]
+ok    terraform  variable: applying the saved plan with the token supplied again  applies
+ok    terraform  variable: token reached the store                           yes
+ok    terraform  variable: token anywhere on disk after apply                nowhere
+ok    terraform  misuse: ephemeral value in an ordinary output               refused  [Error: Ephemeral value not allowed]
+ok    terraform  test: module tests against a mocked AWS provider            passes  [Success! 2 passed, 0 failed.]
+ok    terraform  probe: write-only value reads as null in a mocked plan      yes
+
+== OpenTofu v1.11.0
+ok    opentofu   classic: password in the state file                         2 times
+ok    opentofu   classic: password in the JSON of the next plan              present
+ok    opentofu   migrate: old password in the new state file                 absent  [Plan: 1 to add, 0 to change, 2 to destroy.]
+ok    opentofu   migrate: old password in the state backup                   present
+ok    opentofu   migrate: the stored secret was replaced by a new one        yes
+ok    opentofu   ephemeral: a 32-character password reached the store        yes
+ok    opentofu   ephemeral: password anywhere on disk after apply            nowhere
+ok    opentofu   ephemeral: password in the JSON of the next plan            absent
+ok    opentofu   ephemeral: what the state holds for the write-only pair     value null, version 1
+ok    opentofu   ephemeral: ephemeral resource has an entry in state         no
+ok    opentofu   rotate: a second plan with the same version                 no changes
+ok    opentofu   rotate: stored password after re-applying the same version  unchanged
+ok    opentofu   rotate: what the plan for version 2 proposes                Plan: 1 to add, 0 to change, 1 to destroy.
+ok    opentofu   rotate: stored password after version 2                     changed
+ok    opentofu   rotate: either password anywhere on disk                    nowhere
+ok    opentofu   variable: token in the JSON of the saved plan               absent
+ok    opentofu   variable: token in the saved plan file                      absent
+ok    opentofu   variable: applying the saved plan without the token         refused  [Error: No value for required variable]
+ok    opentofu   variable: applying the saved plan with the token supplied again  applies
+ok    opentofu   variable: token reached the store                           yes
+ok    opentofu   variable: token anywhere on disk after apply                nowhere
+ok    opentofu   misuse: ephemeral value in an ordinary output               refused  [Error: Output does not allow ephemeral value]
+ok    opentofu   test: module tests against a mocked AWS provider            passes  [Success! 2 passed, 0 failed.]
+ok    opentofu   probe: write-only value reads as null in a mocked plan      no
+
+48 of 48 observations match what was expected

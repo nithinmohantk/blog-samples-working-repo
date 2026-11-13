@@ -1,0 +1,25 @@
+ok    every strategy converges: both regions end with the same bookings
+ok    every attempt is accounted for
+ok    the independent count matches: taken-back bookings equal lost plus compensated
+ok    north_fails: multi-write refuses nothing as unavailable
+ok    north_fails: last-writer-wins loses acknowledged bookings without a record
+ok    north_fails: first-writer-wins has the same conflicts, each with a compensation
+ok    north_fails: single writer has no conflicts and refuses writes while a home region is down
+ok    west_fails: multi-write refuses nothing as unavailable
+ok    west_fails: last-writer-wins loses acknowledged bookings without a record
+ok    west_fails: first-writer-wins has the same conflicts, each with a compensation
+ok    west_fails: single writer has no conflicts and refuses writes while a home region is down
+ok    active-passive: losing the primary refuses writes until failover and loses unreplicated ones
+ok    active-passive: losing the standby costs nothing
+ok    same seed, same result
+ok    a retried command runs once and returns the first answer
+ok    64 concurrent retries of one command run it once
+ok    a retry that lands in the other region gets the replicated answer
+ok    an empty idempotency key is refused
+ok    a healthy region is ready
+ok    a region that cannot reach its database is not ready
+ok    a region whose database refuses writes is not ready
+ok    a draining region is not ready
+ok    high replication lag alerts and does not fail the probe
+
+23 of 23 checks passed

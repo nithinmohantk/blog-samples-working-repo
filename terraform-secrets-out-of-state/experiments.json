@@ -1,0 +1,338 @@
+[
+  {
+    "tool": "terraform",
+    "experiment": "classic: password in the state file",
+    "observed": "2 times",
+    "expected": "2 times",
+    "detail": ""
+  },
+  {
+    "tool": "terraform",
+    "experiment": "classic: password in the JSON of the next plan",
+    "observed": "present",
+    "expected": "present",
+    "detail": ""
+  },
+  {
+    "tool": "terraform",
+    "experiment": "migrate: old password in the new state file",
+    "observed": "absent",
+    "expected": "absent",
+    "detail": "Plan: 1 to add, 0 to change, 2 to destroy."
+  },
+  {
+    "tool": "terraform",
+    "experiment": "migrate: old password in the state backup",
+    "observed": "present",
+    "expected": "present",
+    "detail": ""
+  },
+  {
+    "tool": "terraform",
+    "experiment": "migrate: the stored secret was replaced by a new one",
+    "observed": "yes",
+    "expected": "yes",
+    "detail": ""
+  },
+  {
+    "tool": "terraform",
+    "experiment": "ephemeral: a 32-character password reached the store",
+    "observed": "yes",
+    "expected": "yes",
+    "detail": ""
+  },
+  {
+    "tool": "terraform",
+    "experiment": "ephemeral: password anywhere on disk after apply",
+    "observed": "nowhere",
+    "expected": "nowhere",
+    "detail": ""
+  },
+  {
+    "tool": "terraform",
+    "experiment": "ephemeral: password in the JSON of the next plan",
+    "observed": "absent",
+    "expected": "absent",
+    "detail": ""
+  },
+  {
+    "tool": "terraform",
+    "experiment": "ephemeral: what the state holds for the write-only pair",
+    "observed": "value null, version 1",
+    "expected": "value null, version 1",
+    "detail": ""
+  },
+  {
+    "tool": "terraform",
+    "experiment": "ephemeral: ephemeral resource has an entry in state",
+    "observed": "no",
+    "expected": "no",
+    "detail": ""
+  },
+  {
+    "tool": "terraform",
+    "experiment": "rotate: a second plan with the same version",
+    "observed": "no changes",
+    "expected": "no changes",
+    "detail": ""
+  },
+  {
+    "tool": "terraform",
+    "experiment": "rotate: stored password after re-applying the same version",
+    "observed": "unchanged",
+    "expected": "unchanged",
+    "detail": ""
+  },
+  {
+    "tool": "terraform",
+    "experiment": "rotate: what the plan for version 2 proposes",
+    "observed": "Plan: 1 to add, 0 to change, 1 to destroy.",
+    "expected": "Plan: 1 to add, 0 to change, 1 to destroy.",
+    "detail": ""
+  },
+  {
+    "tool": "terraform",
+    "experiment": "rotate: stored password after version 2",
+    "observed": "changed",
+    "expected": "changed",
+    "detail": ""
+  },
+  {
+    "tool": "terraform",
+    "experiment": "rotate: either password anywhere on disk",
+    "observed": "nowhere",
+    "expected": "nowhere",
+    "detail": ""
+  },
+  {
+    "tool": "terraform",
+    "experiment": "variable: token in the JSON of the saved plan",
+    "observed": "absent",
+    "expected": "absent",
+    "detail": ""
+  },
+  {
+    "tool": "terraform",
+    "experiment": "variable: token in the saved plan file",
+    "observed": "absent",
+    "expected": "absent",
+    "detail": ""
+  },
+  {
+    "tool": "terraform",
+    "experiment": "variable: applying the saved plan without the token",
+    "observed": "refused",
+    "expected": "refused",
+    "detail": "Error: No value for required variable"
+  },
+  {
+    "tool": "terraform",
+    "experiment": "variable: applying the saved plan with the token supplied again",
+    "observed": "applies",
+    "expected": "applies",
+    "detail": ""
+  },
+  {
+    "tool": "terraform",
+    "experiment": "variable: token reached the store",
+    "observed": "yes",
+    "expected": "yes",
+    "detail": ""
+  },
+  {
+    "tool": "terraform",
+    "experiment": "variable: token anywhere on disk after apply",
+    "observed": "nowhere",
+    "expected": "nowhere",
+    "detail": ""
+  },
+  {
+    "tool": "terraform",
+    "experiment": "misuse: ephemeral value in an ordinary output",
+    "observed": "refused",
+    "expected": "refused",
+    "detail": "Error: Ephemeral value not allowed"
+  },
+  {
+    "tool": "terraform",
+    "experiment": "test: module tests against a mocked AWS provider",
+    "observed": "passes",
+    "expected": "passes",
+    "detail": "Success! 2 passed, 0 failed."
+  },
+  {
+    "tool": "terraform",
+    "experiment": "probe: write-only value reads as null in a mocked plan",
+    "observed": "yes",
+    "expected": "yes",
+    "detail": ""
+  },
+  {
+    "tool": "opentofu",
+    "experiment": "classic: password in the state file",
+    "observed": "2 times",
+    "expected": "2 times",
+    "detail": ""
+  },
+  {
+    "tool": "opentofu",
+    "experiment": "classic: password in the JSON of the next plan",
+    "observed": "present",
+    "expected": "present",
+    "detail": ""
+  },
+  {
+    "tool": "opentofu",
+    "experiment": "migrate: old password in the new state file",
+    "observed": "absent",
+    "expected": "absent",
+    "detail": "Plan: 1 to add, 0 to change, 2 to destroy."
+  },
+  {
+    "tool": "opentofu",
+    "experiment": "migrate: old password in the state backup",
+    "observed": "present",
+    "expected": "present",
+    "detail": ""
+  },
+  {
+    "tool": "opentofu",
+    "experiment": "migrate: the stored secret was replaced by a new one",
+    "observed": "yes",
+    "expected": "yes",
+    "detail": ""
+  },
+  {
+    "tool": "opentofu",
+    "experiment": "ephemeral: a 32-character password reached the store",
+    "observed": "yes",
+    "expected": "yes",
+    "detail": ""
+  },
+  {
+    "tool": "opentofu",
+    "experiment": "ephemeral: password anywhere on disk after apply",
+    "observed": "nowhere",
+    "expected": "nowhere",
+    "detail": ""
+  },
+  {
+    "tool": "opentofu",
+    "experiment": "ephemeral: password in the JSON of the next plan",
+    "observed": "absent",
+    "expected": "absent",
+    "detail": ""
+  },
+  {
+    "tool": "opentofu",
+    "experiment": "ephemeral: what the state holds for the write-only pair",
+    "observed": "value null, version 1",
+    "expected": "value null, version 1",
+    "detail": ""
+  },
+  {
+    "tool": "opentofu",
+    "experiment": "ephemeral: ephemeral resource has an entry in state",
+    "observed": "no",
+    "expected": "no",
+    "detail": ""
+  },
+  {
+    "tool": "opentofu",
+    "experiment": "rotate: a second plan with the same version",
+    "observed": "no changes",
+    "expected": "no changes",
+    "detail": ""
+  },
+  {
+    "tool": "opentofu",
+    "experiment": "rotate: stored password after re-applying the same version",
+    "observed": "unchanged",
+    "expected": "unchanged",
+    "detail": ""
+  },
+  {
+    "tool": "opentofu",
+    "experiment": "rotate: what the plan for version 2 proposes",
+    "observed": "Plan: 1 to add, 0 to change, 1 to destroy.",
+    "expected": "Plan: 1 to add, 0 to change, 1 to destroy.",
+    "detail": ""
+  },
+  {
+    "tool": "opentofu",
+    "experiment": "rotate: stored password after version 2",
+    "observed": "changed",
+    "expected": "changed",
+    "detail": ""
+  },
+  {
+    "tool": "opentofu",
+    "experiment": "rotate: either password anywhere on disk",
+    "observed": "nowhere",
+    "expected": "nowhere",
+    "detail": ""
+  },
+  {
+    "tool": "opentofu",
+    "experiment": "variable: token in the JSON of the saved plan",
+    "observed": "absent",
+    "expected": "absent",
+    "detail": ""
+  },
+  {
+    "tool": "opentofu",
+    "experiment": "variable: token in the saved plan file",
+    "observed": "absent",
+    "expected": "absent",
+    "detail": ""
+  },
+  {
+    "tool": "opentofu",
+    "experiment": "variable: applying the saved plan without the token",
+    "observed": "refused",
+    "expected": "refused",
+    "detail": "Error: No value for required variable"
+  },
+  {
+    "tool": "opentofu",
+    "experiment": "variable: applying the saved plan with the token supplied again",
+    "observed": "applies",
+    "expected": "applies",
+    "detail": ""
+  },
+  {
+    "tool": "opentofu",
+    "experiment": "variable: token reached the store",
+    "observed": "yes",
+    "expected": "yes",
+    "detail": ""
+  },
+  {
+    "tool": "opentofu",
+    "experiment": "variable: token anywhere on disk after apply",
+    "observed": "nowhere",
+    "expected": "nowhere",
+    "detail": ""
+  },
+  {
+    "tool": "opentofu",
+    "experiment": "misuse: ephemeral value in an ordinary output",
+    "observed": "refused",
+    "expected": "refused",
+    "detail": "Error: Output does not allow ephemeral value"
+  },
+  {
+    "tool": "opentofu",
+    "experiment": "test: module tests against a mocked AWS provider",
+    "observed": "passes",
+    "expected": "passes",
+    "detail": "Success! 2 passed, 0 failed."
+  },
+  {
+    "tool": "opentofu",
+    "experiment": "probe: write-only value reads as null in a mocked plan",
+    "observed": "no",
+    "expected": "no",
+    "detail": ""
+  }
+]

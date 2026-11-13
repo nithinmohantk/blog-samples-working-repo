@@ -1,0 +1,2 @@
+/home/runner/work/blog-samples-working-repo/blog-samples-working-repo/out/azure-active-active/api-north.log:0
+/home/runner/work/blog-samples-working-repo/blog-samples-working-repo/out/azure-active-active/api-west.log:0

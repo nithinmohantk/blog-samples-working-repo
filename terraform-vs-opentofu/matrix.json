@@ -1,0 +1,386 @@
+[
+  {
+    "id": "01-baseline",
+    "title": "Plain configuration (control)",
+    "terraform": {
+      "result": "pass",
+      "stage": "",
+      "detail": "state holds the value in clear text: True",
+      "expected": "pass"
+    },
+    "tofu": {
+      "result": "pass",
+      "stage": "",
+      "detail": "state holds the value in clear text: True",
+      "expected": "pass"
+    }
+  },
+  {
+    "id": "02-state-encryption",
+    "title": "State and plan encryption in the terraform block",
+    "terraform": {
+      "result": "fail",
+      "stage": "init",
+      "detail": "Error: Unsupported block type | Blocks of type \"encryption\" are not expected here. Error: Unsupported block type",
+      "expected": "fail"
+    },
+    "tofu": {
+      "result": "pass",
+      "stage": "",
+      "detail": "state holds the value in clear text: False | encrypted_data present: True",
+      "expected": "pass"
+    }
+  },
+  {
+    "id": "03-variables-in-backend",
+    "title": "Variable in the backend block",
+    "terraform": {
+      "result": "fail",
+      "stage": "init",
+      "detail": "Error: Variables not allowed | Variables may not be used here.",
+      "expected": "fail"
+    },
+    "tofu": {
+      "result": "pass",
+      "stage": "",
+      "detail": "",
+      "expected": "pass"
+    }
+  },
+  {
+    "id": "04-provider-for-each",
+    "title": "for_each on a provider configuration",
+    "terraform": {
+      "result": "fail",
+      "stage": "init",
+      "detail": "Error: Reserved argument name in provider block | The provider argument name \"for_each\" is reserved for use by Terraform in a future version. Error: Reserved argument name in provider block",
+      "expected": "fail"
+    },
+    "tofu": {
+      "result": "pass",
+      "stage": "",
+      "detail": "",
+      "expected": "pass"
+    }
+  },
+  {
+    "id": "05-exclude-flag",
+    "title": "apply -exclude=ADDRESS",
+    "terraform": {
+      "result": "fail",
+      "stage": "apply",
+      "detail": "Error: Failed to parse command-line flags | flag provided but not defined: -exclude For more help on using this command, run: terraform apply -help",
+      "expected": "fail"
+    },
+    "tofu": {
+      "result": "pass",
+      "stage": "",
+      "detail": "resources in state: ['kept']",
+      "expected": "pass"
+    }
+  },
+  {
+    "id": "06-enabled-meta-argument",
+    "title": "lifecycle { enabled = ... }",
+    "terraform": {
+      "result": "fail",
+      "stage": "init",
+      "detail": "Error: Unsupported argument | An argument named \"enabled\" is not expected here. Error: Unsupported argument",
+      "expected": "fail"
+    },
+    "tofu": {
+      "result": "pass",
+      "stage": "",
+      "detail": "resources in state: 0",
+      "expected": "pass"
+    }
+  },
+  {
+    "id": "07-prevent-destroy-from-a-variable",
+    "title": "prevent_destroy set from a variable",
+    "terraform": {
+      "result": "fail",
+      "stage": "init",
+      "detail": "Error: Variables not allowed | Variables may not be used here. Error: Variables not allowed",
+      "expected": "fail"
+    },
+    "tofu": {
+      "result": "pass",
+      "stage": "",
+      "detail": "",
+      "expected": "pass"
+    }
+  },
+  {
+    "id": "08-lifecycle-destroy-false",
+    "title": "lifecycle { destroy = false }",
+    "terraform": {
+      "result": "pass",
+      "stage": "",
+      "detail": "",
+      "expected": "pass"
+    },
+    "tofu": {
+      "result": "fail",
+      "stage": "destroy",
+      "detail": "Error: Destroy was successful but left behind forgotten instances | As requested, OpenTofu has not deleted some remote objects that are no longer managed by this configuration. Those objects continue to exist in their remote system and so may continue to incur charges. Refer to the original plan for",
+      "expected": "fail"
+    }
+  },
+  {
+    "id": "09-import-block-in-a-module",
+    "title": "import block inside a child module",
+    "terraform": {
+      "result": "pass",
+      "stage": "",
+      "detail": "",
+      "expected": "pass"
+    },
+    "tofu": {
+      "result": "fail",
+      "stage": "init",
+      "detail": "Error: Invalid import configuration | An import block was detected in \"module.child\". Import blocks are only allowed in the root module.",
+      "expected": "fail"
+    }
+  },
+  {
+    "id": "10-ephemeral-variable",
+    "title": "ephemeral input variable",
+    "terraform": {
+      "result": "pass",
+      "stage": "",
+      "detail": "token written to state: False",
+      "expected": "pass"
+    },
+    "tofu": {
+      "result": "pass",
+      "stage": "",
+      "detail": "token written to state: False",
+      "expected": "pass"
+    }
+  },
+  {
+    "id": "11-tofu-file-takes-precedence",
+    "title": "main.tofu beside main.tf",
+    "terraform": {
+      "result": "pass",
+      "stage": "",
+      "detail": "loaded_from = main.tf",
+      "expected": "pass"
+    },
+    "tofu": {
+      "result": "pass",
+      "stage": "",
+      "detail": "loaded_from = main.tofu",
+      "expected": "pass"
+    }
+  },
+  {
+    "id": "12-required-version-names-terraform",
+    "title": "required_version = \">= 1.16.0\"",
+    "terraform": {
+      "result": "pass",
+      "stage": "",
+      "detail": "",
+      "expected": "pass"
+    },
+    "tofu": {
+      "result": "pass",
+      "stage": "",
+      "detail": "",
+      "expected": "pass"
+    }
+  },
+  {
+    "id": "13-required-version-far-ahead",
+    "title": "required_version = \">= 99.0.0\" in a .tf file",
+    "terraform": {
+      "result": "fail",
+      "stage": "init",
+      "detail": "Error: Unsupported Terraform Core version | This configuration does not support Terraform version 1.16.5. To proceed, either choose another supported Terraform version or update this version constraint. Version constraints are normally set for good reason, so updating the constraint may lead to othe",
+      "expected": "fail"
+    },
+    "tofu": {
+      "result": "pass",
+      "stage": "",
+      "detail": "",
+      "expected": "pass"
+    }
+  },
+  {
+    "id": "13b-language-block-far-ahead",
+    "title": "language { compatible_with { opentofu = \">= 99.0.0\" } }",
+    "terraform": {
+      "result": "fail",
+      "stage": "init",
+      "detail": "Error: Unsupported block type | Blocks of type \"language\" are not expected here. Error: Unsupported block type",
+      "expected": "fail"
+    },
+    "tofu": {
+      "result": "fail",
+      "stage": "init",
+      "detail": "Error: Incompatible module | This module is not compatible with OpenTofu v1.13.1. To proceed, either choose another supported OpenTofu version or update this version constraint. Version constraints are normally set for good reason, so updating the constraint may lead to other errors or unexpected be",
+      "expected": "fail"
+    }
+  },
+  {
+    "id": "13c-required-version-in-a-tofu-file",
+    "title": "required_version = \">= 99.0.0\" in a .tofu file",
+    "terraform": {
+      "result": "pass",
+      "stage": "",
+      "detail": "",
+      "expected": "pass"
+    },
+    "tofu": {
+      "result": "fail",
+      "stage": "init",
+      "detail": "Error: Incompatible module | This module is not compatible with OpenTofu v1.13.1. To proceed, either choose another supported OpenTofu version or update this version constraint. Version constraints are normally set for good reason, so updating the constraint may lead to other errors or unexpected be",
+      "expected": "fail"
+    }
+  },
+  {
+    "id": "14-const-variable",
+    "title": "variable with const = true",
+    "terraform": {
+      "result": "pass",
+      "stage": "",
+      "detail": "",
+      "expected": "pass"
+    },
+    "tofu": {
+      "result": "pass",
+      "stage": "",
+      "detail": "",
+      "expected": "pass"
+    }
+  },
+  {
+    "id": "15-deprecated-variable",
+    "title": "variable with deprecated = \"...\"",
+    "terraform": {
+      "result": "pass",
+      "stage": "",
+      "detail": "",
+      "expected": "pass"
+    },
+    "tofu": {
+      "result": "pass",
+      "stage": "",
+      "detail": "",
+      "expected": "pass"
+    }
+  },
+  {
+    "id": "16-state-show-json",
+    "title": "state show -json",
+    "terraform": {
+      "result": "pass",
+      "stage": "",
+      "detail": "",
+      "expected": "pass"
+    },
+    "tofu": {
+      "result": "pass",
+      "stage": "",
+      "detail": "",
+      "expected": "pass"
+    }
+  },
+  {
+    "id": "17-contains-null",
+    "title": "contains() with a null element",
+    "terraform": {
+      "result": "pass",
+      "stage": "",
+      "detail": "",
+      "expected": "pass"
+    },
+    "tofu": {
+      "result": "pass",
+      "stage": "",
+      "detail": "",
+      "expected": "pass"
+    }
+  },
+  {
+    "id": "18-convert-function",
+    "title": "convert(value, type)",
+    "terraform": {
+      "result": "pass",
+      "stage": "",
+      "detail": "",
+      "expected": "pass"
+    },
+    "tofu": {
+      "result": "pass",
+      "stage": "",
+      "detail": "",
+      "expected": "pass"
+    }
+  },
+  {
+    "id": "19-lock-file-registry-address",
+    "title": "Provider address written to the lock file",
+    "terraform": {
+      "result": "pass",
+      "stage": "",
+      "detail": "lock file records: registry.terraform.io/hashicorp/local",
+      "expected": "pass"
+    },
+    "tofu": {
+      "result": "pass",
+      "stage": "",
+      "detail": "lock file records: registry.opentofu.org/hashicorp/local",
+      "expected": "pass"
+    }
+  },
+  {
+    "id": "20-state-handover",
+    "title": "State written by this tool, planned by the other",
+    "terraform": {
+      "result": "pass",
+      "stage": "",
+      "detail": "",
+      "expected": "pass"
+    },
+    "tofu": {
+      "result": "pass",
+      "stage": "",
+      "detail": "",
+      "expected": "pass"
+    }
+  },
+  {
+    "id": "21-encrypted-state-handover",
+    "title": "Encrypted state written by this tool, planned by the other",
+    "terraform": {
+      "result": "fail",
+      "stage": "init",
+      "detail": "Error: Unsupported block type | Blocks of type \"encryption\" are not expected here. Error: Unsupported block type",
+      "expected": "fail"
+    },
+    "tofu": {
+      "result": "fail",
+      "stage": "the other tool's init",
+      "detail": "Error: Unsupported block type | Blocks of type \"encryption\" are not expected here. Error: Unsupported block type",
+      "expected": "fail"
+    }
+  },
+  {
+    "id": "22-override-during-plan",
+    "title": "override_during = plan in a test",
+    "terraform": {
+      "result": "pass",
+      "stage": "",
+      "detail": "",
+      "expected": "pass"
+    },
+    "tofu": {
+      "result": "fail",
+      "stage": "init",
+      "detail": "Error: Unsupported argument | An argument named \"override_during\" is not expected here.",
+      "expected": "fail"
+    }
+  }
+]
