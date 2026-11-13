@@ -1,6 +1,7 @@
 using System.Data;
 using System.Diagnostics;
 using System.Globalization;
+using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using Lab;
@@ -42,7 +43,7 @@ foreach (object?[] row in db.Run("""
     Console.WriteLine($"  database compatibility level {row[4]}, PREVIEW_FEATURES = {row[5]}");
     results["server"] = new { version = row[0], level = row[1], update = row[2], edition = row[3], compatibility = row[4] };
 }
-Console.WriteLine($"  driver Microsoft.Data.SqlClient {typeof(SqlConnection).Assembly.GetName().Version}");
+Console.WriteLine($"  driver Microsoft.Data.SqlClient {typeof(SqlConnection).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion.Split('+')[0]}");
 
 // ---------------------------------------------------------------------------------------------------------------
 Section("1. The vector type");
@@ -63,7 +64,9 @@ Observe("1.8", "a float16 vector, PREVIEW_FEATURES off", "CREATE TABLE dbo.Half 
 
 Section("2. Loading " + Documents.ToString("N0") + " vectors of " + Dimensions + " dimensions");
 Synthetic data = new(20260425);
-float[][] vectors = data.Vectors(Documents, Dimensions, clusters: 64, noise: 0.6, out int[] cluster);
+float[][] vectors = data.Vectors(Documents, Dimensions, clusters: 64, noise: 0.6);
+// A category that has nothing to do with where the vector lies, like a tenant or a document type.
+int[] category = [.. Enumerable.Range(0, Documents).Select(_ => data.Pick(8))];
 Must(db.Run(sql["vector.table"]), "create dbo.Doc");
 Stopwatch load = Stopwatch.StartNew();
 for (int start = 0; start < Documents; start += 1000)
@@ -71,7 +74,7 @@ for (int start = 0; start < Documents; start += 1000)
     StringBuilder rows = new("[");
     for (int i = start; i < start + 1000; i++)
     {
-        rows.Append(i == start ? "" : ",").Append(CultureInfo.InvariantCulture, $"{{\"id\":{i + 1},\"category\":{cluster[i] % 8},\"title\":\"Document {i + 1}\",\"embedding\":{Synthetic.Json(vectors[i])}}}");
+        rows.Append(i == start ? "" : ",").Append(CultureInfo.InvariantCulture, $"{{\"id\":{i + 1},\"category\":{category[i]},\"title\":\"Document {i + 1}\",\"embedding\":{Synthetic.Json(vectors[i])}}}");
     }
     Must(db.Run(sql["vector.load"], ("@rows", rows.Append(']').ToString())), "load a batch");
 }
@@ -102,7 +105,7 @@ results["exact"] = new { median_ms = Math.Round(Median(exactMs)), max_ms = Math.
 
 Section("4. What the driver sees");
 (string clr, string type, object? value) = db.Describe("SELECT embedding FROM dbo.Doc WHERE id = 1");
-Console.WriteLine($"  a vector column is read as SQL type '{type}', .NET type {clr}");
+Console.WriteLine($"  a vector column: SQL type '{type}', declared .NET type {clr}, value returned as {Name(value?.GetType())}");
 try
 {
     SqlParameter typed = new("@v", SqlDbTypeExtensions.Vector) { Value = new SqlVector<float>(vectors[0]) };
@@ -141,12 +144,11 @@ if (build.Ok)
         Console.WriteLine($"  recall against the exact answer: mean {recall.Average():P1}, worst query {recall.Min():P0}, {recall.Count(r => r == 1.0)} of {Queries} queries returned exactly the true ten");
         results["index"] = new { build_seconds = Math.Round(build.Milliseconds / 1000, 1), grew_mb = Math.Round((afterIndexKb - beforeIndexKb) / 1024.0, 1), median_ms = Math.Round(Median(annMs), 1), max_ms = Math.Round(annMs.Max(), 1), pages = pages.LogicalReads + pages.LobReads, mean_recall = Math.Round(recall.Average(), 4), worst_recall = recall.Min(), perfect = recall.Count(r => r == 1.0) };
 
-        int category = cluster[0] % 8;
-        int[] filteredCounts = [.. Enumerable.Range(0, Queries).Select(i => db.Run(sql["vector.search.filtered"], ("@q", Synthetic.Json(queries[i])), ("@category", category)).Rows.Count)];
-        int[] exactCounts = [.. Enumerable.Range(0, Queries).Select(i => db.Run(sql["vector.exact.filtered"], ("@q", Synthetic.Json(queries[i])), ("@category", category)).Rows.Count)];
-        Console.WriteLine($"  with WHERE category = {category}: the exact query returned 10 rows for {exactCounts.Count(c => c == 10)} of {Queries} queries;");
-        Console.WriteLine($"    the index query returned 10 for {filteredCounts.Count(c => c == 10)}, fewer for {filteredCounts.Count(c => c is > 0 and < 10)}, and none for {filteredCounts.Count(c => c == 0)}");
-        results["filtered"] = new { category, index_full = filteredCounts.Count(c => c == 10), index_partial = filteredCounts.Count(c => c is > 0 and < 10), index_empty = filteredCounts.Count(c => c == 0) };
+        int[] filteredCounts = [.. Enumerable.Range(0, Queries).Select(i => db.Run(sql["vector.search.filtered"], ("@q", Synthetic.Json(queries[i])), ("@category", 3)).Rows.Count)];
+        int[] exactCounts = [.. Enumerable.Range(0, Queries).Select(i => db.Run(sql["vector.exact.filtered"], ("@q", Synthetic.Json(queries[i])), ("@category", 3)).Rows.Count)];
+        Console.WriteLine($"  with WHERE category = 3, one row in eight: the exact query returned 10 rows for {exactCounts.Count(c => c == 10)} of {Queries} queries;");
+        Console.WriteLine($"    the index query returned 10 for {filteredCounts.Count(c => c == 10)}, between 1 and 9 for {filteredCounts.Count(c => c is > 0 and < 10)}, and none for {filteredCounts.Count(c => c == 0)}; {filteredCounts.Average():F1} rows on average");
+        results["filtered"] = new { index_full = filteredCounts.Count(c => c == 10), index_partial = filteredCounts.Count(c => c is > 0 and < 10), index_empty = filteredCounts.Count(c => c == 0), average_rows = Math.Round(filteredCounts.Average(), 1) };
     }
     Console.WriteLine("  writes to the table while the index exists:");
     string extra = Synthetic.Json(data.Near(vectors[1], 0.3));
@@ -173,7 +175,7 @@ Observe("6.8", "ORDER BY a json column", "SELECT j FROM (VALUES (CAST('{}' AS js
 Observe("6.9", "JSON_VALUE with RETURNING", "DECLARE @j json = '{\"total\": 12.50}'; SELECT JSON_VALUE(@j, '$.total' RETURNING decimal(9, 2));");
 Observe("6.10", "JSON_CONTAINS, PREVIEW_FEATURES off", "DECLARE @j json = '{\"c\": \"IE\"}'; SELECT JSON_CONTAINS(@j, 'IE', '$.c');");
 
-Section("7. " + Orders.ToString("N0") + " order documents stored four ways");
+Section("7. " + Orders.ToString("N0") + " order documents in three column types");
 Must(db.Run(sql["json.tables"]), "create the order tables");
 for (int start = 1; start <= Orders; start += 5000)
 {
@@ -190,40 +192,10 @@ foreach ((string table, string label) in new[] { ("dbo.OrdersN", "nvarchar(max)"
 int textBytes = Convert.ToInt32(db.Run("SELECT AVG(DATALENGTH(doc)) FROM dbo.OrdersV").Scalar);
 Console.WriteLine($"  the documents average {textBytes} bytes as UTF-8 text");
 results["json_storage_kb"] = sizes;
-(string jsonClr, string jsonType, _) = db.Describe("SELECT doc FROM dbo.OrdersJ WHERE id = 1");
-Console.WriteLine($"  a json column is read as SQL type '{jsonType}', .NET type {jsonClr}");
+(string jsonClr, string jsonType, object? _) = db.Describe("SELECT doc FROM dbo.OrdersJ WHERE id = 1");
+Console.WriteLine($"  a json column: SQL type '{jsonType}', .NET type {jsonClr}");
 
-Section("8. Finding the orders for one country, about 1 in 200");
-Dictionary<string, object> lookups = [];
-Outcome Lookup(string label, string block)
-{
-    List<double> times = [.. Enumerable.Range(0, 7).Select(_ => db.Run(sql[block]).Milliseconds)];
-    Outcome io = Must(db.Run("SET STATISTICS IO ON; " + sql[block] + " SET STATISTICS IO OFF;"), label);
-    Console.WriteLine($"  {label,-44} {Convert.ToInt32(io.Rows[0][0]),4} orders   median {Median(times),6:F1} ms   {io.LogicalReads + io.LobReads,6:N0} pages read");
-    lookups[label] = new { median_ms = Math.Round(Median(times), 1), pages = io.LogicalReads + io.LobReads };
-    return io;
-}
-Outcome fromText = Lookup("nvarchar(max), no index", "json.query.text");
-Outcome fromNative = Lookup("json, no index", "json.query.native");
-Must(db.Run(sql["json.computed"]), "add the computed column and its index");
-Outcome fromComputed = Lookup("json, computed column with a B-tree index", "json.query.computed");
-ObserveAs("8.1", "CREATE JSON INDEX with PREVIEW_FEATURES off", sql["json.index"], "CREATE JSON INDEX IX_OrdersJ_doc ON dbo.OrdersJ (doc) FOR ('$.customer.country', '$.status');");
-Outcome? fromIndex = null;
-if (db.Run("SELECT 1 FROM sys.indexes WHERE name = 'IX_OrdersJ_doc'").Rows.Count == 0)
-{
-    Observe("8.2", "turn the preview features on", "ALTER DATABASE SCOPED CONFIGURATION SET PREVIEW_FEATURES = ON;");
-    ObserveAs("8.3", "CREATE JSON INDEX again", sql["json.index"], "CREATE JSON INDEX IX_OrdersJ_doc ON dbo.OrdersJ (doc) FOR ('$.customer.country', '$.status');");
-}
-if (db.Run("SELECT 1 FROM sys.indexes WHERE name = 'IX_OrdersJ_doc'").Rows.Count == 1)
-{
-    fromIndex = Lookup("json, JSON index", "json.query.native");
-    Observe("8.4", "JSON_CONTAINS on the indexed column", "SELECT COUNT(*) FROM dbo.OrdersJ WHERE JSON_CONTAINS(doc, 'MT', '$.customer.country') = 1;");
-}
-Check("every way of asking returns the same count and the same total",
-    new[] { fromNative, fromComputed, fromIndex }.Where(o => o is not null).All(o => Equals(o!.Rows[0][0], fromText.Rows[0][0]) && Equals(o.Rows[0][1], fromText.Rows[0][1])));
-results["lookups"] = lookups;
-
-Section("9. Changing one property in every document");
+Section("8. Changing one property in every document, before any index exists");
 Dictionary<string, object> updates = [];
 void Update(string label, string block, string status)
 {
@@ -240,6 +212,44 @@ Update("nvarchar(max), JSON_MODIFY(), same length", "json.modify.text", "old");
 Update("nvarchar(max), JSON_MODIFY(), longer value", "json.modify.text", "shipped-and-invoiced");
 Check("after the updates all three tables hold the new status in every document",
     new[] { "OrdersJ", "OrdersC", "OrdersN" }.All(table => Convert.ToInt32(db.Run($"SELECT COUNT(*) FROM dbo.{table} WHERE JSON_VALUE(doc, '$.status') = N'shipped-and-invoiced'").Scalar) == Orders));
+Update("json, doc.modify(), same length, 20 characters", "json.modify.native", "awaiting-collection!");
+
+Section("9. Finding the orders for one country, about 1 in 200");
+Dictionary<string, object> lookups = [];
+Outcome Lookup(string label, string block)
+{
+    List<double> times = [.. Enumerable.Range(0, 7).Select(_ => db.Run(sql[block]).Milliseconds)];
+    Outcome io = Must(db.Run("SET STATISTICS IO ON; " + sql[block] + " SET STATISTICS IO OFF;"), label);
+    Console.WriteLine($"  {label,-44} {Convert.ToInt32(io.Rows[0][0]),4} orders   median {Median(times),6:F1} ms   {io.LogicalReads + io.LobReads,6:N0} pages read");
+    lookups[label] = new { median_ms = Math.Round(Median(times), 1), pages = io.LogicalReads + io.LobReads };
+    return io;
+}
+Outcome fromText = Lookup("nvarchar(max), no index", "json.query.text");
+Outcome fromNative = Lookup("json, no index", "json.query.native");
+Must(db.Run(sql["json.computed"]), "add the computed column and its index");
+Outcome fromComputed = Lookup("json, computed column with a B-tree index", "json.query.computed");
+ObserveAs("8.1", "CREATE JSON INDEX with PREVIEW_FEATURES off", sql["json.index"], "CREATE JSON INDEX IX_OrdersJ_doc ON dbo.OrdersJ (doc) FOR ('$.customer.country', '$.status');");
+Outcome? fromIndex = null;
+if (!JsonIndexExists())
+{
+    Observe("8.2", "turn the preview features on", "ALTER DATABASE SCOPED CONFIGURATION SET PREVIEW_FEATURES = ON;");
+    ObserveAs("8.3", "CREATE JSON INDEX again", sql["json.index"], "CREATE JSON INDEX IX_OrdersJ_doc ON dbo.OrdersJ (doc) FOR ('$.customer.country', '$.status');");
+}
+if (JsonIndexExists())
+{
+    Outcome kinds = db.Run("SELECT CAST(type_desc AS varchar(60)) FROM sys.indexes WHERE object_id = OBJECT_ID('dbo.OrdersJ') ORDER BY index_id");
+    Console.WriteLine($"  sys.indexes for dbo.OrdersJ: {string.Join(", ", kinds.Rows.Select(row => row[0]))}; the table is now {Convert.ToInt64(db.Run(sql["json.size"], ("@table", "dbo.OrdersJ")).Scalar) / 1024.0:F1} MB");
+    fromIndex = Lookup("json, JSON index", "json.query.native");
+    Observe("8.4", "JSON_CONTAINS on the indexed column", "SELECT COUNT(*) FROM dbo.OrdersJ WHERE JSON_CONTAINS(doc, 'MT', '$.customer.country') = 1;");
+}
+Check("every way of asking returns the same count and the same total",
+    new[] { fromNative, fromComputed, fromIndex }.Where(o => o is not null).All(o => Equals(o!.Rows[0][0], fromText.Rows[0][0]) && Equals(o.Rows[0][1], fromText.Rows[0][1])));
+results["lookups"] = lookups;
+if (JsonIndexExists())
+{
+    Console.WriteLine("  and the cost of keeping that index when the indexed property changes:");
+    Update("json, doc.modify(), same length, JSON index", "json.modify.native", "returned-to-supplier");
+}
 results["updates"] = updates;
 
 Section("10. Shaping results");
@@ -279,6 +289,8 @@ Outcome ObserveAs(string id, string what, string statement, string? show, params
     return outcome;
 }
 
+bool JsonIndexExists() => db.Run("SELECT 1 FROM sys.indexes WHERE object_id = OBJECT_ID('dbo.OrdersJ') AND name = 'IX_OrdersJ_doc'").Rows.Count > 0;
+
 Outcome Must(Outcome outcome, string what)
 {
     if (!outcome.Ok)
@@ -287,6 +299,8 @@ Outcome Must(Outcome outcome, string what)
     }
     return outcome;
 }
+
+static string Name(Type? type) => type is null ? "null" : type.IsGenericType ? $"{type.Name.Split('`')[0]}<{string.Join(", ", type.GetGenericArguments().Select(a => a.Name))}>" : type.Name;
 
 static bool Near(object? value, double expected) => value is not null && Math.Abs(Convert.ToDouble(value) - expected) < 1e-6;
 

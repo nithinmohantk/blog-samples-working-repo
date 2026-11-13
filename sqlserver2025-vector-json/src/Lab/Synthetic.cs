@@ -13,17 +13,10 @@ public sealed class Synthetic(ulong seed)
 
     public static readonly string[] Countries = ["IE", "GB", "DE", "FR", "NL", "ES", "IT", "PL", "SE", "DK", "BE", "PT", "AT", "FI", "CZ", "MT"];
 
-    public float[][] Vectors(int count, int dimensions, int clusters, double noise, out int[] cluster)
+    public float[][] Vectors(int count, int dimensions, int clusters, double noise)
     {
         float[][] centres = [.. Enumerable.Range(0, clusters).Select(_ => Unit(dimensions, null, 0))];
-        float[][] vectors = new float[count][];
-        cluster = new int[count];
-        for (int i = 0; i < count; i++)
-        {
-            cluster[i] = (int)(Next() % (ulong)clusters);
-            vectors[i] = Unit(dimensions, centres[cluster[i]], noise);
-        }
-        return vectors;
+        return [.. Enumerable.Range(0, count).Select(_ => Unit(dimensions, centres[Pick(clusters)], noise))];
     }
 
     /// <summary>A unit vector near an existing one, used as a query.</summary>

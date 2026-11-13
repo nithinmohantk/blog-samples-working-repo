@@ -35,7 +35,8 @@ export LAB_SQL_CONNECTION="Server=127.0.0.1,14333;User ID=sa;Password=$password;
 } | tee "$out/versions.txt"
 
 echo "== the experiments"
-"$dotnet" run --project src/Lab -c Release -- sql "$out" 2>&1 | grep -v "^$password" | tee "$out/transcript.txt"; [ "${PIPESTATUS[0]}" -eq 0 ] || status=1
+"$dotnet" build src/Lab -c Release > "$out/build.txt" 2>&1 || { tail -n 30 "$out/build.txt"; exit 2; }
+"$dotnet" run --project src/Lab -c Release --no-build -- sql "$out" 2>&1 | tee "$out/transcript.txt"; [ "${PIPESTATUS[0]}" -eq 0 ] || status=1
 
 docker logs sql2025 2>&1 | grep -m1 -A3 "Microsoft SQL Server 2025" > "$out/server-banner.txt"
 if grep -rqF "$password" "$out"; then echo "the password reached an output file"; rm -rf "${out:?}"/*; status=1; fi
