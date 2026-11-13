@@ -1,0 +1,153 @@
+
+== ci: 2 model requests
+model gpt-6-sol, reasoning {'effort': 'low', 'context': 'all_turns'}, service_tier flex, stream True, store False, cache key sent True
+top-level fields: client_metadata, include, input, model, parallel_tool_calls, prompt_cache_key, reasoning, service_tier, store, stream, text, tool_choice
+include: ['reasoning.encrypted_content']; tool_choice auto; parallel_tool_calls False
+3 tools: functions(), clock(), collaboration()
+   item additional_tools:developer: keys ['id', 'role', 'tools', 'type']; starts {"type": "additional_tools", "id": "at_7109391b-d728-51a6-bb49-db6f40e12e84", "role": "dev
+   item message:developer: keys ['content', 'id', 'role', 'type']; starts [{"type": "input_text", "text": "You are Codex, an agent based on GPT-6. You and the user 
+   item message:developer: keys ['content', 'id', 'role', 'type']; starts [{"type": "input_text", "text": "<skills_instructions>\n## Skills\nA skill is a set of loc
+   item message:developer: keys ['content', 'id', 'role', 'type']; starts [{"type": "input_text", "text": "<multi_agent_role>You are `/root`, the primary agent in a
+   item message:developer: keys ['content', 'id', 'role', 'type']; starts [{"type": "input_text", "text": "<multi_agent_mode>Any earlier instruction enabling proact
+   item message:user: keys ['content', 'id', 'role', 'type']; starts [{"type": "input_text", "text": "<environment_context>\n  <cwd>/tmp/tmp.giN04gdT91/repo</c
+   item message:user: keys ['content', 'id', 'role', 'type']; starts [{"type": "input_text", "text": "Read the notes and the modules, then say done."}]
+request  agent        model  effort    reply  of which tools  input items  prompt tokens  earlier items unchanged
+      1   main    gpt-6-sol     low    shell           5,225            7         11,076                        -
+      2   main    gpt-6-sol     low  message           5,225            9         11,255                     True
+items in the last request: additional_tools:developer 5,268, message:developer 3,904, message:developer 910, message:developer 625, message:developer 111, message:user 186, message:user 70, custom_tool_call 74, custom_tool_call_output 105
+same cache key on every request: True
+
+== compact: 8 model requests
+model gpt-6-sol, reasoning {'effort': 'medium', 'context': 'all_turns'}, service_tier None, stream True, store False, cache key sent True
+top-level fields: client_metadata, include, input, model, parallel_tool_calls, prompt_cache_key, reasoning, store, stream, text, tool_choice
+include: ['reasoning.encrypted_content']; tool_choice auto; parallel_tool_calls False
+3 tools: functions(), clock(), collaboration()
+   item additional_tools:developer: keys ['id', 'role', 'tools', 'type']; starts {"type": "additional_tools", "id": "at_1956068e-42b4-5ad8-a7d8-4d09212298e0", "role": "dev
+   item message:developer: keys ['content', 'id', 'role', 'type']; starts [{"type": "input_text", "text": "You are Codex, an agent based on GPT-6. You and the user 
+   item message:developer: keys ['content', 'id', 'role', 'type']; starts [{"type": "input_text", "text": "<skills_instructions>\n## Skills\nA skill is a set of loc
+   item message:developer: keys ['content', 'id', 'role', 'type']; starts [{"type": "input_text", "text": "<multi_agent_role>You are `/root`, the primary agent in a
+   item message:developer: keys ['content', 'id', 'role', 'type']; starts [{"type": "input_text", "text": "<multi_agent_mode>Any earlier instruction enabling proact
+   item message:user: keys ['content', 'id', 'role', 'type']; starts [{"type": "input_text", "text": "<environment_context>\n  <cwd>/tmp/tmp.giN04gdT91/repo</c
+   item message:user: keys ['content', 'id', 'role', 'type']; starts [{"type": "input_text", "text": "Read the notes and the modules, then say done."}]
+request  agent        model  effort    reply  of which tools  input items  prompt tokens  earlier items unchanged
+      1   main    gpt-6-sol  medium    shell           5,225            7         11,079                        -
+      2   main    gpt-6-sol  medium    shell           5,225            9         11,255                     True
+      3   main    gpt-6-sol  medium    shell           5,225           11         15,865                     True
+      4   main    gpt-6-sol  medium    shell           5,225           13         20,476                     True
+      5   main    gpt-6-sol  medium  summary               1           16         19,988                    False
+      6   main    gpt-6-sol  medium    shell           5,225            8         11,240                    False
+      7   main    gpt-6-sol  medium    shell           5,225           10         15,849                     True
+      8   main    gpt-6-sol  medium  message           5,225           12         20,459                     True
+items in the last request: additional_tools:developer 5,271, message:developer 3,908, message:developer 908, message:developer 623, message:developer 108, message:user 184, message:user 67, message:user 169, custom_tool_call 77, custom_tool_call_output 4,532, custom_tool_call 77, custom_tool_call_output 4,533
+same cache key on every request: True
+
+== deep: 2 model requests
+model gpt-6-astra, reasoning {'effort': 'high', 'context': 'all_turns'}, service_tier None, stream True, store False, cache key sent True
+top-level fields: client_metadata, include, input, model, parallel_tool_calls, prompt_cache_key, reasoning, store, stream, text, tool_choice
+include: ['reasoning.encrypted_content']; tool_choice auto; parallel_tool_calls False
+3 tools: functions(), clock(), collaboration()
+   item additional_tools:developer: keys ['id', 'role', 'tools', 'type']; starts {"type": "additional_tools", "id": "at_12eb7de8-3bb5-51f8-809d-18793d704bb1", "role": "dev
+   item message:developer: keys ['content', 'id', 'role', 'type']; starts [{"type": "input_text", "text": "You are Codex, an agent based on GPT-6. You and the user 
+   item message:developer: keys ['content', 'id', 'role', 'type']; starts [{"type": "input_text", "text": "<skills_instructions>\n## Skills\nA skill is a set of loc
+   item message:developer: keys ['content', 'id', 'role', 'type']; starts [{"type": "input_text", "text": "<multi_agent_role>You are `/root`, the primary agent in a
+   item message:developer: keys ['content', 'id', 'role', 'type']; starts [{"type": "input_text", "text": "<multi_agent_mode>Any earlier instruction enabling proact
+   item message:user: keys ['content', 'id', 'role', 'type']; starts [{"type": "input_text", "text": "<environment_context>\n  <cwd>/tmp/tmp.giN04gdT91/repo</c
+   item message:user: keys ['content', 'id', 'role', 'type']; starts [{"type": "input_text", "text": "Read the notes and the modules, then say done."}]
+request  agent        model  effort    reply  of which tools  input items  prompt tokens  earlier items unchanged
+      1   main  gpt-6-astra    high    shell           5,225            7         11,542                        -
+      2   main  gpt-6-astra    high  message           5,225            9         11,724                     True
+items in the last request: additional_tools:developer 5,270, message:developer 4,366, message:developer 910, message:developer 628, message:developer 112, message:user 184, message:user 70, custom_tool_call 74, custom_tool_call_output 108
+same cache key on every request: True
+
+== default: 7 model requests
+model gpt-6-sol, reasoning {'effort': 'medium', 'context': 'all_turns'}, service_tier None, stream True, store False, cache key sent True
+top-level fields: client_metadata, include, input, model, parallel_tool_calls, prompt_cache_key, reasoning, store, stream, text, tool_choice
+include: ['reasoning.encrypted_content']; tool_choice auto; parallel_tool_calls False
+3 tools: functions(), clock(), collaboration()
+   namespace functions keys=['description', 'name', 'tools', 'type'] params=[] required=None
+     custom exec keys=['description', 'format', 'name', 'type'] params=[] required=None
+     function wait keys=['description', 'name', 'parameters', 'strict', 'type'] params=['cell_id', 'max_tokens', 'terminate', 'yield_time_ms'] required=['cell_id']
+     function request_user_input keys=['description', 'name', 'parameters', 'strict', 'type'] params=['questions'] required=['questions']
+     function request_user_input_async keys=['description', 'name', 'parameters', 'strict', 'type'] params=['questions'] required=['questions']
+   namespace clock keys=['description', 'name', 'tools', 'type'] params=[] required=None
+     function sleep keys=['description', 'name', 'parameters', 'strict', 'type'] params=['duration_ms'] required=['duration_ms']
+   namespace collaboration keys=['description', 'name', 'tools', 'type'] params=[] required=None
+     function followup_task keys=['description', 'name', 'parameters', 'strict', 'type'] params=['message', 'target'] required=['target', 'message']
+     function interrupt_agent keys=['description', 'name', 'parameters', 'strict', 'type'] params=['target'] required=['target']
+     function list_agents keys=['description', 'name', 'parameters', 'strict', 'type'] params=['path_prefix'] required=None
+     function send_message keys=['description', 'name', 'parameters', 'strict', 'type'] params=['message', 'target'] required=['target', 'message']
+     function spawn_agent keys=['description', 'name', 'parameters', 'strict', 'type'] params=['fork_turns', 'message', 'model', 'reasoning_effort', 'task_name'] required=['task_name', 'message']
+     function wait_agent keys=['description', 'name', 'parameters', 'strict', 'type'] params=['timeout_ms'] required=None
+   item additional_tools:developer: keys ['id', 'role', 'tools', 'type']; starts {"type": "additional_tools", "id": "at_5cce08ba-e4d7-51e4-8ebd-8330d5ffd521", "role": "dev
+   item message:developer: keys ['content', 'id', 'role', 'type']; starts [{"type": "input_text", "text": "You are Codex, an agent based on GPT-6. You and the user 
+   item message:developer: keys ['content', 'id', 'role', 'type']; starts [{"type": "input_text", "text": "<skills_instructions>\n## Skills\nA skill is a set of loc
+   item message:developer: keys ['content', 'id', 'role', 'type']; starts [{"type": "input_text", "text": "<multi_agent_role>You are `/root`, the primary agent in a
+   item message:developer: keys ['content', 'id', 'role', 'type']; starts [{"type": "input_text", "text": "<multi_agent_mode>Any earlier instruction enabling proact
+   item message:user: keys ['content', 'id', 'role', 'type']; starts [{"type": "input_text", "text": "<environment_context>\n  <cwd>/tmp/tmp.giN04gdT91/repo</c
+   item message:user: keys ['content', 'id', 'role', 'type']; starts [{"type": "input_text", "text": "Read the notes and the modules, then say done."}]
+request  agent        model  effort    reply  of which tools  input items  prompt tokens  earlier items unchanged
+      1   main    gpt-6-sol  medium    shell           5,225            7         11,081                        -
+      2   main    gpt-6-sol  medium    shell           5,225            9         11,258                     True
+      3   main    gpt-6-sol  medium    shell           5,225           11         15,866                     True
+      4   main    gpt-6-sol  medium    shell           5,225           13         20,476                     True
+      5   main    gpt-6-sol  medium    shell           5,225           15         25,088                     True
+      6   main    gpt-6-sol  medium    shell           5,225           17         29,694                     True
+      7   main    gpt-6-sol  medium  message           5,225           19         34,304                     True
+items in the last request: additional_tools:developer 5,271, message:developer 3,907, message:developer 910, message:developer 626, message:developer 111, message:user 186, message:user 68, custom_tool_call 74, custom_tool_call_output 103, custom_tool_call 77, custom_tool_call_output 4,531, custom_tool_call 77, custom_tool_call_output 4,533, custom_tool_call 77, custom_tool_call_output 4,535, custom_tool_call 77, custom_tool_call_output 4,529, custom_tool_call 77, custom_tool_call_output 4,533
+same cache key on every request: True
+
+== review: 1 model requests
+model gpt-6-astra, reasoning {'effort': 'medium', 'context': 'all_turns'}, service_tier None, stream True, store False, cache key sent True
+top-level fields: client_metadata, include, input, model, parallel_tool_calls, prompt_cache_key, reasoning, store, stream, text, tool_choice
+include: ['reasoning.encrypted_content']; tool_choice auto; parallel_tool_calls False
+2 tools: functions(), clock()
+   item additional_tools:developer: keys ['id', 'role', 'tools', 'type']; starts {"type": "additional_tools", "id": "at_803e60d3-7ef0-510e-8c2b-7e56453fa75b", "role": "dev
+   item message:developer: keys ['content', 'id', 'role', 'type']; starts [{"type": "input_text", "text": "# Review guidelines:\n\nYou are acting as a reviewer for 
+   item message:developer: keys ['content', 'id', 'role', 'type']; starts [{"type": "input_text", "text": "<skills_instructions>\n## Skills\nA skill is a set of loc
+   item message:user: keys ['content', 'id', 'role', 'type']; starts [{"type": "input_text", "text": "<environment_context>\n  <cwd>/tmp/tmp.giN04gdT91/repo</c
+   item message:user: keys ['content', 'id', 'role', 'type']; starts [{"type": "input_text", "text": "Review the current code changes (staged, unstaged, and un
+request  agent        model  effort    reply  of which tools  input items  prompt tokens  earlier items unchanged
+      1   main  gpt-6-astra  medium  message           2,889            5          6,033                        -
+items in the last request: additional_tools:developer 2,936, message:developer 1,749, message:developer 952, message:user 312, message:user 82
+same cache key on every request: True
+
+== subagent: 4 model requests
+model gpt-6-sol, reasoning {'effort': 'medium', 'context': 'all_turns'}, service_tier None, stream True, store False, cache key sent True
+top-level fields: client_metadata, include, input, model, parallel_tool_calls, prompt_cache_key, reasoning, store, stream, text, tool_choice
+include: ['reasoning.encrypted_content']; tool_choice auto; parallel_tool_calls False
+3 tools: functions(), clock(), collaboration()
+   item additional_tools:developer: keys ['id', 'role', 'tools', 'type']; starts {"type": "additional_tools", "id": "at_07b7eafc-9a4d-5798-a716-65616bad56ad", "role": "dev
+   item message:developer: keys ['content', 'id', 'role', 'type']; starts [{"type": "input_text", "text": "You are Codex, an agent based on GPT-6. You and the user 
+   item message:developer: keys ['content', 'id', 'role', 'type']; starts [{"type": "input_text", "text": "<skills_instructions>\n## Skills\nA skill is a set of loc
+   item message:developer: keys ['content', 'id', 'role', 'type']; starts [{"type": "input_text", "text": "<multi_agent_role>You are `/root`, the primary agent in a
+   item message:developer: keys ['content', 'id', 'role', 'type']; starts [{"type": "input_text", "text": "<multi_agent_mode>Any earlier instruction enabling proact
+   item message:user: keys ['content', 'id', 'role', 'type']; starts [{"type": "input_text", "text": "<environment_context>\n  <cwd>/tmp/tmp.giN04gdT91/repo</c
+   item message:user: keys ['content', 'id', 'role', 'type']; starts [{"type": "input_text", "text": "Read the notes and the modules, then say done."}]
+models used in this run: [('gpt-6-luna', '{"effort": "low", "context": "all_turns"}'), ('gpt-6-sol', '{"effort": "medium", "context": "all_turns"}')]
+request  agent        model  effort    reply  of which tools  input items  prompt tokens  earlier items unchanged
+      1   main    gpt-6-sol  medium     tool           5,225            7         11,076                        -
+      2   main    gpt-6-sol  medium     tool           5,225            9         11,211                     True
+      3  other   gpt-6-luna     low  message           4,893            9         14,836                        -
+      4   main    gpt-6-sol  medium  message           5,225           12         11,426                     True
+items in the last request: additional_tools:developer 5,269, message:developer 3,906, message:developer 911, message:developer 626, message:developer 109, message:user 185, message:user 68, function_call 71, function_call_output 64, function_call 51, function_call_output 65, agent_message 99
+same cache key on every request: True
+
+== checks on what the CLI sent
+ok    default configuration: seven requests, all to gpt-6-sol at medium effort
+ok    every request repeats the earlier items unchanged and adds exactly two: the call and its output
+ok    the tool declarations and the cache key are identical on all seven
+ok    responses are not stored, and tools are declared in an input item, not a top-level field
+ok    --profile deep sends gpt-6-astra at high effort
+ok    --profile ci sends gpt-6-sol at low effort on the flex tier
+ok    a spawned subagent's request goes to gpt-6-luna at low effort, as agents.default_subagent_model says
+      the subagent's first request carries 14,836 tokens before it has done anything
+ok    codex exec review sends gpt-6-astra, the review_model
+ok    with the limit at 20,000 tokens the CLI asks for a summary as soon as a reply reports more than that
+ok    the summary request carries no tool declarations, so it does not start like the request before it
+ok    the request after it is smaller than the one before the summary and begins with the same tool declarations and main instructions as the first request
+      before 20,476 tokens, summary request 19,988, after 11,240
+      after: the first 2 items (9,179 tokens) are byte-identical to the first request's; the other 6 are new or re-created
+      after: additional_tools:developer 5,271, message:developer 3,908, message:developer 908, message:developer 623, message:developer 108, message:user 184, message:user 67, message:user 169
+ok    a [profiles.deep] table in config.toml makes --profile deep fail with a message that calls it legacy
+
+12 of 12 checks passed

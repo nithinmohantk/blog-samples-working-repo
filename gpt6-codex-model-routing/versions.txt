@@ -1,0 +1,3 @@
+Python 3.13.18
+jsonschema 4.26.0
+Codex configuration schema at rust-v0.157.1, sha256 17fbda7e71603aa6a83e986608f2e13c27ea46ce1a4b889196ba81a07c39d907

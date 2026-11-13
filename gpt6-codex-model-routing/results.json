@@ -1,0 +1,60 @@
+{
+ "single_request": {
+  "gpt-6-astra": [
+   1.25,
+   1.5,
+   0.35
+  ],
+  "gpt-6-sol": [
+   0.25,
+   0.3,
+   0.07
+  ],
+  "gpt-6-luna": [
+   0.0125,
+   0.015,
+   0.0035
+  ]
+ },
+ "step": {
+  "below": 0.1174,
+  "above": 0.2152
+ },
+ "sessions": {
+  "gpt-6-astra": {
+   "no_caching": 197.1,
+   "cached": 28.71,
+   "compacted": 19.66,
+   "largest_context": 389000,
+   "steps_over": 20,
+   "compactions": 1
+  },
+  "gpt-6-sol": {
+   "no_caching": 39.42,
+   "cached": 5.74,
+   "compacted": 3.93,
+   "largest_context": 389000,
+   "steps_over": 20,
+   "compactions": 1
+  },
+  "gpt-6-luna": {
+   "no_caching": 1.97,
+   "cached": 0.29,
+   "compacted": 0.2,
+   "largest_context": 389000,
+   "steps_over": 20,
+   "compactions": 1
+  }
+ },
+ "routes": {
+  "everything on Astra": 40.76,
+  "everything on Sol": 8.15,
+  "Sol plans, Luna works, Astra reviews": 3.38,
+  "Sol plans and reviews, Luna works": 1.33,
+  "everything on Luna": 0.41
+ },
+ "checks": {
+  "passed": 21,
+  "total": 21
+ }
+}

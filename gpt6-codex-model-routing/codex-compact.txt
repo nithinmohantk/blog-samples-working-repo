@@ -1,0 +1,3049 @@
+WARNING: proceeding, even though we could not create PATH aliases: Refusing to create helper binaries under temporary dir "/tmp" (codex_home: AbsolutePathBuf("<temp>/home-compact"))
+Reading additional input from stdin...
+OpenAI Codex v0.157.1
+--------
+workdir: <temp>/repo
+model: gpt-6-sol
+provider: standin
+approval: never
+sandbox: read-only
+reasoning effort: medium
+reasoning summaries: none
+session id: 01a1d688-848e-7182-b170-ef165b84cce1
+--------
+user
+Read the notes and the modules, then say done.
+exec
+/bin/bash -lc 'cat NOTES.md' in <temp>/repo
+ succeeded in 101ms:
+# Notes
+
+A test repository. Nothing here is real.
+
+exec
+/bin/bash -lc 'cat src/module_1.py' in <temp>/repo
+ succeeded in 0ms:
+def function_1_0(value):
+    """Returns value plus 0, for module 1."""
+    return value + 0
+
+
+def function_1_1(value):
+    """Returns value plus 1, for module 1."""
+    return value + 1
+
+
+def function_1_2(value):
+    """Returns value plus 2, for module 1."""
+    return value + 2
+
+
+def function_1_3(value):
+    """Returns value plus 3, for module 1."""
+    return value + 3
+
+
+def function_1_4(value):
+    """Returns value plus 4, for module 1."""
+    return value + 4
+
+
+def function_1_5(value):
+    """Returns value plus 5, for module 1."""
+    return value + 5
+
+
+def function_1_6(value):
+    """Returns value plus 6, for module 1."""
+    return value + 6
+
+
+def function_1_7(value):
+    """Returns value plus 7, for module 1."""
+    return value + 7
+
+
+def function_1_8(value):
+    """Returns value plus 8, for module 1."""
+    return value + 8
+
+
+def function_1_9(value):
+    """Returns value plus 9, for module 1."""
+    return value + 9
+
+
+def function_1_10(value):
+    """Returns value plus 10, for module 1."""
+    return value + 10
+
+
+def function_1_11(value):
+    """Returns value plus 11, for module 1."""
+    return value + 11
+
+
+def function_1_12(value):
+    """Returns value plus 12, for module 1."""
+    return value + 12
+
+
+def function_1_13(value):
+    """Returns value plus 13, for module 1."""
+    return value + 13
+
+
+def function_1_14(value):
+    """Returns value plus 14, for module 1."""
+    return value + 14
+
+
+def function_1_15(value):
+    """Returns value plus 15, for module 1."""
+    return value + 15
+
+
+def function_1_16(value):
+    """Returns value plus 16, for module 1."""
+    return value + 16
+
+
+def function_1_17(value):
+    """Returns value plus 17, for module 1."""
+    return value + 17
+
+
+def function_1_18(value):
+    """Returns value plus 18, for module 1."""
+    return value + 18
+
+
+def function_1_19(value):
+    """Returns value plus 19, for module 1."""
+    return value + 19
+
+
+def function_1_20(value):
+    """Returns value plus 20, for module 1."""
+    return value + 20
+
+
+def function_1_21(value):
+    """Returns value plus 21, for module 1."""
+    return value + 21
+
+
+def function_1_22(value):
+    """Returns value plus 22, for module 1."""
+    return value + 22
+
+
+def function_1_23(value):
+    """Returns value plus 23, for module 1."""
+    return value + 23
+
+
+def function_1_24(value):
+    """Returns value plus 24, for module 1."""
+    return value + 24
+
+
+def function_1_25(value):
+    """Returns value plus 25, for module 1."""
+    return value + 25
+
+
+def function_1_26(value):
+    """Returns value plus 26, for module 1."""
+    return value + 26
+
+
+def function_1_27(value):
+    """Returns value plus 27, for module 1."""
+    return value + 27
+
+
+def function_1_28(value):
+    """Returns value plus 28, for module 1."""
+    return value + 28
+
+
+def function_1_29(value):
+    """Returns value plus 29, for module 1."""
+    return value + 29
+
+
+def function_1_30(value):
+    """Returns value plus 30, for module 1."""
+    return value + 30
+
+
+def function_1_31(value):
+    """Returns value plus 31, for module 1."""
+    return value + 31
+
+
+def function_1_32(value):
+    """Returns value plus 32, for module 1."""
+    return value + 32
+
+
+def function_1_33(value):
+    """Returns value plus 33, for module 1."""
+    return value + 33
+
+
+def function_1_34(value):
+    """Returns value plus 34, for module 1."""
+    return value + 34
+
+
+def function_1_35(value):
+    """Returns value plus 35, for module 1."""
+    return value + 35
+
+
+def function_1_36(value):
+    """Returns value plus 36, for module 1."""
+    return value + 36
+
+
+def function_1_37(value):
+    """Returns value plus 37, for module 1."""
+    return value + 37
+
+
+def function_1_38(value):
+    """Returns value plus 38, for module 1."""
+    return value + 38
+
+
+def function_1_39(value):
+    """Returns value plus 39, for module 1."""
+    return value + 39
+
+
+def function_1_40(value):
+    """Returns value plus 40, for module 1."""
+    return value + 40
+
+
+def function_1_41(value):
+    """Returns value plus 41, for module 1."""
+    return value + 41
+
+
+def function_1_42(value):
+    """Returns value plus 42, for module 1."""
+    return value + 42
+
+
+def function_1_43(value):
+    """Returns value plus 43, for module 1."""
+    return value + 43
+
+
+def function_1_44(value):
+    """Returns value plus 44, for module 1."""
+    return value + 44
+
+
+def function_1_45(value):
+    """Returns value plus 45, for module 1."""
+    return value + 45
+
+
+def function_1_46(value):
+    """Returns value plus 46, for module 1."""
+    return value + 46
+
+
+def function_1_47(value):
+    """Returns value plus 47, for module 1."""
+    return value + 47
+
+
+def function_1_48(value):
+    """Returns value plus 48, for module 1."""
+    return value + 48
+
+
+def function_1_49(value):
+    """Returns value plus 49, for module 1."""
+    return value + 49
+
+
+def function_1_50(value):
+    """Returns value plus 50, for module 1."""
+    return value + 50
+
+
+def function_1_51(value):
+    """Returns value plus 51, for module 1."""
+    return value + 51
+
+
+def function_1_52(value):
+    """Returns value plus 52, for module 1."""
+    return value + 52
+
+
+def function_1_53(value):
+    """Returns value plus 53, for module 1."""
+    return value + 53
+
+
+def function_1_54(value):
+    """Returns value plus 54, for module 1."""
+    return value + 54
+
+
+def function_1_55(value):
+    """Returns value plus 55, for module 1."""
+    return value + 55
+
+
+def function_1_56(value):
+    """Returns value plus 56, for module 1."""
+    return value + 56
+
+
+def function_1_57(value):
+    """Returns value plus 57, for module 1."""
+    return value + 57
+
+
+def function_1_58(value):
+    """Returns value plus 58, for module 1."""
+    return value + 58
+
+
+def function_1_59(value):
+    """Returns value plus 59, for module 1."""
+    return value + 59
+
+
+def function_1_60(value):
+    """Returns value plus 60, for module 1."""
+    return value + 60
+
+
+def function_1_61(value):
+    """Returns value plus 61, for module 1."""
+    return value + 61
+
+
+def function_1_62(value):
+    """Returns value plus 62, for module 1."""
+    return value + 62
+
+
+def function_1_63(value):
+    """Returns value plus 63, for module 1."""
+    return value + 63
+
+
+def function_1_64(value):
+    """Returns value plus 64, for module 1."""
+    return value + 64
+
+
+def function_1_65(value):
+    """Returns value plus 65, for module 1."""
+    return value + 65
+
+
+def function_1_66(value):
+    """Returns value plus 66, for module 1."""
+    return value + 66
+
+
+def function_1_67(value):
+    """Returns value plus 67, for module 1."""
+    return value + 67
+
+
+def function_1_68(value):
+    """Returns value plus 68, for module 1."""
+    return value + 68
+
+
+def function_1_69(value):
+    """Returns value plus 69, for module 1."""
+    return value + 69
+
+
+def function_1_70(value):
+    """Returns value plus 70, for module 1."""
+    return value + 70
+
+
+def function_1_71(value):
+    """Returns value plus 71, for module 1."""
+    return value + 71
+
+
+def function_1_72(value):
+    """Returns value plus 72, for module 1."""
+    return value + 72
+
+
+def function_1_73(value):
+    """Returns value plus 73, for module 1."""
+    return value + 73
+
+
+def function_1_74(value):
+    """Returns value plus 74, for module 1."""
+    return value + 74
+
+
+def function_1_75(value):
+    """Returns value plus 75, for module 1."""
+    return value + 75
+
+
+def function_1_76(value):
+    """Returns value plus 76, for module 1."""
+    return value + 76
+
+
+def function_1_77(value):
+    """Returns value plus 77, for module 1."""
+    return value + 77
+
+
+def function_1_78(value):
+    """Returns value plus 78, for module 1."""
+    return value + 78
+
+
+def function_1_79(value):
+    """Returns value plus 79, for module 1."""
+    return value + 79
+
+
+def function_1_80(value):
+    """Returns value plus 80, for module 1."""
+    return value + 80
+
+
+def function_1_81(value):
+    """Returns value plus 81, for module 1."""
+    return value + 81
+
+
+def function_1_82(value):
+    """Returns value plus 82, for module 1."""
+    return value + 82
+
+
+def function_1_83(value):
+    """Returns value plus 83, for module 1."""
+    return value + 83
+
+
+def function_1_84(value):
+    """Returns value plus 84, for module 1."""
+    return value + 84
+
+
+def function_1_85(value):
+    """Returns value plus 85, for module 1."""
+    return value + 85
+
+
+def function_1_86(value):
+    """Returns value plus 86, for module 1."""
+    return value + 86
+
+
+def function_1_87(value):
+    """Returns value plus 87, for module 1."""
+    return value + 87
+
+
+def function_1_88(value):
+    """Returns value plus 88, for module 1."""
+    return value + 88
+
+
+def function_1_89(value):
+    """Returns value plus 89, for module 1."""
+    return value + 89
+
+
+def function_1_90(value):
+    """Returns value plus 90, for module 1."""
+    return value + 90
+
+
+def function_1_91(value):
+    """Returns value plus 91, for module 1."""
+    return value + 91
+
+
+def function_1_92(value):
+    """Returns value plus 92, for module 1."""
+    return value + 92
+
+
+def function_1_93(value):
+    """Returns value plus 93, for module 1."""
+    return value + 93
+
+
+def function_1_94(value):
+    """Returns value plus 94, for module 1."""
+    return value + 94
+
+
+def function_1_95(value):
+    """Returns value plus 95, for module 1."""
+    return value + 95
+
+
+def function_1_96(value):
+    """Returns value plus 96, for module 1."""
+    return value + 96
+
+
+def function_1_97(value):
+    """Returns value plus 97, for module 1."""
+    return value + 97
+
+
+def function_1_98(value):
+    """Returns value plus 98, for module 1."""
+    return value + 98
+
+
+def function_1_99(value):
+    """Returns value plus 99, for module 1."""
+    return value + 99
+
+
+def function_1_100(value):
+    """Returns value plus 100, for module 1."""
+    return value + 100
+
+
+def function_1_101(value):
+    """Returns value plus 101, for module 1."""
+    return value + 101
+
+
+def function_1_102(value):
+    """Returns value plus 102, for module 1."""
+    return value + 102
+
+
+def function_1_103(value):
+    """Returns value plus 103, for module 1."""
+    return value + 103
+
+
+def function_1_104(value):
+    """Returns value plus 104, for module 1."""
+    return value + 104
+
+
+def function_1_105(value):
+    """Returns value plus 105, for module 1."""
+    return value + 105
+
+
+def function_1_106(value):
+    """Returns value plus 106, for module 1."""
+    return value + 106
+
+
+def function_1_107(value):
+    """Returns value plus 107, for module 1."""
+    return value + 107
+
+
+def function_1_108(value):
+    """Returns value plus 108, for module 1."""
+    return value + 108
+
+
+def function_1_109(value):
+    """Returns value plus 109, for module 1."""
+    return value + 109
+
+
+def function_1_110(value):
+    """Returns value plus 110, for module 1."""
+    return value + 110
+
+
+def function_1_111(value):
+    """Returns value plus 111, for module 1."""
+    return value + 111
+
+
+def function_1_112(value):
+    """Returns value plus 112, for module 1."""
+    return value + 112
+
+
+def function_1_113(value):
+    """Returns value plus 113, for module 1."""
+    return value + 113
+
+
+def function_1_114(value):
+    """Returns value plus 114, for module 1."""
+    return value + 114
+
+
+def function_1_115(value):
+    """Returns value plus 115, for module 1."""
+    return value + 115
+
+
+def function_1_116(value):
+    """Returns value plus 116, for module 1."""
+    return value + 116
+
+
+def function_1_117(value):
+    """Returns value plus 117, for module 1."""
+    return value + 117
+
+
+def function_1_118(value):
+    """Returns value plus 118, for module 1."""
+    return value + 118
+
+
+def function_1_119(value):
+    """Returns value plus 119, for module 1."""
+    return value + 119
+
+
+
+exec
+/bin/bash -lc 'cat src/module_2.py' in <temp>/repo
+ succeeded in 0ms:
+def function_2_0(value):
+    """Returns value plus 0, for module 2."""
+    return value + 0
+
+
+def function_2_1(value):
+    """Returns value plus 1, for module 2."""
+    return value + 1
+
+
+def function_2_2(value):
+    """Returns value plus 2, for module 2."""
+    return value + 2
+
+
+def function_2_3(value):
+    """Returns value plus 3, for module 2."""
+    return value + 3
+
+
+def function_2_4(value):
+    """Returns value plus 4, for module 2."""
+    return value + 4
+
+
+def function_2_5(value):
+    """Returns value plus 5, for module 2."""
+    return value + 5
+
+
+def function_2_6(value):
+    """Returns value plus 6, for module 2."""
+    return value + 6
+
+
+def function_2_7(value):
+    """Returns value plus 7, for module 2."""
+    return value + 7
+
+
+def function_2_8(value):
+    """Returns value plus 8, for module 2."""
+    return value + 8
+
+
+def function_2_9(value):
+    """Returns value plus 9, for module 2."""
+    return value + 9
+
+
+def function_2_10(value):
+    """Returns value plus 10, for module 2."""
+    return value + 10
+
+
+def function_2_11(value):
+    """Returns value plus 11, for module 2."""
+    return value + 11
+
+
+def function_2_12(value):
+    """Returns value plus 12, for module 2."""
+    return value + 12
+
+
+def function_2_13(value):
+    """Returns value plus 13, for module 2."""
+    return value + 13
+
+
+def function_2_14(value):
+    """Returns value plus 14, for module 2."""
+    return value + 14
+
+
+def function_2_15(value):
+    """Returns value plus 15, for module 2."""
+    return value + 15
+
+
+def function_2_16(value):
+    """Returns value plus 16, for module 2."""
+    return value + 16
+
+
+def function_2_17(value):
+    """Returns value plus 17, for module 2."""
+    return value + 17
+
+
+def function_2_18(value):
+    """Returns value plus 18, for module 2."""
+    return value + 18
+
+
+def function_2_19(value):
+    """Returns value plus 19, for module 2."""
+    return value + 19
+
+
+def function_2_20(value):
+    """Returns value plus 20, for module 2."""
+    return value + 20
+
+
+def function_2_21(value):
+    """Returns value plus 21, for module 2."""
+    return value + 21
+
+
+def function_2_22(value):
+    """Returns value plus 22, for module 2."""
+    return value + 22
+
+
+def function_2_23(value):
+    """Returns value plus 23, for module 2."""
+    return value + 23
+
+
+def function_2_24(value):
+    """Returns value plus 24, for module 2."""
+    return value + 24
+
+
+def function_2_25(value):
+    """Returns value plus 25, for module 2."""
+    return value + 25
+
+
+def function_2_26(value):
+    """Returns value plus 26, for module 2."""
+    return value + 26
+
+
+def function_2_27(value):
+    """Returns value plus 27, for module 2."""
+    return value + 27
+
+
+def function_2_28(value):
+    """Returns value plus 28, for module 2."""
+    return value + 28
+
+
+def function_2_29(value):
+    """Returns value plus 29, for module 2."""
+    return value + 29
+
+
+def function_2_30(value):
+    """Returns value plus 30, for module 2."""
+    return value + 30
+
+
+def function_2_31(value):
+    """Returns value plus 31, for module 2."""
+    return value + 31
+
+
+def function_2_32(value):
+    """Returns value plus 32, for module 2."""
+    return value + 32
+
+
+def function_2_33(value):
+    """Returns value plus 33, for module 2."""
+    return value + 33
+
+
+def function_2_34(value):
+    """Returns value plus 34, for module 2."""
+    return value + 34
+
+
+def function_2_35(value):
+    """Returns value plus 35, for module 2."""
+    return value + 35
+
+
+def function_2_36(value):
+    """Returns value plus 36, for module 2."""
+    return value + 36
+
+
+def function_2_37(value):
+    """Returns value plus 37, for module 2."""
+    return value + 37
+
+
+def function_2_38(value):
+    """Returns value plus 38, for module 2."""
+    return value + 38
+
+
+def function_2_39(value):
+    """Returns value plus 39, for module 2."""
+    return value + 39
+
+
+def function_2_40(value):
+    """Returns value plus 40, for module 2."""
+    return value + 40
+
+
+def function_2_41(value):
+    """Returns value plus 41, for module 2."""
+    return value + 41
+
+
+def function_2_42(value):
+    """Returns value plus 42, for module 2."""
+    return value + 42
+
+
+def function_2_43(value):
+    """Returns value plus 43, for module 2."""
+    return value + 43
+
+
+def function_2_44(value):
+    """Returns value plus 44, for module 2."""
+    return value + 44
+
+
+def function_2_45(value):
+    """Returns value plus 45, for module 2."""
+    return value + 45
+
+
+def function_2_46(value):
+    """Returns value plus 46, for module 2."""
+    return value + 46
+
+
+def function_2_47(value):
+    """Returns value plus 47, for module 2."""
+    return value + 47
+
+
+def function_2_48(value):
+    """Returns value plus 48, for module 2."""
+    return value + 48
+
+
+def function_2_49(value):
+    """Returns value plus 49, for module 2."""
+    return value + 49
+
+
+def function_2_50(value):
+    """Returns value plus 50, for module 2."""
+    return value + 50
+
+
+def function_2_51(value):
+    """Returns value plus 51, for module 2."""
+    return value + 51
+
+
+def function_2_52(value):
+    """Returns value plus 52, for module 2."""
+    return value + 52
+
+
+def function_2_53(value):
+    """Returns value plus 53, for module 2."""
+    return value + 53
+
+
+def function_2_54(value):
+    """Returns value plus 54, for module 2."""
+    return value + 54
+
+
+def function_2_55(value):
+    """Returns value plus 55, for module 2."""
+    return value + 55
+
+
+def function_2_56(value):
+    """Returns value plus 56, for module 2."""
+    return value + 56
+
+
+def function_2_57(value):
+    """Returns value plus 57, for module 2."""
+    return value + 57
+
+
+def function_2_58(value):
+    """Returns value plus 58, for module 2."""
+    return value + 58
+
+
+def function_2_59(value):
+    """Returns value plus 59, for module 2."""
+    return value + 59
+
+
+def function_2_60(value):
+    """Returns value plus 60, for module 2."""
+    return value + 60
+
+
+def function_2_61(value):
+    """Returns value plus 61, for module 2."""
+    return value + 61
+
+
+def function_2_62(value):
+    """Returns value plus 62, for module 2."""
+    return value + 62
+
+
+def function_2_63(value):
+    """Returns value plus 63, for module 2."""
+    return value + 63
+
+
+def function_2_64(value):
+    """Returns value plus 64, for module 2."""
+    return value + 64
+
+
+def function_2_65(value):
+    """Returns value plus 65, for module 2."""
+    return value + 65
+
+
+def function_2_66(value):
+    """Returns value plus 66, for module 2."""
+    return value + 66
+
+
+def function_2_67(value):
+    """Returns value plus 67, for module 2."""
+    return value + 67
+
+
+def function_2_68(value):
+    """Returns value plus 68, for module 2."""
+    return value + 68
+
+
+def function_2_69(value):
+    """Returns value plus 69, for module 2."""
+    return value + 69
+
+
+def function_2_70(value):
+    """Returns value plus 70, for module 2."""
+    return value + 70
+
+
+def function_2_71(value):
+    """Returns value plus 71, for module 2."""
+    return value + 71
+
+
+def function_2_72(value):
+    """Returns value plus 72, for module 2."""
+    return value + 72
+
+
+def function_2_73(value):
+    """Returns value plus 73, for module 2."""
+    return value + 73
+
+
+def function_2_74(value):
+    """Returns value plus 74, for module 2."""
+    return value + 74
+
+
+def function_2_75(value):
+    """Returns value plus 75, for module 2."""
+    return value + 75
+
+
+def function_2_76(value):
+    """Returns value plus 76, for module 2."""
+    return value + 76
+
+
+def function_2_77(value):
+    """Returns value plus 77, for module 2."""
+    return value + 77
+
+
+def function_2_78(value):
+    """Returns value plus 78, for module 2."""
+    return value + 78
+
+
+def function_2_79(value):
+    """Returns value plus 79, for module 2."""
+    return value + 79
+
+
+def function_2_80(value):
+    """Returns value plus 80, for module 2."""
+    return value + 80
+
+
+def function_2_81(value):
+    """Returns value plus 81, for module 2."""
+    return value + 81
+
+
+def function_2_82(value):
+    """Returns value plus 82, for module 2."""
+    return value + 82
+
+
+def function_2_83(value):
+    """Returns value plus 83, for module 2."""
+    return value + 83
+
+
+def function_2_84(value):
+    """Returns value plus 84, for module 2."""
+    return value + 84
+
+
+def function_2_85(value):
+    """Returns value plus 85, for module 2."""
+    return value + 85
+
+
+def function_2_86(value):
+    """Returns value plus 86, for module 2."""
+    return value + 86
+
+
+def function_2_87(value):
+    """Returns value plus 87, for module 2."""
+    return value + 87
+
+
+def function_2_88(value):
+    """Returns value plus 88, for module 2."""
+    return value + 88
+
+
+def function_2_89(value):
+    """Returns value plus 89, for module 2."""
+    return value + 89
+
+
+def function_2_90(value):
+    """Returns value plus 90, for module 2."""
+    return value + 90
+
+
+def function_2_91(value):
+    """Returns value plus 91, for module 2."""
+    return value + 91
+
+
+def function_2_92(value):
+    """Returns value plus 92, for module 2."""
+    return value + 92
+
+
+def function_2_93(value):
+    """Returns value plus 93, for module 2."""
+    return value + 93
+
+
+def function_2_94(value):
+    """Returns value plus 94, for module 2."""
+    return value + 94
+
+
+def function_2_95(value):
+    """Returns value plus 95, for module 2."""
+    return value + 95
+
+
+def function_2_96(value):
+    """Returns value plus 96, for module 2."""
+    return value + 96
+
+
+def function_2_97(value):
+    """Returns value plus 97, for module 2."""
+    return value + 97
+
+
+def function_2_98(value):
+    """Returns value plus 98, for module 2."""
+    return value + 98
+
+
+def function_2_99(value):
+    """Returns value plus 99, for module 2."""
+    return value + 99
+
+
+def function_2_100(value):
+    """Returns value plus 100, for module 2."""
+    return value + 100
+
+
+def function_2_101(value):
+    """Returns value plus 101, for module 2."""
+    return value + 101
+
+
+def function_2_102(value):
+    """Returns value plus 102, for module 2."""
+    return value + 102
+
+
+def function_2_103(value):
+    """Returns value plus 103, for module 2."""
+    return value + 103
+
+
+def function_2_104(value):
+    """Returns value plus 104, for module 2."""
+    return value + 104
+
+
+def function_2_105(value):
+    """Returns value plus 105, for module 2."""
+    return value + 105
+
+
+def function_2_106(value):
+    """Returns value plus 106, for module 2."""
+    return value + 106
+
+
+def function_2_107(value):
+    """Returns value plus 107, for module 2."""
+    return value + 107
+
+
+def function_2_108(value):
+    """Returns value plus 108, for module 2."""
+    return value + 108
+
+
+def function_2_109(value):
+    """Returns value plus 109, for module 2."""
+    return value + 109
+
+
+def function_2_110(value):
+    """Returns value plus 110, for module 2."""
+    return value + 110
+
+
+def function_2_111(value):
+    """Returns value plus 111, for module 2."""
+    return value + 111
+
+
+def function_2_112(value):
+    """Returns value plus 112, for module 2."""
+    return value + 112
+
+
+def function_2_113(value):
+    """Returns value plus 113, for module 2."""
+    return value + 113
+
+
+def function_2_114(value):
+    """Returns value plus 114, for module 2."""
+    return value + 114
+
+
+def function_2_115(value):
+    """Returns value plus 115, for module 2."""
+    return value + 115
+
+
+def function_2_116(value):
+    """Returns value plus 116, for module 2."""
+    return value + 116
+
+
+def function_2_117(value):
+    """Returns value plus 117, for module 2."""
+    return value + 117
+
+
+def function_2_118(value):
+    """Returns value plus 118, for module 2."""
+    return value + 118
+
+
+def function_2_119(value):
+    """Returns value plus 119, for module 2."""
+    return value + 119
+
+
+
+exec
+/bin/bash -lc 'cat src/module_3.py' in <temp>/repo
+ succeeded in 0ms:
+def function_3_0(value):
+    """Returns value plus 0, for module 3."""
+    return value + 0
+
+
+def function_3_1(value):
+    """Returns value plus 1, for module 3."""
+    return value + 1
+
+
+def function_3_2(value):
+    """Returns value plus 2, for module 3."""
+    return value + 2
+
+
+def function_3_3(value):
+    """Returns value plus 3, for module 3."""
+    return value + 3
+
+
+def function_3_4(value):
+    """Returns value plus 4, for module 3."""
+    return value + 4
+
+
+def function_3_5(value):
+    """Returns value plus 5, for module 3."""
+    return value + 5
+
+
+def function_3_6(value):
+    """Returns value plus 6, for module 3."""
+    return value + 6
+
+
+def function_3_7(value):
+    """Returns value plus 7, for module 3."""
+    return value + 7
+
+
+def function_3_8(value):
+    """Returns value plus 8, for module 3."""
+    return value + 8
+
+
+def function_3_9(value):
+    """Returns value plus 9, for module 3."""
+    return value + 9
+
+
+def function_3_10(value):
+    """Returns value plus 10, for module 3."""
+    return value + 10
+
+
+def function_3_11(value):
+    """Returns value plus 11, for module 3."""
+    return value + 11
+
+
+def function_3_12(value):
+    """Returns value plus 12, for module 3."""
+    return value + 12
+
+
+def function_3_13(value):
+    """Returns value plus 13, for module 3."""
+    return value + 13
+
+
+def function_3_14(value):
+    """Returns value plus 14, for module 3."""
+    return value + 14
+
+
+def function_3_15(value):
+    """Returns value plus 15, for module 3."""
+    return value + 15
+
+
+def function_3_16(value):
+    """Returns value plus 16, for module 3."""
+    return value + 16
+
+
+def function_3_17(value):
+    """Returns value plus 17, for module 3."""
+    return value + 17
+
+
+def function_3_18(value):
+    """Returns value plus 18, for module 3."""
+    return value + 18
+
+
+def function_3_19(value):
+    """Returns value plus 19, for module 3."""
+    return value + 19
+
+
+def function_3_20(value):
+    """Returns value plus 20, for module 3."""
+    return value + 20
+
+
+def function_3_21(value):
+    """Returns value plus 21, for module 3."""
+    return value + 21
+
+
+def function_3_22(value):
+    """Returns value plus 22, for module 3."""
+    return value + 22
+
+
+def function_3_23(value):
+    """Returns value plus 23, for module 3."""
+    return value + 23
+
+
+def function_3_24(value):
+    """Returns value plus 24, for module 3."""
+    return value + 24
+
+
+def function_3_25(value):
+    """Returns value plus 25, for module 3."""
+    return value + 25
+
+
+def function_3_26(value):
+    """Returns value plus 26, for module 3."""
+    return value + 26
+
+
+def function_3_27(value):
+    """Returns value plus 27, for module 3."""
+    return value + 27
+
+
+def function_3_28(value):
+    """Returns value plus 28, for module 3."""
+    return value + 28
+
+
+def function_3_29(value):
+    """Returns value plus 29, for module 3."""
+    return value + 29
+
+
+def function_3_30(value):
+    """Returns value plus 30, for module 3."""
+    return value + 30
+
+
+def function_3_31(value):
+    """Returns value plus 31, for module 3."""
+    return value + 31
+
+
+def function_3_32(value):
+    """Returns value plus 32, for module 3."""
+    return value + 32
+
+
+def function_3_33(value):
+    """Returns value plus 33, for module 3."""
+    return value + 33
+
+
+def function_3_34(value):
+    """Returns value plus 34, for module 3."""
+    return value + 34
+
+
+def function_3_35(value):
+    """Returns value plus 35, for module 3."""
+    return value + 35
+
+
+def function_3_36(value):
+    """Returns value plus 36, for module 3."""
+    return value + 36
+
+
+def function_3_37(value):
+    """Returns value plus 37, for module 3."""
+    return value + 37
+
+
+def function_3_38(value):
+    """Returns value plus 38, for module 3."""
+    return value + 38
+
+
+def function_3_39(value):
+    """Returns value plus 39, for module 3."""
+    return value + 39
+
+
+def function_3_40(value):
+    """Returns value plus 40, for module 3."""
+    return value + 40
+
+
+def function_3_41(value):
+    """Returns value plus 41, for module 3."""
+    return value + 41
+
+
+def function_3_42(value):
+    """Returns value plus 42, for module 3."""
+    return value + 42
+
+
+def function_3_43(value):
+    """Returns value plus 43, for module 3."""
+    return value + 43
+
+
+def function_3_44(value):
+    """Returns value plus 44, for module 3."""
+    return value + 44
+
+
+def function_3_45(value):
+    """Returns value plus 45, for module 3."""
+    return value + 45
+
+
+def function_3_46(value):
+    """Returns value plus 46, for module 3."""
+    return value + 46
+
+
+def function_3_47(value):
+    """Returns value plus 47, for module 3."""
+    return value + 47
+
+
+def function_3_48(value):
+    """Returns value plus 48, for module 3."""
+    return value + 48
+
+
+def function_3_49(value):
+    """Returns value plus 49, for module 3."""
+    return value + 49
+
+
+def function_3_50(value):
+    """Returns value plus 50, for module 3."""
+    return value + 50
+
+
+def function_3_51(value):
+    """Returns value plus 51, for module 3."""
+    return value + 51
+
+
+def function_3_52(value):
+    """Returns value plus 52, for module 3."""
+    return value + 52
+
+
+def function_3_53(value):
+    """Returns value plus 53, for module 3."""
+    return value + 53
+
+
+def function_3_54(value):
+    """Returns value plus 54, for module 3."""
+    return value + 54
+
+
+def function_3_55(value):
+    """Returns value plus 55, for module 3."""
+    return value + 55
+
+
+def function_3_56(value):
+    """Returns value plus 56, for module 3."""
+    return value + 56
+
+
+def function_3_57(value):
+    """Returns value plus 57, for module 3."""
+    return value + 57
+
+
+def function_3_58(value):
+    """Returns value plus 58, for module 3."""
+    return value + 58
+
+
+def function_3_59(value):
+    """Returns value plus 59, for module 3."""
+    return value + 59
+
+
+def function_3_60(value):
+    """Returns value plus 60, for module 3."""
+    return value + 60
+
+
+def function_3_61(value):
+    """Returns value plus 61, for module 3."""
+    return value + 61
+
+
+def function_3_62(value):
+    """Returns value plus 62, for module 3."""
+    return value + 62
+
+
+def function_3_63(value):
+    """Returns value plus 63, for module 3."""
+    return value + 63
+
+
+def function_3_64(value):
+    """Returns value plus 64, for module 3."""
+    return value + 64
+
+
+def function_3_65(value):
+    """Returns value plus 65, for module 3."""
+    return value + 65
+
+
+def function_3_66(value):
+    """Returns value plus 66, for module 3."""
+    return value + 66
+
+
+def function_3_67(value):
+    """Returns value plus 67, for module 3."""
+    return value + 67
+
+
+def function_3_68(value):
+    """Returns value plus 68, for module 3."""
+    return value + 68
+
+
+def function_3_69(value):
+    """Returns value plus 69, for module 3."""
+    return value + 69
+
+
+def function_3_70(value):
+    """Returns value plus 70, for module 3."""
+    return value + 70
+
+
+def function_3_71(value):
+    """Returns value plus 71, for module 3."""
+    return value + 71
+
+
+def function_3_72(value):
+    """Returns value plus 72, for module 3."""
+    return value + 72
+
+
+def function_3_73(value):
+    """Returns value plus 73, for module 3."""
+    return value + 73
+
+
+def function_3_74(value):
+    """Returns value plus 74, for module 3."""
+    return value + 74
+
+
+def function_3_75(value):
+    """Returns value plus 75, for module 3."""
+    return value + 75
+
+
+def function_3_76(value):
+    """Returns value plus 76, for module 3."""
+    return value + 76
+
+
+def function_3_77(value):
+    """Returns value plus 77, for module 3."""
+    return value + 77
+
+
+def function_3_78(value):
+    """Returns value plus 78, for module 3."""
+    return value + 78
+
+
+def function_3_79(value):
+    """Returns value plus 79, for module 3."""
+    return value + 79
+
+
+def function_3_80(value):
+    """Returns value plus 80, for module 3."""
+    return value + 80
+
+
+def function_3_81(value):
+    """Returns value plus 81, for module 3."""
+    return value + 81
+
+
+def function_3_82(value):
+    """Returns value plus 82, for module 3."""
+    return value + 82
+
+
+def function_3_83(value):
+    """Returns value plus 83, for module 3."""
+    return value + 83
+
+
+def function_3_84(value):
+    """Returns value plus 84, for module 3."""
+    return value + 84
+
+
+def function_3_85(value):
+    """Returns value plus 85, for module 3."""
+    return value + 85
+
+
+def function_3_86(value):
+    """Returns value plus 86, for module 3."""
+    return value + 86
+
+
+def function_3_87(value):
+    """Returns value plus 87, for module 3."""
+    return value + 87
+
+
+def function_3_88(value):
+    """Returns value plus 88, for module 3."""
+    return value + 88
+
+
+def function_3_89(value):
+    """Returns value plus 89, for module 3."""
+    return value + 89
+
+
+def function_3_90(value):
+    """Returns value plus 90, for module 3."""
+    return value + 90
+
+
+def function_3_91(value):
+    """Returns value plus 91, for module 3."""
+    return value + 91
+
+
+def function_3_92(value):
+    """Returns value plus 92, for module 3."""
+    return value + 92
+
+
+def function_3_93(value):
+    """Returns value plus 93, for module 3."""
+    return value + 93
+
+
+def function_3_94(value):
+    """Returns value plus 94, for module 3."""
+    return value + 94
+
+
+def function_3_95(value):
+    """Returns value plus 95, for module 3."""
+    return value + 95
+
+
+def function_3_96(value):
+    """Returns value plus 96, for module 3."""
+    return value + 96
+
+
+def function_3_97(value):
+    """Returns value plus 97, for module 3."""
+    return value + 97
+
+
+def function_3_98(value):
+    """Returns value plus 98, for module 3."""
+    return value + 98
+
+
+def function_3_99(value):
+    """Returns value plus 99, for module 3."""
+    return value + 99
+
+
+def function_3_100(value):
+    """Returns value plus 100, for module 3."""
+    return value + 100
+
+
+def function_3_101(value):
+    """Returns value plus 101, for module 3."""
+    return value + 101
+
+
+def function_3_102(value):
+    """Returns value plus 102, for module 3."""
+    return value + 102
+
+
+def function_3_103(value):
+    """Returns value plus 103, for module 3."""
+    return value + 103
+
+
+def function_3_104(value):
+    """Returns value plus 104, for module 3."""
+    return value + 104
+
+
+def function_3_105(value):
+    """Returns value plus 105, for module 3."""
+    return value + 105
+
+
+def function_3_106(value):
+    """Returns value plus 106, for module 3."""
+    return value + 106
+
+
+def function_3_107(value):
+    """Returns value plus 107, for module 3."""
+    return value + 107
+
+
+def function_3_108(value):
+    """Returns value plus 108, for module 3."""
+    return value + 108
+
+
+def function_3_109(value):
+    """Returns value plus 109, for module 3."""
+    return value + 109
+
+
+def function_3_110(value):
+    """Returns value plus 110, for module 3."""
+    return value + 110
+
+
+def function_3_111(value):
+    """Returns value plus 111, for module 3."""
+    return value + 111
+
+
+def function_3_112(value):
+    """Returns value plus 112, for module 3."""
+    return value + 112
+
+
+def function_3_113(value):
+    """Returns value plus 113, for module 3."""
+    return value + 113
+
+
+def function_3_114(value):
+    """Returns value plus 114, for module 3."""
+    return value + 114
+
+
+def function_3_115(value):
+    """Returns value plus 115, for module 3."""
+    return value + 115
+
+
+def function_3_116(value):
+    """Returns value plus 116, for module 3."""
+    return value + 116
+
+
+def function_3_117(value):
+    """Returns value plus 117, for module 3."""
+    return value + 117
+
+
+def function_3_118(value):
+    """Returns value plus 118, for module 3."""
+    return value + 118
+
+
+def function_3_119(value):
+    """Returns value plus 119, for module 3."""
+    return value + 119
+
+
+
+context compacted
+warning: Heads up: Long threads and multiple compactions can cause the model to be less accurate. Start a new thread when possible to keep threads small and targeted.
+exec
+/bin/bash -lc 'cat src/module_4.py' in <temp>/repo
+ succeeded in 0ms:
+def function_4_0(value):
+    """Returns value plus 0, for module 4."""
+    return value + 0
+
+
+def function_4_1(value):
+    """Returns value plus 1, for module 4."""
+    return value + 1
+
+
+def function_4_2(value):
+    """Returns value plus 2, for module 4."""
+    return value + 2
+
+
+def function_4_3(value):
+    """Returns value plus 3, for module 4."""
+    return value + 3
+
+
+def function_4_4(value):
+    """Returns value plus 4, for module 4."""
+    return value + 4
+
+
+def function_4_5(value):
+    """Returns value plus 5, for module 4."""
+    return value + 5
+
+
+def function_4_6(value):
+    """Returns value plus 6, for module 4."""
+    return value + 6
+
+
+def function_4_7(value):
+    """Returns value plus 7, for module 4."""
+    return value + 7
+
+
+def function_4_8(value):
+    """Returns value plus 8, for module 4."""
+    return value + 8
+
+
+def function_4_9(value):
+    """Returns value plus 9, for module 4."""
+    return value + 9
+
+
+def function_4_10(value):
+    """Returns value plus 10, for module 4."""
+    return value + 10
+
+
+def function_4_11(value):
+    """Returns value plus 11, for module 4."""
+    return value + 11
+
+
+def function_4_12(value):
+    """Returns value plus 12, for module 4."""
+    return value + 12
+
+
+def function_4_13(value):
+    """Returns value plus 13, for module 4."""
+    return value + 13
+
+
+def function_4_14(value):
+    """Returns value plus 14, for module 4."""
+    return value + 14
+
+
+def function_4_15(value):
+    """Returns value plus 15, for module 4."""
+    return value + 15
+
+
+def function_4_16(value):
+    """Returns value plus 16, for module 4."""
+    return value + 16
+
+
+def function_4_17(value):
+    """Returns value plus 17, for module 4."""
+    return value + 17
+
+
+def function_4_18(value):
+    """Returns value plus 18, for module 4."""
+    return value + 18
+
+
+def function_4_19(value):
+    """Returns value plus 19, for module 4."""
+    return value + 19
+
+
+def function_4_20(value):
+    """Returns value plus 20, for module 4."""
+    return value + 20
+
+
+def function_4_21(value):
+    """Returns value plus 21, for module 4."""
+    return value + 21
+
+
+def function_4_22(value):
+    """Returns value plus 22, for module 4."""
+    return value + 22
+
+
+def function_4_23(value):
+    """Returns value plus 23, for module 4."""
+    return value + 23
+
+
+def function_4_24(value):
+    """Returns value plus 24, for module 4."""
+    return value + 24
+
+
+def function_4_25(value):
+    """Returns value plus 25, for module 4."""
+    return value + 25
+
+
+def function_4_26(value):
+    """Returns value plus 26, for module 4."""
+    return value + 26
+
+
+def function_4_27(value):
+    """Returns value plus 27, for module 4."""
+    return value + 27
+
+
+def function_4_28(value):
+    """Returns value plus 28, for module 4."""
+    return value + 28
+
+
+def function_4_29(value):
+    """Returns value plus 29, for module 4."""
+    return value + 29
+
+
+def function_4_30(value):
+    """Returns value plus 30, for module 4."""
+    return value + 30
+
+
+def function_4_31(value):
+    """Returns value plus 31, for module 4."""
+    return value + 31
+
+
+def function_4_32(value):
+    """Returns value plus 32, for module 4."""
+    return value + 32
+
+
+def function_4_33(value):
+    """Returns value plus 33, for module 4."""
+    return value + 33
+
+
+def function_4_34(value):
+    """Returns value plus 34, for module 4."""
+    return value + 34
+
+
+def function_4_35(value):
+    """Returns value plus 35, for module 4."""
+    return value + 35
+
+
+def function_4_36(value):
+    """Returns value plus 36, for module 4."""
+    return value + 36
+
+
+def function_4_37(value):
+    """Returns value plus 37, for module 4."""
+    return value + 37
+
+
+def function_4_38(value):
+    """Returns value plus 38, for module 4."""
+    return value + 38
+
+
+def function_4_39(value):
+    """Returns value plus 39, for module 4."""
+    return value + 39
+
+
+def function_4_40(value):
+    """Returns value plus 40, for module 4."""
+    return value + 40
+
+
+def function_4_41(value):
+    """Returns value plus 41, for module 4."""
+    return value + 41
+
+
+def function_4_42(value):
+    """Returns value plus 42, for module 4."""
+    return value + 42
+
+
+def function_4_43(value):
+    """Returns value plus 43, for module 4."""
+    return value + 43
+
+
+def function_4_44(value):
+    """Returns value plus 44, for module 4."""
+    return value + 44
+
+
+def function_4_45(value):
+    """Returns value plus 45, for module 4."""
+    return value + 45
+
+
+def function_4_46(value):
+    """Returns value plus 46, for module 4."""
+    return value + 46
+
+
+def function_4_47(value):
+    """Returns value plus 47, for module 4."""
+    return value + 47
+
+
+def function_4_48(value):
+    """Returns value plus 48, for module 4."""
+    return value + 48
+
+
+def function_4_49(value):
+    """Returns value plus 49, for module 4."""
+    return value + 49
+
+
+def function_4_50(value):
+    """Returns value plus 50, for module 4."""
+    return value + 50
+
+
+def function_4_51(value):
+    """Returns value plus 51, for module 4."""
+    return value + 51
+
+
+def function_4_52(value):
+    """Returns value plus 52, for module 4."""
+    return value + 52
+
+
+def function_4_53(value):
+    """Returns value plus 53, for module 4."""
+    return value + 53
+
+
+def function_4_54(value):
+    """Returns value plus 54, for module 4."""
+    return value + 54
+
+
+def function_4_55(value):
+    """Returns value plus 55, for module 4."""
+    return value + 55
+
+
+def function_4_56(value):
+    """Returns value plus 56, for module 4."""
+    return value + 56
+
+
+def function_4_57(value):
+    """Returns value plus 57, for module 4."""
+    return value + 57
+
+
+def function_4_58(value):
+    """Returns value plus 58, for module 4."""
+    return value + 58
+
+
+def function_4_59(value):
+    """Returns value plus 59, for module 4."""
+    return value + 59
+
+
+def function_4_60(value):
+    """Returns value plus 60, for module 4."""
+    return value + 60
+
+
+def function_4_61(value):
+    """Returns value plus 61, for module 4."""
+    return value + 61
+
+
+def function_4_62(value):
+    """Returns value plus 62, for module 4."""
+    return value + 62
+
+
+def function_4_63(value):
+    """Returns value plus 63, for module 4."""
+    return value + 63
+
+
+def function_4_64(value):
+    """Returns value plus 64, for module 4."""
+    return value + 64
+
+
+def function_4_65(value):
+    """Returns value plus 65, for module 4."""
+    return value + 65
+
+
+def function_4_66(value):
+    """Returns value plus 66, for module 4."""
+    return value + 66
+
+
+def function_4_67(value):
+    """Returns value plus 67, for module 4."""
+    return value + 67
+
+
+def function_4_68(value):
+    """Returns value plus 68, for module 4."""
+    return value + 68
+
+
+def function_4_69(value):
+    """Returns value plus 69, for module 4."""
+    return value + 69
+
+
+def function_4_70(value):
+    """Returns value plus 70, for module 4."""
+    return value + 70
+
+
+def function_4_71(value):
+    """Returns value plus 71, for module 4."""
+    return value + 71
+
+
+def function_4_72(value):
+    """Returns value plus 72, for module 4."""
+    return value + 72
+
+
+def function_4_73(value):
+    """Returns value plus 73, for module 4."""
+    return value + 73
+
+
+def function_4_74(value):
+    """Returns value plus 74, for module 4."""
+    return value + 74
+
+
+def function_4_75(value):
+    """Returns value plus 75, for module 4."""
+    return value + 75
+
+
+def function_4_76(value):
+    """Returns value plus 76, for module 4."""
+    return value + 76
+
+
+def function_4_77(value):
+    """Returns value plus 77, for module 4."""
+    return value + 77
+
+
+def function_4_78(value):
+    """Returns value plus 78, for module 4."""
+    return value + 78
+
+
+def function_4_79(value):
+    """Returns value plus 79, for module 4."""
+    return value + 79
+
+
+def function_4_80(value):
+    """Returns value plus 80, for module 4."""
+    return value + 80
+
+
+def function_4_81(value):
+    """Returns value plus 81, for module 4."""
+    return value + 81
+
+
+def function_4_82(value):
+    """Returns value plus 82, for module 4."""
+    return value + 82
+
+
+def function_4_83(value):
+    """Returns value plus 83, for module 4."""
+    return value + 83
+
+
+def function_4_84(value):
+    """Returns value plus 84, for module 4."""
+    return value + 84
+
+
+def function_4_85(value):
+    """Returns value plus 85, for module 4."""
+    return value + 85
+
+
+def function_4_86(value):
+    """Returns value plus 86, for module 4."""
+    return value + 86
+
+
+def function_4_87(value):
+    """Returns value plus 87, for module 4."""
+    return value + 87
+
+
+def function_4_88(value):
+    """Returns value plus 88, for module 4."""
+    return value + 88
+
+
+def function_4_89(value):
+    """Returns value plus 89, for module 4."""
+    return value + 89
+
+
+def function_4_90(value):
+    """Returns value plus 90, for module 4."""
+    return value + 90
+
+
+def function_4_91(value):
+    """Returns value plus 91, for module 4."""
+    return value + 91
+
+
+def function_4_92(value):
+    """Returns value plus 92, for module 4."""
+    return value + 92
+
+
+def function_4_93(value):
+    """Returns value plus 93, for module 4."""
+    return value + 93
+
+
+def function_4_94(value):
+    """Returns value plus 94, for module 4."""
+    return value + 94
+
+
+def function_4_95(value):
+    """Returns value plus 95, for module 4."""
+    return value + 95
+
+
+def function_4_96(value):
+    """Returns value plus 96, for module 4."""
+    return value + 96
+
+
+def function_4_97(value):
+    """Returns value plus 97, for module 4."""
+    return value + 97
+
+
+def function_4_98(value):
+    """Returns value plus 98, for module 4."""
+    return value + 98
+
+
+def function_4_99(value):
+    """Returns value plus 99, for module 4."""
+    return value + 99
+
+
+def function_4_100(value):
+    """Returns value plus 100, for module 4."""
+    return value + 100
+
+
+def function_4_101(value):
+    """Returns value plus 101, for module 4."""
+    return value + 101
+
+
+def function_4_102(value):
+    """Returns value plus 102, for module 4."""
+    return value + 102
+
+
+def function_4_103(value):
+    """Returns value plus 103, for module 4."""
+    return value + 103
+
+
+def function_4_104(value):
+    """Returns value plus 104, for module 4."""
+    return value + 104
+
+
+def function_4_105(value):
+    """Returns value plus 105, for module 4."""
+    return value + 105
+
+
+def function_4_106(value):
+    """Returns value plus 106, for module 4."""
+    return value + 106
+
+
+def function_4_107(value):
+    """Returns value plus 107, for module 4."""
+    return value + 107
+
+
+def function_4_108(value):
+    """Returns value plus 108, for module 4."""
+    return value + 108
+
+
+def function_4_109(value):
+    """Returns value plus 109, for module 4."""
+    return value + 109
+
+
+def function_4_110(value):
+    """Returns value plus 110, for module 4."""
+    return value + 110
+
+
+def function_4_111(value):
+    """Returns value plus 111, for module 4."""
+    return value + 111
+
+
+def function_4_112(value):
+    """Returns value plus 112, for module 4."""
+    return value + 112
+
+
+def function_4_113(value):
+    """Returns value plus 113, for module 4."""
+    return value + 113
+
+
+def function_4_114(value):
+    """Returns value plus 114, for module 4."""
+    return value + 114
+
+
+def function_4_115(value):
+    """Returns value plus 115, for module 4."""
+    return value + 115
+
+
+def function_4_116(value):
+    """Returns value plus 116, for module 4."""
+    return value + 116
+
+
+def function_4_117(value):
+    """Returns value plus 117, for module 4."""
+    return value + 117
+
+
+def function_4_118(value):
+    """Returns value plus 118, for module 4."""
+    return value + 118
+
+
+def function_4_119(value):
+    """Returns value plus 119, for module 4."""
+    return value + 119
+
+
+
+exec
+/bin/bash -lc 'cat src/module_5.py' in <temp>/repo
+ succeeded in 0ms:
+def function_5_0(value):
+    """Returns value plus 0, for module 5."""
+    return value + 0
+
+
+def function_5_1(value):
+    """Returns value plus 1, for module 5."""
+    return value + 1
+
+
+def function_5_2(value):
+    """Returns value plus 2, for module 5."""
+    return value + 2
+
+
+def function_5_3(value):
+    """Returns value plus 3, for module 5."""
+    return value + 3
+
+
+def function_5_4(value):
+    """Returns value plus 4, for module 5."""
+    return value + 4
+
+
+def function_5_5(value):
+    """Returns value plus 5, for module 5."""
+    return value + 5
+
+
+def function_5_6(value):
+    """Returns value plus 6, for module 5."""
+    return value + 6
+
+
+def function_5_7(value):
+    """Returns value plus 7, for module 5."""
+    return value + 7
+
+
+def function_5_8(value):
+    """Returns value plus 8, for module 5."""
+    return value + 8
+
+
+def function_5_9(value):
+    """Returns value plus 9, for module 5."""
+    return value + 9
+
+
+def function_5_10(value):
+    """Returns value plus 10, for module 5."""
+    return value + 10
+
+
+def function_5_11(value):
+    """Returns value plus 11, for module 5."""
+    return value + 11
+
+
+def function_5_12(value):
+    """Returns value plus 12, for module 5."""
+    return value + 12
+
+
+def function_5_13(value):
+    """Returns value plus 13, for module 5."""
+    return value + 13
+
+
+def function_5_14(value):
+    """Returns value plus 14, for module 5."""
+    return value + 14
+
+
+def function_5_15(value):
+    """Returns value plus 15, for module 5."""
+    return value + 15
+
+
+def function_5_16(value):
+    """Returns value plus 16, for module 5."""
+    return value + 16
+
+
+def function_5_17(value):
+    """Returns value plus 17, for module 5."""
+    return value + 17
+
+
+def function_5_18(value):
+    """Returns value plus 18, for module 5."""
+    return value + 18
+
+
+def function_5_19(value):
+    """Returns value plus 19, for module 5."""
+    return value + 19
+
+
+def function_5_20(value):
+    """Returns value plus 20, for module 5."""
+    return value + 20
+
+
+def function_5_21(value):
+    """Returns value plus 21, for module 5."""
+    return value + 21
+
+
+def function_5_22(value):
+    """Returns value plus 22, for module 5."""
+    return value + 22
+
+
+def function_5_23(value):
+    """Returns value plus 23, for module 5."""
+    return value + 23
+
+
+def function_5_24(value):
+    """Returns value plus 24, for module 5."""
+    return value + 24
+
+
+def function_5_25(value):
+    """Returns value plus 25, for module 5."""
+    return value + 25
+
+
+def function_5_26(value):
+    """Returns value plus 26, for module 5."""
+    return value + 26
+
+
+def function_5_27(value):
+    """Returns value plus 27, for module 5."""
+    return value + 27
+
+
+def function_5_28(value):
+    """Returns value plus 28, for module 5."""
+    return value + 28
+
+
+def function_5_29(value):
+    """Returns value plus 29, for module 5."""
+    return value + 29
+
+
+def function_5_30(value):
+    """Returns value plus 30, for module 5."""
+    return value + 30
+
+
+def function_5_31(value):
+    """Returns value plus 31, for module 5."""
+    return value + 31
+
+
+def function_5_32(value):
+    """Returns value plus 32, for module 5."""
+    return value + 32
+
+
+def function_5_33(value):
+    """Returns value plus 33, for module 5."""
+    return value + 33
+
+
+def function_5_34(value):
+    """Returns value plus 34, for module 5."""
+    return value + 34
+
+
+def function_5_35(value):
+    """Returns value plus 35, for module 5."""
+    return value + 35
+
+
+def function_5_36(value):
+    """Returns value plus 36, for module 5."""
+    return value + 36
+
+
+def function_5_37(value):
+    """Returns value plus 37, for module 5."""
+    return value + 37
+
+
+def function_5_38(value):
+    """Returns value plus 38, for module 5."""
+    return value + 38
+
+
+def function_5_39(value):
+    """Returns value plus 39, for module 5."""
+    return value + 39
+
+
+def function_5_40(value):
+    """Returns value plus 40, for module 5."""
+    return value + 40
+
+
+def function_5_41(value):
+    """Returns value plus 41, for module 5."""
+    return value + 41
+
+
+def function_5_42(value):
+    """Returns value plus 42, for module 5."""
+    return value + 42
+
+
+def function_5_43(value):
+    """Returns value plus 43, for module 5."""
+    return value + 43
+
+
+def function_5_44(value):
+    """Returns value plus 44, for module 5."""
+    return value + 44
+
+
+def function_5_45(value):
+    """Returns value plus 45, for module 5."""
+    return value + 45
+
+
+def function_5_46(value):
+    """Returns value plus 46, for module 5."""
+    return value + 46
+
+
+def function_5_47(value):
+    """Returns value plus 47, for module 5."""
+    return value + 47
+
+
+def function_5_48(value):
+    """Returns value plus 48, for module 5."""
+    return value + 48
+
+
+def function_5_49(value):
+    """Returns value plus 49, for module 5."""
+    return value + 49
+
+
+def function_5_50(value):
+    """Returns value plus 50, for module 5."""
+    return value + 50
+
+
+def function_5_51(value):
+    """Returns value plus 51, for module 5."""
+    return value + 51
+
+
+def function_5_52(value):
+    """Returns value plus 52, for module 5."""
+    return value + 52
+
+
+def function_5_53(value):
+    """Returns value plus 53, for module 5."""
+    return value + 53
+
+
+def function_5_54(value):
+    """Returns value plus 54, for module 5."""
+    return value + 54
+
+
+def function_5_55(value):
+    """Returns value plus 55, for module 5."""
+    return value + 55
+
+
+def function_5_56(value):
+    """Returns value plus 56, for module 5."""
+    return value + 56
+
+
+def function_5_57(value):
+    """Returns value plus 57, for module 5."""
+    return value + 57
+
+
+def function_5_58(value):
+    """Returns value plus 58, for module 5."""
+    return value + 58
+
+
+def function_5_59(value):
+    """Returns value plus 59, for module 5."""
+    return value + 59
+
+
+def function_5_60(value):
+    """Returns value plus 60, for module 5."""
+    return value + 60
+
+
+def function_5_61(value):
+    """Returns value plus 61, for module 5."""
+    return value + 61
+
+
+def function_5_62(value):
+    """Returns value plus 62, for module 5."""
+    return value + 62
+
+
+def function_5_63(value):
+    """Returns value plus 63, for module 5."""
+    return value + 63
+
+
+def function_5_64(value):
+    """Returns value plus 64, for module 5."""
+    return value + 64
+
+
+def function_5_65(value):
+    """Returns value plus 65, for module 5."""
+    return value + 65
+
+
+def function_5_66(value):
+    """Returns value plus 66, for module 5."""
+    return value + 66
+
+
+def function_5_67(value):
+    """Returns value plus 67, for module 5."""
+    return value + 67
+
+
+def function_5_68(value):
+    """Returns value plus 68, for module 5."""
+    return value + 68
+
+
+def function_5_69(value):
+    """Returns value plus 69, for module 5."""
+    return value + 69
+
+
+def function_5_70(value):
+    """Returns value plus 70, for module 5."""
+    return value + 70
+
+
+def function_5_71(value):
+    """Returns value plus 71, for module 5."""
+    return value + 71
+
+
+def function_5_72(value):
+    """Returns value plus 72, for module 5."""
+    return value + 72
+
+
+def function_5_73(value):
+    """Returns value plus 73, for module 5."""
+    return value + 73
+
+
+def function_5_74(value):
+    """Returns value plus 74, for module 5."""
+    return value + 74
+
+
+def function_5_75(value):
+    """Returns value plus 75, for module 5."""
+    return value + 75
+
+
+def function_5_76(value):
+    """Returns value plus 76, for module 5."""
+    return value + 76
+
+
+def function_5_77(value):
+    """Returns value plus 77, for module 5."""
+    return value + 77
+
+
+def function_5_78(value):
+    """Returns value plus 78, for module 5."""
+    return value + 78
+
+
+def function_5_79(value):
+    """Returns value plus 79, for module 5."""
+    return value + 79
+
+
+def function_5_80(value):
+    """Returns value plus 80, for module 5."""
+    return value + 80
+
+
+def function_5_81(value):
+    """Returns value plus 81, for module 5."""
+    return value + 81
+
+
+def function_5_82(value):
+    """Returns value plus 82, for module 5."""
+    return value + 82
+
+
+def function_5_83(value):
+    """Returns value plus 83, for module 5."""
+    return value + 83
+
+
+def function_5_84(value):
+    """Returns value plus 84, for module 5."""
+    return value + 84
+
+
+def function_5_85(value):
+    """Returns value plus 85, for module 5."""
+    return value + 85
+
+
+def function_5_86(value):
+    """Returns value plus 86, for module 5."""
+    return value + 86
+
+
+def function_5_87(value):
+    """Returns value plus 87, for module 5."""
+    return value + 87
+
+
+def function_5_88(value):
+    """Returns value plus 88, for module 5."""
+    return value + 88
+
+
+def function_5_89(value):
+    """Returns value plus 89, for module 5."""
+    return value + 89
+
+
+def function_5_90(value):
+    """Returns value plus 90, for module 5."""
+    return value + 90
+
+
+def function_5_91(value):
+    """Returns value plus 91, for module 5."""
+    return value + 91
+
+
+def function_5_92(value):
+    """Returns value plus 92, for module 5."""
+    return value + 92
+
+
+def function_5_93(value):
+    """Returns value plus 93, for module 5."""
+    return value + 93
+
+
+def function_5_94(value):
+    """Returns value plus 94, for module 5."""
+    return value + 94
+
+
+def function_5_95(value):
+    """Returns value plus 95, for module 5."""
+    return value + 95
+
+
+def function_5_96(value):
+    """Returns value plus 96, for module 5."""
+    return value + 96
+
+
+def function_5_97(value):
+    """Returns value plus 97, for module 5."""
+    return value + 97
+
+
+def function_5_98(value):
+    """Returns value plus 98, for module 5."""
+    return value + 98
+
+
+def function_5_99(value):
+    """Returns value plus 99, for module 5."""
+    return value + 99
+
+
+def function_5_100(value):
+    """Returns value plus 100, for module 5."""
+    return value + 100
+
+
+def function_5_101(value):
+    """Returns value plus 101, for module 5."""
+    return value + 101
+
+
+def function_5_102(value):
+    """Returns value plus 102, for module 5."""
+    return value + 102
+
+
+def function_5_103(value):
+    """Returns value plus 103, for module 5."""
+    return value + 103
+
+
+def function_5_104(value):
+    """Returns value plus 104, for module 5."""
+    return value + 104
+
+
+def function_5_105(value):
+    """Returns value plus 105, for module 5."""
+    return value + 105
+
+
+def function_5_106(value):
+    """Returns value plus 106, for module 5."""
+    return value + 106
+
+
+def function_5_107(value):
+    """Returns value plus 107, for module 5."""
+    return value + 107
+
+
+def function_5_108(value):
+    """Returns value plus 108, for module 5."""
+    return value + 108
+
+
+def function_5_109(value):
+    """Returns value plus 109, for module 5."""
+    return value + 109
+
+
+def function_5_110(value):
+    """Returns value plus 110, for module 5."""
+    return value + 110
+
+
+def function_5_111(value):
+    """Returns value plus 111, for module 5."""
+    return value + 111
+
+
+def function_5_112(value):
+    """Returns value plus 112, for module 5."""
+    return value + 112
+
+
+def function_5_113(value):
+    """Returns value plus 113, for module 5."""
+    return value + 113
+
+
+def function_5_114(value):
+    """Returns value plus 114, for module 5."""
+    return value + 114
+
+
+def function_5_115(value):
+    """Returns value plus 115, for module 5."""
+    return value + 115
+
+
+def function_5_116(value):
+    """Returns value plus 116, for module 5."""
+    return value + 116
+
+
+def function_5_117(value):
+    """Returns value plus 117, for module 5."""
+    return value + 117
+
+
+def function_5_118(value):
+    """Returns value plus 118, for module 5."""
+    return value + 118
+
+
+def function_5_119(value):
+    """Returns value plus 119, for module 5."""
+    return value + 119
+
+
+
+codex
+done
+tokens used
+127,811
+done

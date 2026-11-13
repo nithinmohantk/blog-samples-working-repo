@@ -1,0 +1,2 @@
+WARNING: proceeding, even though we could not create PATH aliases: Refusing to create helper binaries under temporary dir "/tmp" (codex_home: AbsolutePathBuf("<temp>/home-legacy"))
+Error loading config.toml: --profile `deep` cannot be used while <temp>/home-legacy/config.toml contains legacy `profile = "deep"` or `[profiles.deep]` config; move those settings into <temp>/home-legacy/deep.config.toml and remove the legacy profile selector/table. See https://developers.openai.com/codex/config-advanced#profiles for more information.
