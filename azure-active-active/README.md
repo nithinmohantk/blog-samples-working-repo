@@ -1,6 +1,6 @@
 # Active-active on Azure for a .NET API
 
-Sample for the dataa.dev article "Active-Active on Azure for a .NET API: What Happens to the Write You Acknowledged".
+Sample for the dataa.dev article "[Multi-Region Active-Active on Azure for a .NET API: What Happens to the Write You Acknowledged](https://www.dataa.dev/2026/10/25/multi-region-active-active-on-azure-for-a-dotnet-api/)".
 
 A booking service in two regions, looked at from three sides: what each way of placing writes does during a
 region outage (a deterministic simulation, in Python and in C#), what the API has to do so that a retry can
@@ -30,7 +30,7 @@ shows the shape of each trade-off, not Azure timings.
 
 ## What was verified
 
-GitHub Actions, `ubuntu-latest`, .NET SDK DOTNETVER, Python 3.13, Terraform 1.16.3, OpenTofu 1.12.6, AzureRM
+GitHub Actions, `ubuntu-latest`, .NET SDK 10.0.404, Python 3.13, Terraform 1.16.3, OpenTofu 1.12.6, AzureRM
 provider 5.2.0, no Azure credentials. Outputs of the latest run are on the `ci-results-terraform` branch under
 `azure-active-active/`.
 
@@ -41,8 +41,8 @@ provider 5.2.0, no Azure credentials. Outputs of the latest run are on the `ci-r
 | Drill against two API instances | 9 of 9 |
 | Patient references in the API logs | none |
 | `terraform validate` | valid |
-| Infrastructure tests, Terraform | TFTEST |
-| Infrastructure tests, OpenTofu | TOFUTEST |
+| Infrastructure tests, Terraform | 7 passed |
+| Infrastructure tests, OpenTofu | 7 passed |
 
 Simulation, seed 20261025: 2,000 attempts on 2,000 slots, replication lag 20 ticks, one region down from
 tick 800 to tick 920, standby promoted 30 ticks into the outage.
@@ -66,3 +66,5 @@ tick 800 to tick 920, standby promoted 30 ticks into the outage.
   database, written together.
 - The simulation delivers writes that were stranded in a failed region when it returns. A region that is
   lost for good loses them.
+- One infrastructure test runs after a mocked apply instead of at plan: Terraform 1.16.3 could not read the
+  set of database locations at plan because each carries a computed id. OpenTofu 1.12.6 could.

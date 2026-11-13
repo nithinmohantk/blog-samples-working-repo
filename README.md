@@ -27,6 +27,7 @@ Each folder has its own README that says what the code does, how to run it, and 
 | `terraform-vs-opentofu` | [Terraform 1.16 and OpenTofu 1.13: Where They Have Diverged](https://www.dataa.dev/2026/10/04/terraform-1-16-and-opentofu-1-13-where-they-have-diverged/) | HCL, Python |
 | `aca-vs-aks-regulated` | [Azure Container Apps or AKS for a Regulated Workload: Who Patches What](https://www.dataa.dev/2026/10/11/azure-container-apps-or-aks-for-a-regulated-workload-who-patches-what/) | HCL, Python |
 | `lambda-web-functions` | [Lambda Web Functions: When a Function Becomes a Web Server](https://www.dataa.dev/2026/10/18/lambda-web-functions-when-a-function-becomes-a-web-server/) | JavaScript, Python |
+| `azure-active-active` | [Multi-Region Active-Active on Azure for a .NET API: What Happens to the Write You Acknowledged](https://www.dataa.dev/2026/10/25/multi-region-active-active-on-azure-for-a-dotnet-api/) | C#, Python, HCL |
 
 ## Verification status
 
