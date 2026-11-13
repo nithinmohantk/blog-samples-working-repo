@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <!-- No LangVersion: each target gets its default, C# 12 for net8.0 and C# 14 for net10.0, as an upgraded project would. -->
+    <ServerGarbageCollector>true</ServerGarbageCollector>
+    <EnableUnsafeBinaryFormatterSerialization>true</EnableUnsafeBinaryFormatterSerialization>
+    <NoWarn>$(NoWarn);SYSLIB0011;CS0618</NoWarn>
+  </PropertyGroup>
+</Project>
