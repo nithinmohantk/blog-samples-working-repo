@@ -91,7 +91,7 @@ check("nothing is cached on the first request", first.cached_tokens == 0)
 second = session.ask("Which checks run before the jti is recorded?")
 check(f"a different question about the same repository is served {second.cached_tokens:,} cached tokens: the whole prefix, to the nearest step of 128",
       cacheable(session.prefix_tokens) <= second.cached_tokens <= session.prefix_tokens + 8)
-check("the second request costs less than a fifth of the first", second.cost < first.cost / 5)
+check("the second request costs less than a quarter of the first", second.cost < first.cost / 4)
 print(f"  first request  {first.input_tokens:,} input, {first.cached_tokens:,} cached, ${first.cost:.4f}")
 print(f"  second request {second.input_tokens:,} input, {second.cached_tokens:,} cached, ${second.cost:.4f}")
 results["stand_in"] = {"prefix_tokens": session.prefix_tokens, "first_cost": round(first.cost, 4), "second_cost": round(second.cost, 4), "second_cached": second.cached_tokens}

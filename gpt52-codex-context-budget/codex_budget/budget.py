@@ -56,9 +56,12 @@ class RepositoryCount:
 
 
 def count_repository(root: pathlib.Path, suffixes: tuple[str, ...], encoder) -> RepositoryCount:
-    """Counts every file under root with one of the suffixes, in path order, skipping anything that is not UTF-8."""
+    """Counts every source file under root with one of the suffixes, in path order, skipping anything that is not UTF-8."""
     files = lines = tokens = 0
-    for path in sorted(p for p in root.rglob("*") if p.is_file() and p.suffix in suffixes and ".git" not in p.parts):
+    skipped = {"node_modules", "bin", "obj", "out", "site-packages"}
+    for path in sorted(p for p in root.rglob("*") if p.is_file() and p.suffix in suffixes):
+        if any(part.startswith(".") or part in skipped for part in path.relative_to(root).parts[:-1]):
+            continue   # version control, virtual environments, build output and installed packages are not the repository
         try:
             text = path.read_text(encoding="utf-8")
         except UnicodeDecodeError:
