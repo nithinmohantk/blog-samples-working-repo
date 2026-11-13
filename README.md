@@ -31,6 +31,7 @@ Each folder has its own README that says what the code does, how to run it, and 
 | `stepfunctions-agent-tools` | [Step Functions as Agent Tools: Putting the Rules Where a Prompt Cannot Move Them](https://www.dataa.dev/2026/11/01/step-functions-as-agent-tools-rules-a-prompt-cannot-move/) | ASL, Python |
 | `patient-provider-platform` | [Reference Architecture: A Patient-Provider Platform over Two EHRs on Azure](https://www.dataa.dev/2025/11/10/case-study-enterprise-healthcare-integration-building-a-hipaa-compliant-patient-provider-platform/) | C#, Python |
 | `terraform-secrets-out-of-state` | [Keeping Secrets Out of Terraform State: Ephemeral Resources and Write-Only Arguments](https://www.dataa.dev/2026/01/10/keeping-secrets-out-of-terraform-state-ephemeral-resources-write-only-arguments/) | HCL, Python |
+| `dotnet8-to-dotnet10` | [Moving a .NET 8 API to .NET 10: What Breaks Between Two LTS Releases](https://www.dataa.dev/2026/02/07/moving-a-dotnet-8-api-to-dotnet-10-what-breaks-between-two-lts-releases/) | C#, Python |
 
 ## Verification status
 

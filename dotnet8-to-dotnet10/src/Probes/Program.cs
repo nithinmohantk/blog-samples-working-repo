@@ -5,7 +5,6 @@ using System.Linq.Expressions;
 using System.Net;
 using System.Net.Mail;
 using System.Runtime;
-using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -23,9 +22,6 @@ async Task Probe(string name, Func<Task<string>> probe)
     catch (Exception error) { observed[name] = $"threw {error.GetType().Name}"; }
 }
 
-string Text(string name) => double.Parse(name, System.Globalization.CultureInfo.InvariantCulture).ToString(System.Globalization.CultureInfo.InvariantCulture);
-_ = Text("1");
-
 // ---- ASP.NET Core ------------------------------------------------------------------------------------
 
 await Probe("aspnet.cookie_auth_on_api_endpoint", async () =>
@@ -40,7 +36,7 @@ await Probe("aspnet.cookie_auth_on_api_endpoint", async () =>
     await app.StartAsync();
     using HttpClient client = new(new HttpClientHandler { AllowAutoRedirect = false }) { BaseAddress = new Uri(Address(app)) };
     using HttpResponseMessage response = await client.GetAsync("/api/orders");
-    return response.Headers.Location is { } location ? $"{(int)response.StatusCode} redirect to {location.AbsolutePath}" : $"{(int)response.StatusCode}";
+    return $"{(int)response.StatusCode}" + (response.Headers.Location is { } location ? $", Location {location.AbsolutePath}" : ", no Location header");
 });
 
 await Probe("aspnet.handled_exception_is_logged", async () =>
