@@ -121,7 +121,7 @@ class Handler(BaseHTTPRequestHandler):
         text_of = json.dumps(items, ensure_ascii=False)
         # The main agent is told it is `/root`. Anything else is a subagent or a helper request, and gets a plain reply.
         root = "`/root`" in text_of or "multi_agent_role" not in text_of
-        declares_tools = bool(body.get("tools")) or any(isinstance(item, dict) and item.get("type") == "additional_tools" for item in items)
+        declares_tools = bool(body.get("tools")) or any(isinstance(item, dict) and item.get("type") == "additional_tools" and item.get("tools") for item in items)
         with lock:
             state["requests"] += 1
             number = state["requests"]
