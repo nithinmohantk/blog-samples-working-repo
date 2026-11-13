@@ -17,16 +17,16 @@ dotnet run --project tests/SelfTest -c Release 2>&1 | grep -v "^$" | tee /out/se
 printf 'name\tflavour\treflection\tseconds\tfiles\tfolder_bytes\tzip_bytes\ttrim_warnings\n' > /out/build.tsv
 publish() { # name flavour reflection
   rm -rf src/Quotes.Function/bin src/Quotes.Function/obj
-  local began; began=$(date +%s.%N)
+  local began; began=$(date +%s%N)
   dotnet publish src/Quotes.Function -c Release -r linux-x64 --self-contained "$([ "$2" = aot ] && echo true || echo false)" \
     -p:Flavour="$2" -p:ReflectionJson="$3" -p:DebugType=none -o "/out/publish/$1" > "/out/publish-$1.log" 2>&1 || { echo "publish $1 FAILED"; tail -n 20 "/out/publish-$1.log"; status=1; return; }
-  local seconds; seconds=$(echo "$(date +%s.%N) - $began" | bc)
+  local seconds; seconds=$(( ($(date +%s%N) - began) / 1000000000 ))
   find "/out/publish/$1" -name '*.dbg' -delete
   ( cd "/out/publish/$1" && zip -q -r "/out/$1.zip" . )
   # IL2026 and IL3050 are the compiler saying "this needs reflection that will not be there".
   local warnings; warnings=$(grep -oE "warning IL(2026|3050)" "/out/publish-$1.log" | sort | uniq -c | awk '{printf "%s x%s ", $3, $1}')
-  printf '%s\t%s\t%s\t%.0f\t%s\t%s\t%s\t%s\n' "$1" "$2" "$3" "$seconds" "$(find "/out/publish/$1" -type f | wc -l)" "$(du -sb "/out/publish/$1" | cut -f1)" "$(stat -c %s "/out/$1.zip")" "${warnings:-none}" >> /out/build.tsv
-  echo "published $1 in ${seconds%.*} s"
+  printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n' "$1" "$2" "$3" "$seconds" "$(find "/out/publish/$1" -type f | wc -l)" "$(du -sb "/out/publish/$1" | cut -f1)" "$(stat -c %s "/out/$1.zip")" "${warnings:-none}" >> /out/build.tsv
+  echo "published $1 in $seconds s"
 }
 echo "== publishing"
 publish jit jit false

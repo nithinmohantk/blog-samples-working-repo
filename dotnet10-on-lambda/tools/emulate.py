@@ -61,8 +61,14 @@ def first_request(event: bytes) -> tuple[float, dict]:
     while True:
         try:
             return invoke(event, timeout=60)
+        except urllib.error.HTTPError as error:
+            logs = subprocess.run(["docker", "logs", NAME], capture_output=True, text=True)
+            print(f"HTTP {error.code} {error.read()[:300]!r}; container log follows\n" + (logs.stdout + logs.stderr)[-3000:])
+            raise
         except (urllib.error.URLError, ConnectionError, OSError):
             if time.perf_counter() > deadline:
+                logs = subprocess.run(["docker", "logs", NAME], capture_output=True, text=True)
+                print("the function did not answer; container log follows\n" + (logs.stdout + logs.stderr)[-3000:])
                 raise
             time.sleep(0.01)
 
