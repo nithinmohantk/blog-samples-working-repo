@@ -1,0 +1,67 @@
+const G=window.G,p=G.p,h2=G.h2;
+const RUN='https://github.com/nithinmohantk/blog-samples-working-repo/actions/runs/43431682977', REPO='https://github.com/nithinmohantk/blog-samples-working-repo/tree/main/smart-backend-services';
+const parts=[
+h2('Running it'),
+G.ul([
+`<strong>Transport.</strong> The sample runs on loopback over plain HTTP. The profile requires TLS 1.2 or later for every exchange, and the client in the sample refuses any address that is neither https nor loopback.`,
+`<strong>Private keys.</strong> One key pair per client per environment, generated where it will be used, held in a key vault or key management service as non-exportable, and reached through the signing interface. A private key in a configuration file or a container image is a client secret with extra steps.`,
+`<strong>The replay cache.</strong> In the sample it is a dictionary in one process. With two instances of a token endpoint behind a load balancer, an assertion refused by one would be accepted by the other. It has to be a shared store with entries that expire.`,
+`<strong>Clocks.</strong> Every time check assumes the client and the server agree on the time to within the allowed skew, ten seconds here. Unsynchronised clocks show up as intermittent <code>invalid_client</code> on a client that worked yesterday.`,
+`<strong>Network.</strong> The FHIR server accepts connections from the gateway only. Test that from outside, as part of the deployment.`,
+`<strong>Audit.</strong> One record per decision: time, client, what was asked, what was decided and why. The gateway logs parameter names and not their values, since a search value can identify a patient, and no token or assertion is ever logged. The test checks both.`,
+`<strong>Monitoring.</strong> Watch <code>invalid_client</code> by client (a rise means an expired key, a clock problem or someone guessing), 403 by missing scope (a client doing more than it was registered for, or a registration that is too narrow), and failed key set fetches.`,
+`<strong>Rate limits.</strong> The token endpoint and the gateway both need them. The sample has only the one that protects the client's key set URL from refetch storms.`]),
+G.callout('compliance','ACCESS CONTROL EVIDENCE',`A registration is an access decision and should be recorded like one: who approved which scopes for which system, for what purpose, and when it is reviewed. The audit trail then shows whether the client stayed inside it. For system-to-system access there is no user in the token, so the client ID is the accountable party; one client ID shared by several systems makes the trail useless.`),
+h2('Cost'),
+p(`The protocol itself adds almost nothing at run time: one token request per client every five minutes, and one signature verification per FHIR request, done locally. The costs are in ownership.`),
+G.table(['Cost','Driver','How to keep it down'],[
+['Registration and key management','Every client needs a key pair, a key set URL or an uploaded key set, and an approved scope','A key set URL per client, so rotation needs no ticket; a short written procedure for emergency disablement'],
+['The gateway','It is security-critical code that must understand FHIR search','Expose few request shapes and refuse the rest; grow the list from real needs'],
+['Signing operations','A key vault charges per operation and adds latency','One signature per token, not per request; the token cache is what makes a remote key affordable'],
+['Operations','Refused requests generate questions','Name the missing scope in the response and the reason in the audit log']]),
+h2('Decision framework'),
+G.table(['Your situation','Choose','Reason'],[
+['A service calls a FHIR server on a schedule or on events, with no user','SMART Backend Services','It is the profile written for this, and EHR vendors and FHIR platforms implement it'],
+['The same, and the FHIR platform has SMART scope enforcement built in','Use the platform\'s, and run the gateway test list against it','Fewer moving parts, provided it handles includes, chains and paging'],
+['A FHIR server with no scope enforcement, such as a stock HAPI FHIR server','A gateway like this one, and network isolation','The server will answer anything that reaches it'],
+['Tokens that must be revocable within seconds','Opaque tokens with introspection, or sender-constrained tokens','A five-minute JWT cannot be recalled'],
+['A user is present and acting','SMART App Launch with user or patient scopes, not this profile','System scopes say nothing about which user did what'],
+['Bulk export of a population','This profile for authentication, with the Bulk Data operations added deliberately','The gateway here refuses operations by default']]),
+h2('Key takeaways'),
+G.ul([
+`Authenticate services with a signed assertion and a private key that stays in a vault. The token that crosses the network lasts five minutes.`,
+`At the token endpoint, take the algorithm from a fixed list and the key from the registration, verify the signature before recording the <code>jti</code>, and tell a failed caller nothing but <code>invalid_client</code>.`,
+`Enforce scopes on what a request does, not on its path. <code>_include</code>, <code>_revinclude</code>, <code>_has</code>, chained parameters, transactions and paging links each reach beyond the resource type in the URL.`,
+`Removing a key from a key set is not revocation. Plan for the cache lifetime, and keep a faster way to disable a client.`,
+`The FHIR server must be unreachable except through the gateway, and that is a deployment test, not an assumption.`]),
+p(`If you run Backend Services against a commercial EHR or a managed FHIR service, I would like to know how it treats <code>_revinclude</code> with a narrow scope. Leave a comment.`),
+G.callout('note','HOW THIS WAS CHECKED',`Everything shown ran in GitHub Actions on a hosted Linux runner with .NET SDK 10.0.201 (runtime 10.0.5) installed into a private directory, HAPI FHIR 8.0.0 in a container, and Python with PyJWT 2.12.1 and cryptography 46.0.6. The full scenario list passed 48 of 48 with an in-memory stand-in behind the gateway and 49 of 49 with HAPI FHIR behind it, the extra check being the Python client, whose own eight checks passed. The scenarios cover 12 scope requests, 26 request shapes, 22 token requests that must be refused, key rotation, the gateway checks listed above, and the client under concurrency, at expiry and after a restart. Time-dependent checks use a clock the test moves forward; nothing waited five minutes. The published outputs were scanned for private keys and tokens and contain none. Not run: TLS, more than one token endpoint instance, any FHIR server other than HAPI, any commercial identity platform, load, and a penetration test. A passing test list is not a security review. <a href="${RUN}" target="_blank" rel="noopener">The run is here</a>.`),
+G.callout('tip','GET THE CODE',`The client, the token endpoint, the scope and request classifiers, the gateway, the full test list and the Python client are in <a href="${REPO}" target="_blank" rel="noopener">smart-backend-services</a> in the samples repository. <code>dotnet run --project tests/SelfTest -c Release -- out</code> runs the scenarios with nothing else installed.`).replace('class="callout callout-tip"','class="callout callout-tip sample-code-link"'),
+h2('Glossary'),
+G.box([
+G.term('SMART Backend Services','The SMART App Launch profile for a system that calls a FHIR server with no user present.'),
+G.term('Client assertion','A short-lived JWT, signed by the client, that proves its identity to the token endpoint. Also called private_key_jwt.'),
+G.term('JWK Set','A JSON document listing public keys. A client publishes one so the server can verify its signatures.'),
+G.term('kid','The key ID in a JWT header, which says which key in the set signed it.'),
+G.term('jti','A unique identifier in a JWT. The server remembers it so the same assertion cannot be used twice.'),
+G.term('RS384, ES384','RSA and elliptic-curve signature algorithms with SHA-384, the two the profile names.'),
+G.term('System scope','A permission for a client acting as itself, such as system/Patient.rs, as opposed to one tied to a user or a patient.'),
+G.term('cruds','Create, read, update, delete, search: the letters of a SMART v2 scope, each granted separately.'),
+G.term('_revinclude','A search parameter that adds resources which refer to the ones found, for example every Observation about a patient.'),
+G.term('Chained search','A search on one resource type by a property of another it refers to.'),
+G.term('Algorithm confusion','An attack in which a verifier is tricked into checking a signature with a different algorithm from the one the key was issued for.')]),
+h2('References &amp; Further Reading'),
+G.box([
+G.ref('https://hl7.org/fhir/smart-app-launch/backend-services.html','SMART App Launch: Backend Services','The profile: token request, scopes, token response'),
+G.ref('https://hl7.org/fhir/smart-app-launch/client-confidential-asymmetric.html','SMART App Launch: client authentication with asymmetric keys','Assertion format, key registration, server validation'),
+G.ref('https://hl7.org/fhir/smart-app-launch/scopes-and-launch-context.html','SMART App Launch: scopes','The v2 scope syntax and what each letter covers'),
+G.ref('https://hl7.org/fhir/smart-app-launch/conformance.html','SMART App Launch: conformance','The discovery document and capability names'),
+G.ref('https://www.rfc-editor.org/rfc/rfc7523','RFC 7523','JWT profile for OAuth 2.0 client authentication'),
+G.ref('https://www.rfc-editor.org/rfc/rfc7638','RFC 7638','JWK thumbprint, used here as the key ID'),
+G.ref('https://www.rfc-editor.org/rfc/rfc8725','RFC 8725','JSON Web Token best current practices, including algorithm verification'),
+G.ref('https://www.rfc-editor.org/rfc/rfc9068','RFC 9068','JWT profile for OAuth 2.0 access tokens'),
+G.ref('https://hl7.org/fhir/R4/search.html','FHIR R4: search','_include, _revinclude, _has and chained parameters'),
+G.ref('https://hapifhir.io/hapi-fhir/docs/','HAPI FHIR documentation','The server behind the gateway in the test run'),
+G.ref(REPO,'Sample code for this article','Client, token endpoint, gateway, tests and the Python client')])
+];
+G.save(4,parts)
