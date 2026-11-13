@@ -5,7 +5,8 @@ Sample for the dataa.dev article "[.NET 10 on AWS Lambda: Managed Runtime, Nativ
 One small function, a price quote behind an API Gateway HTTP API event, published three ways from the same
 source: for the `dotnet10` managed runtime, the same with ReadyToRun, and as a Native AOT executable for
 `provided.al2023`. Each build is then run in the AWS Lambda base image, whose entry point is the Lambda Runtime
-Interface Emulator, and invoked over HTTP.
+Interface Emulator, and invoked over HTTP. The Native AOT build is run twice: in the OS-only image and in the
+managed runtime image, whose start-up script hands over to an executable named `bootstrap` when the package has one.
 
 Nothing is deployed. The timings are taken on the machine that runs the script and compare the builds with each
 other; they are not Lambda cold-start figures. SnapStart cannot be emulated locally: its two hooks are registered
@@ -40,5 +41,6 @@ The Native AOT build goes in the OS-only image, which starts `/var/runtime/boots
 
 ## What the run produces
 
-`versions.txt`, `selftest.txt`, `build.txt`, `emulator.txt` and `emulator.json`, plus the publish logs. The
+`versions.txt`, `selftest.txt`, `build.txt`, `emulator.txt`, `emulator.json` and `managed-runtime-bootstrap.sh.txt`
+(the start-up script read out of the managed runtime image), plus the publish logs. The
 workflow `.github/workflows/lambda-dotnet.yml` pushes them to the `ci-results-lambda-dotnet` branch.
