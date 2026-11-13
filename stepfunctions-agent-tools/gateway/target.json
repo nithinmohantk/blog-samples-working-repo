@@ -1,0 +1,34 @@
+{
+  "name": "credit",
+  "targetConfiguration": {
+    "mcp": {
+      "connector": {
+        "source": { "connectorId": "states", "version": "1.0.0" },
+        "configurations": [
+          {
+            "name": "StartExecution",
+            "description": "Request a goodwill credit on a customer case. Use only after the customer has agreed to a credit. 'input' is a JSON string with caseId (string) and amountCents (integer, the amount in cents). 'name' must be credit-<caseId>-<yyyymmdd>. The workflow decides whether the credit is applied, needs a manager, or is refused; read the result with DescribeExecution.",
+            "parameterValues": {
+              "stateMachineArn": "arn:aws:states:eu-west-1:123456789012:stateMachine:GoodwillCredit"
+            },
+            "parameterOverrides": [
+              { "path": "$.name", "description": "credit-<caseId>-<yyyymmdd>. Starting twice with the same name does not credit twice.", "visible": true }
+            ]
+          },
+          {
+            "name": "ListExecutions",
+            "parameterValues": {
+              "stateMachineArn": "arn:aws:states:eu-west-1:123456789012:stateMachine:GoodwillCredit"
+            }
+          },
+          {
+            "name": "DescribeExecution",
+            "description": "Status and result of a goodwill credit request. Set includedData to ALL_DATA to read the outcome. RUNNING with no output means it is waiting for a manager."
+          },
+          { "name": "GetExecutionHistory" }
+        ]
+      }
+    }
+  },
+  "credentialProviderConfigurations": [{ "credentialProviderType": "GATEWAY_IAM_ROLE" }]
+}

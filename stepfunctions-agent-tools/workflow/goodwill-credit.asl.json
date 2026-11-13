@@ -1,0 +1,147 @@
+{
+  "Comment": "Goodwill credit on a customer case. An agent may start this workflow; the limits, the approval and the order of steps are decided here and not by the agent.",
+  "StartAt": "CheckInputShape",
+  "TimeoutSeconds": 172800,
+  "States": {
+    "CheckInputShape": {
+      "Comment": "The input was written by a model. Check types before anything acts on it.",
+      "Type": "Choice",
+      "Choices": [
+        {
+          "And": [
+            { "Variable": "$.caseId", "IsPresent": true },
+            { "Variable": "$.caseId", "IsString": true },
+            { "Variable": "$.amountCents", "IsPresent": true },
+            { "Variable": "$.amountCents", "IsNumeric": true },
+            { "Variable": "$.amountCents", "NumericGreaterThan": 0 }
+          ],
+          "Next": "ValidateRequest"
+        }
+      ],
+      "Default": "RejectInvalidInput"
+    },
+    "ValidateRequest": {
+      "Comment": "Looks the case up in the system of record. The agent's description of the case is not trusted.",
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "credit-validate",
+        "Payload": {
+          "caseId.$": "$.caseId",
+          "amountCents.$": "$.amountCents"
+        }
+      },
+      "ResultSelector": {
+        "eligible.$": "$.Payload.eligible",
+        "reason.$": "$.Payload.reason"
+      },
+      "ResultPath": "$.validation",
+      "TimeoutSeconds": 10,
+      "Retry": [
+        {
+          "ErrorEquals": ["Lambda.ServiceException", "Lambda.TooManyRequestsException", "Lambda.SdkClientException"],
+          "IntervalSeconds": 1,
+          "MaxAttempts": 3,
+          "BackoffRate": 2
+        }
+      ],
+      "Next": "IsEligible"
+    },
+    "IsEligible": {
+      "Type": "Choice",
+      "Choices": [
+        { "Variable": "$.validation.eligible", "BooleanEquals": true, "Next": "RouteByAmount" }
+      ],
+      "Default": "RejectIneligible"
+    },
+    "RouteByAmount": {
+      "Comment": "The limits live here. No wording in a prompt can move them.",
+      "Type": "Choice",
+      "Choices": [
+        { "Variable": "$.amountCents", "NumericLessThanEquals": 5000, "Next": "ApplyCredit" },
+        { "Variable": "$.amountCents", "NumericLessThanEquals": 50000, "Next": "ManagerApproval" }
+      ],
+      "Default": "RejectOverLimit"
+    },
+    "ManagerApproval": {
+      "Comment": "Waits for a person. The task token goes to the approval worker, never to the agent.",
+      "Type": "Task",
+      "Resource": "arn:aws:states:us-east-1:123456789012:activity:ManagerApproval",
+      "TimeoutSeconds": 86400,
+      "ResultPath": "$.approval",
+      "Catch": [
+        { "ErrorEquals": ["States.Timeout"], "ResultPath": "$.error", "Next": "ApprovalExpired" }
+      ],
+      "Next": "ApprovalDecision"
+    },
+    "ApprovalDecision": {
+      "Type": "Choice",
+      "Choices": [
+        { "Variable": "$.approval.approved", "BooleanEquals": true, "Next": "ApplyCredit" }
+      ],
+      "Default": "Declined"
+    },
+    "ApplyCredit": {
+      "Comment": "The only state that moves money. The execution name is the idempotency key.",
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "credit-apply",
+        "Payload": {
+          "caseId.$": "$.caseId",
+          "amountCents.$": "$.amountCents",
+          "idempotencyKey.$": "$$.Execution.Name"
+        }
+      },
+      "ResultSelector": {
+        "creditId.$": "$.Payload.creditId"
+      },
+      "ResultPath": "$.credit",
+      "TimeoutSeconds": 10,
+      "Retry": [
+        {
+          "ErrorEquals": ["Lambda.ServiceException", "Lambda.TooManyRequestsException", "Lambda.SdkClientException"],
+          "IntervalSeconds": 1,
+          "MaxAttempts": 3,
+          "BackoffRate": 2
+        }
+      ],
+      "Next": "Credited"
+    },
+    "Credited": {
+      "Type": "Pass",
+      "Parameters": {
+        "outcome": "CREDITED",
+        "caseId.$": "$.caseId",
+        "amountCents.$": "$.amountCents",
+        "creditId.$": "$.credit.creditId"
+      },
+      "End": true
+    },
+    "Declined": {
+      "Type": "Pass",
+      "Parameters": { "outcome": "DECLINED", "reason": "The approver declined the credit." },
+      "End": true
+    },
+    "ApprovalExpired": {
+      "Type": "Pass",
+      "Parameters": { "outcome": "EXPIRED", "reason": "Nobody approved the credit in time." },
+      "End": true
+    },
+    "RejectInvalidInput": {
+      "Type": "Pass",
+      "Parameters": { "outcome": "REJECTED", "reason": "caseId must be a string and amountCents a positive number." },
+      "End": true
+    },
+    "RejectIneligible": {
+      "Type": "Pass",
+      "Parameters": { "outcome": "REJECTED", "reason.$": "$.validation.reason" },
+      "End": true
+    },
+    "RejectOverLimit": {
+      "Type": "Pass",
+      "Parameters": { "outcome": "REJECTED", "reason": "Above the limit for a goodwill credit. Open a refund case instead." },
+      "End": true
+    }
+  }
+}
