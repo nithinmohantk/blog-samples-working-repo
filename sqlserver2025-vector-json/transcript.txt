@@ -1,0 +1,168 @@
+
+== 0. The server
+  version 17.0.4040.1, level RTM, cumulative update CU4, Enterprise Developer Edition (64-bit)
+  database compatibility level 170, PREVIEW_FEATURES = 0
+  driver Microsoft.Data.SqlClient 6.1.1
+
+== 1. The vector type
+ok    cosine distance of two perpendicular vectors is 1
+ok    euclidean distance of the same two is the square root of 2
+ok    'dot' returns the negative dot product, so smaller is still nearer: [1,2,3] and [4,5,6] give -32
+[1.1] a vector cast to text
+      SELECT CAST(CAST('[1, 2.5, -3]' AS vector(3)) AS varchar(100))
+      ok -> [1.0000000e+000,2.5000000e+000,-3.0000000e+000]
+[1.2] a float32 vector of 1,998 dimensions
+      CREATE TABLE dbo.Wide (id int PRIMARY KEY, e vector(1998)); DROP TABLE dbo.Wide;
+      ok
+[1.3] one of 1,999 dimensions
+      CREATE TABLE dbo.Wider (id int PRIMARY KEY, e vector(1999));
+      error 2717: The size (1999) given to the column 'e' exceeds the maximum allowed (1998).
+[1.4] three numbers into a vector(2)
+      DECLARE @v vector(2) = '[1,2,3]';
+      error 42204: The vector dimensions 2 and 3 do not match.
+[1.5] text that is not an array of numbers
+      DECLARE @v vector(2) = '[1,"two"]';
+      error 13670: Input JSON is not a valid Vector : 'String not Supported'.
+[1.6] comparing two vectors with =
+      SELECT CASE WHEN CAST('[1,0]' AS vector(2)) = CAST('[1,0]' AS vector(2)) THEN 1 ELSE 0 END
+      error 8117: Operand data type vector is invalid for equal to operator.
+[1.7] a vector as a primary key
+      CREATE TABLE dbo.Keyed (e vector(2) NOT NULL PRIMARY KEY);
+      error 1919: Column 'e' in table 'Keyed' is of a type that is invalid for use as a key column in an index. Could not create constraint or index. See previous errors.
+[1.8] a float16 vector, PREVIEW_FEATURES off
+      CREATE TABLE dbo.Half (id int PRIMARY KEY, e vector(8, float16)); DROP TABLE dbo.Half;
+      error 195: 'float16' is not a recognized vector base type.
+
+== 2. Loading 50,000 vectors of 384 dimensions
+ok    50,000 rows are in the table
+  loaded in 27.3 s as JSON text, 1,000 rows per round trip
+  table size 78.4 MB, 1645 bytes per row; the raw floats are 1536 bytes
+
+== 3. Exact search, checked against the same arithmetic in C#
+ok    the ten nearest and their distances match a brute-force calculation for all 50 queries
+  median 14 ms per query over 50,000 rows (slowest 43 ms); one query reads 10,543 pages
+
+== 4. What the driver sees
+  a vector column: SQL type 'vector', declared .NET type System.Byte[], value returned as SqlVector<Single>
+  a SqlVector<float> parameter: ok, distance to its own row 0.000000
+ok    the 384 floats read back through the driver are bit-for-bit the ones that were sent as text
+
+== 5. The vector index, a preview feature
+[5.1] CREATE VECTOR INDEX with PREVIEW_FEATURES off
+      CREATE VECTOR INDEX IX_Doc_embedding ON dbo.Doc (embedding) WITH (METRIC = 'cosine', TYPE = 'DiskANN');
+      error 343: Unknown object type 'VECTOR' used in a CREATE, DROP, or ALTER statement.
+[5.2] turn the preview features on for this database
+      ALTER DATABASE SCOPED CONFIGURATION SET PREVIEW_FEATURES = ON;
+      ok
+[5.3] CREATE VECTOR INDEX again
+      CREATE VECTOR INDEX IX_Doc_embedding ON dbo.Doc (embedding) WITH (METRIC = 'cosine', TYPE = 'DiskANN');
+      ok
+  built in 127.5 s; the database grew by 13.1 MB
+  VECTOR_SEARCH: ok
+  median 4.3 ms per query (slowest 6.8 ms); one query reads 4,262 pages
+  recall against the exact answer: mean 96.0 %, worst query 80 %, 34 of 50 queries returned exactly the true ten
+  with WHERE category = 3, one row in eight: the exact query returned 10 rows for 50 of 50 queries;
+    the index query returned 10 for 0, between 1 and 9 for 33, and none for 17; 1.0 rows on average
+  writes to the table while the index exists:
+[5.4] insert a row
+      INSERT INTO dbo.Doc (id, category, title, embedding) VALUES (900001, 1, N'New', CAST(@q AS vector(384)));
+      error 42231: Data modification statement failed because table 'Doc' has a vector index on it.
+[5.5] update a column that is not the vector
+      UPDATE dbo.Doc SET title = N'Renamed' WHERE id = 2;
+      error 42231: Data modification statement failed because table 'Doc' has a vector index on it.
+[5.6] update the vector
+      UPDATE dbo.Doc SET embedding = CAST(@q AS vector(384)) WHERE id = 2;
+      error 42231: Data modification statement failed because table 'Doc' has a vector index on it.
+[5.7] delete a row
+      DELETE FROM dbo.Doc WHERE id = 3;
+      error 42231: Data modification statement failed because table 'Doc' has a vector index on it.
+[5.8] drop the index
+      DROP INDEX IX_Doc_embedding ON dbo.Doc;
+      ok
+[5.9] insert a row once the index is gone
+      INSERT INTO dbo.Doc (id, category, title, embedding) VALUES (900002, 1, N'New', CAST(@q AS vector(384)));
+      ok
+[5.10] a float16 vector, PREVIEW_FEATURES on
+      CREATE TABLE dbo.Half (id int PRIMARY KEY, e vector(8, float16)); DROP TABLE dbo.Half;
+      ok
+[5.11] turn the preview features off again
+      ALTER DATABASE SCOPED CONFIGURATION SET PREVIEW_FEATURES = OFF;
+      ok
+
+== 6. The json type
+[6.1] an object
+      DECLARE @j json = '{"a": 1,  "b": [true, null]}'; SELECT CAST(@j AS nvarchar(100));
+      ok -> {"a":1,"b":[true,null]}
+[6.2] a bare scalar
+      DECLARE @j json = 'true';
+      error 13609: JSON text is not properly formatted. Unexpected character 't' is found at position 0.
+[6.3] text that is not JSON
+      DECLARE @j json = '{"a": }';
+      error 13609: JSON text is not properly formatted. Unexpected character '}' is found at position 6.
+[6.4] a repeated key
+      DECLARE @j json = '{"a": 1, "a": 2}'; SELECT CAST(@j AS nvarchar(100));
+      ok -> {"a":1}
+[6.5] a number with more digits than a double holds
+      DECLARE @j json = '{"n": 12345678901234567890.123456789}'; SELECT CAST(@j AS nvarchar(100));
+      ok -> {"n":12345678901234567890.123456789}
+[6.6] key order and trailing zeros
+      DECLARE @j json = '{"b": 1.50, "a": 2}'; SELECT CAST(@j AS nvarchar(100));
+      ok -> {"b":1.50,"a":2}
+[6.7] comparing two json values with =
+      DECLARE @a json = '{}', @b json = '{}'; SELECT CASE WHEN @a = @b THEN 1 ELSE 0 END;
+      error 13636: The JSON data type cannot be compared or sorted, except when using the IS NULL operator.
+[6.8] ORDER BY a json column
+      SELECT j FROM (VALUES (CAST('{}' AS json))) AS t(j) ORDER BY j;
+      error 13636: The JSON data type cannot be compared or sorted, except when using the IS NULL operator.
+[6.9] JSON_VALUE with RETURNING
+      DECLARE @j json = '{"total": 12.50}'; SELECT JSON_VALUE(@j, '$.total' RETURNING decimal(9, 2));
+      ok -> 12.50
+[6.10] JSON_CONTAINS, PREVIEW_FEATURES off
+      DECLARE @j json = '{"c": "IE"}'; SELECT JSON_CONTAINS(@j, 'IE', '$.c');
+      ok -> 1
+
+== 7. 50,000 order documents in three column types
+  nvarchar(max)          31.3 MB     656 bytes per document
+  varchar(max), UTF-8    15.8 MB     331 bytes per document
+  json                   25.2 MB     528 bytes per document
+  the documents average 301 bytes as UTF-8 text
+  a json column: SQL type 'json', .NET type System.String
+
+== 8. Changing one property in every document, before any index exists
+  json, doc.modify(), value of the same length           0.2 s      5.0 MB of log
+  json, doc.modify(), longer value                       0.4 s     31.0 MB of log
+  json, JSON_MODIFY(), value of the same length          0.2 s      5.0 MB of log
+  json, JSON_MODIFY(), longer value                      0.4 s     31.0 MB of log
+  nvarchar(max), JSON_MODIFY(), same length              0.8 s      5.4 MB of log
+  nvarchar(max), JSON_MODIFY(), longer value             0.9 s     23.0 MB of log
+ok    after the updates all three tables hold the new status in every document
+  json, doc.modify(), same length, 20 characters         0.2 s      6.6 MB of log
+
+== 9. Finding the orders for one country, about 1 in 200
+  nvarchar(max), no index                       245 orders   median  160.0 ms    4,230 pages read
+  json, no index                                245 orders   median   95.3 ms    3,367 pages read
+  json, computed column with a B-tree index     245 orders   median    1.7 ms      761 pages read
+[9.1] CREATE JSON INDEX with PREVIEW_FEATURES off
+      CREATE JSON INDEX IX_OrdersJ_doc ON dbo.OrdersJ (doc) FOR ('$.customer.country', '$.status');
+      ok
+  sys.indexes for dbo.OrdersJ: CLUSTERED, JSON; the database grew by 13.4 MB
+  json, JSON index, JSON_VALUE(...) = N'MT'     245 orders   median   94.8 ms    3,367 pages read
+  json, JSON index, JSON_CONTAINS(...) = 1      245 orders   median    1.7 ms      764 pages read
+  json, JSON index named in a hint              245 orders   median   20.6 ms    3,726 pages read
+ok    every way of asking returns the same count and the same total
+  and the cost of keeping that index when the indexed property changes:
+  json, doc.modify(), same length, JSON index            5.2 s     69.6 MB of log
+
+== 10. Shaping results
+[10.1] JSON_OBJECTAGG over a grouped query
+      SELECT JSON_OBJECTAGG(country : orders) FROM (top five countries by order count)
+      ok -> {"FI":3442,"DE":3439,"CZ":3397,"GB":3375,"AT":3370}
+  OPENJSON over the json column: 3 order lines for order 42, first 42 SKU-04834 5 61.67
+[10.2] change an existing nvarchar(max) column to json
+      ALTER TABLE dbo.OrdersN DROP CONSTRAINT CK_OrdersN_json; ALTER TABLE dbo.OrdersN ALTER COLUMN doc json NOT NULL;
+      ok
+[10.3] the same when one row is not JSON
+      CREATE TABLE dbo.Legacy (id int PRIMARY KEY, doc nvarchar(max)); INSERT INTO dbo.Legacy VALUES (1, N'{"ok": true}'), (2, N'not json'); ALTER TABLE dbo.Legacy ALTER COLUMN doc json;
+      error 13609: JSON text is not properly formatted. Unexpected character 'n' is found at position 0. The statement has been terminated.
+
+8 of 8 checks passed

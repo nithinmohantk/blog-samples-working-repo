@@ -1,0 +1,4 @@
+2026-11-13 17:32:53.28 Server      Microsoft SQL Server 2025 (RTM-CU4-GDR) (KB5089899) - 17.0.4040.1 (X64) 
+	Apr 18 2026 22:41:22 
+	Copyright (C) 2025 Microsoft Corporation
+	Enterprise Developer Edition (64-bit) on Linux (Ubuntu 22.04.5 LTS) <X64>

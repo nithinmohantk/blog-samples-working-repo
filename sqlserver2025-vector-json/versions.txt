@@ -1,0 +1,6 @@
+image    mcr.microsoft.com/mssql/server:2025-CU4-GDR1-ubuntu-22.04
+built    2026-04-19T12:32:21.126991629Z
+digest   sha256:15057bb772025cf9f279d2e6e7a83b90b73109c0dc1e12fc5a1fd19992fb8c7f
+size     662 MB
+.NET SDK 10.0.201
+runner   4 vCPU, 16 GB; container limited to 6 GB

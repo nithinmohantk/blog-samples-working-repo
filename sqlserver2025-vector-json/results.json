@@ -1,0 +1,107 @@
+{
+  "server": {
+    "version": "17.0.4040.1",
+    "level": "RTM",
+    "update": "CU4",
+    "edition": "Enterprise Developer Edition (64-bit)",
+    "compatibility": 170
+  },
+  "vector_load": {
+    "rows": 50000,
+    "dimensions": 384,
+    "seconds": 27.3,
+    "table_mb": 78.4,
+    "bytes_per_row": 1645
+  },
+  "exact": {
+    "median_ms": 14,
+    "max_ms": 43,
+    "pages": 10543
+  },
+  "index": {
+    "build_seconds": 127.5,
+    "grew_mb": 13.1,
+    "median_ms": 4.3,
+    "max_ms": 6.8,
+    "pages": 4262,
+    "mean_recall": 0.96,
+    "worst_recall": 0.8,
+    "perfect": 34
+  },
+  "filtered": {
+    "index_full": 0,
+    "index_partial": 33,
+    "index_empty": 17,
+    "average_rows": 1
+  },
+  "json_storage_kb": {
+    "nvarchar(max)": 32048,
+    "varchar(max), UTF-8": 16160,
+    "json": 25776
+  },
+  "json_index_mb": 13.4,
+  "lookups": {
+    "nvarchar(max), no index": {
+      "median_ms": 160,
+      "pages": 4230
+    },
+    "json, no index": {
+      "median_ms": 95.3,
+      "pages": 3367
+    },
+    "json, computed column with a B-tree index": {
+      "median_ms": 1.7,
+      "pages": 761
+    },
+    "json, JSON index, JSON_VALUE(...) = N\u0027MT\u0027": {
+      "median_ms": 94.8,
+      "pages": 3367
+    },
+    "json, JSON index, JSON_CONTAINS(...) = 1": {
+      "median_ms": 1.7,
+      "pages": 764
+    },
+    "json, JSON index named in a hint": {
+      "median_ms": 20.6,
+      "pages": 3726
+    }
+  },
+  "updates": {
+    "json, doc.modify(), value of the same length": {
+      "seconds": 0.2,
+      "log_mb": 5
+    },
+    "json, doc.modify(), longer value": {
+      "seconds": 0.4,
+      "log_mb": 31
+    },
+    "json, JSON_MODIFY(), value of the same length": {
+      "seconds": 0.2,
+      "log_mb": 5
+    },
+    "json, JSON_MODIFY(), longer value": {
+      "seconds": 0.4,
+      "log_mb": 31
+    },
+    "nvarchar(max), JSON_MODIFY(), same length": {
+      "seconds": 0.8,
+      "log_mb": 5.4
+    },
+    "nvarchar(max), JSON_MODIFY(), longer value": {
+      "seconds": 0.9,
+      "log_mb": 23
+    },
+    "json, doc.modify(), same length, 20 characters": {
+      "seconds": 0.2,
+      "log_mb": 6.6
+    },
+    "json, doc.modify(), same length, JSON index": {
+      "seconds": 5.2,
+      "log_mb": 69.6
+    }
+  },
+  "checks": {
+    "passed": 8,
+    "total": 8
+  }
+}
