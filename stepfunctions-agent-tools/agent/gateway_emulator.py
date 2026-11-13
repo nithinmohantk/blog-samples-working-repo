@@ -36,7 +36,8 @@ class GatewayEmulator:
                 raise ValueError(f"the emulator does not implement {operation}")
             pinned = dict(entry.get("parameterValues", {}))
             if "stateMachineArn" in pinned and state_machine_arn:
-                pinned["stateMachineArn"] = state_machine_arn
+                # Step Functions Local selects a mock test case with a "#TestCase" suffix, valid only when starting.
+                pinned["stateMachineArn"] = state_machine_arn if operation == "StartExecution" else state_machine_arn.split("#")[0]
             fields = dict(AGENT_FIELDS[operation])
             for override in entry.get("parameterOverrides", []):
                 if override.get("visible"):
