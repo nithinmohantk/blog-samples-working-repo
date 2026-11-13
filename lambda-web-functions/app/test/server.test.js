@@ -1,4 +1,4 @@
-// Run with: node --test test/      (Node.js 24 or later; no packages)
+// Run with: npm test      (Node.js 24 or later; no packages)
 // Besides checking behaviour, the last tests measure what a Web Function is billed for: CPU time,
 // which is not the same thing as how long requests take.
 'use strict';

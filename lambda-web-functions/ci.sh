@@ -5,10 +5,10 @@ out="$(mkdir -p "$1" && cd "$1" && pwd)"
 cd "$(dirname "$0")"
 status=0
 node --version | tee "$out/versions.txt"; python --version | tee -a "$out/versions.txt"
-( cd app && METRICS_FILE="$out/metrics.json" node --test test/ 2>&1 | tee "$out/node-tests.txt"; exit "${PIPESTATUS[0]}" ) || status=1
+( cd app && METRICS_FILE="$out/metrics.json" node --test test/*.test.js 2>&1 | tee "$out/node-tests.txt"; exit "${PIPESTATUS[0]}" ) || status=1
 cat "$out/metrics.json" 2>/dev/null
 # The server as a process, the way the platform starts it: listen where told, answer, leave on SIGTERM.
-( cd app && AWS_LAMBDA_HTTP_ENDPOINT=127.0.0.1:38080 node index.js > "$out/process.txt" 2>&1 & pid=$!
+( cd app; AWS_LAMBDA_HTTP_ENDPOINT=127.0.0.1:38080 node index.js > "$out/process.txt" 2>&1 & pid=$!
   for i in $(seq 1 50); do curl -fsS http://127.0.0.1:38080/healthz > "$out/process-health.txt" 2>/dev/null && break; sleep 0.1; done
   started=$(date +%s.%N); kill -TERM $pid; wait $pid; code=$?
   printf 'exit code %s, %.3f s after SIGTERM\n' "$code" "$(echo "$(date +%s.%N) - $started" | bc)" >> "$out/process.txt"
