@@ -1,0 +1,319 @@
+versions: agent-framework-core 1.26.0, agent-framework-openai 1.18.2, langchain 1.5.0, langgraph 1.2.22, langchain-openai 1.8.0, langchain-core 1.8.0, google-adk 2.14.1, google-genai 2.34.0, litellm 1.109.1, openai 3.51.0
+python 3.13.18
+defaults read from the installed packages: Agent Framework max_iterations 40, max_consecutive_errors_per_request 3; LangGraph recursion limit 10007 graph steps; ADK max_llm_calls 500; openai client max_retries 2
+
+== 1. The model behaves
+   script: [{"calls": [["lookup_order", {"order_id": "A-100"}]]}, {"calls": [["refund_order", {"order_id": "A-100", "amount": 25.0}]]}, {"text": "Refunded 25.00 on A-100."}]
+Agent Framework    answered     3 model calls     0.8 s  tools run: lookup_order(order_id='A-100'), refund_order(order_id='A-100', amount=25.0)
+                   result: 'Refunded 25.00 on A-100.'
+                   told the model: {"order_id": "A-100", "status": "delivered", "total": 80.0}
+                   told the model: {"order_id": "A-100", "refunded": 25.0, "argument_type": "float"}
+LangGraph          answered     3 model calls     1.5 s  tools run: lookup_order(order_id='A-100'), refund_order(order_id='A-100', amount=25.0)
+                   result: 'Refunded 25.00 on A-100.'
+                   told the model: {"order_id": "A-100", "status": "delivered", "total": 80.0}
+                   told the model: {"order_id": "A-100", "refunded": 25.0, "argument_type": "float"}
+ADK (Gemini API)   answered     3 model calls     1.2 s  tools run: lookup_order(order_id='A-100'), refund_order(order_id='A-100', amount=25.0)
+                   result: 'Refunded 25.00 on A-100.'
+                   told the model: {"order_id": "A-100", "status": "delivered", "total": 80.0}
+                   told the model: {"order_id": "A-100", "refunded": 25.0, "argument_type": "float"}
+ADK (LiteLLM)      answered     3 model calls     5.4 s  tools run: lookup_order(order_id='A-100'), refund_order(order_id='A-100', amount=25.0)
+                   result: 'Refunded 25.00 on A-100.'
+                   told the model: {"order_id": "A-100", "status": "delivered", "total": 80.0}
+                   told the model: {"order_id": "A-100", "refunded": 25.0, "argument_type": "float"}
+ok    all four give the same answer after the same two tool executions and three model calls
+
+== 2. Two tool calls in one turn
+   script: [{"calls": [["lookup_order", {"order_id": "A-100"}], ["lookup_order", {"order_id": "B-200"}]]}, {"text": "A-100 delivered, B-200 shipped."}]
+Agent Framework    answered     2 model calls     0.3 s  tools run: lookup_order(order_id='A-100'), lookup_order(order_id='B-200')
+                   result: 'A-100 delivered, B-200 shipped.'
+                   told the model: {"order_id": "A-100", "status": "delivered", "total": 80.0}
+                   told the model: {"order_id": "B-200", "status": "shipped", "total": 35.5}
+                   the two lookups ran at the same time
+LangGraph          answered     2 model calls     0.3 s  tools run: lookup_order(order_id='A-100'), lookup_order(order_id='B-200')
+                   result: 'A-100 delivered, B-200 shipped.'
+                   told the model: {"order_id": "A-100", "status": "delivered", "total": 80.0}
+                   told the model: {"order_id": "B-200", "status": "shipped", "total": 35.5}
+                   the two lookups ran at the same time
+ADK (Gemini API)   answered     2 model calls     0.6 s  tools run: lookup_order(order_id='A-100'), lookup_order(order_id='B-200')
+                   result: 'A-100 delivered, B-200 shipped.'
+                   told the model: {"order_id": "A-100", "status": "delivered", "total": 80.0}
+                   told the model: {"order_id": "B-200", "status": "shipped", "total": 35.5}
+                   the two lookups ran one after the other
+ADK (LiteLLM)      answered     2 model calls     0.6 s  tools run: lookup_order(order_id='A-100'), lookup_order(order_id='B-200')
+                   result: 'A-100 delivered, B-200 shipped.'
+                   told the model: {"order_id": "A-100", "status": "delivered", "total": 80.0}
+                   told the model: {"order_id": "B-200", "status": "shipped", "total": 35.5}
+                   the two lookups ran one after the other
+
+== 2b. The same two calls, with the tool written as an async function
+   script: [{"calls": [["lookup_order_async", {"order_id": "A-100"}], ["lookup_order_async", {"order_id": "B-200"}]]}, {"text": "A-100 delivered, B-200 shipped."}]
+Agent Framework    answered     2 model calls     0.3 s  tools run: lookup_order_async(order_id='A-100'), lookup_order_async(order_id='B-200')
+                   result: 'A-100 delivered, B-200 shipped.'
+                   told the model: {"order_id": "A-100", "status": "delivered", "total": 80.0}
+                   told the model: {"order_id": "B-200", "status": "shipped", "total": 35.5}
+                   the two lookups ran at the same time
+LangGraph          answered     2 model calls     0.3 s  tools run: lookup_order_async(order_id='A-100'), lookup_order_async(order_id='B-200')
+                   result: 'A-100 delivered, B-200 shipped.'
+                   told the model: {"order_id": "A-100", "status": "delivered", "total": 80.0}
+                   told the model: {"order_id": "B-200", "status": "shipped", "total": 35.5}
+                   the two lookups ran at the same time
+ADK (Gemini API)   answered     2 model calls     0.3 s  tools run: lookup_order_async(order_id='A-100'), lookup_order_async(order_id='B-200')
+                   result: 'A-100 delivered, B-200 shipped.'
+                   told the model: {"order_id": "A-100", "status": "delivered", "total": 80.0}
+                   told the model: {"order_id": "B-200", "status": "shipped", "total": 35.5}
+                   the two lookups ran at the same time
+ADK (LiteLLM)      answered     2 model calls     0.3 s  tools run: lookup_order_async(order_id='A-100'), lookup_order_async(order_id='B-200')
+                   result: 'A-100 delivered, B-200 shipped.'
+                   told the model: {"order_id": "A-100", "status": "delivered", "total": 80.0}
+                   told the model: {"order_id": "B-200", "status": "shipped", "total": 35.5}
+                   the two lookups ran at the same time
+
+== 3. The same refund asked for twice in one turn
+   script: [{"calls": [["refund_order", {"order_id": "A-100", "amount": 25.0}], ["refund_order", {"order_id": "A-100", "amount": 25.0}]]}, {"text": "Refunded."}]
+Agent Framework    answered     2 model calls     0.1 s  tools run: refund_order(order_id='A-100', amount=25.0), refund_order(order_id='A-100', amount=25.0)
+                   result: 'Refunded.'
+                   told the model: {"order_id": "A-100", "refunded": 25.0, "argument_type": "float"}
+                   told the model: {"order_id": "A-100", "refunded": 25.0, "argument_type": "float"}
+LangGraph          answered     2 model calls     0.1 s  tools run: refund_order(order_id='A-100', amount=25.0), refund_order(order_id='A-100', amount=25.0)
+                   result: 'Refunded.'
+                   told the model: {"order_id": "A-100", "refunded": 25.0, "argument_type": "float"}
+                   told the model: {"order_id": "A-100", "refunded": 25.0, "argument_type": "float"}
+ADK (Gemini API)   answered     2 model calls     0.1 s  tools run: refund_order(order_id='A-100', amount=25.0), refund_order(order_id='A-100', amount=25.0)
+                   result: 'Refunded.'
+                   told the model: {"order_id": "A-100", "refunded": 25.0, "argument_type": "float"}
+                   told the model: {"order_id": "A-100", "refunded": 25.0, "argument_type": "float"}
+ADK (LiteLLM)      answered     2 model calls     0.1 s  tools run: refund_order(order_id='A-100', amount=25.0), refund_order(order_id='A-100', amount=25.0)
+                   result: 'Refunded.'
+                   told the model: {"order_id": "A-100", "refunded": 25.0, "argument_type": "float"}
+                   told the model: {"order_id": "A-100", "refunded": 25.0, "argument_type": "float"}
+
+== 4. A tool raises an exception
+   script: [{"calls": [["lookup_order", {"order_id": "Z-999"}]]}, {"text": "I could not find that order."}]
+Agent Framework    answered     2 model calls     0.3 s  tools run: lookup_order(order_id='Z-999')
+                   result: 'I could not find that order.'
+                   told the model: Error: Function failed.
+LangGraph          raised       1 model calls     0.3 s  tools run: lookup_order(order_id='Z-999')
+                   result: 'LookupError: order Z-999 not found in orders-db-internal-7.corp.example:5432'
+ADK (Gemini API)   raised       1 model calls     0.3 s  tools run: lookup_order(order_id='Z-999')
+                   result: 'LookupError: order Z-999 not found in orders-db-internal-7.corp.example:5432'
+ADK (LiteLLM)      raised       1 model calls     0.3 s  tools run: lookup_order(order_id='Z-999')
+                   result: 'LookupError: order Z-999 not found in orders-db-internal-7.corp.example:5432'
+
+== 5. The model calls a tool that does not exist
+   script: [{"calls": [["cancel_order", {"order_id": "A-100"}]]}, {"text": "I cannot cancel orders."}]
+Agent Framework    answered     2 model calls     0.1 s  tools run: none
+                   result: 'I cannot cancel orders.'
+                   told the model: Error: Requested function "cancel_order" not found.
+LangGraph          answered     2 model calls     0.1 s  tools run: none
+                   result: 'I cannot cancel orders.'
+                   told the model: Error: cancel_order is not a valid tool, try one of [lookup_order, refund_order].
+ADK (Gemini API)   answered     2 model calls     0.1 s  tools run: none
+                   result: 'I cannot cancel orders.'
+                   told the model: {"error": "Invoking `cancel_order()` failed as no tool with that name is available. The tools you can call are: lookup_order, refund_order. You could retry, but it is ...
+ADK (LiteLLM)      answered     2 model calls     0.1 s  tools run: none
+                   result: 'I cannot cancel orders.'
+                   told the model: {"error": "Invoking `cancel_order()` failed as no tool with that name is available. The tools you can call are: lookup_order, refund_order. You could retry, but it is ...
+
+== 6. A required argument is missing
+   script: [{"calls": [["refund_order", {"order_id": "A-100"}]]}, {"text": "How much should I refund?"}]
+Agent Framework    answered     2 model calls     0.1 s  tools run: none
+                   result: 'How much should I refund?'
+                   told the model: Error: Argument parsing failed.
+LangGraph          answered     2 model calls     0.1 s  tools run: none
+                   result: 'How much should I refund?'
+                   told the model: Error invoking tool 'refund_order' with kwargs {'order_id': 'A-100'} with error: amount: Field required Please fix the error and try again.
+ADK (Gemini API)   answered     2 model calls     0.1 s  tools run: none
+                   result: 'How much should I refund?'
+                   told the model: {"error": "Invoking `refund_order()` failed as the following mandatory input parameters are not present:\namount\nYou could retry calling this tool, but it is IMPORTAN...
+ADK (LiteLLM)      answered     2 model calls     0.1 s  tools run: none
+                   result: 'How much should I refund?'
+                   told the model: {"error": "Invoking `refund_order()` failed as the following mandatory input parameters are not present:\namount\nYou could retry calling this tool, but it is IMPORTAN...
+
+== 7. An argument has the wrong type
+   script: [{"calls": [["refund_order", {"order_id": "A-100", "amount": "twenty-five"}]]}, {"text": "The amount must be a number."}]
+Agent Framework    answered     2 model calls     0.1 s  tools run: none
+                   result: 'The amount must be a number.'
+                   told the model: Error: Argument parsing failed.
+LangGraph          answered     2 model calls     0.1 s  tools run: none
+                   result: 'The amount must be a number.'
+                   told the model: Error invoking tool 'refund_order' with kwargs {'order_id': 'A-100', 'amount': 'twenty-five'} with error: amount: Input should be a valid number, unable to parse strin...
+ADK (Gemini API)   answered     2 model calls     0.1 s  tools run: refund_order(order_id='A-100', amount='twenty-five')
+                   result: 'The amount must be a number.'
+                   told the model: {"order_id": "A-100", "refunded": "twenty-five", "argument_type": "str"}
+ADK (LiteLLM)      answered     2 model calls     0.1 s  tools run: refund_order(order_id='A-100', amount='twenty-five')
+                   result: 'The amount must be a number.'
+                   told the model: {"order_id": "A-100", "refunded": "twenty-five", "argument_type": "str"}
+
+== 8. A number arrives as text
+   script: [{"calls": [["refund_order", {"order_id": "A-100", "amount": "25"}]]}, {"text": "Refunded."}]
+Agent Framework    answered     2 model calls     0.1 s  tools run: refund_order(order_id='A-100', amount=25.0)
+                   result: 'Refunded.'
+                   told the model: {"order_id": "A-100", "refunded": 25.0, "argument_type": "float"}
+LangGraph          answered     2 model calls     0.1 s  tools run: refund_order(order_id='A-100', amount=25.0)
+                   result: 'Refunded.'
+                   told the model: {"order_id": "A-100", "refunded": 25.0, "argument_type": "float"}
+ADK (Gemini API)   answered     2 model calls     0.1 s  tools run: refund_order(order_id='A-100', amount='25')
+                   result: 'Refunded.'
+                   told the model: {"order_id": "A-100", "refunded": "25", "argument_type": "str"}
+ADK (LiteLLM)      answered     2 model calls     0.1 s  tools run: refund_order(order_id='A-100', amount='25')
+                   result: 'Refunded.'
+                   told the model: {"order_id": "A-100", "refunded": "25", "argument_type": "str"}
+
+== 9. The arguments are not valid JSON
+   script: [{"calls": [["refund_order", "{\"order_id\": \"A-100\", \"amount\": 25"]]}, {"text": "Something went wrong."}]
+Agent Framework    answered     2 model calls     0.1 s  tools run: none
+                   result: 'Something went wrong.'
+                   told the model: Error: Argument parsing failed.
+LangGraph          answered     1 model calls     0.0 s  tools run: none
+                   result: ''
+ADK (Gemini API)   not applicable: the Gemini API carries arguments as an object, so they cannot be malformed JSON
+ADK (LiteLLM)      answered     1 model calls     0.0 s  tools run: none
+                   result: ''
+
+== 10. The model returns nothing
+   script: [{"text": ""}]
+Agent Framework    answered     1 model calls     0.0 s  tools run: none
+                   result: ''
+LangGraph          answered     1 model calls     0.0 s  tools run: none
+                   result: ''
+ADK (Gemini API)   answered     1 model calls     0.0 s  tools run: none
+                   result: ''
+ADK (LiteLLM)      answered     1 model calls     0.0 s  tools run: none
+                   result: ''
+
+== 11. Two 429 responses, then an answer
+   script: [{"status": 429, "message": "Rate limit reached"}, {"status": 429, "message": "Rate limit reached"}, {"text": "Hello."}]
+Agent Framework    answered     3 model calls     1.2 s  tools run: none
+                   result: 'Hello.'
+LangGraph          answered     3 model calls     1.3 s  tools run: none
+                   result: 'Hello.'
+ADK (Gemini API)   raised       1 model calls     0.0 s  tools run: none
+                   result: '_ResourceExhaustedError: On how to mitigate this issue, please refer to: https://google.github.io/adk-docs/agents/models/google-gemini/#error-code-429-resource_exhaust...'
+ADK (LiteLLM)      answered     3 model calls     1.3 s  tools run: none
+                   result: 'Hello.'
+
+== 12. Two 500 responses, then an answer
+   script: [{"status": 500, "message": "Internal error"}, {"status": 500, "message": "Internal error"}, {"text": "Hello."}]
+Agent Framework    answered     3 model calls     1.2 s  tools run: none
+                   result: 'Hello.'
+LangGraph          answered     3 model calls     1.2 s  tools run: none
+                   result: 'Hello.'
+ADK (Gemini API)   raised       1 model calls     0.0 s  tools run: none
+                   result: "ServerError: 500 UNAVAILABLE. {'error': {'message': 'Internal error', 'type': 'server_error', 'code': 500, 'status': 'UNAVAILABLE'}}"
+ADK (LiteLLM)      answered     3 model calls     1.2 s  tools run: none
+                   result: 'Hello.'
+
+== 13. 429 for ever
+   script: [{"status": 429, "message": "Rate limit reached", "repeat": true}]
+Agent Framework    raised       3 model calls     1.4 s  tools run: none
+                   result: 'ChatClientException: ("<class \'agent_framework_openai._chat_completion_client.OpenAIChatCompletionClient\'> service failed to complete the prompt: Error code: 429 - Rat...'
+LangGraph          raised       3 model calls     1.4 s  tools run: none
+                   result: 'OpenAIRateLimitError: Error code: 429 - Rate limit reached'
+ADK (Gemini API)   raised       1 model calls     0.0 s  tools run: none
+                   result: '_ResourceExhaustedError: On how to mitigate this issue, please refer to: https://google.github.io/adk-docs/agents/models/google-gemini/#error-code-429-resource_exhaust...'
+ADK (LiteLLM)      raised       3 model calls     1.4 s  tools run: none
+                   result: 'RateLimitError: litellm.RateLimitError: RateLimitError: OpenAIException - Rate limit reached'
+
+== 14. The model never stops calling a tool
+   script: [{"calls": [["lookup_order", {"order_id": "A-100"}]], "repeat": true}]
+Agent Framework    answered    41 model calls     2.0 s  tools run: 40 executions
+                   result: 'Function invocation limit reached before a final answer could be produced.'
+LangGraph          cut off    601 model calls    67.7 s  tools run: 600 executions
+                   result: 'still going after 600 model calls'
+ADK (Gemini API)   raised     500 model calls    87.9 s  tools run: 500 executions
+                   result: 'LlmCallsLimitExceededError: Max number of llm calls limit of `500` exceeded'
+ADK (LiteLLM)      raised     500 model calls    37.3 s  tools run: 500 executions
+                   result: 'LlmCallsLimitExceededError: Max number of llm calls limit of `500` exceeded'
+
+== The same scenarios with a few lines of configuration: at most 8 model calls, tool failures reported without detail, arguments type-checked, retries on
+
+-- 4. A tool raises an exception
+Agent Framework    answered     2 model calls     0.3 s  tools run: lookup_order(order_id='Z-999')
+                   result: 'I could not find that order.'
+                   told the model: Error: Function failed.
+LangGraph          answered     2 model calls     0.3 s  tools run: lookup_order(order_id='Z-999')
+                   result: 'I could not find that order.'
+                   told the model: The tool failed. Do not retry; tell the user it could not be done.
+ADK (Gemini API)   answered     2 model calls     0.3 s  tools run: lookup_order(order_id='Z-999')
+                   result: 'I could not find that order.'
+                   told the model: {"error": "The tool failed. Do not retry; tell the user it could not be done."}
+ADK (LiteLLM)      answered     2 model calls     0.3 s  tools run: lookup_order(order_id='Z-999')
+                   result: 'I could not find that order.'
+                   told the model: {"error": "The tool failed. Do not retry; tell the user it could not be done."}
+
+-- 7. An argument has the wrong type
+Agent Framework    answered     2 model calls     0.1 s  tools run: none
+                   result: 'The amount must be a number.'
+                   told the model: Error: Argument parsing failed.
+LangGraph          answered     2 model calls     0.1 s  tools run: none
+                   result: 'The amount must be a number.'
+                   told the model: Error invoking tool 'refund_order' with kwargs {'order_id': 'A-100', 'amount': 'twenty-five'} with error: amount: Input should be a valid number, unable to parse strin...
+ADK (Gemini API)   answered     2 model calls     0.1 s  tools run: none
+                   result: 'The amount must be a number.'
+                   told the model: {"error": "The tool failed. Do not retry; tell the user it could not be done."}
+ADK (LiteLLM)      answered     2 model calls     0.1 s  tools run: none
+                   result: 'The amount must be a number.'
+                   told the model: {"error": "The tool failed. Do not retry; tell the user it could not be done."}
+
+-- 8. A number arrives as text
+Agent Framework    answered     2 model calls     0.1 s  tools run: refund_order(order_id='A-100', amount=25.0)
+                   result: 'Refunded.'
+                   told the model: {"order_id": "A-100", "refunded": 25.0, "argument_type": "float"}
+LangGraph          answered     2 model calls     0.1 s  tools run: refund_order(order_id='A-100', amount=25.0)
+                   result: 'Refunded.'
+                   told the model: {"order_id": "A-100", "refunded": 25.0, "argument_type": "float"}
+ADK (Gemini API)   answered     2 model calls     0.1 s  tools run: refund_order(order_id='A-100', amount=25.0)
+                   result: 'Refunded.'
+                   told the model: {"order_id": "A-100", "refunded": 25.0, "argument_type": "float"}
+ADK (LiteLLM)      answered     2 model calls     0.1 s  tools run: refund_order(order_id='A-100', amount=25.0)
+                   result: 'Refunded.'
+                   told the model: {"order_id": "A-100", "refunded": 25.0, "argument_type": "float"}
+
+-- 11. Two 429 responses, then an answer
+Agent Framework    answered     3 model calls     1.3 s  tools run: none
+                   result: 'Hello.'
+LangGraph          answered     3 model calls     1.4 s  tools run: none
+                   result: 'Hello.'
+ADK (Gemini API)   answered     3 model calls     1.2 s  tools run: none
+                   result: 'Hello.'
+ADK (LiteLLM)      answered     3 model calls     1.5 s  tools run: none
+                   result: 'Hello.'
+
+-- 14. The model never stops calling a tool
+Agent Framework    answered     9 model calls     0.4 s  tools run: 8 executions
+                   result: 'Function invocation limit reached before a final answer could be produced.'
+LangGraph          answered     8 model calls     0.4 s  tools run: 8 executions
+                   result: 'Model call limits exceeded: run limit (8/8)'
+ADK (Gemini API)   raised       8 model calls     0.4 s  tools run: 8 executions
+                   result: 'LlmCallsLimitExceededError: Max number of llm calls limit of `8` exceeded'
+ADK (LiteLLM)      raised       8 model calls     0.4 s  tools run: 8 executions
+                   result: 'LlmCallsLimitExceededError: Max number of llm calls limit of `8` exceeded'
+   model calls when capped at eight: Agent Framework 9, LangGraph 8, ADK (Gemini API) 8, ADK (LiteLLM) 8
+ok    hardened: every framework stops within nine model calls when the model never stops
+ok    hardened: a failing tool no longer ends the run, and the database host in its message reaches neither the model nor the caller
+ok    hardened: no framework runs the refund when the amount is not a number
+ok    hardened: all four answer after two 429 responses
+
+== What each framework sent on the first request of scenario 1
+
+Agent Framework: /v1/chat/completions, 1,132 bytes, user agent agent-framework-python/1.26.0
+  instructions sent as a 'system' message; other request fields: {"stream": false, "tool_choice": "auto"}
+  refund_order as declared to the model: {"description": "Refunds part or all of an order to the customer. This moves money.\n\nArgs:\n    order_id: The order identifier, for example A-100.\n    amount: The amount to refund, in euro.\n", "name": "refund_order", "parameters": {"properties": {"amount": {"title": "Amount", "type": "number"}, "order_id": {"title": "Order Id", "type": "string"}}, "required": ["order_id", "amount"], "title": "refund_order_input", "type": "object"}}
+  a tool result as sent back: {"order_id": "A-100", "status": "delivered", "total": 80.0}
+
+LangGraph: /v1/chat/completions, 982 bytes, user agent AsyncOpenAI/Python 3.51.0
+  instructions sent as a 'system' message; other request fields: {"stream": false}
+  refund_order as declared to the model: {"description": "Refunds part or all of an order to the customer. This moves money.\n\nArgs:\n    order_id: The order identifier, for example A-100.\n    amount: The amount to refund, in euro.", "name": "refund_order", "parameters": {"properties": {"amount": {"type": "number"}, "order_id": {"type": "string"}}, "required": ["order_id", "amount"], "type": "object"}}
+  a tool result as sent back: {"order_id": "A-100", "status": "delivered", "total": 80.0}
+
+ADK (Gemini API): /v1beta/models/gemini-stand-in:generateContent, 1,170 bytes, user agent google-genai-sdk/2.34.0 gl-python/3.13.18 google-adk/2.14.1 gl-pyth...
+  instructions sent as the systemInstruction field; other request fields: {"generationConfig": {}}
+  refund_order as declared to the model: {"description": "Refunds part or all of an order to the customer. This moves money.\n\nArgs:\n    order_id: The order identifier, for example A-100.\n    amount: The amount to refund, in euro.", "name": "refund_order", "parameters_json_schema": {"properties": {"amount": {"title": "Amount", "type": "number"}, "order_id": {"title": "Order Id", "type": "string"}}, "required": ["order_id", "amount"], "title": "refund_orderParams", "type": "object"}}
+  a tool result as sent back: {"order_id": "A-100", "status": "delivered", "total": 80.0}
+
+ADK (LiteLLM): /v1/chat/completions, 1,144 bytes, user agent AsyncOpenAI/Python 3.51.0
+  instructions sent as a 'system' message; other request fields: {}
+  refund_order as declared to the model: {"description": "Refunds part or all of an order to the customer. This moves money.\n\nArgs:\n    order_id: The order identifier, for example A-100.\n    amount: The amount to refund, in euro.", "name": "refund_order", "parameters": {"properties": {"amount": {"title": "Amount", "type": "number"}, "order_id": {"title": "Order Id", "type": "string"}}, "required": ["order_id", "amount"], "title": "refund_orderParams", "type": "object"}}
+  a tool result as sent back: {"order_id": "A-100", "status": "delivered", "total": 80.0}
+
+5 of 5 checks passed
