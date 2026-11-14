@@ -142,7 +142,7 @@ def overlap(executions: list[dict]) -> str:
 
 
 async def main() -> None:
-    packages = ["agent-framework-core", "agent-framework-openai", "langgraph", "langchain-openai", "langchain-core", "google-adk", "google-genai", "litellm", "openai"]
+    packages = ["agent-framework-core", "agent-framework-openai", "langchain", "langgraph", "langchain-openai", "langchain-core", "google-adk", "google-genai", "litellm", "openai"]
     print("versions: " + ", ".join(f"{package} {version(package)}" for package in packages))
     print(f"python {sys.version.split()[0]}")
     import agent_framework._tools as af_tools

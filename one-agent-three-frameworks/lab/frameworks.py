@@ -32,17 +32,18 @@ def agent_framework(openai_url: str, gemini_url: str, tools: Sequence[Callable],
 
 
 def langgraph(openai_url: str, gemini_url: str, tools: Sequence[Callable], hardened: bool = False) -> Run:
-    """LangGraph's prebuilt ReAct agent over langchain-openai."""
+    """LangGraph through langchain.agents.create_agent, the agent builder that replaced the deprecated
+    langgraph.prebuilt.create_react_agent. The model client is langchain-openai."""
+    from langchain.agents import create_agent
+    from langchain.agents.middleware import ModelCallLimitMiddleware, ToolErrorMiddleware
     from langchain_openai import ChatOpenAI
-    from langgraph.prebuilt import ToolNode, create_react_agent
 
     model = ChatOpenAI(model="stand-in", api_key="not-a-real-key", base_url=openai_url)
-    # One model call and one tool step are two graph steps, so eight model calls need a limit of sixteen.
-    config = {"recursion_limit": 2 * MAX_MODEL_CALLS} if hardened else {}
-    agent = create_react_agent(model, ToolNode(list(tools), handle_tool_errors=TOOL_FAILED) if hardened else list(tools), prompt=INSTRUCTIONS)
+    middleware = [ModelCallLimitMiddleware(run_limit=MAX_MODEL_CALLS), ToolErrorMiddleware(lambda *_, **__: TOOL_FAILED)] if hardened else []
+    agent = create_agent(model, list(tools), system_prompt=INSTRUCTIONS, middleware=middleware)
 
     async def run(message: str) -> str:
-        state = await agent.ainvoke({"messages": [("user", message)]}, config=config)
+        state = await agent.ainvoke({"messages": [("user", message)]})
         return str(state["messages"][-1].content)
 
     return run
