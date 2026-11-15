@@ -1,0 +1,8 @@
+Version: 1.0.385
+Release date: 2026.11.14
+Commit: 813af480bf7f16d5418b64e4f5644a74a7da11c5
+aws-cli/2.40.1 Python/3.14.8 Linux/7.0.0-1016-aws exe/x86_64.ubuntu.26
+Python 3.13.18
+boto3 1.44.3 moto 5.2.5
+Linux 7.0.0-1016-aws x86_64
+4 vCPU
