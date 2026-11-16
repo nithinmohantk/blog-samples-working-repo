@@ -4,7 +4,8 @@
     python contract/snapshot.py --url http://127.0.0.1:8765/mcp --out /tmp/live.json
 
 The snapshot is everything a client can learn without calling a tool: server identity, protocol
-version, capabilities, and the listings for tools, resources, resource templates and prompts.
+version, capabilities, cache hints, and the listings for tools, resources, resource templates and
+prompts.
 Output is canonical JSON (sorted keys, entries sorted by name), so two snapshots of the same
 contract are byte-identical and a text diff in a pull request is meaningful.
 """
@@ -36,14 +37,18 @@ def pick(entry: dict[str, Any], fields: tuple[str, ...]) -> dict[str, Any]:
     return {key: entry[key] for key in fields if key in entry}
 
 
-async def every_page(call: Callable[..., Awaitable[Any]], attribute: str) -> list[dict[str, Any]]:
-    entries, cursor = [], None
+async def every_page(call: Callable[..., Awaitable[Any]], attribute: str) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    """Walk a paginated listing. Returns the entries and the cache hint the server attached to it."""
+    entries, cursor, hint = [], None, {}
     for _ in range(MAX_PAGES):
-        page = await call(cursor=cursor)
+        page = await call(cursor=cursor, cache_mode="bypass")  # a contract is read from the server, never from a cache
         entries.extend(plain(item) for item in getattr(page, attribute))
+        if not hint:
+            hint = {key: value for key, value in (("ttlMs", getattr(page, "ttl_ms", None)), ("cacheScope", getattr(page, "cache_scope", None)))
+                    if value is not None}
         cursor = getattr(page, "next_cursor", None)
         if not cursor:
-            return entries
+            return entries, hint
     raise RuntimeError(f"{attribute}: more than {MAX_PAGES} pages; refusing to continue")
 
 
@@ -59,18 +64,20 @@ async def take(target: StdioServerParameters | str, timeout: float = 30.0) -> di
             "protocolVersion": client.protocol_version,
             "capabilities": capabilities,
             "instructions": client.instructions,
+            "listingCache": {},
             "tools": [], "resources": [], "resourceTemplates": [], "prompts": [],
         }
+        cache = snapshot["listingCache"]
         if "tools" in capabilities:
-            tools = await every_page(client.list_tools, "tools")
+            tools, cache["tools"] = await every_page(client.list_tools, "tools")
             snapshot["tools"] = sorted((pick(t, TOOL_FIELDS) for t in tools), key=lambda t: t["name"])
         if "resources" in capabilities:
-            resources = await every_page(client.list_resources, "resources")
-            templates = await every_page(client.list_resource_templates, "resource_templates")
+            resources, cache["resources"] = await every_page(client.list_resources, "resources")
+            templates, cache["resourceTemplates"] = await every_page(client.list_resource_templates, "resource_templates")
             snapshot["resources"] = sorted((pick(r, RESOURCE_FIELDS) for r in resources), key=lambda r: r["uri"])
             snapshot["resourceTemplates"] = sorted((pick(t, TEMPLATE_FIELDS) for t in templates), key=lambda t: t["uriTemplate"])
         if "prompts" in capabilities:
-            prompts = await every_page(client.list_prompts, "prompts")
+            prompts, cache["prompts"] = await every_page(client.list_prompts, "prompts")
             snapshot["prompts"] = sorted((pick(p, PROMPT_FIELDS) for p in prompts), key=lambda p: p["name"])
         return snapshot
 

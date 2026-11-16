@@ -264,6 +264,13 @@ def compare(old: dict[str, Any], new: dict[str, Any]) -> list[Finding]:
     if old.get("instructions") != new.get("instructions"):
         found.append(Finding("review", "instructions", "instructions-changed", f"{old.get('instructions')!r} -> {new.get('instructions')!r}"))
 
+    for listing in sorted(set(old.get("listingCache", {})) | set(new.get("listingCache", {}))):
+        was, now = old.get("listingCache", {}).get(listing, {}), new.get("listingCache", {}).get(listing, {})
+        if was != now:
+            found.append(Finding("review", f"listingCache.{listing}", "cache-hint-changed",
+                                 f"{json.dumps(was, sort_keys=True)} -> {json.dumps(now, sort_keys=True)}; "
+                                 "this is how long a client may go on using the old listing"))
+
     def flatten(capabilities: dict[str, Any], prefix: str = "") -> dict[str, Any]:
         flat: dict[str, Any] = {}
         for key, value in capabilities.items():

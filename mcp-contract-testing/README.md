@@ -16,7 +16,7 @@ Nothing here calls a model or a cloud service. Every server is a local process. 
 | `contract/compat.py` | The compatibility rules, as pure functions over two snapshots |
 | `contract/gate.py` | The build gate: exit 0 pass, 1 breaking without a major bump, 2 stale snapshot, 3 unreadable |
 | `contract/calls.json`, `contract/replay.py` | Nine recorded calls, replayed and validated against the committed output schemas |
-| `tests/run.py` | 45 unit tests for the rules |
+| `tests/run.py` | 46 unit tests for the rules |
 | `lab/variants.py`, `lab/run_variants.py` | Twenty-one one-line changes to the server, and what the gate and the replay make of each |
 | `lab/sdk_drift.py` | The same server file under SDK 1.9.4, 1.26.0, 1.30.0 and 2.3.0 |
 | `ci.sh` | Runs all of the above and writes the transcripts |

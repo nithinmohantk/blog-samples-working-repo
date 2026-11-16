@@ -238,6 +238,12 @@ class Contracts(unittest.TestCase):
         new["prompts"] = [{"name": "report", "arguments": [{"name": "site", "required": True}]}]
         self.assertEqual(worst(compare(old, new)), "breaking")
 
+    def test_cache_hint_change_needs_a_person(self):
+        old, new = contract(), contract()
+        old["listingCache"] = {"tools": {"ttlMs": 0, "cacheScope": "private"}}
+        new["listingCache"] = {"tools": {"ttlMs": 3600000, "cacheScope": "public"}}
+        self.assertEqual([f.rule for f in compare(old, new)], ["cache-hint-changed"])
+
     def test_findings_are_ordered_worst_first(self):
         new = contract(description="Changed.")
         new["tools"][0]["inputSchema"]["required"].append("mode")

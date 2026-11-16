@@ -13,6 +13,24 @@
   },
   "contractFormat": 1,
   "instructions": "Stock levels and reservations for a small parts warehouse. Synthetic data.",
+  "listingCache": {
+    "prompts": {
+      "cacheScope": "private",
+      "ttlMs": 0
+    },
+    "resourceTemplates": {
+      "cacheScope": "private",
+      "ttlMs": 0
+    },
+    "resources": {
+      "cacheScope": "private",
+      "ttlMs": 0
+    },
+    "tools": {
+      "cacheScope": "private",
+      "ttlMs": 0
+    }
+  },
   "prompts": [
     {
       "arguments": [
