@@ -1,0 +1,5 @@
+== 2. unit tests for the scanner and the pin store
+----------------------------------------------------------------------
+Ran 25 tests in 0.009s
+
+OK

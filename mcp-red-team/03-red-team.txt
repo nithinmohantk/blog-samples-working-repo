@@ -1,0 +1,55 @@
+== 3. the red-team run
+scenario             plain client                                               guarded client
+inject-description   delivered unchanged (446 chars listed, 1 returned)         stopped at approval: addresses-the-model (add.description); carrier-parameter (add.inputSchema.properties.sidenote); mentions-secrets (add.description
+inject-invisible     delivered unchanged (227 chars listed, 1 returned)         stopped at approval: invisible-characters (add.description)
+inject-schema        delivered unchanged (417 chars listed, 1 returned)         stopped at approval: addresses-the-model (add.inputSchema.properties.b.description); addresses-the-model (add.inputSchema.properties.mode.enum); carri
+inject-instructions  delivered unchanged (358 chars listed, 1 returned)         stopped at approval: addresses-the-model (server.instructions); mentions-secrets (server.instructions)
+exfil-parameter      delivered unchanged (302 chars listed, 14 returned)        stopped at approval: carrier-parameter (summarise.inputSchema.properties.context); mentions-secrets (summarise.inputSchema.properties.context.descript
+shadow               delivered unchanged (352 chars listed, 20 returned)        stopped at approval: addresses-the-model (lookup_postcode.description); contact-in-description (lookup_postcode.description); names-another-tool (look
+collision            delivered unchanged (191 chars listed, 15 returned)        stopped at approval: name-collision (send_email)
+lying-annotations    delivered unchanged (203 chars listed, 22 returned)        stopped at approval: read-only-contradiction (delete_all_orders.annotations)
+inject-result        delivered unchanged (358 chars listed, 168 returned)       stopped at call: result: get_order returned text that addresses the model (addresses-the-model: SYSTEM NOTE)
+rug-pull-silent      changed definition accepted, second call ok, notifications 0 stopped at call: pin: the definition of add has changed since it was approved
+rug-pull-notified    changed definition accepted, second call ok, notifications 1 stopped at call: pin: the definition of add has changed since it was approved
+flood-tools          delivered unchanged (588,890 chars listed, 14 returned)    stopped at listing: limit: more than 200 tools
+huge-description     delivered unchanged (1,000,179 chars listed, 1 returned)   stopped at listing: limit: description of add is 1000018 characters
+endless-pagination   still being handed a cursor after 1000 pages; stopped by the test stopped at listing: limit: listing did not end within 20 pages
+huge-result          delivered unchanged (358 chars listed, 20,000,000 returned) stopped at call: limit: result of get_order is 20000000 characters
+
+server behaviour     pin check                                    outcome
+rug-pull-silent      before every call                            stopped at call
+rug-pull-silent      on connect and on list_changed only          NOT STOPPED: the changed tool was called
+rug-pull-notified    before every call                            stopped at call
+rug-pull-notified    on connect and on list_changed only          stopped at call
+
+scanner on 40 hand-written tool definitions: {'caught': 15, 'missed': 5, 'false_alarm': 7, 'passed': 13}
+  missed      m16  polite paraphrase, no trigger words  []
+  missed      m17  steering by policy claim  []
+  missed      m18  indirect cross-tool influence  []
+  missed      m19  instruction written in another language  []
+  missed      m20  harmless listing whose danger is only in behaviour  []
+  false_alarm b11  legitimately about credentials  ['mentions-secrets']
+  false_alarm b13  documentation link  ['contact-in-description']
+  false_alarm b15  reads files by design  ['mentions-secrets']
+  false_alarm b16  ordering guidance  ['addresses-the-model']
+  false_alarm b17  support contact  ['contact-in-description']
+  false_alarm b19  password in a domain sense  ['mentions-secrets']
+  false_alarm b20  read-only report with a verb that sounds like a write  ['read-only-contradiction']
+
+attack                           tool           naive version                      hardened version
+Legitimate use                   read_report    ok: Q1 report: revenue up 4%.      ok: Q1 report: revenue up 4%.
+Path traversal                   read_report    LEAKED: FAKE-PASSWORD-FOR-THE-LAB  refused: Error executing tool read_report: 1 validation error for read_reportAr
+Symlink inside the folder        read_report    LEAKED: FAKE-PASSWORD-FOR-THE-LAB  refused: Error executing tool read_report: no such report
+Legitimate use                   fetch_rates    ok: {"EUR": 1.0, "GBP": 0.86}      ok: {"EUR": 1.0, "GBP": 0.86}
+Request to an internal address   fetch_rates    LEAKED: {"AccessKeyId": "FAKE-KEY  refused: Error executing tool fetch_rates: host is not an approved partner
+Redirect from an approved host   fetch_rates    LEAKED: {"AccessKeyId": "FAKE-KEY  refused: Error executing tool fetch_rates: partner request failed: 302 redirect
+Credentials in the URL           fetch_rates    refused: Error executing tool fet  refused: Error executing tool fetch_rates: host is not an approved partner
+Legitimate use                   get_invoice    ok: { "id": "INV-1001", "tenant":  ok: { "id": "INV-1001", "tenant": "acme", "s
+Another tenant's invoice         get_invoice    LEAKED: { "id": "INV-2001", "tena  refused: Error executing tool get_invoice: no such invoice
+Legitimate use                   find_invoices  ok: { "id": "INV-1001", "tenant":  ok: { "id": "INV-1001", "tenant": "acme", "s
+SQL injection in a filter        find_invoices  LEAKED: { "id": "INV-1001", "tena  refused: Error executing tool find_invoices: 1 validation error for find_invoic
+
+mean milliseconds per call over 200 calls on stdio: {'verify before every call': 0.9, 'verify on connect and on list_changed only': 0.58, 'no guard': 0.47}
+
+hostile servers: 15 of 15 stopped by the guard; the plain client raised no error in any of them
+confused deputy: naive tools leaked in 6 of 7 attacks, hardened tools in 0

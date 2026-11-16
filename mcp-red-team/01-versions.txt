@@ -1,0 +1,9 @@
+== 1. versions
+Python 3.13.18
+mcp 1.26.0
+pydantic 2.12.5
+jsonschema 4.26.0
+anyio 4.12.1
+protocol revision 2025-11-25
+Linux 7.0.0-1019-azure x86_64
+4 vCPU
