@@ -1,0 +1,5 @@
+{"comment": "placeholder until the listings are known", "tasks": [
+ {"server": "git", "tool": "git_status", "query": "show which files have uncommitted changes"},
+ {"server": "git", "tool": "git_log", "query": "list recent commits"},
+ {"server": "time", "tool": "convert_time", "query": "convert 3pm Dublin time to Tokyo"},
+ {"server": "fetch", "tool": "fetch", "query": "download a web page and read it"}]}
