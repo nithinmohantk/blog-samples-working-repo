@@ -12,15 +12,17 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parent))
-from measure.search import SEARCH_TOOL, ToolIndex  # noqa: E402
+from measure.search import LOAD_TOOL, SEARCH_TOOL, ToolIndex, catalogue  # noqa: E402
 from measure.slim import LEVELS  # noqa: E402
 from measure.tokens import PRIMARY, SECONDARY, count, listing_cost, tool_cost  # noqa: E402
 
 SETUPS = {
     "coding agent": ["filesystem", "git", "github", "playwright"],
+    "coding agent, all GitHub toolsets": ["filesystem", "git", "github-all-toolsets", "playwright"],
     "research assistant": ["fetch", "memory", "time", "sequential-thinking"],
-    "everything connected": None,  # every server that started
+    "everything connected": None,  # every distinct server that started
 }
+SUBSETS = {"github"}  # the default GitHub toolsets are part of github-all-toolsets; never count both
 WINDOWS = (128_000, 200_000, 1_000_000)
 TURNS = 30  # model requests in one working session; every request carries the tool definitions again
 
@@ -39,7 +41,8 @@ def inventory(servers: list[dict]) -> list[dict]:
         rows.append(row)
         print(f"{row['server']:<20} {row['tools']:>5} {row['tokens']:>8,} {row['tokens_cl100k']:>8,} {row['characters']:>8,} {row['median_per_tool']:>7} "
               f"{row['largest_tool']:>8,}  {row['description_share']:>10.0%} {1 - row['description_share']:>7.0%}")
-    print(f"{'all':<20} {sum(r['tools'] for r in rows):>5} {sum(r['tokens'] for r in rows):>8,} {sum(r['tokens_cl100k'] for r in rows):>8,}")
+    distinct = [r for r in rows if r["server"] not in SUBSETS]
+    print(f"{'all distinct':<20} {sum(r['tools'] for r in distinct):>5} {sum(r['tokens'] for r in distinct):>8,} {sum(r['tokens_cl100k'] for r in distinct):>8,}")
     return rows
 
 
@@ -58,14 +61,14 @@ def largest(servers: list[dict], limit: int = 10) -> list[dict]:
 def setups(servers: list[dict]) -> list[dict]:
     by_name = {s["name"]: s for s in servers}
     rows = []
-    print(f"\n{'setup':<22} {'servers':>7} {'tools':>5} {'tokens':>8}  " + "  ".join(f"{w // 1000:>4}k window" for w in WINDOWS) + f"  over {TURNS} requests")
+    print(f"\n{'setup':<34} {'servers':>7} {'tools':>5} {'tokens':>8}  " + "  ".join(f"{w // 1000:>4}k window" for w in WINDOWS) + f"  over {TURNS} requests")
     for name, members in SETUPS.items():
-        chosen = [by_name[m] for m in (members or by_name) if m in by_name]
+        chosen = [by_name[m] for m in (members or [n for n in by_name if n not in SUBSETS]) if m in by_name]
         tools = [t for s in chosen for t in s["tools"]]
         tokens = listing_cost(tools)
         rows.append({"setup": name, "servers": [s["name"] for s in chosen], "tools": len(tools), "tokens": tokens,
                      "share_of_window": {str(w): round(tokens / w, 4) for w in WINDOWS}, "tokens_over_session": tokens * TURNS})
-        print(f"{name:<22} {len(chosen):>7} {len(tools):>5} {tokens:>8,}  " + "  ".join(f"{tokens / w:>11.1%}" for w in WINDOWS) + f"  {tokens * TURNS:>12,}")
+        print(f"{name:<34} {len(chosen):>7} {len(tools):>5} {tokens:>8,}  " + "  ".join(f"{tokens / w:>11.1%}" for w in WINDOWS) + f"  {tokens * TURNS:>12,}")
     return rows
 
 
@@ -111,7 +114,7 @@ def sessions(found: dict, runs: int = 1000, seed: int = 20260305) -> list[dict]:
     rng, rows = random.Random(seed), []
     print(f"\nall {len(tools)} definitions up front: {everything:,} tokens per request; the search tool alone: {search_tool} tokens")
     print(f"{'distinct tools used':>19} {'up front':>12} {'deferred':>12} {'saved':>7} {'loaded at end':>14} {'widened':>8} {'failed':>7}")
-    for used in (2, 4, 8)[: 1 if len(usable) < 8 else 3]:
+    for used in (2, 4, 8):
         totals, loaded_end, widened, failed = [], [], 0, 0
         for _ in range(runs):
             chosen = rng.sample(usable, used)
@@ -145,15 +148,42 @@ def sessions(found: dict, runs: int = 1000, seed: int = 20260305) -> list[dict]:
     return rows
 
 
+def catalogues(found: dict, runs: int = 1000, seed: int = 20260305) -> list[dict]:
+    """The other way to defer: keep a short catalogue of every tool in the prompt and load definitions by exact name."""
+    usable, tools = found["usable"], found["tools"]
+    everything = listing_cost(tools)
+    loader = tool_cost(LOAD_TOOL)["total"]
+    cost = {(t["server"], t["name"]): tool_cost(t)["total"] for t in tools}
+    rows = []
+    print(f"\n{'catalogue kept in the prompt':<36} {'tokens':>7}   mean tokens over {TURNS} requests, by distinct tools used (2, 4, 8), and saving")
+    for label, with_summary in (("names only", False), ("names and first sentence", True)):
+        listed = count(catalogue(tools, with_summary))
+        rng, cells = random.Random(seed), []
+        for used in (2, 4, 8):
+            totals = []
+            for _ in range(runs):
+                chosen = rng.sample(usable, used)
+                when = sorted(rng.sample(range(TURNS), used))
+                total = sum(loader + listed + sum(cost[(task["server"], task["tool"])] for task, at in zip(chosen, when) if at <= request)
+                            for request in range(TURNS))
+                totals.append(total)
+            cells.append({"distinct_tools": used, "mean": int(statistics.mean(totals)), "saved": round(1 - statistics.mean(totals) / (everything * TURNS), 3)})
+        rows.append({"catalogue": label, "tokens": listed, "sessions": cells})
+        print(f"{label:<36} {listed:>7,}   " + "   ".join(f"{c['mean']:>9,} ({c['saved']:.1%})" for c in cells))
+    return rows
+
+
 def main(directory: str) -> int:
     collected = json.loads(Path(directory, "listings.json").read_text(encoding="utf-8"))
     servers = [server for server in collected if server["tools"]]
     print(f"tokeniser {PRIMARY} (second column {SECONDARY}); {len(servers)} servers, {sum(len(s['tools']) for s in servers)} tools\n")
-    report = {"inventory": inventory(servers), "largest": largest(servers), "setups": setups(servers), "slimming": slimming(servers)}
+    distinct = [server for server in servers if server["name"] not in SUBSETS]
+    report = {"inventory": inventory(servers), "largest": largest(distinct), "setups": setups(servers), "slimming": slimming(distinct)}
     tasks = json.loads((HERE.parent / "tasks.json").read_text(encoding="utf-8"))["tasks"]
-    found = retrieval(servers, tasks)
+    found = retrieval(distinct, tasks)
     report["retrieval"] = {key: found[key] for key in ("tasks", "skipped", "hit", "ranks")}
     report["sessions"] = sessions(found)
+    report["catalogues"] = catalogues(found)
     Path(directory, "context-cost.json").write_text(json.dumps(report, indent=2), encoding="utf-8")
     return 0
 

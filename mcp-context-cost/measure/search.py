@@ -1,4 +1,4 @@
-"""A small tool index for deferred loading: the model gets one search tool, and definitions on demand.
+"""Two ways to defer tool definitions: a search tool over an index, and a catalogue with load-by-name.
 
 Ranking is BM25 over the words in each tool's name, description and parameter names. No embedding
 model and no service: the point of the lab is to measure the trade, and the trade exists with any
@@ -21,6 +21,21 @@ SEARCH_TOOL = {
                     "properties": {"query": {"type": "string", "description": "What you need to do, in a few words."},
                                    "limit": {"type": "integer", "minimum": 1, "maximum": 10, "default": 5}}},
 }
+
+LOAD_TOOL = {
+    "name": "load_tools",
+    "description": "Load the full definitions of tools from the catalogue by exact name, so that they can be called.",
+    "inputSchema": {"type": "object", "required": ["names"], "properties": {"names": {"type": "array", "items": {"type": "string"}, "maxItems": 10}}},
+}
+
+
+def catalogue(tools: list[dict[str, Any]], with_summary: bool) -> str:
+    """A compact list of every tool for the prompt: its name, and optionally the first sentence of its description."""
+    lines = []
+    for tool in tools:
+        summary = tool.get("description", "").strip().replace("\n", " ").split(". ")[0].rstrip(".") if with_summary else ""
+        lines.append(f"{tool['server']}.{tool['name']}" + (f": {summary}" if summary else ""))
+    return "\n".join(lines)
 
 
 def words(text: str) -> list[str]:
