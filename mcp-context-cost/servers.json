@@ -78,6 +78,20 @@
       "arguments": [
         "stdio"
       ]
+    },
+    {
+      "name": "github-all-toolsets",
+      "source": "github-release",
+      "package": "github/github-mcp-server",
+      "version": "resolved in ci.sh",
+      "arguments": [
+        "stdio",
+        "--toolsets",
+        "all"
+      ],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "not-a-token-listing-only"
+      }
     }
   ]
 }
