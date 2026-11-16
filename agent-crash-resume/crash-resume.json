@@ -1,0 +1,958 @@
+[
+  {
+    "framework": "LangGraph",
+    "crash": null,
+    "recovery": null,
+    "tools": "plain",
+    "finished": true,
+    "said": "Order O-1001 is placed: stock reserved, card charged, confirmation sent.",
+    "effects": {
+      "reserve_stock": 1,
+      "charge_card": 1,
+      "send_confirmation": 1
+    },
+    "replayed": {
+      "reserve_stock": 0,
+      "charge_card": 0,
+      "send_confirmation": 0
+    }
+  },
+  {
+    "framework": "LangGraph",
+    "crash": "charge_card:before",
+    "recovery": "resume",
+    "tools": "plain",
+    "finished": true,
+    "said": "Order O-1001 is placed: stock reserved, card charged, confirmation sent.",
+    "model_requests_after_crash": 2,
+    "first_request_after_crash": {
+      "protocol": "chat",
+      "user_messages": 1,
+      "tools_with_results": [
+        "charge_card",
+        "reserve_stock"
+      ],
+      "unanswered_calls": [],
+      "answer": "send_confirmation"
+    },
+    "rejected_by_model_api": 0,
+    "effects": {
+      "reserve_stock": 1,
+      "charge_card": 1,
+      "send_confirmation": 1
+    },
+    "replayed": {
+      "reserve_stock": 0,
+      "charge_card": 0,
+      "send_confirmation": 0
+    }
+  },
+  {
+    "framework": "LangGraph",
+    "crash": "charge_card:before",
+    "recovery": "resume",
+    "tools": "idempotent",
+    "finished": true,
+    "said": "Order O-1001 is placed: stock reserved, card charged, confirmation sent.",
+    "model_requests_after_crash": 2,
+    "first_request_after_crash": {
+      "protocol": "chat",
+      "user_messages": 1,
+      "tools_with_results": [
+        "charge_card",
+        "reserve_stock"
+      ],
+      "unanswered_calls": [],
+      "answer": "send_confirmation"
+    },
+    "rejected_by_model_api": 0,
+    "effects": {
+      "reserve_stock": 1,
+      "charge_card": 1,
+      "send_confirmation": 1
+    },
+    "replayed": {
+      "reserve_stock": 0,
+      "charge_card": 0,
+      "send_confirmation": 0
+    }
+  },
+  {
+    "framework": "LangGraph",
+    "crash": "charge_card:before",
+    "recovery": "resend",
+    "tools": "plain",
+    "finished": false,
+    "said": "openai.BadRequestError: Error code: 400 - {'error': {'type': 'invalid_request_error', 'message': \"An assistant message with 'tool_calls' must be followed by tool messages",
+    "model_requests_after_crash": 1,
+    "first_request_after_crash": {
+      "protocol": "chat",
+      "user_messages": 2,
+      "tools_with_results": [
+        "reserve_stock"
+      ],
+      "unanswered_calls": [
+        "charge_card"
+      ],
+      "answer": "HTTP 400"
+    },
+    "rejected_by_model_api": 1,
+    "effects": {
+      "reserve_stock": 1,
+      "charge_card": 0,
+      "send_confirmation": 0
+    },
+    "replayed": {
+      "reserve_stock": 0,
+      "charge_card": 0,
+      "send_confirmation": 0
+    }
+  },
+  {
+    "framework": "LangGraph",
+    "crash": "charge_card:before",
+    "recovery": "resend",
+    "tools": "idempotent",
+    "finished": false,
+    "said": "openai.BadRequestError: Error code: 400 - {'error': {'type': 'invalid_request_error', 'message': \"An assistant message with 'tool_calls' must be followed by tool messages",
+    "model_requests_after_crash": 1,
+    "first_request_after_crash": {
+      "protocol": "chat",
+      "user_messages": 2,
+      "tools_with_results": [
+        "reserve_stock"
+      ],
+      "unanswered_calls": [
+        "charge_card"
+      ],
+      "answer": "HTTP 400"
+    },
+    "rejected_by_model_api": 1,
+    "effects": {
+      "reserve_stock": 1,
+      "charge_card": 0,
+      "send_confirmation": 0
+    },
+    "replayed": {
+      "reserve_stock": 0,
+      "charge_card": 0,
+      "send_confirmation": 0
+    }
+  },
+  {
+    "framework": "LangGraph",
+    "crash": "charge_card:after",
+    "recovery": "resume",
+    "tools": "plain",
+    "finished": true,
+    "said": "Order O-1001 is placed: stock reserved, card charged, confirmation sent.",
+    "model_requests_after_crash": 2,
+    "first_request_after_crash": {
+      "protocol": "chat",
+      "user_messages": 1,
+      "tools_with_results": [
+        "charge_card",
+        "reserve_stock"
+      ],
+      "unanswered_calls": [],
+      "answer": "send_confirmation"
+    },
+    "rejected_by_model_api": 0,
+    "effects": {
+      "reserve_stock": 1,
+      "charge_card": 2,
+      "send_confirmation": 1
+    },
+    "replayed": {
+      "reserve_stock": 0,
+      "charge_card": 0,
+      "send_confirmation": 0
+    }
+  },
+  {
+    "framework": "LangGraph",
+    "crash": "charge_card:after",
+    "recovery": "resume",
+    "tools": "idempotent",
+    "finished": true,
+    "said": "Order O-1001 is placed: stock reserved, card charged, confirmation sent.",
+    "model_requests_after_crash": 2,
+    "first_request_after_crash": {
+      "protocol": "chat",
+      "user_messages": 1,
+      "tools_with_results": [
+        "charge_card",
+        "reserve_stock"
+      ],
+      "unanswered_calls": [],
+      "answer": "send_confirmation"
+    },
+    "rejected_by_model_api": 0,
+    "effects": {
+      "reserve_stock": 1,
+      "charge_card": 1,
+      "send_confirmation": 1
+    },
+    "replayed": {
+      "reserve_stock": 0,
+      "charge_card": 1,
+      "send_confirmation": 0
+    }
+  },
+  {
+    "framework": "LangGraph",
+    "crash": "charge_card:after",
+    "recovery": "resend",
+    "tools": "plain",
+    "finished": false,
+    "said": "openai.BadRequestError: Error code: 400 - {'error': {'type': 'invalid_request_error', 'message': \"An assistant message with 'tool_calls' must be followed by tool messages",
+    "model_requests_after_crash": 1,
+    "first_request_after_crash": {
+      "protocol": "chat",
+      "user_messages": 2,
+      "tools_with_results": [
+        "reserve_stock"
+      ],
+      "unanswered_calls": [
+        "charge_card"
+      ],
+      "answer": "HTTP 400"
+    },
+    "rejected_by_model_api": 1,
+    "effects": {
+      "reserve_stock": 1,
+      "charge_card": 1,
+      "send_confirmation": 0
+    },
+    "replayed": {
+      "reserve_stock": 0,
+      "charge_card": 0,
+      "send_confirmation": 0
+    }
+  },
+  {
+    "framework": "LangGraph",
+    "crash": "charge_card:after",
+    "recovery": "resend",
+    "tools": "idempotent",
+    "finished": false,
+    "said": "openai.BadRequestError: Error code: 400 - {'error': {'type': 'invalid_request_error', 'message': \"An assistant message with 'tool_calls' must be followed by tool messages",
+    "model_requests_after_crash": 1,
+    "first_request_after_crash": {
+      "protocol": "chat",
+      "user_messages": 2,
+      "tools_with_results": [
+        "reserve_stock"
+      ],
+      "unanswered_calls": [
+        "charge_card"
+      ],
+      "answer": "HTTP 400"
+    },
+    "rejected_by_model_api": 1,
+    "effects": {
+      "reserve_stock": 1,
+      "charge_card": 1,
+      "send_confirmation": 0
+    },
+    "replayed": {
+      "reserve_stock": 0,
+      "charge_card": 0,
+      "send_confirmation": 0
+    }
+  },
+  {
+    "framework": "LangGraph",
+    "crash": "send_confirmation:before",
+    "recovery": "resume",
+    "tools": "plain",
+    "finished": true,
+    "said": "Order O-1001 is placed: stock reserved, card charged, confirmation sent.",
+    "model_requests_after_crash": 1,
+    "first_request_after_crash": {
+      "protocol": "chat",
+      "user_messages": 1,
+      "tools_with_results": [
+        "charge_card",
+        "reserve_stock",
+        "send_confirmation"
+      ],
+      "unanswered_calls": [],
+      "answer": "final text"
+    },
+    "rejected_by_model_api": 0,
+    "effects": {
+      "reserve_stock": 1,
+      "charge_card": 1,
+      "send_confirmation": 1
+    },
+    "replayed": {
+      "reserve_stock": 0,
+      "charge_card": 0,
+      "send_confirmation": 0
+    }
+  },
+  {
+    "framework": "LangGraph",
+    "crash": "send_confirmation:before",
+    "recovery": "resume",
+    "tools": "idempotent",
+    "finished": true,
+    "said": "Order O-1001 is placed: stock reserved, card charged, confirmation sent.",
+    "model_requests_after_crash": 1,
+    "first_request_after_crash": {
+      "protocol": "chat",
+      "user_messages": 1,
+      "tools_with_results": [
+        "charge_card",
+        "reserve_stock",
+        "send_confirmation"
+      ],
+      "unanswered_calls": [],
+      "answer": "final text"
+    },
+    "rejected_by_model_api": 0,
+    "effects": {
+      "reserve_stock": 1,
+      "charge_card": 1,
+      "send_confirmation": 1
+    },
+    "replayed": {
+      "reserve_stock": 0,
+      "charge_card": 0,
+      "send_confirmation": 0
+    }
+  },
+  {
+    "framework": "LangGraph",
+    "crash": "send_confirmation:before",
+    "recovery": "resend",
+    "tools": "plain",
+    "finished": false,
+    "said": "openai.BadRequestError: Error code: 400 - {'error': {'type': 'invalid_request_error', 'message': \"An assistant message with 'tool_calls' must be followed by tool messages",
+    "model_requests_after_crash": 1,
+    "first_request_after_crash": {
+      "protocol": "chat",
+      "user_messages": 2,
+      "tools_with_results": [
+        "charge_card",
+        "reserve_stock"
+      ],
+      "unanswered_calls": [
+        "send_confirmation"
+      ],
+      "answer": "HTTP 400"
+    },
+    "rejected_by_model_api": 1,
+    "effects": {
+      "reserve_stock": 1,
+      "charge_card": 1,
+      "send_confirmation": 0
+    },
+    "replayed": {
+      "reserve_stock": 0,
+      "charge_card": 0,
+      "send_confirmation": 0
+    }
+  },
+  {
+    "framework": "LangGraph",
+    "crash": "send_confirmation:before",
+    "recovery": "resend",
+    "tools": "idempotent",
+    "finished": false,
+    "said": "openai.BadRequestError: Error code: 400 - {'error': {'type': 'invalid_request_error', 'message': \"An assistant message with 'tool_calls' must be followed by tool messages",
+    "model_requests_after_crash": 1,
+    "first_request_after_crash": {
+      "protocol": "chat",
+      "user_messages": 2,
+      "tools_with_results": [
+        "charge_card",
+        "reserve_stock"
+      ],
+      "unanswered_calls": [
+        "send_confirmation"
+      ],
+      "answer": "HTTP 400"
+    },
+    "rejected_by_model_api": 1,
+    "effects": {
+      "reserve_stock": 1,
+      "charge_card": 1,
+      "send_confirmation": 0
+    },
+    "replayed": {
+      "reserve_stock": 0,
+      "charge_card": 0,
+      "send_confirmation": 0
+    }
+  },
+  {
+    "framework": "Agent Framework",
+    "crash": null,
+    "recovery": null,
+    "tools": "plain",
+    "finished": true,
+    "said": "Order O-1001 is placed: stock reserved, card charged, confirmation sent.",
+    "effects": {
+      "reserve_stock": 1,
+      "charge_card": 1,
+      "send_confirmation": 1
+    },
+    "replayed": {
+      "reserve_stock": 0,
+      "charge_card": 0,
+      "send_confirmation": 0
+    }
+  },
+  {
+    "framework": "Agent Framework",
+    "crash": "charge_card:before",
+    "recovery": "resend",
+    "tools": "plain",
+    "finished": true,
+    "said": "Order O-1001 is placed: stock reserved, card charged, confirmation sent.",
+    "model_requests_after_crash": 4,
+    "first_request_after_crash": {
+      "protocol": "chat",
+      "user_messages": 1,
+      "tools_with_results": [],
+      "unanswered_calls": [],
+      "answer": "reserve_stock"
+    },
+    "rejected_by_model_api": 0,
+    "effects": {
+      "reserve_stock": 2,
+      "charge_card": 1,
+      "send_confirmation": 1
+    },
+    "replayed": {
+      "reserve_stock": 0,
+      "charge_card": 0,
+      "send_confirmation": 0
+    }
+  },
+  {
+    "framework": "Agent Framework",
+    "crash": "charge_card:before",
+    "recovery": "resend",
+    "tools": "idempotent",
+    "finished": true,
+    "said": "Order O-1001 is placed: stock reserved, card charged, confirmation sent.",
+    "model_requests_after_crash": 4,
+    "first_request_after_crash": {
+      "protocol": "chat",
+      "user_messages": 1,
+      "tools_with_results": [],
+      "unanswered_calls": [],
+      "answer": "reserve_stock"
+    },
+    "rejected_by_model_api": 0,
+    "effects": {
+      "reserve_stock": 1,
+      "charge_card": 1,
+      "send_confirmation": 1
+    },
+    "replayed": {
+      "reserve_stock": 1,
+      "charge_card": 0,
+      "send_confirmation": 0
+    }
+  },
+  {
+    "framework": "Agent Framework",
+    "crash": "charge_card:after",
+    "recovery": "resend",
+    "tools": "plain",
+    "finished": true,
+    "said": "Order O-1001 is placed: stock reserved, card charged, confirmation sent.",
+    "model_requests_after_crash": 4,
+    "first_request_after_crash": {
+      "protocol": "chat",
+      "user_messages": 1,
+      "tools_with_results": [],
+      "unanswered_calls": [],
+      "answer": "reserve_stock"
+    },
+    "rejected_by_model_api": 0,
+    "effects": {
+      "reserve_stock": 2,
+      "charge_card": 2,
+      "send_confirmation": 1
+    },
+    "replayed": {
+      "reserve_stock": 0,
+      "charge_card": 0,
+      "send_confirmation": 0
+    }
+  },
+  {
+    "framework": "Agent Framework",
+    "crash": "charge_card:after",
+    "recovery": "resend",
+    "tools": "idempotent",
+    "finished": true,
+    "said": "Order O-1001 is placed: stock reserved, card charged, confirmation sent.",
+    "model_requests_after_crash": 4,
+    "first_request_after_crash": {
+      "protocol": "chat",
+      "user_messages": 1,
+      "tools_with_results": [],
+      "unanswered_calls": [],
+      "answer": "reserve_stock"
+    },
+    "rejected_by_model_api": 0,
+    "effects": {
+      "reserve_stock": 1,
+      "charge_card": 1,
+      "send_confirmation": 1
+    },
+    "replayed": {
+      "reserve_stock": 1,
+      "charge_card": 1,
+      "send_confirmation": 0
+    }
+  },
+  {
+    "framework": "Agent Framework",
+    "crash": "send_confirmation:before",
+    "recovery": "resend",
+    "tools": "plain",
+    "finished": true,
+    "said": "Order O-1001 is placed: stock reserved, card charged, confirmation sent.",
+    "model_requests_after_crash": 4,
+    "first_request_after_crash": {
+      "protocol": "chat",
+      "user_messages": 1,
+      "tools_with_results": [],
+      "unanswered_calls": [],
+      "answer": "reserve_stock"
+    },
+    "rejected_by_model_api": 0,
+    "effects": {
+      "reserve_stock": 2,
+      "charge_card": 2,
+      "send_confirmation": 1
+    },
+    "replayed": {
+      "reserve_stock": 0,
+      "charge_card": 0,
+      "send_confirmation": 0
+    }
+  },
+  {
+    "framework": "Agent Framework",
+    "crash": "send_confirmation:before",
+    "recovery": "resend",
+    "tools": "idempotent",
+    "finished": true,
+    "said": "Order O-1001 is placed: stock reserved, card charged, confirmation sent.",
+    "model_requests_after_crash": 4,
+    "first_request_after_crash": {
+      "protocol": "chat",
+      "user_messages": 1,
+      "tools_with_results": [],
+      "unanswered_calls": [],
+      "answer": "reserve_stock"
+    },
+    "rejected_by_model_api": 0,
+    "effects": {
+      "reserve_stock": 1,
+      "charge_card": 1,
+      "send_confirmation": 1
+    },
+    "replayed": {
+      "reserve_stock": 1,
+      "charge_card": 1,
+      "send_confirmation": 0
+    }
+  },
+  {
+    "framework": "ADK",
+    "crash": null,
+    "recovery": null,
+    "tools": "plain",
+    "finished": true,
+    "said": "Order O-1001 is placed: stock reserved, card charged, confirmation sent.",
+    "effects": {
+      "reserve_stock": 1,
+      "charge_card": 1,
+      "send_confirmation": 1
+    },
+    "replayed": {
+      "reserve_stock": 0,
+      "charge_card": 0,
+      "send_confirmation": 0
+    }
+  },
+  {
+    "framework": "ADK",
+    "crash": "charge_card:before",
+    "recovery": "resume",
+    "tools": "plain",
+    "finished": true,
+    "said": "Order O-1001 is placed: stock reserved, card charged, confirmation sent.",
+    "model_requests_after_crash": 2,
+    "first_request_after_crash": {
+      "protocol": "gemini",
+      "user_messages": 1,
+      "tools_with_results": [
+        "charge_card",
+        "reserve_stock"
+      ],
+      "unanswered_calls": [],
+      "answer": "send_confirmation"
+    },
+    "rejected_by_model_api": 0,
+    "effects": {
+      "reserve_stock": 1,
+      "charge_card": 1,
+      "send_confirmation": 1
+    },
+    "replayed": {
+      "reserve_stock": 0,
+      "charge_card": 0,
+      "send_confirmation": 0
+    }
+  },
+  {
+    "framework": "ADK",
+    "crash": "charge_card:before",
+    "recovery": "resume",
+    "tools": "idempotent",
+    "finished": true,
+    "said": "Order O-1001 is placed: stock reserved, card charged, confirmation sent.",
+    "model_requests_after_crash": 2,
+    "first_request_after_crash": {
+      "protocol": "gemini",
+      "user_messages": 1,
+      "tools_with_results": [
+        "charge_card",
+        "reserve_stock"
+      ],
+      "unanswered_calls": [],
+      "answer": "send_confirmation"
+    },
+    "rejected_by_model_api": 0,
+    "effects": {
+      "reserve_stock": 1,
+      "charge_card": 1,
+      "send_confirmation": 1
+    },
+    "replayed": {
+      "reserve_stock": 0,
+      "charge_card": 0,
+      "send_confirmation": 0
+    }
+  },
+  {
+    "framework": "ADK",
+    "crash": "charge_card:before",
+    "recovery": "resend",
+    "tools": "plain",
+    "finished": true,
+    "said": "Order O-1001 is placed: stock reserved, card charged, confirmation sent.",
+    "model_requests_after_crash": 3,
+    "first_request_after_crash": {
+      "protocol": "gemini",
+      "user_messages": 2,
+      "tools_with_results": [
+        "reserve_stock"
+      ],
+      "unanswered_calls": [
+        "charge_card"
+      ],
+      "answer": "charge_card"
+    },
+    "rejected_by_model_api": 0,
+    "effects": {
+      "reserve_stock": 1,
+      "charge_card": 1,
+      "send_confirmation": 1
+    },
+    "replayed": {
+      "reserve_stock": 0,
+      "charge_card": 0,
+      "send_confirmation": 0
+    }
+  },
+  {
+    "framework": "ADK",
+    "crash": "charge_card:before",
+    "recovery": "resend",
+    "tools": "idempotent",
+    "finished": true,
+    "said": "Order O-1001 is placed: stock reserved, card charged, confirmation sent.",
+    "model_requests_after_crash": 3,
+    "first_request_after_crash": {
+      "protocol": "gemini",
+      "user_messages": 2,
+      "tools_with_results": [
+        "reserve_stock"
+      ],
+      "unanswered_calls": [
+        "charge_card"
+      ],
+      "answer": "charge_card"
+    },
+    "rejected_by_model_api": 0,
+    "effects": {
+      "reserve_stock": 1,
+      "charge_card": 1,
+      "send_confirmation": 1
+    },
+    "replayed": {
+      "reserve_stock": 0,
+      "charge_card": 0,
+      "send_confirmation": 0
+    }
+  },
+  {
+    "framework": "ADK",
+    "crash": "charge_card:after",
+    "recovery": "resume",
+    "tools": "plain",
+    "finished": true,
+    "said": "Order O-1001 is placed: stock reserved, card charged, confirmation sent.",
+    "model_requests_after_crash": 2,
+    "first_request_after_crash": {
+      "protocol": "gemini",
+      "user_messages": 1,
+      "tools_with_results": [
+        "charge_card",
+        "reserve_stock"
+      ],
+      "unanswered_calls": [],
+      "answer": "send_confirmation"
+    },
+    "rejected_by_model_api": 0,
+    "effects": {
+      "reserve_stock": 1,
+      "charge_card": 2,
+      "send_confirmation": 1
+    },
+    "replayed": {
+      "reserve_stock": 0,
+      "charge_card": 0,
+      "send_confirmation": 0
+    }
+  },
+  {
+    "framework": "ADK",
+    "crash": "charge_card:after",
+    "recovery": "resume",
+    "tools": "idempotent",
+    "finished": true,
+    "said": "Order O-1001 is placed: stock reserved, card charged, confirmation sent.",
+    "model_requests_after_crash": 2,
+    "first_request_after_crash": {
+      "protocol": "gemini",
+      "user_messages": 1,
+      "tools_with_results": [
+        "charge_card",
+        "reserve_stock"
+      ],
+      "unanswered_calls": [],
+      "answer": "send_confirmation"
+    },
+    "rejected_by_model_api": 0,
+    "effects": {
+      "reserve_stock": 1,
+      "charge_card": 1,
+      "send_confirmation": 1
+    },
+    "replayed": {
+      "reserve_stock": 0,
+      "charge_card": 1,
+      "send_confirmation": 0
+    }
+  },
+  {
+    "framework": "ADK",
+    "crash": "charge_card:after",
+    "recovery": "resend",
+    "tools": "plain",
+    "finished": true,
+    "said": "Order O-1001 is placed: stock reserved, card charged, confirmation sent.",
+    "model_requests_after_crash": 3,
+    "first_request_after_crash": {
+      "protocol": "gemini",
+      "user_messages": 2,
+      "tools_with_results": [
+        "reserve_stock"
+      ],
+      "unanswered_calls": [
+        "charge_card"
+      ],
+      "answer": "charge_card"
+    },
+    "rejected_by_model_api": 0,
+    "effects": {
+      "reserve_stock": 1,
+      "charge_card": 2,
+      "send_confirmation": 1
+    },
+    "replayed": {
+      "reserve_stock": 0,
+      "charge_card": 0,
+      "send_confirmation": 0
+    }
+  },
+  {
+    "framework": "ADK",
+    "crash": "charge_card:after",
+    "recovery": "resend",
+    "tools": "idempotent",
+    "finished": true,
+    "said": "Order O-1001 is placed: stock reserved, card charged, confirmation sent.",
+    "model_requests_after_crash": 3,
+    "first_request_after_crash": {
+      "protocol": "gemini",
+      "user_messages": 2,
+      "tools_with_results": [
+        "reserve_stock"
+      ],
+      "unanswered_calls": [
+        "charge_card"
+      ],
+      "answer": "charge_card"
+    },
+    "rejected_by_model_api": 0,
+    "effects": {
+      "reserve_stock": 1,
+      "charge_card": 1,
+      "send_confirmation": 1
+    },
+    "replayed": {
+      "reserve_stock": 0,
+      "charge_card": 1,
+      "send_confirmation": 0
+    }
+  },
+  {
+    "framework": "ADK",
+    "crash": "send_confirmation:before",
+    "recovery": "resume",
+    "tools": "plain",
+    "finished": true,
+    "said": "Order O-1001 is placed: stock reserved, card charged, confirmation sent.",
+    "model_requests_after_crash": 1,
+    "first_request_after_crash": {
+      "protocol": "gemini",
+      "user_messages": 1,
+      "tools_with_results": [
+        "charge_card",
+        "reserve_stock",
+        "send_confirmation"
+      ],
+      "unanswered_calls": [],
+      "answer": "final text"
+    },
+    "rejected_by_model_api": 0,
+    "effects": {
+      "reserve_stock": 1,
+      "charge_card": 1,
+      "send_confirmation": 1
+    },
+    "replayed": {
+      "reserve_stock": 0,
+      "charge_card": 0,
+      "send_confirmation": 0
+    }
+  },
+  {
+    "framework": "ADK",
+    "crash": "send_confirmation:before",
+    "recovery": "resume",
+    "tools": "idempotent",
+    "finished": true,
+    "said": "Order O-1001 is placed: stock reserved, card charged, confirmation sent.",
+    "model_requests_after_crash": 1,
+    "first_request_after_crash": {
+      "protocol": "gemini",
+      "user_messages": 1,
+      "tools_with_results": [
+        "charge_card",
+        "reserve_stock",
+        "send_confirmation"
+      ],
+      "unanswered_calls": [],
+      "answer": "final text"
+    },
+    "rejected_by_model_api": 0,
+    "effects": {
+      "reserve_stock": 1,
+      "charge_card": 1,
+      "send_confirmation": 1
+    },
+    "replayed": {
+      "reserve_stock": 0,
+      "charge_card": 0,
+      "send_confirmation": 0
+    }
+  },
+  {
+    "framework": "ADK",
+    "crash": "send_confirmation:before",
+    "recovery": "resend",
+    "tools": "plain",
+    "finished": true,
+    "said": "Order O-1001 is placed: stock reserved, card charged, confirmation sent.",
+    "model_requests_after_crash": 2,
+    "first_request_after_crash": {
+      "protocol": "gemini",
+      "user_messages": 2,
+      "tools_with_results": [
+        "charge_card",
+        "reserve_stock"
+      ],
+      "unanswered_calls": [
+        "send_confirmation"
+      ],
+      "answer": "send_confirmation"
+    },
+    "rejected_by_model_api": 0,
+    "effects": {
+      "reserve_stock": 1,
+      "charge_card": 1,
+      "send_confirmation": 1
+    },
+    "replayed": {
+      "reserve_stock": 0,
+      "charge_card": 0,
+      "send_confirmation": 0
+    }
+  },
+  {
+    "framework": "ADK",
+    "crash": "send_confirmation:before",
+    "recovery": "resend",
+    "tools": "idempotent",
+    "finished": true,
+    "said": "Order O-1001 is placed: stock reserved, card charged, confirmation sent.",
+    "model_requests_after_crash": 2,
+    "first_request_after_crash": {
+      "protocol": "gemini",
+      "user_messages": 2,
+      "tools_with_results": [
+        "charge_card",
+        "reserve_stock"
+      ],
+      "unanswered_calls": [
+        "send_confirmation"
+      ],
+      "answer": "send_confirmation"
+    },
+    "rejected_by_model_api": 0,
+    "effects": {
+      "reserve_stock": 1,
+      "charge_card": 1,
+      "send_confirmation": 1
+    },
+    "replayed": {
+      "reserve_stock": 0,
+      "charge_card": 0,
+      "send_confirmation": 0
+    }
+  }
+]

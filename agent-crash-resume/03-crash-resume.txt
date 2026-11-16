@@ -1,0 +1,39 @@
+== 3. crash, recover, count
+framework        crash point                                    recovery tools      effects r/c/s outcome
+LangGraph        none                                           -        plain      1/1/1         exactly once
+LangGraph        during charge_card, before the charge          resume   plain      1/1/1         exactly once
+LangGraph        during charge_card, before the charge          resume   idempotent 1/1/1         exactly once
+LangGraph        during charge_card, before the charge          resend   plain      1/0/0         did not finish (openai.BadRequestError: Error code: 400 - {'error': {'type': 'invalid_request_error', 'message': "An assistant message with 'tool_call
+LangGraph        during charge_card, before the charge          resend   idempotent 1/0/0         did not finish (openai.BadRequestError: Error code: 400 - {'error': {'type': 'invalid_request_error', 'message': "An assistant message with 'tool_call
+LangGraph        during charge_card, after the charge           resume   plain      1/2/1         DUPLICATED: charge_card x2
+LangGraph        during charge_card, after the charge           resume   idempotent 1/1/1         exactly once
+LangGraph        during charge_card, after the charge           resend   plain      1/1/0         did not finish (openai.BadRequestError: Error code: 400 - {'error': {'type': 'invalid_request_error', 'message': "An assistant message with 'tool_call
+LangGraph        during charge_card, after the charge           resend   idempotent 1/1/0         did not finish (openai.BadRequestError: Error code: 400 - {'error': {'type': 'invalid_request_error', 'message': "An assistant message with 'tool_call
+LangGraph        after charge_card returned, before the email   resume   plain      1/1/1         exactly once
+LangGraph        after charge_card returned, before the email   resume   idempotent 1/1/1         exactly once
+LangGraph        after charge_card returned, before the email   resend   plain      1/1/0         did not finish (openai.BadRequestError: Error code: 400 - {'error': {'type': 'invalid_request_error', 'message': "An assistant message with 'tool_call
+LangGraph        after charge_card returned, before the email   resend   idempotent 1/1/0         did not finish (openai.BadRequestError: Error code: 400 - {'error': {'type': 'invalid_request_error', 'message': "An assistant message with 'tool_call
+Agent Framework  none                                           -        plain      1/1/1         exactly once
+Agent Framework  during charge_card, before the charge          resend   plain      2/1/1         DUPLICATED: reserve_stock x2
+Agent Framework  during charge_card, before the charge          resend   idempotent 1/1/1         exactly once
+Agent Framework  during charge_card, after the charge           resend   plain      2/2/1         DUPLICATED: reserve_stock x2, charge_card x2
+Agent Framework  during charge_card, after the charge           resend   idempotent 1/1/1         exactly once
+Agent Framework  after charge_card returned, before the email   resend   plain      2/2/1         DUPLICATED: reserve_stock x2, charge_card x2
+Agent Framework  after charge_card returned, before the email   resend   idempotent 1/1/1         exactly once
+ADK              none                                           -        plain      1/1/1         exactly once
+ADK              during charge_card, before the charge          resume   plain      1/1/1         exactly once
+ADK              during charge_card, before the charge          resume   idempotent 1/1/1         exactly once
+ADK              during charge_card, before the charge          resend   plain      1/1/1         exactly once
+ADK              during charge_card, before the charge          resend   idempotent 1/1/1         exactly once
+ADK              during charge_card, after the charge           resume   plain      1/2/1         DUPLICATED: charge_card x2
+ADK              during charge_card, after the charge           resume   idempotent 1/1/1         exactly once
+ADK              during charge_card, after the charge           resend   plain      1/2/1         DUPLICATED: charge_card x2
+ADK              during charge_card, after the charge           resend   idempotent 1/1/1         exactly once
+ADK              after charge_card returned, before the email   resume   plain      1/1/1         exactly once
+ADK              after charge_card returned, before the email   resume   idempotent 1/1/1         exactly once
+ADK              after charge_card returned, before the email   resend   plain      1/1/1         exactly once
+ADK              after charge_card returned, before the email   resend   idempotent 1/1/1         exactly once
+
+plain tools: 6 of 15 recoveries ended with every effect exactly once, 6 duplicated an effect, 3 did not finish
+
+idempotent tools: 12 of 15 recoveries ended with every effect exactly once, 0 duplicated an effect, 3 did not finish
