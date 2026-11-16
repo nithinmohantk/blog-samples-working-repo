@@ -1,0 +1,90 @@
+name: MCP contract testing
+
+on:
+  push:
+    paths:
+      - "mcp-contract-testing/**"
+      - ".github/workflows/mcp-contract.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write   # only to publish the result files to a results branch
+
+concurrency:
+  group: mcp-contract-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Run each sample
+        id: samples
+        continue-on-error: true
+        run: |
+          status=0
+          for sample in mcp-contract-testing; do
+            if [ -x "./$sample/ci.sh" ]; then
+              "./$sample/ci.sh" "$GITHUB_WORKSPACE/out/$sample" || status=1
+            fi
+          done
+          exit $status
+
+      - name: Publish the results
+        if: always()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p out
+          {
+            echo "commit: $GITHUB_SHA"
+            echo "run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+            echo "date: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            echo "samples: ${{ steps.samples.outcome }}"
+          } > out/run.txt
+          publish="$RUNNER_TEMP/publish"
+          rm -rf "$publish" && mkdir -p "$publish" && cp -r out/. "$publish/"
+          cd "$publish"
+          git init -q -b ci-results-mcp-contract
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -q -m "Results for $GITHUB_SHA"
+          git push -f "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" ci-results-mcp-contract
+
+      - name: Fail the build if a sample failed
+        if: steps.samples.outcome != 'success'
+        run: exit 1
+
+  contract-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: mcp-contract-testing
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0          # the base commit's contract has to be readable
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Install
+        run: python -m pip install --quiet -r requirements.txt
+      - name: Snapshot the server as built
+        run: python contract/snapshot.py --stdio "python server/app.py" --out "$RUNNER_TEMP/live.json"
+      - name: Fetch the contract from the base commit
+        run: |
+          base="${{ github.event.pull_request.base.sha || github.event.before }}"
+          git show "$base:mcp-contract-testing/contract/mcp-contract.json" > "$RUNNER_TEMP/base.json" 2> /dev/null \
+            || cp contract/mcp-contract.json "$RUNNER_TEMP/base.json"   # no earlier contract: nothing to compare with yet
+      - name: Gate
+        run: python contract/gate.py --base "$RUNNER_TEMP/base.json" --head contract/mcp-contract.json --live "$RUNNER_TEMP/live.json"
+      - name: Replay the recorded calls
+        run: python contract/replay.py --stdio "python server/app.py" --contract contract/mcp-contract.json

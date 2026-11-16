@@ -1,0 +1,389 @@
+{
+  "capabilities": {
+    "prompts": {
+      "listChanged": true
+    },
+    "resources": {
+      "listChanged": true,
+      "subscribe": true
+    },
+    "tools": {
+      "listChanged": true
+    }
+  },
+  "contractFormat": 1,
+  "instructions": "Stock levels and reservations for a small parts warehouse. Synthetic data.",
+  "prompts": [
+    {
+      "arguments": [
+        {
+          "name": "warehouse_code",
+          "required": true
+        }
+      ],
+      "description": "Ask for a restocking report for one warehouse.",
+      "name": "restock_report"
+    }
+  ],
+  "protocolVersion": "2026-07-28",
+  "resourceTemplates": [
+    {
+      "description": "One warehouse by its three-letter code.",
+      "mimeType": "application/json",
+      "name": "warehouse",
+      "uriTemplate": "stockroom://warehouses/{code}"
+    }
+  ],
+  "resources": [
+    {
+      "description": "How long a reservation is held.",
+      "mimeType": "text/plain",
+      "name": "reservation_policy",
+      "uri": "stockroom://policy/reservations"
+    }
+  ],
+  "server": {
+    "name": "stockroom",
+    "version": "1.4.0"
+  },
+  "tools": [
+    {
+      "annotations": {
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "readOnlyHint": false
+      },
+      "description": "Release a reservation. Cancelling twice is not an error.",
+      "inputSchema": {
+        "properties": {
+          "reservation_id": {
+            "description": "Identifier returned by reserve_stock.",
+            "pattern": "^R-\\d{5}$",
+            "title": "Reservation Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "reservation_id"
+        ],
+        "title": "cancel_reservationArguments",
+        "type": "object"
+      },
+      "name": "cancel_reservation",
+      "outputSchema": {
+        "properties": {
+          "cancelled": {
+            "title": "Cancelled",
+            "type": "boolean"
+          },
+          "reservation_id": {
+            "title": "Reservation Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "reservation_id",
+          "cancelled"
+        ],
+        "title": "CancelResult",
+        "type": "object"
+      }
+    },
+    {
+      "annotations": {
+        "openWorldHint": false,
+        "readOnlyHint": true
+      },
+      "description": "Return on-hand, reserved and available units for one product.",
+      "inputSchema": {
+        "properties": {
+          "sku": {
+            "description": "Stock keeping unit, for example FAS-0012.",
+            "pattern": "^[A-Z]{3}-\\d{4}$",
+            "title": "Sku",
+            "type": "string"
+          }
+        },
+        "required": [
+          "sku"
+        ],
+        "title": "get_stockArguments",
+        "type": "object"
+      },
+      "name": "get_stock",
+      "outputSchema": {
+        "properties": {
+          "available": {
+            "description": "on_hand minus reserved.",
+            "minimum": 0,
+            "title": "Available",
+            "type": "integer"
+          },
+          "on_hand": {
+            "description": "Units physically in the warehouses.",
+            "minimum": 0,
+            "title": "On Hand",
+            "type": "integer"
+          },
+          "reserved": {
+            "description": "Units held by open reservations.",
+            "minimum": 0,
+            "title": "Reserved",
+            "type": "integer"
+          },
+          "sku": {
+            "title": "Sku",
+            "type": "string"
+          }
+        },
+        "required": [
+          "sku",
+          "on_hand",
+          "reserved",
+          "available"
+        ],
+        "title": "StockLevel",
+        "type": "object"
+      }
+    },
+    {
+      "annotations": {
+        "openWorldHint": false,
+        "readOnlyHint": true
+      },
+      "description": "List the warehouses that hold stock.",
+      "inputSchema": {
+        "properties": {},
+        "title": "list_warehousesArguments",
+        "type": "object"
+      },
+      "name": "list_warehouses",
+      "outputSchema": {
+        "$defs": {
+          "Warehouse": {
+            "properties": {
+              "city": {
+                "title": "City",
+                "type": "string"
+              },
+              "code": {
+                "title": "Code",
+                "type": "string"
+              }
+            },
+            "required": [
+              "code",
+              "city"
+            ],
+            "title": "Warehouse",
+            "type": "object"
+          }
+        },
+        "properties": {
+          "result": {
+            "items": {
+              "$ref": "#/$defs/Warehouse"
+            },
+            "title": "Result",
+            "type": "array"
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "title": "list_warehousesOutput",
+        "type": "object"
+      }
+    },
+    {
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false,
+        "readOnlyHint": false
+      },
+      "description": "Hold stock for an order. Returns status 'rejected' when there is not enough available.",
+      "inputSchema": {
+        "properties": {
+          "order_ref": {
+            "description": "The caller's order reference.",
+            "maxLength": 40,
+            "minLength": 3,
+            "title": "Order Ref",
+            "type": "string"
+          },
+          "quantity": {
+            "description": "Units to hold.",
+            "maximum": 100,
+            "minimum": 1,
+            "title": "Quantity",
+            "type": "integer"
+          },
+          "sku": {
+            "description": "Stock keeping unit, for example FAS-0012.",
+            "pattern": "^[A-Z]{3}-\\d{4}$",
+            "title": "Sku",
+            "type": "string"
+          }
+        },
+        "required": [
+          "sku",
+          "quantity",
+          "order_ref"
+        ],
+        "title": "reserve_stockArguments",
+        "type": "object"
+      },
+      "name": "reserve_stock",
+      "outputSchema": {
+        "properties": {
+          "quantity": {
+            "title": "Quantity",
+            "type": "integer"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Reason"
+          },
+          "reservation_id": {
+            "title": "Reservation Id",
+            "type": "string"
+          },
+          "sku": {
+            "title": "Sku",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "held",
+              "rejected"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "reservation_id",
+          "sku",
+          "quantity",
+          "status"
+        ],
+        "title": "Reservation",
+        "type": "object"
+      }
+    },
+    {
+      "annotations": {
+        "openWorldHint": false,
+        "readOnlyHint": true
+      },
+      "description": "Search the product catalogue by name.",
+      "inputSchema": {
+        "properties": {
+          "category": {
+            "anyOf": [
+              {
+                "enum": [
+                  "fasteners",
+                  "fittings",
+                  "sealants",
+                  "tools"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Restrict the search to one category.",
+            "title": "Category"
+          },
+          "limit": {
+            "default": 10,
+            "description": "Maximum number of products to return.",
+            "maximum": 50,
+            "minimum": 1,
+            "title": "Limit",
+            "type": "integer"
+          },
+          "query": {
+            "description": "Words to look for in the product name.",
+            "maxLength": 80,
+            "minLength": 2,
+            "title": "Query",
+            "type": "string"
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "title": "search_productsArguments",
+        "type": "object"
+      },
+      "name": "search_products",
+      "outputSchema": {
+        "$defs": {
+          "Product": {
+            "properties": {
+              "category": {
+                "enum": [
+                  "fasteners",
+                  "fittings",
+                  "sealants",
+                  "tools"
+                ],
+                "title": "Category",
+                "type": "string"
+              },
+              "name": {
+                "title": "Name",
+                "type": "string"
+              },
+              "sku": {
+                "title": "Sku",
+                "type": "string"
+              },
+              "unit_price_cents": {
+                "minimum": 0,
+                "title": "Unit Price Cents",
+                "type": "integer"
+              }
+            },
+            "required": [
+              "sku",
+              "name",
+              "category",
+              "unit_price_cents"
+            ],
+            "title": "Product",
+            "type": "object"
+          }
+        },
+        "properties": {
+          "result": {
+            "items": {
+              "$ref": "#/$defs/Product"
+            },
+            "title": "Result",
+            "type": "array"
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "title": "search_productsOutput",
+        "type": "object"
+      }
+    }
+  ]
+}

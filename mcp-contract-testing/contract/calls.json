@@ -1,0 +1,14 @@
+{
+  "comment": "Calls that agents make against stockroom 1.4.0 today, recorded as examples. replay.py sends each one and checks the outcome and, for successful calls, the structured result against the output schema in the contract snapshot.",
+  "calls": [
+    {"id": "search-by-word", "tool": "search_products", "arguments": {"query": "bolt"}, "expect": "ok"},
+    {"id": "search-in-category", "tool": "search_products", "arguments": {"query": "sealant", "category": "sealants", "limit": 50}, "expect": "ok"},
+    {"id": "stock-for-sku", "tool": "get_stock", "arguments": {"sku": "FAS-0012"}, "expect": "ok"},
+    {"id": "stock-bad-sku", "tool": "get_stock", "arguments": {"sku": "not-a-sku"}, "expect": "tool-error"},
+    {"id": "reserve-in-stock", "tool": "reserve_stock", "arguments": {"sku": "FAS-0012", "quantity": 30, "order_ref": "PO-7781"}, "expect": "ok"},
+    {"id": "reserve-short", "tool": "reserve_stock", "arguments": {"sku": "TOO-0300", "quantity": 5, "order_ref": "PO-7782"}, "expect": "ok"},
+    {"id": "reserve-zero", "tool": "reserve_stock", "arguments": {"sku": "FAS-0012", "quantity": 0, "order_ref": "PO-7783"}, "expect": "tool-error"},
+    {"id": "cancel", "tool": "cancel_reservation", "arguments": {"reservation_id": "R-00001"}, "expect": "ok"},
+    {"id": "warehouses", "tool": "list_warehouses", "arguments": {}, "expect": "ok"}
+  ]
+}
