@@ -1,6 +1,6 @@
 # Contract-testing an MCP server in CI
 
-Sample for the dataa.dev article "Contract-Testing an MCP Server in CI: Snapshots, Breaking Changes and a Gate".
+Sample for the dataa.dev article "[Contract-Testing an MCP Server in CI: Snapshots, Breaking Changes and a Build Gate](https://www.dataa.dev/2026/11/05/contract-testing-an-mcp-server-in-ci/)".
 
 An MCP server's tool listing is its public contract: agents read it at run time and nothing compiles
 against it. This folder takes a snapshot of that listing, classifies the difference between two snapshots

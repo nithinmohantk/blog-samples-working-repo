@@ -37,6 +37,7 @@ Each folder has its own README that says what the code does, how to run it, and 
 | `smart-backend-services` | [SMART Backend Services: System-to-System FHIR Authorization in .NET 10](https://www.dataa.dev/2026/03/28/smart-backend-services-system-to-system-fhir-authorization-in-dotnet-10/) | C#, Python |
 | `small-api-cost-model` | [ECS Express Mode, App Runner or Lambda for a Small API](https://www.dataa.dev/2026/04/04/ecs-express-mode-app-runner-or-lambda-for-a-small-api/) | Python |
 | `one-agent-three-frameworks` | [One Agent, Three Frameworks: What Agent Framework, LangGraph and ADK Do When the Model Misbehaves](https://www.dataa.dev/2026/11/14/one-agent-three-frameworks-agent-framework-langgraph-adk/) | Python |
+| `mcp-contract-testing` | [Contract-Testing an MCP Server in CI: Snapshots, Breaking Changes and a Build Gate](https://www.dataa.dev/2026/11/05/contract-testing-an-mcp-server-in-ci/) | Python |
 | `gpt6-codex-model-routing` | [GPT-6 in Codex: Choosing Between Astra, Sol and Luna](https://www.dataa.dev/2026/09/26/gpt-6-in-codex-choosing-between-astra-sol-and-luna/) | Python, TOML |
 | `gpt52-codex-context-budget` | [GPT-5.2-Codex: 400K Context, Image Input and Microsoft Foundry](https://www.dataa.dev/2026/02/01/gpt-5-2-codex-400k-context-window-multimodal-coding-and-azure-ai-foundry-integration/) | Python |
 | `dotnet10-on-lambda` | [.NET 10 on AWS Lambda: Managed Runtime, Native AOT and SnapStart](https://www.dataa.dev/2026/04/11/dotnet-10-on-aws-lambda-managed-runtime-native-aot-and-snapstart/) | C#, Python |
@@ -66,6 +67,7 @@ Not everything here has been compiled or run. The state at the time of the first
 * `gpt52-codex-context-budget`: token counts, cost arithmetic and a Responses API client tested against a local stand-in in GitHub Actions. No request is sent to any model.
 * `gpt6-codex-model-routing`: cost arithmetic on published prices, and the Codex CLI run in GitHub Actions against a local stand-in that plays a script. No model is called.
 * `one-agent-three-frameworks`: Microsoft Agent Framework, LangGraph and Google ADK run in GitHub Actions against a scripted stand-in on localhost. No model is called.
+* `mcp-contract-testing`: every MCP server is a local process started in GitHub Actions on stdio or 127.0.0.1. No model is called.
 * Nothing in this repository has been deployed to AWS or Azure.
 
 ## Healthcare samples
