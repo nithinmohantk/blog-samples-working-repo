@@ -1,0 +1,142 @@
+StreamableHTTP session manager started
+Terminating session: None
+Terminating session: None
+Processing request of type ListToolsRequest
+Terminating session: None
+Processing request of type CallToolRequest
+HTTP Request: GET http://127.0.0.1:8084/fhir/Patient/syn-p1 "HTTP/1.1 200 "
+Terminating session: None
+Processing request of type CallToolRequest
+HTTP Request: GET http://127.0.0.1:8084/fhir/Patient/syn-p1 "HTTP/1.1 200 "
+Terminating session: None
+Terminating session: None
+Terminating session: None
+Processing request of type ListToolsRequest
+Terminating session: None
+Processing request of type CallToolRequest
+HTTP Request: GET http://127.0.0.1:8084/fhir/Observation?code=http%3A%2F%2Floinc.org%7C4548-4&patient=syn-p1 "HTTP/1.1 200 "
+Terminating session: None
+Processing request of type CallToolRequest
+HTTP Request: GET http://127.0.0.1:8084/fhir/Observation?code=http%3A%2F%2Floinc.org%7C4548-4&patient=syn-p1 "HTTP/1.1 200 "
+Terminating session: None
+Terminating session: None
+Terminating session: None
+Processing request of type ListToolsRequest
+Terminating session: None
+Processing request of type CallToolRequest
+HTTP Request: GET http://127.0.0.1:8084/fhir/Observation?category=laboratory&patient=syn-p1 "HTTP/1.1 200 "
+Terminating session: None
+Processing request of type CallToolRequest
+HTTP Request: GET http://127.0.0.1:8084/fhir/Observation?category=laboratory&patient=syn-p1 "HTTP/1.1 200 "
+Terminating session: None
+Terminating session: None
+Terminating session: None
+Processing request of type ListToolsRequest
+Terminating session: None
+Processing request of type CallToolRequest
+HTTP Request: GET http://127.0.0.1:8084/fhir/Observation/syn-o2-lab1 "HTTP/1.1 200 "
+Terminating session: None
+Processing request of type CallToolRequest
+HTTP Request: GET http://127.0.0.1:8084/fhir/Observation/syn-o2-lab1 "HTTP/1.1 200 "
+Terminating session: None
+Terminating session: None
+Terminating session: None
+Processing request of type ListToolsRequest
+Terminating session: None
+Processing request of type CallToolRequest
+HTTP Request: GET http://127.0.0.1:8084/fhir/Observation?patient=syn-p1 "HTTP/1.1 200 "
+Terminating session: None
+Processing request of type CallToolRequest
+Terminating session: None
+Terminating session: None
+Terminating session: None
+Processing request of type ListToolsRequest
+Terminating session: None
+Processing request of type CallToolRequest
+HTTP Request: GET http://127.0.0.1:8084/fhir/Patient?family=Alder "HTTP/1.1 200 "
+Terminating session: None
+Processing request of type CallToolRequest
+Terminating session: None
+Terminating session: None
+Terminating session: None
+Processing request of type ListToolsRequest
+Terminating session: None
+Processing request of type CallToolRequest
+HTTP Request: GET http://127.0.0.1:8084/fhir/Patient?_id=syn-p1&_revinclude=MedicationRequest:subject "HTTP/1.1 200 "
+Terminating session: None
+Processing request of type CallToolRequest
+Terminating session: None
+Terminating session: None
+Terminating session: None
+Processing request of type ListToolsRequest
+Terminating session: None
+Processing request of type CallToolRequest
+HTTP Request: GET http://127.0.0.1:8084/fhir/Patient/syn-p1/$everything "HTTP/1.1 200 "
+Terminating session: None
+Processing request of type CallToolRequest
+Terminating session: None
+Terminating session: None
+Terminating session: None
+Processing request of type ListToolsRequest
+Terminating session: None
+Processing request of type CallToolRequest
+HTTP Request: GET http://127.0.0.1:8084/fhir/Patient?_has:Observation:patient:code=4548-4 "HTTP/1.1 200 "
+Terminating session: None
+Processing request of type CallToolRequest
+Terminating session: None
+Terminating session: None
+Terminating session: None
+Processing request of type ListToolsRequest
+Terminating session: None
+Processing request of type CallToolRequest
+HTTP Request: GET http://127.0.0.1:8084/fhir/Observation?subject.family=Birch&patient=syn-p1 "HTTP/1.1 200 "
+Terminating session: None
+Processing request of type CallToolRequest
+Terminating session: None
+Terminating session: None
+Terminating session: None
+Processing request of type ListToolsRequest
+Terminating session: None
+Processing request of type CallToolRequest
+HTTP Request: GET http://127.0.0.1:8084/fhir/Observation?_include=Observation%3Asubject&patient=syn-p1 "HTTP/1.1 200 "
+Terminating session: None
+Processing request of type CallToolRequest
+Terminating session: None
+Terminating session: None
+Terminating session: None
+Processing request of type ListToolsRequest
+Terminating session: None
+Processing request of type CallToolRequest
+HTTP Request: GET http://127.0.0.1:8084/fhir/Observation?category=vital-signs&patient=syn-p1 "HTTP/1.1 200 "
+Terminating session: None
+Processing request of type CallToolRequest
+Terminating session: None
+Terminating session: None
+Terminating session: None
+Processing request of type ListToolsRequest
+Terminating session: None
+Processing request of type CallToolRequest
+HTTP Request: GET http://127.0.0.1:8084/fhir/Observation/syn-o1-vit1 "HTTP/1.1 200 "
+Terminating session: None
+Processing request of type CallToolRequest
+HTTP Request: GET http://127.0.0.1:8084/fhir/Observation/syn-o1-vit1 "HTTP/1.1 200 "
+Terminating session: None
+Terminating session: None
+Terminating session: None
+Processing request of type ListToolsRequest
+Terminating session: None
+Processing request of type CallToolRequest
+HTTP Request: GET http://127.0.0.1:8084/fhir/Observation?patient=syn-p1 "HTTP/1.1 200 "
+Terminating session: None
+Processing request of type CallToolRequest
+HTTP Request: GET http://127.0.0.1:8084/fhir/Observation?patient=syn-p1&category=http%3A%2F%2Fterminology.hl7.org%2FCodeSystem%2Fobservation-category%7Claboratory "HTTP/1.1 200 "
+Terminating session: None
+Terminating session: None
+Terminating session: None
+Processing request of type ListToolsRequest
+Terminating session: None
+Processing request of type CallToolRequest
+Terminating session: None
+Processing request of type CallToolRequest
+Terminating session: None
+StreamableHTTP session manager shutting down

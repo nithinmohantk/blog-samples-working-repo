@@ -1,0 +1,96 @@
+== 3. the lab against the in-memory stand-in
+FHIR server: in-memory stand-in; 21 synthetic resources loaded
+
+-- A. tools listed for each token
+token          tools  get_patient search_pati list_observ get_observa list_medica list_condit record_obse
+patient-app        3  yes         -           yes         yes         -           -           -          
+labs-only          2  -           -           yes         yes         -           -           -          
+meds-view          3  yes         -           -           -           yes         yes         -          
+search-only        1  -           -           yes         -           -           -           -          
+self-recorder      3  -           -           yes         yes         -           -           yes        
+clinician          6  yes         yes         yes         yes         yes         yes         -          
+legacy-v1          5  yes         -           yes         yes         yes         yes         -          
+identity-only      0  -           -           -           -           -           -           -          
+
+-- B. typed tools: each call against what should happen
+token          tool                arguments                                    expected got      listed outside scope
+patient-app    get_patient         {}                                           data     data     yes    none
+patient-app    get_patient         {"patient_id": "syn-p2"}                     denied   denied   yes    none
+patient-app    get_patient         {"patient_id": "syn-p1/../syn-p2"}           denied   denied   yes    none
+patient-app    list_observations   {}                                           data     data     yes    none
+patient-app    list_observations   {"patient_id": "syn-p2"}                     denied   denied   yes    none
+patient-app    get_observation     {"observation_id": "syn-o1-lab1"}            data     data     yes    none
+patient-app    get_observation     {"observation_id": "syn-o2-lab1"}            empty    empty    yes    none
+patient-app    get_observation     {"observation_id": "syn-o2-lab1?_format=json empty    empty    yes    none
+patient-app    list_medications    {}                                           denied   denied   no     none
+patient-app    search_patients     {"family_name": "Alder"}                     denied   denied   no     none
+patient-app    record_observation  {"category": "vital-signs"}                  denied   denied   no     none
+labs-only      list_observations   {}                                           data     data     yes    none
+labs-only      list_observations   {"category": "laboratory"}                   data     data     yes    none
+labs-only      list_observations   {"category": "vital-signs"}                  denied   denied   yes    none
+labs-only      get_observation     {"observation_id": "syn-o1-lab1"}            data     data     yes    none
+labs-only      get_observation     {"observation_id": "syn-o1-vit1"}            empty    empty    yes    none
+labs-only      get_patient         {}                                           denied   denied   no     none
+meds-view      list_medications    {}                                           data     data     yes    none
+meds-view      list_conditions     {}                                           data     data     yes    none
+meds-view      list_observations   {}                                           denied   denied   no     none
+search-only    list_observations   {}                                           data     data     yes    none
+search-only    get_observation     {"observation_id": "syn-o1-lab1"}            denied   denied   no     none
+self-recorder  record_observation  {"category": "vital-signs"}                  data     data     yes    none
+self-recorder  record_observation  {"category": "laboratory"}                   denied   denied   yes    none
+self-recorder  record_observation  {"category": "vital-signs", "patient_id": "s denied   denied   yes    none
+self-recorder  list_observations   {}                                           data     data     yes    none
+clinician      search_patients     {"family_name": "Alder"}                     data     data     yes    none
+clinician      list_observations   {"patient_id": "syn-p2"}                     data     data     yes    none
+clinician      list_observations   {}                                           denied   denied   yes    none
+clinician      list_medications    {"patient_id": "syn-p3"}                     data     data     yes    none
+clinician      record_observation  {"category": "vital-signs", "patient_id": "s denied   denied   no     none
+legacy-v1      get_patient         {}                                           data     data     yes    none
+legacy-v1      list_observations   {}                                           data     data     yes    none
+legacy-v1      list_medications    {}                                           data     data     yes    none
+legacy-v1      get_observation     {"observation_id": "syn-o1-lab1"}            empty    empty    yes    none
+legacy-v1      search_patients     {"family_name": "Alder"}                     denied   denied   no     none
+legacy-v1      record_observation  {"category": "vital-signs"}                  denied   denied   no     none
+identity-only  get_patient         {}                                           denied   denied   no     none
+identity-only  list_observations   {}                                           denied   denied   no     none
+
+typed tools: 39 of 39 calls ended as expected; 0 returned a record outside the token's scopes
+calls to a tool that was not listed for the token: 11, of which denied: 11
+
+-- C. tokens the server should not accept at all (HTTP status of the first request)
+no token                     HTTP 401
+expired a minute ago         HTTP 401
+signed by another key        HTTP 401
+minted for another server    HTTP 401
+unsigned (alg none)          HTTP 401
+
+-- D. one generic tool that takes any FHIR path, two ways, on the same requests
+token kind     path                                                       naive                  guarded
+T1    fair     Patient/syn-p1                                             served                 served
+T1    fair     Observation?code=http://loinc.org|4548-4                   served                 served
+T2    fair     Observation?category=laboratory                            served                 served
+T1    hostile  Observation/syn-o2-lab1                                    LEAK 1                 nothing
+T1    hostile  Observation?patient=syn-p2                                 served                 refused
+T1    hostile  Patient?family=Alder                                       LEAK 1                 refused
+T1    hostile  Patient?_id=syn-p1&_revinclude=MedicationRequest:subject   LEAK 1                 refused
+T1    hostile  Patient/syn-p1/$everything                                 LEAK 2                 refused
+T1    hostile  Patient?_has:Observation:patient:code=4548-4               nothing                refused
+T1    hostile  Observation?subject.family=Birch                           nothing                refused
+T2    hostile  Observation?_include=Observation:subject                   LEAK 3                 refused
+T2    hostile  Observation?category=vital-signs                           LEAK 2                 refused
+T2    hostile  Observation/syn-o1-vit1                                    LEAK 1                 nothing
+T2    hostile  Observation                                                LEAK 2                 served
+T1    hostile  MedicationRequest?patient=syn-p1                           refused                refused
+naive: 8 of 12 hostile requests returned a record outside scope (13 records over all requests); 3 of 3 fair requests served, 0 of them with a record outside scope
+guarded: 0 of 12 hostile requests returned a record outside scope (0 records over all requests); 3 of 3 fair requests served, 0 of them with a record outside scope
+
+-- E. audit log of the typed server
+39 lines for 39 calls: 21 allowed, 18 denied
+  11  denied:scope
+   3  denied:compartment
+   2  denied:filter
+   1  denied:input
+   1  denied:context
+lines holding a token, a name or a result: 0
+
+OK

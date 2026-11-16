@@ -1,0 +1,212 @@
+== 4. the lab against HAPI FHIR
+Unable to find image 'hapiproject/hapi:v8.0.0' locally
+v8.0.0: Pulling from hapiproject/hapi
+d3bbecbad90a: Pulling fs layer
+a62778643d56: Pulling fs layer
+f716db4e3c8d: Pulling fs layer
+590f3f180657: Pulling fs layer
+7c12895b777b: Pulling fs layer
+86fd78f09988: Pulling fs layer
+a52506876bfa: Pulling fs layer
+bfb59b82a9b6: Pulling fs layer
+3214acf345c0: Pulling fs layer
+52210cfa5d4d: Pulling fs layer
+5ef042acb7ea: Pulling fs layer
+57c7c63c9c91: Pulling fs layer
+5664b15f108b: Pulling fs layer
+1acfb4a268db: Pulling fs layer
+538dbdaf1872: Pulling fs layer
+ab0f6cad3051: Pulling fs layer
+4aa0ea1413d3: Pulling fs layer
+df4a74163d8a: Pulling fs layer
+7cf0bebd8590: Pulling fs layer
+9aafee56e35e: Pulling fs layer
+c83c31ce41af: Pulling fs layer
+da7816fa955e: Pulling fs layer
+0cb5c07f8edd: Pulling fs layer
+ea6c62ab44cb: Pulling fs layer
+688513194d7a: Pulling fs layer
+51a849027c78: Pulling fs layer
+8bd314445e66: Pulling fs layer
+701c983262e9: Pulling fs layer
+84845657fbc5: Pulling fs layer
+0bab15eea81d: Pulling fs layer
+9aee425378d2: Pulling fs layer
+02fd24817d0f: Pulling fs layer
+e3269fcfc82e: Pulling fs layer
+efa9d1d5d3a2: Pulling fs layer
+01fccfcccc6b: Pulling fs layer
+2976da96d370: Pulling fs layer
+ed1e8f98bc8e: Pulling fs layer
+3214acf345c0: Already exists
+7c12895b777b: Already exists
+c83c31ce41af: Download complete
+d3bbecbad90a: Download complete
+0cb5c07f8edd: Download complete
+a62778643d56: Download complete
+da7816fa955e: Download complete
+51a849027c78: Download complete
+bfb59b82a9b6: Download complete
+84845657fbc5: Download complete
+688513194d7a: Download complete
+9aee425378d2: Download complete
+8bd314445e66: Download complete
+590f3f180657: Download complete
+a52506876bfa: Download complete
+f716db4e3c8d: Download complete
+0bab15eea81d: Download complete
+1acfb4a268db: Download complete
+01fccfcccc6b: Download complete
+efa9d1d5d3a2: Download complete
+5ef042acb7ea: Download complete
+86fd78f09988: Download complete
+df4a74163d8a: Download complete
+5664b15f108b: Download complete
+02fd24817d0f: Download complete
+e3269fcfc82e: Download complete
+4aa0ea1413d3: Download complete
+ab0f6cad3051: Download complete
+2976da96d370: Download complete
+52210cfa5d4d: Download complete
+701c983262e9: Download complete
+538dbdaf1872: Download complete
+7cf0bebd8590: Download complete
+9aafee56e35e: Download complete
+57c7c63c9c91: Download complete
+bfb59b82a9b6: Pull complete
+688513194d7a: Pull complete
+f149020259aa: Download complete
+ea6c62ab44cb: Download complete
+3214acf345c0: Pull complete
+7c12895b777b: Pull complete
+a62778643d56: Pull complete
+0bab15eea81d: Pull complete
+efa9d1d5d3a2: Pull complete
+5664b15f108b: Pull complete
+4aa0ea1413d3: Pull complete
+da7816fa955e: Pull complete
+9aee425378d2: Pull complete
+51a849027c78: Pull complete
+f716db4e3c8d: Pull complete
+86fd78f09988: Pull complete
+02fd24817d0f: Pull complete
+701c983262e9: Pull complete
+9aafee56e35e: Pull complete
+84845657fbc5: Pull complete
+8bd314445e66: Pull complete
+590f3f180657: Pull complete
+a52506876bfa: Pull complete
+e3269fcfc82e: Pull complete
+ab0f6cad3051: Pull complete
+52210cfa5d4d: Pull complete
+57c7c63c9c91: Pull complete
+c83c31ce41af: Pull complete
+0cb5c07f8edd: Pull complete
+1acfb4a268db: Pull complete
+5ef042acb7ea: Pull complete
+df4a74163d8a: Pull complete
+01fccfcccc6b: Pull complete
+538dbdaf1872: Pull complete
+7cf0bebd8590: Pull complete
+2976da96d370: Pull complete
+ea6c62ab44cb: Pull complete
+ed1e8f98bc8e: Download complete
+ed1e8f98bc8e: Pull complete
+d3bbecbad90a: Pull complete
+Digest: sha256:bf6ecbb4492361ae258a2bde6d4daf4c505b1a98e0925745aa0689e95b2d157e
+Status: Downloaded newer image for hapiproject/hapi:v8.0.0
+FHIR server: HAPI FHIR Server 8.0.0; 21 synthetic resources loaded
+
+-- A. tools listed for each token
+token          tools  get_patient search_pati list_observ get_observa list_medica list_condit record_obse
+patient-app        3  yes         -           yes         yes         -           -           -          
+labs-only          2  -           -           yes         yes         -           -           -          
+meds-view          3  yes         -           -           -           yes         yes         -          
+search-only        1  -           -           yes         -           -           -           -          
+self-recorder      3  -           -           yes         yes         -           -           yes        
+clinician          6  yes         yes         yes         yes         yes         yes         -          
+legacy-v1          5  yes         -           yes         yes         yes         yes         -          
+identity-only      0  -           -           -           -           -           -           -          
+
+-- B. typed tools: each call against what should happen
+token          tool                arguments                                    expected got      listed outside scope
+patient-app    get_patient         {}                                           data     data     yes    none
+patient-app    get_patient         {"patient_id": "syn-p2"}                     denied   denied   yes    none
+patient-app    get_patient         {"patient_id": "syn-p1/../syn-p2"}           denied   denied   yes    none
+patient-app    list_observations   {}                                           data     data     yes    none
+patient-app    list_observations   {"patient_id": "syn-p2"}                     denied   denied   yes    none
+patient-app    get_observation     {"observation_id": "syn-o1-lab1"}            data     data     yes    none
+patient-app    get_observation     {"observation_id": "syn-o2-lab1"}            empty    empty    yes    none
+patient-app    get_observation     {"observation_id": "syn-o2-lab1?_format=json empty    empty    yes    none
+patient-app    list_medications    {}                                           denied   denied   no     none
+patient-app    search_patients     {"family_name": "Alder"}                     denied   denied   no     none
+patient-app    record_observation  {"category": "vital-signs"}                  denied   denied   no     none
+labs-only      list_observations   {}                                           data     data     yes    none
+labs-only      list_observations   {"category": "laboratory"}                   data     data     yes    none
+labs-only      list_observations   {"category": "vital-signs"}                  denied   denied   yes    none
+labs-only      get_observation     {"observation_id": "syn-o1-lab1"}            data     data     yes    none
+labs-only      get_observation     {"observation_id": "syn-o1-vit1"}            empty    empty    yes    none
+labs-only      get_patient         {}                                           denied   denied   no     none
+meds-view      list_medications    {}                                           data     data     yes    none
+meds-view      list_conditions     {}                                           data     data     yes    none
+meds-view      list_observations   {}                                           denied   denied   no     none
+search-only    list_observations   {}                                           data     data     yes    none
+search-only    get_observation     {"observation_id": "syn-o1-lab1"}            denied   denied   no     none
+self-recorder  record_observation  {"category": "vital-signs"}                  data     data     yes    none
+self-recorder  record_observation  {"category": "laboratory"}                   denied   denied   yes    none
+self-recorder  record_observation  {"category": "vital-signs", "patient_id": "s denied   denied   yes    none
+self-recorder  list_observations   {}                                           data     data     yes    none
+clinician      search_patients     {"family_name": "Alder"}                     data     data     yes    none
+clinician      list_observations   {"patient_id": "syn-p2"}                     data     data     yes    none
+clinician      list_observations   {}                                           denied   denied   yes    none
+clinician      list_medications    {"patient_id": "syn-p3"}                     data     data     yes    none
+clinician      record_observation  {"category": "vital-signs", "patient_id": "s denied   denied   no     none
+legacy-v1      get_patient         {}                                           data     data     yes    none
+legacy-v1      list_observations   {}                                           data     data     yes    none
+legacy-v1      list_medications    {}                                           data     data     yes    none
+legacy-v1      get_observation     {"observation_id": "syn-o1-lab1"}            empty    empty    yes    none
+legacy-v1      search_patients     {"family_name": "Alder"}                     denied   denied   no     none
+legacy-v1      record_observation  {"category": "vital-signs"}                  denied   denied   no     none
+identity-only  get_patient         {}                                           denied   denied   no     none
+identity-only  list_observations   {}                                           denied   denied   no     none
+
+typed tools: 39 of 39 calls ended as expected; 0 returned a record outside the token's scopes
+calls to a tool that was not listed for the token: 11, of which denied: 11
+
+-- C. tokens the server should not accept at all (HTTP status of the first request)
+no token                     HTTP 401
+expired a minute ago         HTTP 401
+signed by another key        HTTP 401
+minted for another server    HTTP 401
+unsigned (alg none)          HTTP 401
+
+-- D. one generic tool that takes any FHIR path, two ways, on the same requests
+token kind     path                                                       naive                  guarded
+T1    fair     Patient/syn-p1                                             served                 served
+T1    fair     Observation?code=http://loinc.org|4548-4                   served                 served
+T2    fair     Observation?category=laboratory                            served                 served
+T1    hostile  Observation/syn-o2-lab1                                    LEAK 1                 nothing
+T1    hostile  Observation?patient=syn-p2                                 served                 refused
+T1    hostile  Patient?family=Alder                                       LEAK 1                 refused
+T1    hostile  Patient?_id=syn-p1&_revinclude=MedicationRequest:subject   LEAK 1                 refused
+T1    hostile  Patient/syn-p1/$everything                                 LEAK 2                 refused
+T1    hostile  Patient?_has:Observation:patient:code=4548-4               LEAK 2                 refused
+T1    hostile  Observation?subject.family=Birch                           nothing                refused
+T2    hostile  Observation?_include=Observation:subject                   LEAK 3                 refused
+T2    hostile  Observation?category=vital-signs                           LEAK 2                 refused
+T2    hostile  Observation/syn-o1-vit1                                    LEAK 1                 nothing
+T2    hostile  Observation                                                LEAK 2                 served
+T1    hostile  MedicationRequest?patient=syn-p1                           refused                refused
+naive: 9 of 12 hostile requests returned a record outside scope (15 records over all requests); 3 of 3 fair requests served, 0 of them with a record outside scope
+guarded: 0 of 12 hostile requests returned a record outside scope (0 records over all requests); 3 of 3 fair requests served, 0 of them with a record outside scope
+
+-- E. audit log of the typed server
+39 lines for 39 calls: 21 allowed, 18 denied
+  11  denied:scope
+   3  denied:compartment
+   2  denied:filter
+   1  denied:input
+   1  denied:context
+lines holding a token, a name or a result: 0
+
+OK

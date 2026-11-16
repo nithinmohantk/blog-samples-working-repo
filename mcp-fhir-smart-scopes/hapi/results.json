@@ -1,0 +1,761 @@
+{
+ "backend": "HAPI FHIR Server 8.0.0",
+ "tools_listed": {
+  "patient-app": [
+   "get_patient",
+   "list_observations",
+   "get_observation"
+  ],
+  "labs-only": [
+   "list_observations",
+   "get_observation"
+  ],
+  "meds-view": [
+   "get_patient",
+   "list_medications",
+   "list_conditions"
+  ],
+  "search-only": [
+   "list_observations"
+  ],
+  "self-recorder": [
+   "list_observations",
+   "get_observation",
+   "record_observation"
+  ],
+  "clinician": [
+   "get_patient",
+   "search_patients",
+   "list_observations",
+   "get_observation",
+   "list_medications",
+   "list_conditions"
+  ],
+  "legacy-v1": [
+   "get_patient",
+   "list_observations",
+   "get_observation",
+   "list_medications",
+   "list_conditions"
+  ],
+  "identity-only": []
+ },
+ "typed": [
+  {
+   "token": "patient-app",
+   "tool": "get_patient",
+   "arguments": {},
+   "expected": "data",
+   "got": "data",
+   "listed": true,
+   "outside_scope": []
+  },
+  {
+   "token": "patient-app",
+   "tool": "get_patient",
+   "arguments": {
+    "patient_id": "syn-p2"
+   },
+   "expected": "denied",
+   "got": "denied",
+   "listed": true,
+   "outside_scope": []
+  },
+  {
+   "token": "patient-app",
+   "tool": "get_patient",
+   "arguments": {
+    "patient_id": "syn-p1/../syn-p2"
+   },
+   "expected": "denied",
+   "got": "denied",
+   "listed": true,
+   "outside_scope": []
+  },
+  {
+   "token": "patient-app",
+   "tool": "list_observations",
+   "arguments": {},
+   "expected": "data",
+   "got": "data",
+   "listed": true,
+   "outside_scope": []
+  },
+  {
+   "token": "patient-app",
+   "tool": "list_observations",
+   "arguments": {
+    "patient_id": "syn-p2"
+   },
+   "expected": "denied",
+   "got": "denied",
+   "listed": true,
+   "outside_scope": []
+  },
+  {
+   "token": "patient-app",
+   "tool": "get_observation",
+   "arguments": {
+    "observation_id": "syn-o1-lab1"
+   },
+   "expected": "data",
+   "got": "data",
+   "listed": true,
+   "outside_scope": []
+  },
+  {
+   "token": "patient-app",
+   "tool": "get_observation",
+   "arguments": {
+    "observation_id": "syn-o2-lab1"
+   },
+   "expected": "empty",
+   "got": "empty",
+   "listed": true,
+   "outside_scope": []
+  },
+  {
+   "token": "patient-app",
+   "tool": "get_observation",
+   "arguments": {
+    "observation_id": "syn-o2-lab1?_format=json"
+   },
+   "expected": "empty",
+   "got": "empty",
+   "listed": true,
+   "outside_scope": []
+  },
+  {
+   "token": "patient-app",
+   "tool": "list_medications",
+   "arguments": {},
+   "expected": "denied",
+   "got": "denied",
+   "listed": false,
+   "outside_scope": []
+  },
+  {
+   "token": "patient-app",
+   "tool": "search_patients",
+   "arguments": {
+    "family_name": "Alder"
+   },
+   "expected": "denied",
+   "got": "denied",
+   "listed": false,
+   "outside_scope": []
+  },
+  {
+   "token": "patient-app",
+   "tool": "record_observation",
+   "arguments": {
+    "category": "vital-signs",
+    "loinc_code": "8867-4",
+    "display": "Heart rate",
+    "value": 64,
+    "unit": "/min",
+    "effective": "2026-04-01"
+   },
+   "expected": "denied",
+   "got": "denied",
+   "listed": false,
+   "outside_scope": []
+  },
+  {
+   "token": "labs-only",
+   "tool": "list_observations",
+   "arguments": {},
+   "expected": "data",
+   "got": "data",
+   "listed": true,
+   "outside_scope": []
+  },
+  {
+   "token": "labs-only",
+   "tool": "list_observations",
+   "arguments": {
+    "category": "laboratory"
+   },
+   "expected": "data",
+   "got": "data",
+   "listed": true,
+   "outside_scope": []
+  },
+  {
+   "token": "labs-only",
+   "tool": "list_observations",
+   "arguments": {
+    "category": "vital-signs"
+   },
+   "expected": "denied",
+   "got": "denied",
+   "listed": true,
+   "outside_scope": []
+  },
+  {
+   "token": "labs-only",
+   "tool": "get_observation",
+   "arguments": {
+    "observation_id": "syn-o1-lab1"
+   },
+   "expected": "data",
+   "got": "data",
+   "listed": true,
+   "outside_scope": []
+  },
+  {
+   "token": "labs-only",
+   "tool": "get_observation",
+   "arguments": {
+    "observation_id": "syn-o1-vit1"
+   },
+   "expected": "empty",
+   "got": "empty",
+   "listed": true,
+   "outside_scope": []
+  },
+  {
+   "token": "labs-only",
+   "tool": "get_patient",
+   "arguments": {},
+   "expected": "denied",
+   "got": "denied",
+   "listed": false,
+   "outside_scope": []
+  },
+  {
+   "token": "meds-view",
+   "tool": "list_medications",
+   "arguments": {},
+   "expected": "data",
+   "got": "data",
+   "listed": true,
+   "outside_scope": []
+  },
+  {
+   "token": "meds-view",
+   "tool": "list_conditions",
+   "arguments": {},
+   "expected": "data",
+   "got": "data",
+   "listed": true,
+   "outside_scope": []
+  },
+  {
+   "token": "meds-view",
+   "tool": "list_observations",
+   "arguments": {},
+   "expected": "denied",
+   "got": "denied",
+   "listed": false,
+   "outside_scope": []
+  },
+  {
+   "token": "search-only",
+   "tool": "list_observations",
+   "arguments": {},
+   "expected": "data",
+   "got": "data",
+   "listed": true,
+   "outside_scope": []
+  },
+  {
+   "token": "search-only",
+   "tool": "get_observation",
+   "arguments": {
+    "observation_id": "syn-o1-lab1"
+   },
+   "expected": "denied",
+   "got": "denied",
+   "listed": false,
+   "outside_scope": []
+  },
+  {
+   "token": "self-recorder",
+   "tool": "record_observation",
+   "arguments": {
+    "category": "vital-signs",
+    "loinc_code": "8867-4",
+    "display": "Heart rate",
+    "value": 64,
+    "unit": "/min",
+    "effective": "2026-04-01"
+   },
+   "expected": "data",
+   "got": "data",
+   "listed": true,
+   "outside_scope": []
+  },
+  {
+   "token": "self-recorder",
+   "tool": "record_observation",
+   "arguments": {
+    "category": "laboratory",
+    "loinc_code": "8867-4",
+    "display": "Heart rate",
+    "value": 64,
+    "unit": "/min",
+    "effective": "2026-04-01"
+   },
+   "expected": "denied",
+   "got": "denied",
+   "listed": true,
+   "outside_scope": []
+  },
+  {
+   "token": "self-recorder",
+   "tool": "record_observation",
+   "arguments": {
+    "category": "vital-signs",
+    "loinc_code": "8867-4",
+    "display": "Heart rate",
+    "value": 64,
+    "unit": "/min",
+    "effective": "2026-04-01",
+    "patient_id": "syn-p1"
+   },
+   "expected": "denied",
+   "got": "denied",
+   "listed": true,
+   "outside_scope": []
+  },
+  {
+   "token": "self-recorder",
+   "tool": "list_observations",
+   "arguments": {},
+   "expected": "data",
+   "got": "data",
+   "listed": true,
+   "outside_scope": []
+  },
+  {
+   "token": "clinician",
+   "tool": "search_patients",
+   "arguments": {
+    "family_name": "Alder"
+   },
+   "expected": "data",
+   "got": "data",
+   "listed": true,
+   "outside_scope": []
+  },
+  {
+   "token": "clinician",
+   "tool": "list_observations",
+   "arguments": {
+    "patient_id": "syn-p2"
+   },
+   "expected": "data",
+   "got": "data",
+   "listed": true,
+   "outside_scope": []
+  },
+  {
+   "token": "clinician",
+   "tool": "list_observations",
+   "arguments": {},
+   "expected": "denied",
+   "got": "denied",
+   "listed": true,
+   "outside_scope": []
+  },
+  {
+   "token": "clinician",
+   "tool": "list_medications",
+   "arguments": {
+    "patient_id": "syn-p3"
+   },
+   "expected": "data",
+   "got": "data",
+   "listed": true,
+   "outside_scope": []
+  },
+  {
+   "token": "clinician",
+   "tool": "record_observation",
+   "arguments": {
+    "category": "vital-signs",
+    "loinc_code": "8867-4",
+    "display": "Heart rate",
+    "value": 64,
+    "unit": "/min",
+    "effective": "2026-04-01",
+    "patient_id": "syn-p2"
+   },
+   "expected": "denied",
+   "got": "denied",
+   "listed": false,
+   "outside_scope": []
+  },
+  {
+   "token": "legacy-v1",
+   "tool": "get_patient",
+   "arguments": {},
+   "expected": "data",
+   "got": "data",
+   "listed": true,
+   "outside_scope": []
+  },
+  {
+   "token": "legacy-v1",
+   "tool": "list_observations",
+   "arguments": {},
+   "expected": "data",
+   "got": "data",
+   "listed": true,
+   "outside_scope": []
+  },
+  {
+   "token": "legacy-v1",
+   "tool": "list_medications",
+   "arguments": {},
+   "expected": "data",
+   "got": "data",
+   "listed": true,
+   "outside_scope": []
+  },
+  {
+   "token": "legacy-v1",
+   "tool": "get_observation",
+   "arguments": {
+    "observation_id": "syn-o1-lab1"
+   },
+   "expected": "empty",
+   "got": "empty",
+   "listed": true,
+   "outside_scope": []
+  },
+  {
+   "token": "legacy-v1",
+   "tool": "search_patients",
+   "arguments": {
+    "family_name": "Alder"
+   },
+   "expected": "denied",
+   "got": "denied",
+   "listed": false,
+   "outside_scope": []
+  },
+  {
+   "token": "legacy-v1",
+   "tool": "record_observation",
+   "arguments": {
+    "category": "vital-signs",
+    "loinc_code": "8867-4",
+    "display": "Heart rate",
+    "value": 64,
+    "unit": "/min",
+    "effective": "2026-04-01"
+   },
+   "expected": "denied",
+   "got": "denied",
+   "listed": false,
+   "outside_scope": []
+  },
+  {
+   "token": "identity-only",
+   "tool": "get_patient",
+   "arguments": {},
+   "expected": "denied",
+   "got": "denied",
+   "listed": false,
+   "outside_scope": []
+  },
+  {
+   "token": "identity-only",
+   "tool": "list_observations",
+   "arguments": {},
+   "expected": "denied",
+   "got": "denied",
+   "listed": false,
+   "outside_scope": []
+  }
+ ],
+ "rejected_tokens": [
+  {
+   "token": "no token",
+   "status": 401
+  },
+  {
+   "token": "expired a minute ago",
+   "status": 401
+  },
+  {
+   "token": "signed by another key",
+   "status": 401
+  },
+  {
+   "token": "minted for another server",
+   "status": 401
+  },
+  {
+   "token": "unsigned (alg none)",
+   "status": 401
+  }
+ ],
+ "generic": [
+  {
+   "token": "T1",
+   "path": "Patient/syn-p1",
+   "kind": "fair",
+   "purpose": "own demographics",
+   "naive": {
+    "outcome": "served",
+    "outside_scope": []
+   },
+   "guarded": {
+    "outcome": "served",
+    "outside_scope": []
+   }
+  },
+  {
+   "token": "T1",
+   "path": "Observation?code=http://loinc.org|4548-4",
+   "kind": "fair",
+   "purpose": "own HbA1c results",
+   "naive": {
+    "outcome": "served",
+    "outside_scope": []
+   },
+   "guarded": {
+    "outcome": "served",
+    "outside_scope": []
+   }
+  },
+  {
+   "token": "T2",
+   "path": "Observation?category=laboratory",
+   "kind": "fair",
+   "purpose": "own laboratory results",
+   "naive": {
+    "outcome": "served",
+    "outside_scope": []
+   },
+   "guarded": {
+    "outcome": "served",
+    "outside_scope": []
+   }
+  },
+  {
+   "token": "T1",
+   "path": "Observation/syn-o2-lab1",
+   "kind": "hostile",
+   "purpose": "read another patient's result by id",
+   "naive": {
+    "outcome": "LEAK 1",
+    "outside_scope": [
+     "Observation/syn-o2-lab1"
+    ]
+   },
+   "guarded": {
+    "outcome": "nothing",
+    "outside_scope": []
+   }
+  },
+  {
+   "token": "T1",
+   "path": "Observation?patient=syn-p2",
+   "kind": "hostile",
+   "purpose": "search another patient's results",
+   "naive": {
+    "outcome": "served",
+    "outside_scope": []
+   },
+   "guarded": {
+    "outcome": "refused",
+    "outside_scope": []
+   }
+  },
+  {
+   "token": "T1",
+   "path": "Patient?family=Alder",
+   "kind": "hostile",
+   "purpose": "search patients by name",
+   "naive": {
+    "outcome": "LEAK 1",
+    "outside_scope": [
+     "Patient/syn-p3"
+    ]
+   },
+   "guarded": {
+    "outcome": "refused",
+    "outside_scope": []
+   }
+  },
+  {
+   "token": "T1",
+   "path": "Patient?_id=syn-p1&_revinclude=MedicationRequest:subject",
+   "kind": "hostile",
+   "purpose": "_revinclude a type with no scope",
+   "naive": {
+    "outcome": "LEAK 1",
+    "outside_scope": [
+     "MedicationRequest/syn-m1"
+    ]
+   },
+   "guarded": {
+    "outcome": "refused",
+    "outside_scope": []
+   }
+  },
+  {
+   "token": "T1",
+   "path": "Patient/syn-p1/$everything",
+   "kind": "hostile",
+   "purpose": "$everything on own record",
+   "naive": {
+    "outcome": "LEAK 2",
+    "outside_scope": [
+     "Condition/syn-c1",
+     "MedicationRequest/syn-m1"
+    ]
+   },
+   "guarded": {
+    "outcome": "refused",
+    "outside_scope": []
+   }
+  },
+  {
+   "token": "T1",
+   "path": "Patient?_has:Observation:patient:code=4548-4",
+   "kind": "hostile",
+   "purpose": "_has to list patients with a result",
+   "naive": {
+    "outcome": "LEAK 2",
+    "outside_scope": [
+     "Patient/syn-p2",
+     "Patient/syn-p3"
+    ]
+   },
+   "guarded": {
+    "outcome": "refused",
+    "outside_scope": []
+   }
+  },
+  {
+   "token": "T1",
+   "path": "Observation?subject.family=Birch",
+   "kind": "hostile",
+   "purpose": "chained search on another patient's name",
+   "naive": {
+    "outcome": "nothing",
+    "outside_scope": []
+   },
+   "guarded": {
+    "outcome": "refused",
+    "outside_scope": []
+   }
+  },
+  {
+   "token": "T2",
+   "path": "Observation?_include=Observation:subject",
+   "kind": "hostile",
+   "purpose": "_include a type with no scope",
+   "naive": {
+    "outcome": "LEAK 3",
+    "outside_scope": [
+     "Observation/syn-o1-vit1",
+     "Observation/syn-o1-vit2",
+     "Patient/syn-p1"
+    ]
+   },
+   "guarded": {
+    "outcome": "refused",
+    "outside_scope": []
+   }
+  },
+  {
+   "token": "T2",
+   "path": "Observation?category=vital-signs",
+   "kind": "hostile",
+   "purpose": "category outside the granted filter",
+   "naive": {
+    "outcome": "LEAK 2",
+    "outside_scope": [
+     "Observation/syn-o1-vit1",
+     "Observation/syn-o1-vit2"
+    ]
+   },
+   "guarded": {
+    "outcome": "refused",
+    "outside_scope": []
+   }
+  },
+  {
+   "token": "T2",
+   "path": "Observation/syn-o1-vit1",
+   "kind": "hostile",
+   "purpose": "read outside the granted filter by id",
+   "naive": {
+    "outcome": "LEAK 1",
+    "outside_scope": [
+     "Observation/syn-o1-vit1"
+    ]
+   },
+   "guarded": {
+    "outcome": "nothing",
+    "outside_scope": []
+   }
+  },
+  {
+   "token": "T2",
+   "path": "Observation",
+   "kind": "hostile",
+   "purpose": "search with no category, grant is laboratory only",
+   "naive": {
+    "outcome": "LEAK 2",
+    "outside_scope": [
+     "Observation/syn-o1-vit1",
+     "Observation/syn-o1-vit2"
+    ]
+   },
+   "guarded": {
+    "outcome": "served",
+    "outside_scope": []
+   }
+  },
+  {
+   "token": "T1",
+   "path": "MedicationRequest?patient=syn-p1",
+   "kind": "hostile",
+   "purpose": "a type with no scope",
+   "naive": {
+    "outcome": "refused",
+    "outside_scope": []
+   },
+   "guarded": {
+    "outcome": "refused",
+    "outside_scope": []
+   }
+  }
+ ],
+ "generic_summary": {
+  "naive": {
+   "hostile": 12,
+   "leaked": 9,
+   "records_leaked": 15,
+   "fair": 3,
+   "fair_served": 3,
+   "fair_leaked": 0
+  },
+  "guarded": {
+   "hostile": 12,
+   "leaked": 0,
+   "records_leaked": 0,
+   "fair": 3,
+   "fair_served": 3,
+   "fair_leaked": 0
+  }
+ },
+ "audit": {
+  "lines": 39,
+  "allowed": 21,
+  "denied": {
+   "denied:compartment": 3,
+   "denied:input": 1,
+   "denied:scope": 11,
+   "denied:filter": 2,
+   "denied:context": 1
+  }
+ }
+}

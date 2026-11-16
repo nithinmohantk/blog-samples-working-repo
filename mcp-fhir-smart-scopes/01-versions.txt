@@ -1,0 +1,12 @@
+== 1. versions
+Python 3.13.18
+mcp 1.27.0
+PyJWT 2.12.1
+cryptography 46.0.6
+httpx 0.28.1
+uvicorn 0.44.0
+starlette 1.0.0
+pydantic 2.12.5
+protocol revision 2025-11-25
+hapiproject/hapi:v8.0.0
+Linux 7.0.0-1019-azure x86_64

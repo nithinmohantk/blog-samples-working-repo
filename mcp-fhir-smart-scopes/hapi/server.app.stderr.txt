@@ -1,0 +1,143 @@
+StreamableHTTP session manager started
+Terminating session: None
+Terminating session: None
+Processing request of type ListToolsRequest
+Terminating session: None
+Processing request of type CallToolRequest
+HTTP Request: GET http://127.0.0.1:8084/fhir/Patient/syn-p1 "HTTP/1.1 200 "
+Terminating session: None
+Processing request of type CallToolRequest
+Terminating session: None
+Processing request of type CallToolRequest
+Terminating session: None
+Processing request of type CallToolRequest
+HTTP Request: GET http://127.0.0.1:8084/fhir/Observation?patient=syn-p1&_sort=-date&_count=50 "HTTP/1.1 200 "
+Terminating session: None
+Processing request of type CallToolRequest
+Terminating session: None
+Processing request of type CallToolRequest
+HTTP Request: GET http://127.0.0.1:8084/fhir/Observation/syn-o1-lab1 "HTTP/1.1 200 "
+Terminating session: None
+Processing request of type CallToolRequest
+HTTP Request: GET http://127.0.0.1:8084/fhir/Observation/syn-o2-lab1 "HTTP/1.1 200 "
+Terminating session: None
+Processing request of type CallToolRequest
+Terminating session: None
+Processing request of type CallToolRequest
+Tool 'list_medications' not listed, no validation will be performed
+Terminating session: None
+Processing request of type CallToolRequest
+Tool 'search_patients' not listed, no validation will be performed
+Terminating session: None
+Processing request of type CallToolRequest
+Tool 'record_observation' not listed, no validation will be performed
+Terminating session: None
+Terminating session: None
+Terminating session: None
+Processing request of type ListToolsRequest
+Terminating session: None
+Processing request of type CallToolRequest
+HTTP Request: GET http://127.0.0.1:8084/fhir/Observation?patient=syn-p1&_sort=-date&category=http%3A%2F%2Fterminology.hl7.org%2FCodeSystem%2Fobservation-category%7Claboratory&_count=50 "HTTP/1.1 200 "
+Terminating session: None
+Processing request of type CallToolRequest
+HTTP Request: GET http://127.0.0.1:8084/fhir/Observation?patient=syn-p1&_sort=-date&category=http%3A%2F%2Fterminology.hl7.org%2FCodeSystem%2Fobservation-category%7Claboratory&_count=50 "HTTP/1.1 200 "
+Terminating session: None
+Processing request of type CallToolRequest
+Terminating session: None
+Processing request of type CallToolRequest
+HTTP Request: GET http://127.0.0.1:8084/fhir/Observation/syn-o1-lab1 "HTTP/1.1 200 "
+Terminating session: None
+Processing request of type CallToolRequest
+HTTP Request: GET http://127.0.0.1:8084/fhir/Observation/syn-o1-vit1 "HTTP/1.1 200 "
+Terminating session: None
+Processing request of type CallToolRequest
+Tool 'get_patient' not listed, no validation will be performed
+Terminating session: None
+Terminating session: None
+Terminating session: None
+Processing request of type ListToolsRequest
+Terminating session: None
+Processing request of type CallToolRequest
+HTTP Request: GET http://127.0.0.1:8084/fhir/MedicationRequest?patient=syn-p1&_count=50 "HTTP/1.1 200 "
+Terminating session: None
+Processing request of type CallToolRequest
+HTTP Request: GET http://127.0.0.1:8084/fhir/Condition?patient=syn-p1&_count=50 "HTTP/1.1 200 "
+Terminating session: None
+Processing request of type CallToolRequest
+Tool 'list_observations' not listed, no validation will be performed
+Terminating session: None
+Terminating session: None
+Terminating session: None
+Processing request of type ListToolsRequest
+Terminating session: None
+Processing request of type CallToolRequest
+HTTP Request: GET http://127.0.0.1:8084/fhir/Observation?patient=syn-p1&_sort=-date&_count=50 "HTTP/1.1 200 "
+Terminating session: None
+Processing request of type CallToolRequest
+Tool 'get_observation' not listed, no validation will be performed
+Terminating session: None
+Terminating session: None
+Terminating session: None
+Processing request of type ListToolsRequest
+Terminating session: None
+Processing request of type CallToolRequest
+HTTP Request: POST http://127.0.0.1:8084/fhir/Observation "HTTP/1.1 201 "
+Terminating session: None
+Processing request of type CallToolRequest
+Terminating session: None
+Processing request of type CallToolRequest
+Terminating session: None
+Processing request of type CallToolRequest
+HTTP Request: GET http://127.0.0.1:8084/fhir/Observation?patient=syn-p2&_sort=-date&_count=50 "HTTP/1.1 200 "
+Terminating session: None
+Terminating session: None
+Terminating session: None
+Processing request of type ListToolsRequest
+Terminating session: None
+Processing request of type CallToolRequest
+HTTP Request: GET http://127.0.0.1:8084/fhir/Patient?family=Alder&_count=50 "HTTP/1.1 200 "
+Terminating session: None
+Processing request of type CallToolRequest
+HTTP Request: GET http://127.0.0.1:8084/fhir/Observation?patient=syn-p2&_sort=-date&_count=50 "HTTP/1.1 200 "
+Terminating session: None
+Processing request of type CallToolRequest
+Terminating session: None
+Processing request of type CallToolRequest
+HTTP Request: GET http://127.0.0.1:8084/fhir/MedicationRequest?patient=syn-p3&_count=50 "HTTP/1.1 200 "
+Terminating session: None
+Processing request of type CallToolRequest
+Tool 'record_observation' not listed, no validation will be performed
+Terminating session: None
+Terminating session: None
+Terminating session: None
+Processing request of type ListToolsRequest
+Terminating session: None
+Processing request of type CallToolRequest
+HTTP Request: GET http://127.0.0.1:8084/fhir/Patient/syn-p3 "HTTP/1.1 200 "
+Terminating session: None
+Processing request of type CallToolRequest
+HTTP Request: GET http://127.0.0.1:8084/fhir/Observation?patient=syn-p3&_sort=-date&_count=50 "HTTP/1.1 200 "
+Terminating session: None
+Processing request of type CallToolRequest
+HTTP Request: GET http://127.0.0.1:8084/fhir/MedicationRequest?patient=syn-p3&_count=50 "HTTP/1.1 200 "
+Terminating session: None
+Processing request of type CallToolRequest
+HTTP Request: GET http://127.0.0.1:8084/fhir/Observation/syn-o1-lab1 "HTTP/1.1 200 "
+Terminating session: None
+Processing request of type CallToolRequest
+Tool 'search_patients' not listed, no validation will be performed
+Terminating session: None
+Processing request of type CallToolRequest
+Tool 'record_observation' not listed, no validation will be performed
+Terminating session: None
+Terminating session: None
+Terminating session: None
+Processing request of type ListToolsRequest
+Terminating session: None
+Processing request of type CallToolRequest
+Tool 'get_patient' not listed, no validation will be performed
+Terminating session: None
+Processing request of type CallToolRequest
+Tool 'list_observations' not listed, no validation will be performed
+Terminating session: None
+StreamableHTTP session manager shutting down
