@@ -26,6 +26,20 @@ def npm_command(node: Path, package: str) -> list[str]:
     return ["node", str(root / entry)]
 
 
+async def attempt(command: list[str], env: dict | None, errlog: str, tries: int = 3) -> dict:
+    """Read a listing, trying again if the server exits early, and report the server's own last words if it never starts."""
+    for number in range(1, tries + 1):
+        try:
+            return await read_listing(command, env, errlog=errlog)
+        except BaseException as error:  # noqa: BLE001  anyio wraps a dead child process in an ExceptionGroup
+            if isinstance(error, (KeyboardInterrupt, SystemExit)):
+                raise
+            said = Path(errlog).read_text(encoding="utf-8", errors="replace").strip().splitlines()
+            last = RuntimeError(f"attempt {number} of {tries}: {type(error).__name__}; server said: {said[-1] if said else 'nothing'}")
+            await asyncio.sleep(1)
+    raise last
+
+
 async def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("out")
@@ -51,9 +65,9 @@ async def main() -> int:
                     if not options.github_binary:
                         raise FileNotFoundError("no release binary was downloaded")
                     command, version = [options.github_binary] + arguments, options.github_version
-                listing = await read_listing(command, spec.get("env"))
+                listing = await attempt(command, spec.get("env"), os.path.join(work, "server.stderr"))
             except Exception as error:  # noqa: BLE001  one server failing to start must not lose the others
-                reason = f"{type(error).__name__}: {' '.join(str(error).split())[:120]}"
+                reason = f"{type(error).__name__}: {' '.join(str(error).split())[:160]}"
                 print(f"{spec['name']:<20} {spec['package']:<50} {version:<12} {'-':>5}  did not start: {reason}")
                 collected.append({"name": spec["name"], "package": spec["package"], "version": version, "error": reason, "tools": []})
                 continue
