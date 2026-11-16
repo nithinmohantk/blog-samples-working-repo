@@ -1,0 +1,78 @@
+== 4. what the listings cost
+tokeniser o200k_base (second column cl100k_base); 10 servers, 194 tools
+
+server               tools   tokens   cl100k    chars  median  largest  description  schema
+filesystem              14    1,699    1,671    8,244     112      190         47%     53%
+memory                   9      957      921    4,518     129      144         10%     90%
+sequential-thinking      1      828      819    3,921     826      826         71%     29%
+everything              13    1,116    1,095    5,175      79      208         22%     78%
+playwright              22    2,500    2,451   11,687     104      263          8%     92%
+git                     12    1,107    1,073    4,629      68      260          7%     93%
+time                     2      238      237      987     118      158          6%     94%
+fetch                    1      237      233    1,101     235      235         27%     73%
+github                  41    6,986    6,719   31,842     147      404         16%     84%
+github-all-toolsets     79   13,537   13,118   62,283     132      573         13%     87%
+all distinct           153   22,219   21,618
+
+largest definitions                           tokens  description  schema
+sequential-thinking.sequentialthinking           826          565     234
+github-all-toolsets.actions_list                 573           35     526
+github-all-toolsets.projects_write               567           19     539
+github-all-toolsets.pull_request_read            404           12     382
+github-all-toolsets.projects_list                356           31     313
+github-all-toolsets.list_global_security_advisories     355            9     333
+github-all-toolsets.list_notifications           353          111     233
+github-all-toolsets.issue_write                  350           14     327
+github-all-toolsets.sub_issue_write              329           15     304
+github-all-toolsets.add_comment_to_pending_review     315           32     270
+66 of 153 definitions are under 100 tokens; the largest 10 hold 20% of all tokens
+
+setup                              servers tools   tokens   128k window   200k window  1000k window  over 30 requests
+coding agent                             4    89   12,286         9.6%         6.1%         1.2%       368,580
+coding agent, all GitHub toolsets        4   127   18,837        14.7%         9.4%         1.9%       565,110
+research assistant                       4    13    2,254         1.8%         1.1%         0.2%        67,620
+everything connected                     9   153   22,203        17.3%        11.1%         2.2%       666,090
+
+reduction                          tokens   saved   by server
+0 as published                     22,203        
+1 strip generated fields           21,051    5.2%   filesystem 12%, memory 14%, sequential-thinking 2%, everything 17%, playwright 15%, git 18%, time 0%, fetch 9%, github-all-toolsets 0%
+2 first-sentence descriptions      18,928   14.8%   filesystem 46%, memory 15%, sequential-thinking 71%, everything 24%, playwright 16%, git 18%, time 0%, fetch 29%, github-all-toolsets 6%
+3 names and types only             11,227   49.4%   filesystem 54%, memory 34%, sequential-thinking 83%, everything 44%, playwright 52%, git 42%, time 60%, fetch 61%, github-all-toolsets 48%
+
+tool search over 153 tools, 69 written tasks (0 skipped: tool not in these listings)
+  expected tool ranked first: 24 | in the top 3: 41 | in the top 5: 44 | in the top 10: 51 | not found: 18
+  rank none  filesystem.read_text_file               open the README and show me what it says
+  rank none  filesystem.list_directory               what files are in the src folder
+  rank none  filesystem.search_files                 find every file whose name ends in .test.ts
+  rank none  filesystem.create_directory             make a new folder called build/output
+  rank none  memory.create_entities              remember that Alice is a person who works at Acme
+  rank none  memory.create_relations             record that Alice reports to Bob
+  rank none  memory.search_nodes                 what do you know about Acme
+  rank none  memory.delete_entities              forget everything about Bob
+  rank none  everything.get-sum                      add 17 and 25
+  rank 9     playwright.browser_navigate             open https://example.com in the browser
+  rank none  playwright.browser_type                 enter my email address into the login field
+  rank none  playwright.browser_console_messages     show errors logged by the page's JavaScript
+  rank none  git.git_status                   which files have I changed locally but not committed
+  rank none  git.git_add                      stage src/app.py for commit
+  rank none  git.git_diff                     compare my branch with main
+  rank 7     github-all-toolsets.list_issues                  show the open issues in the repository
+  rank 7     github-all-toolsets.add_issue_comment            reply on issue 42 saying it is fixed
+  rank 6     github-all-toolsets.create_pull_request          open a pull request from my branch into main
+  rank 8     github-all-toolsets.list_pull_requests           which pull requests are open
+  rank none  github-all-toolsets.pull_request_read            show me the diff and review comments of pull request 17
+  rank none  github-all-toolsets.get_file_contents            read the workflow file from the repository on GitHub
+  rank 8     github-all-toolsets.create_or_update_file        change one file in the GitHub repo and commit it directly
+  rank none  github-all-toolsets.fork_repository              make my own copy of that open source project
+  rank none  github-all-toolsets.list_dependabot_alerts       are there any vulnerable dependencies flagged
+  rank 7     github-all-toolsets.get_me                       which GitHub account am I signed in as
+
+all 153 definitions up front: 22,203 tokens per request; the search tool alone: 82 tokens
+distinct tools used     up front     deferred   saved  loaded at end  widened  failed
+                  2      666,090       34,895   94.8%           12.2    60.6%   47.9%
+                  4      666,090       63,579   90.5%           23.1    83.1%   69.5%
+                  8      666,090      117,803   82.3%           41.6    98.7%   93.9%
+
+catalogue kept in the prompt          tokens   mean tokens over 30 requests, by distinct tools used (2, 4, 8), and saving
+names only                             1,034      37,592 (94.4%)      42,219 (93.7%)      51,918 (92.2%)
+names and first sentence               2,655      86,222 (87.1%)      90,849 (86.4%)     100,548 (84.9%)

@@ -1,0 +1,500 @@
+{
+  "inventory": [
+    {
+      "server": "filesystem",
+      "version": "0.2.0",
+      "tools": 14,
+      "tokens": 1699,
+      "tokens_cl100k": 1671,
+      "characters": 8244,
+      "median_per_tool": 112,
+      "largest_tool": 190,
+      "description_share": 0.47,
+      "instructions_tokens": 0
+    },
+    {
+      "server": "memory",
+      "version": "0.6.3",
+      "tools": 9,
+      "tokens": 957,
+      "tokens_cl100k": 921,
+      "characters": 4518,
+      "median_per_tool": 129,
+      "largest_tool": 144,
+      "description_share": 0.1,
+      "instructions_tokens": 0
+    },
+    {
+      "server": "sequential-thinking",
+      "version": "0.2.0",
+      "tools": 1,
+      "tokens": 828,
+      "tokens_cl100k": 819,
+      "characters": 3921,
+      "median_per_tool": 826,
+      "largest_tool": 826,
+      "description_share": 0.71,
+      "instructions_tokens": 0
+    },
+    {
+      "server": "everything",
+      "version": "2.0.0",
+      "tools": 13,
+      "tokens": 1116,
+      "tokens_cl100k": 1095,
+      "characters": 5175,
+      "median_per_tool": 79,
+      "largest_tool": 208,
+      "description_share": 0.22,
+      "instructions_tokens": 312
+    },
+    {
+      "server": "playwright",
+      "version": "0.0.68",
+      "tools": 22,
+      "tokens": 2500,
+      "tokens_cl100k": 2451,
+      "characters": 11687,
+      "median_per_tool": 104,
+      "largest_tool": 263,
+      "description_share": 0.08,
+      "instructions_tokens": 0
+    },
+    {
+      "server": "git",
+      "version": "1.26.0",
+      "tools": 12,
+      "tokens": 1107,
+      "tokens_cl100k": 1073,
+      "characters": 4629,
+      "median_per_tool": 68,
+      "largest_tool": 260,
+      "description_share": 0.07,
+      "instructions_tokens": 0
+    },
+    {
+      "server": "time",
+      "version": "1.26.0",
+      "tools": 2,
+      "tokens": 238,
+      "tokens_cl100k": 237,
+      "characters": 987,
+      "median_per_tool": 118,
+      "largest_tool": 158,
+      "description_share": 0.06,
+      "instructions_tokens": 0
+    },
+    {
+      "server": "fetch",
+      "version": "1.26.0",
+      "tools": 1,
+      "tokens": 237,
+      "tokens_cl100k": 233,
+      "characters": 1101,
+      "median_per_tool": 235,
+      "largest_tool": 235,
+      "description_share": 0.27,
+      "instructions_tokens": 0
+    },
+    {
+      "server": "github",
+      "version": "0.31.0",
+      "tools": 41,
+      "tokens": 6986,
+      "tokens_cl100k": 6719,
+      "characters": 31842,
+      "median_per_tool": 147,
+      "largest_tool": 404,
+      "description_share": 0.16,
+      "instructions_tokens": 377
+    },
+    {
+      "server": "github-all-toolsets",
+      "version": "0.31.0",
+      "tools": 79,
+      "tokens": 13537,
+      "tokens_cl100k": 13118,
+      "characters": 62283,
+      "median_per_tool": 132,
+      "largest_tool": 573,
+      "description_share": 0.13,
+      "instructions_tokens": 1380
+    }
+  ],
+  "largest": [
+    {
+      "server": "sequential-thinking",
+      "tool": "sequentialthinking",
+      "total": 826,
+      "name": 3,
+      "description": 565,
+      "schema": 234,
+      "characters": 3921
+    },
+    {
+      "server": "github-all-toolsets",
+      "tool": "actions_list",
+      "total": 573,
+      "name": 2,
+      "description": 35,
+      "schema": 526,
+      "characters": 2627
+    },
+    {
+      "server": "github-all-toolsets",
+      "tool": "projects_write",
+      "total": 567,
+      "name": 2,
+      "description": 19,
+      "schema": 539,
+      "characters": 2633
+    },
+    {
+      "server": "github-all-toolsets",
+      "tool": "pull_request_read",
+      "total": 404,
+      "name": 3,
+      "description": 12,
+      "schema": 382,
+      "characters": 1834
+    },
+    {
+      "server": "github-all-toolsets",
+      "tool": "projects_list",
+      "total": 356,
+      "name": 2,
+      "description": 31,
+      "schema": 313,
+      "characters": 1657
+    },
+    {
+      "server": "github-all-toolsets",
+      "tool": "list_global_security_advisories",
+      "total": 355,
+      "name": 6,
+      "description": 9,
+      "schema": 333,
+      "characters": 1435
+    },
+    {
+      "server": "github-all-toolsets",
+      "tool": "list_notifications",
+      "total": 353,
+      "name": 2,
+      "description": 111,
+      "schema": 233,
+      "characters": 1757
+    },
+    {
+      "server": "github-all-toolsets",
+      "tool": "issue_write",
+      "total": 350,
+      "name": 2,
+      "description": 14,
+      "schema": 327,
+      "characters": 1595
+    },
+    {
+      "server": "github-all-toolsets",
+      "tool": "sub_issue_write",
+      "total": 329,
+      "name": 3,
+      "description": 15,
+      "schema": 304,
+      "characters": 1373
+    },
+    {
+      "server": "github-all-toolsets",
+      "tool": "add_comment_to_pending_review",
+      "total": 315,
+      "name": 5,
+      "description": 32,
+      "schema": 270,
+      "characters": 1481
+    }
+  ],
+  "setups": [
+    {
+      "setup": "coding agent",
+      "servers": [
+        "filesystem",
+        "git",
+        "github",
+        "playwright"
+      ],
+      "tools": 89,
+      "tokens": 12286,
+      "share_of_window": {
+        "128000": 0.096,
+        "200000": 0.0614,
+        "1000000": 0.0123
+      },
+      "tokens_over_session": 368580
+    },
+    {
+      "setup": "coding agent, all GitHub toolsets",
+      "servers": [
+        "filesystem",
+        "git",
+        "github-all-toolsets",
+        "playwright"
+      ],
+      "tools": 127,
+      "tokens": 18837,
+      "share_of_window": {
+        "128000": 0.1472,
+        "200000": 0.0942,
+        "1000000": 0.0188
+      },
+      "tokens_over_session": 565110
+    },
+    {
+      "setup": "research assistant",
+      "servers": [
+        "fetch",
+        "memory",
+        "time",
+        "sequential-thinking"
+      ],
+      "tools": 13,
+      "tokens": 2254,
+      "share_of_window": {
+        "128000": 0.0176,
+        "200000": 0.0113,
+        "1000000": 0.0023
+      },
+      "tokens_over_session": 67620
+    },
+    {
+      "setup": "everything connected",
+      "servers": [
+        "filesystem",
+        "memory",
+        "sequential-thinking",
+        "everything",
+        "playwright",
+        "git",
+        "time",
+        "fetch",
+        "github-all-toolsets"
+      ],
+      "tools": 153,
+      "tokens": 22203,
+      "share_of_window": {
+        "128000": 0.1735,
+        "200000": 0.111,
+        "1000000": 0.0222
+      },
+      "tokens_over_session": 666090
+    }
+  ],
+  "slimming": [
+    {
+      "level": "0 as published",
+      "tokens": 22203,
+      "saved": 0.0
+    },
+    {
+      "level": "1 strip generated fields",
+      "tokens": 21051,
+      "saved": 0.052,
+      "by_server": {
+        "filesystem": 0.12,
+        "memory": 0.14,
+        "sequential-thinking": 0.02,
+        "everything": 0.17,
+        "playwright": 0.15,
+        "git": 0.18,
+        "time": 0.0,
+        "fetch": 0.09,
+        "github-all-toolsets": 0.0
+      }
+    },
+    {
+      "level": "2 first-sentence descriptions",
+      "tokens": 18928,
+      "saved": 0.148,
+      "by_server": {
+        "filesystem": 0.46,
+        "memory": 0.15,
+        "sequential-thinking": 0.71,
+        "everything": 0.24,
+        "playwright": 0.16,
+        "git": 0.18,
+        "time": 0.0,
+        "fetch": 0.29,
+        "github-all-toolsets": 0.06
+      }
+    },
+    {
+      "level": "3 names and types only",
+      "tokens": 11227,
+      "saved": 0.494,
+      "by_server": {
+        "filesystem": 0.54,
+        "memory": 0.34,
+        "sequential-thinking": 0.83,
+        "everything": 0.44,
+        "playwright": 0.52,
+        "git": 0.42,
+        "time": 0.6,
+        "fetch": 0.61,
+        "github-all-toolsets": 0.48
+      }
+    }
+  ],
+  "retrieval": {
+    "tasks": 69,
+    "skipped": 0,
+    "hit": {
+      "1": 24,
+      "3": 41,
+      "5": 44,
+      "10": 51
+    },
+    "ranks": [
+      null,
+      1,
+      3,
+      null,
+      3,
+      1,
+      null,
+      1,
+      null,
+      null,
+      null,
+      null,
+      1,
+      null,
+      1,
+      null,
+      1,
+      9,
+      2,
+      null,
+      4,
+      1,
+      2,
+      1,
+      1,
+      null,
+      1,
+      1,
+      null,
+      4,
+      1,
+      2,
+      null,
+      2,
+      5,
+      1,
+      1,
+      null,
+      2,
+      1,
+      2,
+      2,
+      7,
+      3,
+      7,
+      6,
+      8,
+      1,
+      null,
+      null,
+      8,
+      2,
+      1,
+      1,
+      1,
+      1,
+      1,
+      null,
+      2,
+      null,
+      2,
+      1,
+      2,
+      1,
+      3,
+      7,
+      1,
+      3,
+      3
+    ]
+  },
+  "sessions": [
+    {
+      "distinct_tools": 2,
+      "up_front": 666090,
+      "deferred_mean": 34895,
+      "saved": 0.948,
+      "loaded_at_end_mean": 12.2,
+      "sessions_widened": 0.606,
+      "sessions_failed": 0.479
+    },
+    {
+      "distinct_tools": 4,
+      "up_front": 666090,
+      "deferred_mean": 63579,
+      "saved": 0.905,
+      "loaded_at_end_mean": 23.1,
+      "sessions_widened": 0.831,
+      "sessions_failed": 0.695
+    },
+    {
+      "distinct_tools": 8,
+      "up_front": 666090,
+      "deferred_mean": 117803,
+      "saved": 0.823,
+      "loaded_at_end_mean": 41.6,
+      "sessions_widened": 0.987,
+      "sessions_failed": 0.939
+    }
+  ],
+  "catalogues": [
+    {
+      "catalogue": "names only",
+      "tokens": 1034,
+      "sessions": [
+        {
+          "distinct_tools": 2,
+          "mean": 37592,
+          "saved": 0.944
+        },
+        {
+          "distinct_tools": 4,
+          "mean": 42219,
+          "saved": 0.937
+        },
+        {
+          "distinct_tools": 8,
+          "mean": 51918,
+          "saved": 0.922
+        }
+      ]
+    },
+    {
+      "catalogue": "names and first sentence",
+      "tokens": 2655,
+      "sessions": [
+        {
+          "distinct_tools": 2,
+          "mean": 86222,
+          "saved": 0.871
+        },
+        {
+          "distinct_tools": 4,
+          "mean": 90849,
+          "saved": 0.864
+        },
+        {
+          "distinct_tools": 8,
+          "mean": 100548,
+          "saved": 0.849
+        }
+      ]
+    }
+  ]
+}

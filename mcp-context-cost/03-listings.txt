@@ -1,0 +1,14 @@
+== 3. tool listings
+server               package                                            version      tools   listing
+filesystem           @modelcontextprotocol/server-filesystem            2026.1.14       14    0.15 s
+memory               @modelcontextprotocol/server-memory                2026.1.26        9    0.13 s
+sequential-thinking  @modelcontextprotocol/server-sequential-thinking   2025.12.18       1    0.13 s
+everything           @modelcontextprotocol/server-everything            2026.1.26       13    0.15 s
+playwright           @playwright/mcp                                    0.0.68          22    0.63 s
+git                  mcp-server-git                                     2026.1.14       12    0.55 s
+time                 mcp-server-time                                    2026.1.26        2    0.40 s
+fetch                mcp-server-fetch                                   2025.4.7         1    1.49 s
+github               github/github-mcp-server                           v0.31.0         41    0.02 s
+github-all-toolsets  github/github-mcp-server                           v0.31.0         79    0.02 s
+
+10 of 10 servers listed their tools: 194 tools in all
