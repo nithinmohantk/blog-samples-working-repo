@@ -1,0 +1,16 @@
+== 3. snapshot: stdio, then Streamable HTTP, then compare with the committed file
+
+$ python contract/snapshot.py --stdio 'python server/app.py' --out live-stdio.json
+live-stdio.json: 5 tools, 1 resources, 1 templates, 1 prompts, sha256 95f71dadf6f2
+
+$ python contract/snapshot.py --url http://127.0.0.1:8765/mcp --out live-http.json
+live-http.json: 5 tools, 1 resources, 1 templates, 1 prompts, sha256 95f71dadf6f2
+
+$ sha256sum live-stdio.json live-http.json contract/mcp-contract.json
+95f71dadf6f23fd1635fcc671fff18cbd259450ad7faa94a43a3e562bc107884  live-stdio.json
+95f71dadf6f23fd1635fcc671fff18cbd259450ad7faa94a43a3e562bc107884  live-http.json
+95f71dadf6f23fd1635fcc671fff18cbd259450ad7faa94a43a3e562bc107884  contract/mcp-contract.json
+all three are byte-identical
+
+$ wc -c contract/mcp-contract.json
+10019 bytes

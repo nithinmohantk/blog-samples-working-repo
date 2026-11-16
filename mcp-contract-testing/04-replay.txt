@@ -1,0 +1,13 @@
+== 4. replay the recorded calls against the unchanged server
+
+$ python contract/replay.py --stdio 'python server/app.py' --contract contract/mcp-contract.json
+ok    search-by-word       expected ok         got ok                 
+ok    search-in-category   expected ok         got ok                 
+ok    stock-for-sku        expected ok         got ok                 
+ok    stock-bad-sku        expected tool-error got tool-error         Error executing tool get_stock: 1 validation error for get_stockArguments sku String should match pattern '^[A-Z]{3}-\d{4}$' [type=string_pattern_mismatch, inpu
+ok    reserve-in-stock     expected ok         got ok                 
+ok    reserve-short        expected ok         got ok                 
+ok    reserve-zero         expected tool-error got tool-error         Error executing tool reserve_stock: 1 validation error for reserve_stockArguments quantity Input should be greater than or equal to 1 [type=greater_than_equal, 
+ok    cancel               expected ok         got ok                 
+ok    warehouses           expected ok         got ok                 
+9 of 9 calls behaved as recorded

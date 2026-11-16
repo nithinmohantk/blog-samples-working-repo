@@ -1,0 +1,4 @@
+== 8. what the gate costs a build
+snapshot  1.59 s
+gate      0.05 s
+replay    1.68 s

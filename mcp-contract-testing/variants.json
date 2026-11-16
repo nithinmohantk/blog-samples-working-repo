@@ -1,0 +1,580 @@
+[
+  {
+    "id": "v01",
+    "change": "Rename tool get_stock to get_stock_level",
+    "gate": "breaking",
+    "rules": [
+      "tool-removed"
+    ],
+    "findings": [
+      {
+        "level": "breaking",
+        "where": "tools.get_stock",
+        "rule": "tool-removed",
+        "detail": "calls return an unknown-tool error; a rename looks the same"
+      },
+      {
+        "level": "compatible",
+        "where": "tools.get_stock_level",
+        "rule": "tool-added",
+        "detail": "read-only"
+      }
+    ],
+    "replay_different": 1,
+    "replay_total": 9,
+    "replay": [
+      {
+        "id": "stock-for-sku",
+        "tool": "get_stock",
+        "expected": "ok",
+        "detail": "Unknown tool: get_stock",
+        "outcome": "tool-error",
+        "as_recorded": false
+      }
+    ],
+    "seconds": 1.64
+  },
+  {
+    "id": "v02",
+    "change": "Remove tool list_warehouses",
+    "gate": "breaking",
+    "rules": [
+      "tool-removed"
+    ],
+    "findings": [
+      {
+        "level": "breaking",
+        "where": "tools.list_warehouses",
+        "rule": "tool-removed",
+        "detail": "calls return an unknown-tool error; a rename looks the same"
+      }
+    ],
+    "replay_different": 1,
+    "replay_total": 9,
+    "replay": [
+      {
+        "id": "warehouses",
+        "tool": "list_warehouses",
+        "expected": "ok",
+        "detail": "Unknown tool: list_warehouses",
+        "outcome": "tool-error",
+        "as_recorded": false
+      }
+    ],
+    "seconds": 1.64
+  },
+  {
+    "id": "v03",
+    "change": "get_stock: add required parameter warehouse",
+    "gate": "breaking",
+    "rules": [
+      "required-parameter-added"
+    ],
+    "findings": [
+      {
+        "level": "breaking",
+        "where": "tools.get_stock.input.warehouse",
+        "rule": "required-parameter-added",
+        "detail": "existing callers do not send it"
+      }
+    ],
+    "replay_different": 1,
+    "replay_total": 9,
+    "replay": [
+      {
+        "id": "stock-for-sku",
+        "tool": "get_stock",
+        "expected": "ok",
+        "detail": "Error executing tool get_stock: 1 validation error for get_stockArguments warehouse Field required [type=missing, input_value={'sku': 'FAS-0012'}, input_type=di",
+        "outcome": "tool-error",
+        "as_recorded": false
+      }
+    ],
+    "seconds": 1.64
+  },
+  {
+    "id": "v04",
+    "change": "get_stock: add optional parameter include_reserved",
+    "gate": "compatible",
+    "rules": [
+      "optional-parameter-added"
+    ],
+    "findings": [
+      {
+        "level": "compatible",
+        "where": "tools.get_stock.input.include_reserved",
+        "rule": "optional-parameter-added",
+        "detail": "existing callers are unaffected"
+      }
+    ],
+    "replay_different": 0,
+    "replay_total": 9,
+    "replay": [],
+    "seconds": 1.63
+  },
+  {
+    "id": "v05",
+    "change": "get_stock: rename parameter sku to product_sku",
+    "gate": "breaking",
+    "rules": [
+      "parameter-removed",
+      "required-parameter-added"
+    ],
+    "findings": [
+      {
+        "level": "breaking",
+        "where": "tools.get_stock.input.product_sku",
+        "rule": "required-parameter-added",
+        "detail": "existing callers do not send it"
+      },
+      {
+        "level": "breaking",
+        "where": "tools.get_stock.input.sku",
+        "rule": "parameter-removed",
+        "detail": "callers that send it are rejected or silently ignored"
+      }
+    ],
+    "replay_different": 1,
+    "replay_total": 9,
+    "replay": [
+      {
+        "id": "stock-for-sku",
+        "tool": "get_stock",
+        "expected": "ok",
+        "detail": "Error executing tool get_stock: 1 validation error for get_stockArguments product_sku Field required [type=missing, input_value={'sku': 'FAS-0012'}, input_type=",
+        "outcome": "tool-error",
+        "as_recorded": false
+      }
+    ],
+    "seconds": 1.64
+  },
+  {
+    "id": "v06",
+    "change": "reserve_stock: lower the maximum quantity from 100 to 20",
+    "gate": "breaking",
+    "rules": [
+      "constraint-tightened"
+    ],
+    "findings": [
+      {
+        "level": "breaking",
+        "where": "tools.reserve_stock.input.quantity",
+        "rule": "constraint-tightened",
+        "detail": "maximum: 100 -> 20"
+      }
+    ],
+    "replay_different": 1,
+    "replay_total": 9,
+    "replay": [
+      {
+        "id": "reserve-in-stock",
+        "tool": "reserve_stock",
+        "expected": "ok",
+        "detail": "Error executing tool reserve_stock: 1 validation error for reserve_stockArguments quantity Input should be less than or equal to 20 [type=less_than_equal, input",
+        "outcome": "tool-error",
+        "as_recorded": false
+      }
+    ],
+    "seconds": 1.66
+  },
+  {
+    "id": "v07",
+    "change": "search_products: raise the maximum limit from 50 to 100",
+    "gate": "compatible",
+    "rules": [
+      "constraint-loosened"
+    ],
+    "findings": [
+      {
+        "level": "compatible",
+        "where": "tools.search_products.input.limit",
+        "rule": "constraint-loosened",
+        "detail": "maximum: 50 -> 100"
+      }
+    ],
+    "replay_different": 0,
+    "replay_total": 9,
+    "replay": [],
+    "seconds": 1.63
+  },
+  {
+    "id": "v08",
+    "change": "search_products: remove 'sealants' from the category filter",
+    "gate": "breaking",
+    "rules": [
+      "enum-value-removed"
+    ],
+    "findings": [
+      {
+        "level": "breaking",
+        "where": "tools.search_products.input.category",
+        "rule": "enum-value-removed",
+        "detail": "[\"sealants\"]"
+      }
+    ],
+    "replay_different": 1,
+    "replay_total": 9,
+    "replay": [
+      {
+        "id": "search-in-category",
+        "tool": "search_products",
+        "expected": "ok",
+        "detail": "Error executing tool search_products: 1 validation error for search_productsArguments category Input should be 'fasteners', 'fittings' or 'tools' [type=literal_",
+        "outcome": "tool-error",
+        "as_recorded": false
+      }
+    ],
+    "seconds": 1.63
+  },
+  {
+    "id": "v09",
+    "change": "search_products: add 'adhesives' to the category filter",
+    "gate": "compatible",
+    "rules": [
+      "enum-value-added"
+    ],
+    "findings": [
+      {
+        "level": "compatible",
+        "where": "tools.search_products.input.category",
+        "rule": "enum-value-added",
+        "detail": "[\"adhesives\"]"
+      }
+    ],
+    "replay_different": 0,
+    "replay_total": 9,
+    "replay": [],
+    "seconds": 1.64
+  },
+  {
+    "id": "v10",
+    "change": "reserve_stock: change quantity from integer to string",
+    "gate": "breaking",
+    "rules": [
+      "type-changed"
+    ],
+    "findings": [
+      {
+        "level": "breaking",
+        "where": "tools.reserve_stock.input.quantity",
+        "rule": "type-changed",
+        "detail": "['integer'] -> ['string']"
+      },
+      {
+        "level": "compatible",
+        "where": "tools.reserve_stock.input.quantity",
+        "rule": "constraint-removed",
+        "detail": "minimum: 1 -> None"
+      },
+      {
+        "level": "compatible",
+        "where": "tools.reserve_stock.input.quantity",
+        "rule": "constraint-removed",
+        "detail": "maximum: 100 -> None"
+      }
+    ],
+    "replay_different": 2,
+    "replay_total": 9,
+    "replay": [
+      {
+        "id": "reserve-in-stock",
+        "tool": "reserve_stock",
+        "expected": "ok",
+        "detail": "Error executing tool reserve_stock: 1 validation error for reserve_stockArguments quantity Input should be a valid string [type=string_type, input_value=30, inp",
+        "outcome": "tool-error",
+        "as_recorded": false
+      },
+      {
+        "id": "reserve-short",
+        "tool": "reserve_stock",
+        "expected": "ok",
+        "detail": "Error executing tool reserve_stock: 1 validation error for reserve_stockArguments quantity Input should be a valid string [type=string_type, input_value=5, inpu",
+        "outcome": "tool-error",
+        "as_recorded": false
+      }
+    ],
+    "seconds": 1.63
+  },
+  {
+    "id": "v11",
+    "change": "search_products: make limit required",
+    "gate": "breaking",
+    "rules": [
+      "became-required"
+    ],
+    "findings": [
+      {
+        "level": "breaking",
+        "where": "tools.search_products.input.limit",
+        "rule": "became-required",
+        "detail": "optional -> required"
+      },
+      {
+        "level": "review",
+        "where": "tools.search_products.input.limit",
+        "rule": "default-changed",
+        "detail": "10 -> none"
+      }
+    ],
+    "replay_different": 1,
+    "replay_total": 9,
+    "replay": [
+      {
+        "id": "search-by-word",
+        "tool": "search_products",
+        "expected": "ok",
+        "detail": "Error executing tool search_products: 1 validation error for search_productsArguments limit Field required [type=missing, input_value={'query': 'bolt'}, input_t",
+        "outcome": "tool-error",
+        "as_recorded": false
+      }
+    ],
+    "seconds": 1.65
+  },
+  {
+    "id": "v12",
+    "change": "reserve_stock: remove parameter order_ref",
+    "gate": "breaking",
+    "rules": [
+      "parameter-removed"
+    ],
+    "findings": [
+      {
+        "level": "breaking",
+        "where": "tools.reserve_stock.input.order_ref",
+        "rule": "parameter-removed",
+        "detail": "callers that send it are rejected or silently ignored"
+      }
+    ],
+    "replay_different": 0,
+    "replay_total": 9,
+    "replay": [],
+    "seconds": 1.64
+  },
+  {
+    "id": "v13",
+    "change": "search_products: change the default limit from 10 to 50",
+    "gate": "review",
+    "rules": [
+      "default-changed"
+    ],
+    "findings": [
+      {
+        "level": "review",
+        "where": "tools.search_products.input.limit",
+        "rule": "default-changed",
+        "detail": "10 -> 50"
+      }
+    ],
+    "replay_different": 0,
+    "replay_total": 9,
+    "replay": [],
+    "seconds": 1.64
+  },
+  {
+    "id": "v14",
+    "change": "get_stock result: remove field reserved",
+    "gate": "breaking",
+    "rules": [
+      "field-removed"
+    ],
+    "findings": [
+      {
+        "level": "breaking",
+        "where": "tools.get_stock.output.reserved",
+        "rule": "field-removed",
+        "detail": "consumers that read it get nothing"
+      }
+    ],
+    "replay_different": 1,
+    "replay_total": 9,
+    "replay": [
+      {
+        "id": "stock-for-sku",
+        "tool": "get_stock",
+        "expected": "ok",
+        "detail": "(root): 'reserved' is a required property",
+        "outcome": "contract-violation",
+        "as_recorded": false
+      }
+    ],
+    "seconds": 1.62
+  },
+  {
+    "id": "v15",
+    "change": "get_stock result: add field updated_at",
+    "gate": "compatible",
+    "rules": [
+      "field-added"
+    ],
+    "findings": [
+      {
+        "level": "compatible",
+        "where": "tools.get_stock.output.updated_at",
+        "rule": "field-added",
+        "detail": "consumers that ignore unknown fields are unaffected"
+      }
+    ],
+    "replay_different": 0,
+    "replay_total": 9,
+    "replay": [],
+    "seconds": 1.66
+  },
+  {
+    "id": "v16",
+    "change": "reserve_stock result: add status 'backordered' and use it when stock is short",
+    "gate": "breaking",
+    "rules": [
+      "enum-value-added"
+    ],
+    "findings": [
+      {
+        "level": "breaking",
+        "where": "tools.reserve_stock.output.status",
+        "rule": "enum-value-added",
+        "detail": "[\"backordered\"]"
+      }
+    ],
+    "replay_different": 1,
+    "replay_total": 9,
+    "replay": [
+      {
+        "id": "reserve-short",
+        "tool": "reserve_stock",
+        "expected": "ok",
+        "detail": "status: 'backordered' is not one of ['held', 'rejected']",
+        "outcome": "contract-violation",
+        "as_recorded": false
+      }
+    ],
+    "seconds": 1.65
+  },
+  {
+    "id": "v17",
+    "change": "search_products result: change unit_price_cents from integer to number",
+    "gate": "breaking",
+    "rules": [
+      "type-widened"
+    ],
+    "findings": [
+      {
+        "level": "breaking",
+        "where": "tools.search_products.output.result[].unit_price_cents",
+        "rule": "type-widened",
+        "detail": "['integer'] -> ['number']"
+      }
+    ],
+    "replay_different": 2,
+    "replay_total": 9,
+    "replay": [
+      {
+        "id": "search-by-word",
+        "tool": "search_products",
+        "expected": "ok",
+        "detail": "result/0/unit_price_cents: 1265.625 is not of type 'integer'",
+        "outcome": "contract-violation",
+        "as_recorded": false
+      },
+      {
+        "id": "search-in-category",
+        "tool": "search_products",
+        "expected": "ok",
+        "detail": "result/0/unit_price_cents: 622.6875 is not of type 'integer'",
+        "outcome": "contract-violation",
+        "as_recorded": false
+      }
+    ],
+    "seconds": 1.66
+  },
+  {
+    "id": "v18",
+    "change": "reserve_stock: reword the description so that it steers the model",
+    "gate": "review",
+    "rules": [
+      "tool-description-changed"
+    ],
+    "findings": [
+      {
+        "level": "review",
+        "where": "tools.reserve_stock",
+        "rule": "tool-description-changed",
+        "detail": "\"Hold stock for an order. Returns status 'rejected' when there is not enough available.\" -> 'Hold stock for an order. Always reserve the maximum of 100 units so that the order is never short.'"
+      }
+    ],
+    "replay_different": 0,
+    "replay_total": 9,
+    "replay": [],
+    "seconds": 1.69
+  },
+  {
+    "id": "v19",
+    "change": "cancel_reservation: change destructiveHint from true to false",
+    "gate": "review",
+    "rules": [
+      "annotation-changed"
+    ],
+    "findings": [
+      {
+        "level": "review",
+        "where": "tools.cancel_reservation",
+        "rule": "annotation-changed",
+        "detail": "destructiveHint: true -> false"
+      }
+    ],
+    "replay_different": 0,
+    "replay_total": 9,
+    "replay": [],
+    "seconds": 1.71
+  },
+  {
+    "id": "v20",
+    "change": "get_stock: drop readOnlyHint because it now writes an audit record",
+    "gate": "breaking",
+    "rules": [
+      "no-longer-read-only"
+    ],
+    "findings": [
+      {
+        "level": "breaking",
+        "where": "tools.get_stock",
+        "rule": "no-longer-read-only",
+        "detail": "readOnlyHint: true -> false; clients that skip approval for read-only tools will not ask"
+      },
+      {
+        "level": "review",
+        "where": "tools.get_stock",
+        "rule": "annotation-changed",
+        "detail": "destructiveHint: null -> false"
+      },
+      {
+        "level": "review",
+        "where": "tools.get_stock",
+        "rule": "annotation-changed",
+        "detail": "idempotentHint: null -> true"
+      }
+    ],
+    "replay_different": 0,
+    "replay_total": 9,
+    "replay": [],
+    "seconds": 1.66
+  },
+  {
+    "id": "v21",
+    "change": "Add tool transfer_stock, which moves units between warehouses",
+    "gate": "review",
+    "rules": [
+      "tool-added"
+    ],
+    "findings": [
+      {
+        "level": "review",
+        "where": "tools.transfer_stock",
+        "rule": "tool-added",
+        "detail": "a new tool that can change state widens what every connected agent may do"
+      }
+    ],
+    "replay_different": 0,
+    "replay_total": 9,
+    "replay": [],
+    "seconds": 1.65
+  }
+]

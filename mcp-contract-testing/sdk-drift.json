@@ -1,0 +1,196 @@
+[
+  {
+    "label": "1.9.4-with-current-dependencies",
+    "versions": "mcp 1.9.4 pydantic 2.14.2; did not start: ImportError: cannot import name 'eval_type_backport' from 'pydantic._internal._typing_extra' (<env>/lib/python3.13/site-packages/pydantic/_internal/_typing_extra.py)",
+    "started": false
+  },
+  {
+    "label": "1.9.4-with-june-2025-dependencies",
+    "versions": "mcp 1.9.4 pydantic 2.11.7",
+    "started": true,
+    "sha256": "4453c9416af1b2ac6a28b8d56f9d967ad9f9bc85d8cd63d4a7c5b5e84ce2d642",
+    "protocolVersion": "2025-03-26",
+    "tools_identical_to_target": false,
+    "upgrade_to": "2.3.0",
+    "tally": {
+      "breaking": 0,
+      "review": 1,
+      "compatible": 10
+    },
+    "findings": [
+      {
+        "level": "review",
+        "where": "protocolVersion",
+        "rule": "protocol-version-changed",
+        "detail": "2025-03-26 -> 2026-07-28"
+      },
+      {
+        "level": "compatible",
+        "where": "capabilities.prompts.listChanged",
+        "rule": "capability-added",
+        "detail": "new for clients that look for it"
+      },
+      {
+        "level": "compatible",
+        "where": "capabilities.resources.listChanged",
+        "rule": "capability-added",
+        "detail": "new for clients that look for it"
+      },
+      {
+        "level": "compatible",
+        "where": "capabilities.resources.subscribe",
+        "rule": "capability-added",
+        "detail": "new for clients that look for it"
+      },
+      {
+        "level": "compatible",
+        "where": "capabilities.tools.listChanged",
+        "rule": "capability-added",
+        "detail": "new for clients that look for it"
+      },
+      {
+        "level": "compatible",
+        "where": "resourceTemplates.stockroom://warehouses/{code}",
+        "rule": "mime-type-declared",
+        "detail": "None -> application/json"
+      },
+      {
+        "level": "compatible",
+        "where": "tools.cancel_reservation.output",
+        "rule": "schema-added",
+        "detail": "there was none before"
+      },
+      {
+        "level": "compatible",
+        "where": "tools.get_stock.output",
+        "rule": "schema-added",
+        "detail": "there was none before"
+      },
+      {
+        "level": "compatible",
+        "where": "tools.list_warehouses.output",
+        "rule": "schema-added",
+        "detail": "there was none before"
+      },
+      {
+        "level": "compatible",
+        "where": "tools.reserve_stock.output",
+        "rule": "schema-added",
+        "detail": "there was none before"
+      },
+      {
+        "level": "compatible",
+        "where": "tools.search_products.output",
+        "rule": "schema-added",
+        "detail": "there was none before"
+      }
+    ]
+  },
+  {
+    "label": "1.26.0",
+    "versions": "mcp 1.26.0 pydantic 2.14.2",
+    "started": true,
+    "sha256": "f23318a333f41ab9ffce1e61cd175491382c57aed42f010434af1b099ff3b21e",
+    "protocolVersion": "2025-11-25",
+    "tools_identical_to_target": true,
+    "upgrade_to": "2.3.0",
+    "tally": {
+      "breaking": 0,
+      "review": 1,
+      "compatible": 4
+    },
+    "findings": [
+      {
+        "level": "review",
+        "where": "protocolVersion",
+        "rule": "protocol-version-changed",
+        "detail": "2025-11-25 -> 2026-07-28"
+      },
+      {
+        "level": "compatible",
+        "where": "capabilities.prompts.listChanged",
+        "rule": "capability-added",
+        "detail": "new for clients that look for it"
+      },
+      {
+        "level": "compatible",
+        "where": "capabilities.resources.listChanged",
+        "rule": "capability-added",
+        "detail": "new for clients that look for it"
+      },
+      {
+        "level": "compatible",
+        "where": "capabilities.resources.subscribe",
+        "rule": "capability-added",
+        "detail": "new for clients that look for it"
+      },
+      {
+        "level": "compatible",
+        "where": "capabilities.tools.listChanged",
+        "rule": "capability-added",
+        "detail": "new for clients that look for it"
+      }
+    ]
+  },
+  {
+    "label": "1.30.0",
+    "versions": "mcp 1.30.0 pydantic 2.14.2",
+    "started": true,
+    "sha256": "f23318a333f41ab9ffce1e61cd175491382c57aed42f010434af1b099ff3b21e",
+    "protocolVersion": "2025-11-25",
+    "tools_identical_to_target": true,
+    "upgrade_to": "2.3.0",
+    "tally": {
+      "breaking": 0,
+      "review": 1,
+      "compatible": 4
+    },
+    "findings": [
+      {
+        "level": "review",
+        "where": "protocolVersion",
+        "rule": "protocol-version-changed",
+        "detail": "2025-11-25 -> 2026-07-28"
+      },
+      {
+        "level": "compatible",
+        "where": "capabilities.prompts.listChanged",
+        "rule": "capability-added",
+        "detail": "new for clients that look for it"
+      },
+      {
+        "level": "compatible",
+        "where": "capabilities.resources.listChanged",
+        "rule": "capability-added",
+        "detail": "new for clients that look for it"
+      },
+      {
+        "level": "compatible",
+        "where": "capabilities.resources.subscribe",
+        "rule": "capability-added",
+        "detail": "new for clients that look for it"
+      },
+      {
+        "level": "compatible",
+        "where": "capabilities.tools.listChanged",
+        "rule": "capability-added",
+        "detail": "new for clients that look for it"
+      }
+    ]
+  },
+  {
+    "label": "2.3.0",
+    "versions": "mcp 2.3.0 pydantic 2.14.2",
+    "started": true,
+    "sha256": "95f71dadf6f23fd1635fcc671fff18cbd259450ad7faa94a43a3e562bc107884",
+    "protocolVersion": "2026-07-28",
+    "tools_identical_to_target": true,
+    "upgrade_to": "2.3.0",
+    "tally": {
+      "breaking": 0,
+      "review": 0,
+      "compatible": 0
+    },
+    "findings": []
+  }
+]

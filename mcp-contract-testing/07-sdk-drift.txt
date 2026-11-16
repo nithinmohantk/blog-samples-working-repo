@@ -1,0 +1,35 @@
+== 7. the same server file under other SDK installations
+
+1.9.4-with-current-dependencies: mcp 1.9.4 pydantic 2.14.2; did not start: ImportError: cannot import name 'eval_type_backport' from 'pydantic._internal._typing_extra' (pydantic/_internal/_typing_extra.py)
+
+1.9.4-with-june-2025-dependencies: mcp 1.9.4 pydantic 2.11.7: protocol 2025-03-26, sha256 4453c9416af1
+   upgrading to 2.3.0: tool listing identical: False; {'breaking': 0, 'review': 1, 'compatible': 10}
+   review     protocol-version-changed   protocolVersion  2025-03-26 -> 2026-07-28
+   compatible capability-added           capabilities.prompts.listChanged  new for clients that look for it
+   compatible capability-added           capabilities.resources.listChanged  new for clients that look for it
+   compatible capability-added           capabilities.resources.subscribe  new for clients that look for it
+   compatible capability-added           capabilities.tools.listChanged  new for clients that look for it
+   compatible mime-type-declared         resourceTemplates.stockroom://warehouses/{code}  None -> application/json
+   compatible schema-added               tools.cancel_reservation.output  there was none before
+   compatible schema-added               tools.get_stock.output  there was none before
+   compatible schema-added               tools.list_warehouses.output  there was none before
+   compatible schema-added               tools.reserve_stock.output  there was none before
+   compatible schema-added               tools.search_products.output  there was none before
+
+1.26.0: mcp 1.26.0 pydantic 2.14.2: protocol 2025-11-25, sha256 f23318a333f4
+   upgrading to 2.3.0: tool listing identical: True; {'breaking': 0, 'review': 1, 'compatible': 4}
+   review     protocol-version-changed   protocolVersion  2025-11-25 -> 2026-07-28
+   compatible capability-added           capabilities.prompts.listChanged  new for clients that look for it
+   compatible capability-added           capabilities.resources.listChanged  new for clients that look for it
+   compatible capability-added           capabilities.resources.subscribe  new for clients that look for it
+   compatible capability-added           capabilities.tools.listChanged  new for clients that look for it
+
+1.30.0: mcp 1.30.0 pydantic 2.14.2: protocol 2025-11-25, sha256 f23318a333f4
+   upgrading to 2.3.0: tool listing identical: True; {'breaking': 0, 'review': 1, 'compatible': 4}
+   review     protocol-version-changed   protocolVersion  2025-11-25 -> 2026-07-28
+   compatible capability-added           capabilities.prompts.listChanged  new for clients that look for it
+   compatible capability-added           capabilities.resources.listChanged  new for clients that look for it
+   compatible capability-added           capabilities.resources.subscribe  new for clients that look for it
+   compatible capability-added           capabilities.tools.listChanged  new for clients that look for it
+
+2.3.0: mcp 2.3.0 pydantic 2.14.2: protocol 2026-07-28, sha256 95f71dadf6f2

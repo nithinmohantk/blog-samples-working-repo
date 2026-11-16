@@ -1,0 +1,64 @@
+== 6. twenty-one changes: what the gate says, and what a client that was not told sees
+baseline  sha256 95f71dadf6f2  matches the committed contract: True
+
+id   gate        replay   change
+v01  breaking    1 of 9   Rename tool get_stock to get_stock_level
+       tool-removed: tools.get_stock  calls return an unknown-tool error; a rename looks the same
+       replay stock-for-sku: expected ok, got tool-error  Unknown tool: get_stock
+v02  breaking    1 of 9   Remove tool list_warehouses
+       tool-removed: tools.list_warehouses  calls return an unknown-tool error; a rename looks the same
+       replay warehouses: expected ok, got tool-error  Unknown tool: list_warehouses
+v03  breaking    1 of 9   get_stock: add required parameter warehouse
+       required-parameter-added: tools.get_stock.input.warehouse  existing callers do not send it
+       replay stock-for-sku: expected ok, got tool-error  Error executing tool get_stock: 1 validation error for get_stockArguments warehouse Field required [
+v04  compatible  0 of 9   get_stock: add optional parameter include_reserved
+       optional-parameter-added: tools.get_stock.input.include_reserved  existing callers are unaffected
+v05  breaking    1 of 9   get_stock: rename parameter sku to product_sku
+       required-parameter-added: tools.get_stock.input.product_sku  existing callers do not send it
+       parameter-removed: tools.get_stock.input.sku  callers that send it are rejected or silently ignored
+       replay stock-for-sku: expected ok, got tool-error  Error executing tool get_stock: 1 validation error for get_stockArguments product_sku Field required
+v06  breaking    1 of 9   reserve_stock: lower the maximum quantity from 100 to 20
+       constraint-tightened: tools.reserve_stock.input.quantity  maximum: 100 -> 20
+       replay reserve-in-stock: expected ok, got tool-error  Error executing tool reserve_stock: 1 validation error for reserve_stockArguments quantity Input sho
+v07  compatible  0 of 9   search_products: raise the maximum limit from 50 to 100
+       constraint-loosened: tools.search_products.input.limit  maximum: 50 -> 100
+v08  breaking    1 of 9   search_products: remove 'sealants' from the category filter
+       enum-value-removed: tools.search_products.input.category  ["sealants"]
+       replay search-in-category: expected ok, got tool-error  Error executing tool search_products: 1 validation error for search_productsArguments category Input
+v09  compatible  0 of 9   search_products: add 'adhesives' to the category filter
+       enum-value-added: tools.search_products.input.category  ["adhesives"]
+v10  breaking    2 of 9   reserve_stock: change quantity from integer to string
+       type-changed: tools.reserve_stock.input.quantity  ['integer'] -> ['string']
+       replay reserve-in-stock: expected ok, got tool-error  Error executing tool reserve_stock: 1 validation error for reserve_stockArguments quantity Input sho
+       replay reserve-short: expected ok, got tool-error  Error executing tool reserve_stock: 1 validation error for reserve_stockArguments quantity Input sho
+v11  breaking    1 of 9   search_products: make limit required
+       became-required: tools.search_products.input.limit  optional -> required
+       replay search-by-word: expected ok, got tool-error  Error executing tool search_products: 1 validation error for search_productsArguments limit Field re
+v12  breaking    0 of 9   reserve_stock: remove parameter order_ref
+       parameter-removed: tools.reserve_stock.input.order_ref  callers that send it are rejected or silently ignored
+v13  review      0 of 9   search_products: change the default limit from 10 to 50
+       default-changed: tools.search_products.input.limit  10 -> 50
+v14  breaking    1 of 9   get_stock result: remove field reserved
+       field-removed: tools.get_stock.output.reserved  consumers that read it get nothing
+       replay stock-for-sku: expected ok, got contract-violation  (root): 'reserved' is a required property
+v15  compatible  0 of 9   get_stock result: add field updated_at
+       field-added: tools.get_stock.output.updated_at  consumers that ignore unknown fields are unaffected
+v16  breaking    1 of 9   reserve_stock result: add status 'backordered' and use it when stock is short
+       enum-value-added: tools.reserve_stock.output.status  ["backordered"]
+       replay reserve-short: expected ok, got contract-violation  status: 'backordered' is not one of ['held', 'rejected']
+v17  breaking    2 of 9   search_products result: change unit_price_cents from integer to number
+       type-widened: tools.search_products.output.result[].unit_price_cents  ['integer'] -> ['number']
+       replay search-by-word: expected ok, got contract-violation  result/0/unit_price_cents: 1265.625 is not of type 'integer'
+       replay search-in-category: expected ok, got contract-violation  result/0/unit_price_cents: 622.6875 is not of type 'integer'
+v18  review      0 of 9   reserve_stock: reword the description so that it steers the model
+       tool-description-changed: tools.reserve_stock  "Hold stock for an order. Returns status 'rejected' when there is not enough available." -> 'Hold stock for an
+v19  review      0 of 9   cancel_reservation: change destructiveHint from true to false
+       annotation-changed: tools.cancel_reservation  destructiveHint: true -> false
+v20  breaking    0 of 9   get_stock: drop readOnlyHint because it now writes an audit record
+       no-longer-read-only: tools.get_stock  readOnlyHint: true -> false; clients that skip approval for read-only tools will not ask
+v21  review      0 of 9   Add tool transfer_stock, which moves units between warehouses
+       tool-added: tools.transfer_stock  a new tool that can change state widens what every connected agent may do
+
+21 variants: {'breaking': 13, 'review': 4, 'compatible': 4, 'none': 0}
+flagged breaking by the gate, with every recorded call still behaving as recorded: ['v12', 'v20']
+not flagged breaking, yet a recorded call behaved differently: []

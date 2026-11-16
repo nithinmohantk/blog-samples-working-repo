@@ -1,0 +1,7 @@
+== 2. unit tests for the compatibility rules
+
+$ python tests/run.py
+----------------------------------------------------------------------
+Ran 46 tests in 0.005s
+
+OK

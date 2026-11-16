@@ -1,0 +1,2 @@
+Tool 'get_stock' rejected arguments: ['sku']
+Tool 'reserve_stock' rejected arguments: ['quantity']

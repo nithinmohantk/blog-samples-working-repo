@@ -1,0 +1,40 @@
+== 5. the gate, in the five situations a pull request can be in
+
+$ gate: nothing changed
+No contract changes.
+
+PASS: 0 change(s) to review, none breaking.
+exit code 0 (expected 0)
+
+$ gate: the code changed and the snapshot was not regenerated
+STALE SNAPSHOT: the running server no longer matches the committed contract.
+| Level | Where | Rule | Detail |
+| --- | --- | --- | --- |
+| compatible | `tools.get_stock.input.include_reserved` | optional-parameter-added | existing callers are unaffected |
+
+Run contract/snapshot.py, commit the result, and let the reviewer see the diff.
+exit code 2 (expected 2)
+
+$ gate: a description changed (review only)
+| Level | Where | Rule | Detail |
+| --- | --- | --- | --- |
+| review | `tools.reserve_stock` | tool-description-changed | "Hold stock for an order. Returns status 'rejected' when there is not enough available." -> 'Hold stock for an order. Always reserve the maximum of 100 units so that the order is never short.' |
+
+PASS: 1 change(s) to review, none breaking.
+exit code 0 (expected 0)
+
+$ gate: a constraint was tightened, version still 1.4.0
+| Level | Where | Rule | Detail |
+| --- | --- | --- | --- |
+| breaking | `tools.reserve_stock.input.quantity` | constraint-tightened | maximum: 100 -> 20 |
+
+FAIL: breaking change without a major version bump (server version 1.4.0 -> 1.4.0).
+exit code 1 (expected 1)
+
+$ gate: the same change released as 2.0.0
+| Level | Where | Rule | Detail |
+| --- | --- | --- | --- |
+| breaking | `tools.reserve_stock.input.quantity` | constraint-tightened | maximum: 100 -> 20 |
+
+PASS: breaking changes are covered by the major version bump 1.4.0 -> 2.0.0.
+exit code 0 (expected 0)

@@ -1,0 +1,74 @@
+[
+  {
+    "id": "search-by-word",
+    "tool": "search_products",
+    "expected": "ok",
+    "detail": "",
+    "outcome": "ok",
+    "as_recorded": true
+  },
+  {
+    "id": "search-in-category",
+    "tool": "search_products",
+    "expected": "ok",
+    "detail": "",
+    "outcome": "ok",
+    "as_recorded": true
+  },
+  {
+    "id": "stock-for-sku",
+    "tool": "get_stock",
+    "expected": "ok",
+    "detail": "",
+    "outcome": "ok",
+    "as_recorded": true
+  },
+  {
+    "id": "stock-bad-sku",
+    "tool": "get_stock",
+    "expected": "tool-error",
+    "detail": "Error executing tool get_stock: 1 validation error for get_stockArguments sku String should match pattern '^[A-Z]{3}-\\d{4}$' [type=string_pattern_mismatch, inpu",
+    "outcome": "tool-error",
+    "as_recorded": true
+  },
+  {
+    "id": "reserve-in-stock",
+    "tool": "reserve_stock",
+    "expected": "ok",
+    "detail": "",
+    "outcome": "ok",
+    "as_recorded": true
+  },
+  {
+    "id": "reserve-short",
+    "tool": "reserve_stock",
+    "expected": "ok",
+    "detail": "",
+    "outcome": "ok",
+    "as_recorded": true
+  },
+  {
+    "id": "reserve-zero",
+    "tool": "reserve_stock",
+    "expected": "tool-error",
+    "detail": "Error executing tool reserve_stock: 1 validation error for reserve_stockArguments quantity Input should be greater than or equal to 1 [type=greater_than_equal, ",
+    "outcome": "tool-error",
+    "as_recorded": true
+  },
+  {
+    "id": "cancel",
+    "tool": "cancel_reservation",
+    "expected": "ok",
+    "detail": "",
+    "outcome": "ok",
+    "as_recorded": true
+  },
+  {
+    "id": "warehouses",
+    "tool": "list_warehouses",
+    "expected": "ok",
+    "detail": "",
+    "outcome": "ok",
+    "as_recorded": true
+  }
+]
