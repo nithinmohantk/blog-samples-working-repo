@@ -41,6 +41,7 @@ Each folder has its own README that says what the code does, how to run it, and 
 | `mcp-red-team` | [Red-Teaming an MCP Server: Poisoned Descriptions, Rug Pulls and Confused Deputies](https://www.dataa.dev/2026/02/17/red-teaming-an-mcp-server/) | Python |
 | `mcp-context-cost` | [The Context Cost of MCP Tools: Tokens per Server, per Tool, and What Deferred Loading Saves](https://www.dataa.dev/2026/03/05/the-context-cost-of-mcp-tools/) | Python |
 | `agent-crash-resume` | [Crash, Checkpoint, Resume: Durable Agent State in LangGraph, Agent Framework and ADK](https://www.dataa.dev/2026/03/24/crash-checkpoint-resume-durable-agent-state/) | Python |
+| `mcp-fhir-smart-scopes` | [An MCP Server over FHIR: Which Tools to Expose and How SMART Scopes Map to Them](https://www.dataa.dev/2026/04/08/an-mcp-server-over-fhir-tools-and-smart-scopes/) | Python |
 | `gpt6-codex-model-routing` | [GPT-6 in Codex: Choosing Between Astra, Sol and Luna](https://www.dataa.dev/2026/09/26/gpt-6-in-codex-choosing-between-astra-sol-and-luna/) | Python, TOML |
 | `gpt52-codex-context-budget` | [GPT-5.2-Codex: 400K Context, Image Input and Microsoft Foundry](https://www.dataa.dev/2026/02/01/gpt-5-2-codex-400k-context-window-multimodal-coding-and-azure-ai-foundry-integration/) | Python |
 | `dotnet10-on-lambda` | [.NET 10 on AWS Lambda: Managed Runtime, Native AOT and SnapStart](https://www.dataa.dev/2026/04/11/dotnet-10-on-aws-lambda-managed-runtime-native-aot-and-snapstart/) | C#, Python |
@@ -74,6 +75,7 @@ Not everything here has been compiled or run. The state at the time of the first
 * `mcp-red-team`: a deliberately hostile MCP server and a naive one, both local processes in GitHub Actions. All secrets are fake strings made for the run. No model is called.
 * `mcp-context-cost`: nine public MCP servers are installed at pinned versions in GitHub Actions and asked for their tool listings only. No tool and no model is called.
 * `agent-crash-resume`: LangGraph, Agent Framework and ADK agents are killed and recovered in GitHub Actions against a scripted stand-in on localhost. No model is called.
+* `mcp-fhir-smart-scopes`: an MCP server in front of HAPI FHIR in GitHub Actions, with tokens signed by the lab itself. Synthetic data only, not clinically validated. No model is called.
 * Nothing in this repository has been deployed to AWS or Azure.
 
 ## Healthcare samples
