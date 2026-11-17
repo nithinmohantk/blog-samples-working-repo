@@ -1,0 +1,115 @@
+{
+  "server": {
+    "name": "HAPI FHIR Server",
+    "version": "6.10.0"
+  },
+  "fhirVersion": "4.0.1",
+  "request_date": "2024-01-19",
+  "window_starts": "2019-01-19",
+  "load": {
+    "201": 31
+  },
+  "plain": {
+    "counts": {
+      "Condition": 3,
+      "Coverage": 3,
+      "Encounter": 3,
+      "ExplanationOfBenefit": 10,
+      "Observation": 3,
+      "Patient": 3
+    },
+    "patients": [
+      "m1",
+      "m2",
+      "m4"
+    ],
+    "polls": 2,
+    "manifest_request": "http://127.0.0.1:8080/fhir/Group/p2p-optin/$export?_outputFormat=application%2Ffhir%2Bndjson&_type=Patient%2CCoverage%2CExplanationOfBenefit%2CEncounter%2CCondition%2CObservation",
+    "requiresAccessToken": true
+  },
+  "since_five_years": {
+    "counts": {
+      "Condition": 3,
+      "Coverage": 3,
+      "Encounter": 3,
+      "ExplanationOfBenefit": 10,
+      "Observation": 3,
+      "Patient": 3
+    },
+    "patients": [
+      "m1",
+      "m2",
+      "m4"
+    ],
+    "polls": 2,
+    "manifest_request": "http://127.0.0.1:8080/fhir/Group/p2p-optin/$export?_outputFormat=application%2Ffhir%2Bndjson&_type=Patient%2CCoverage%2CExplanationOfBenefit%2CEncounter%2CCondition%2CObservation&_since=2019-01-19T00%3A00%3A00Z",
+    "requiresAccessToken": true
+  },
+  "type_filter_unregistered": {
+    "error": "ExportError: status request returned 500: b'{\\n  \"resourceType\": \"OperationOutcome\",\\n  \"issue\": [ {\\n    \"severity\": \"error\",\\n    \"diagnostics\": \"ca.uhn.fhir.batch2.api.JobExecutionFailedException: HAPI-2239:  : HAPI-0488: Failed to parse match URL[ExplanationOfBenefit?service-date=ge2019-01-19] - Resource type ExplanationOfBenefit does not hav'"
+  },
+  "service_date_parameter": {
+    "claims_found_by_search": 8
+  },
+  "type_filter_registered": {
+    "filters": [
+      "ExplanationOfBenefit?service-date=ge2019-01-19",
+      "Encounter?date=ge2019-01-19",
+      "Observation?date=ge2019-01-19",
+      "Condition?recorded-date=ge2019-01-19"
+    ],
+    "counts": {
+      "Condition": 1,
+      "Coverage": 3,
+      "Encounter": 2,
+      "ExplanationOfBenefit": 7,
+      "Observation": 2,
+      "Patient": 3
+    },
+    "patients": [
+      "m1",
+      "m2",
+      "m4"
+    ]
+  },
+  "type_filter_then_window": {
+    "kept": {
+      "Condition": 1,
+      "Observation": 2,
+      "Patient": 3,
+      "Encounter": 2,
+      "Coverage": 3,
+      "ExplanationOfBenefit": 6
+    },
+    "not_sent": [
+      "ExplanationOfBenefit/eob-m4-2: date of service after the request"
+    ]
+  },
+  "window": {
+    "kept": {
+      "Condition": 1,
+      "Observation": 2,
+      "Encounter": 2,
+      "Patient": 3,
+      "Coverage": 3,
+      "ExplanationOfBenefit": 6
+    },
+    "reasons": {
+      "older than five years": 6,
+      "within five years": 11,
+      "no date of service; held for review": 1,
+      "context resource": 6,
+      "date of service after the request": 1
+    },
+    "held_or_dropped": [
+      "Condition/cond-m1-1 2017-05-05: older than five years",
+      "Condition/cond-m4-1 -: no date of service; held for review",
+      "Encounter/enc-m1-1 2017-05-05: older than five years",
+      "ExplanationOfBenefit/eob-m1-1 2016-03-02: older than five years",
+      "ExplanationOfBenefit/eob-m1-2 2018-11-21: older than five years",
+      "ExplanationOfBenefit/eob-m1-3 2019-01-18: older than five years",
+      "ExplanationOfBenefit/eob-m4-2 2024-02-01: date of service after the request",
+      "Observation/obs-m1-1 2018-02-01: older than five years"
+    ]
+  }
+}

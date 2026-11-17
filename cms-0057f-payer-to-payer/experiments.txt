@@ -1,0 +1,19 @@
+server HAPI FHIR Server 6.10.0, FHIR 4.0.1
+request date 2024-01-19, window starts 2019-01-19
+loaded {'201': 31}
+plain             {'Condition': 3, 'Coverage': 3, 'Encounter': 3, 'ExplanationOfBenefit': 10, 'Observation': 3, 'Patient': 3} patients=['m1', 'm2', 'm4']
+since_five_years  {'Condition': 3, 'Coverage': 3, 'Encounter': 3, 'ExplanationOfBenefit': 10, 'Observation': 3, 'Patient': 3} patients=['m1', 'm2', 'm4']
+type_filter_unregistered ExportError: status request returned 500: b'{\n  "resourceType": "OperationOutcome",\n  "issue": [ {\n    "severity": "error",\n    "diagnostics": "ca.uhn.fhir.batch2.api.JobExecutionFailedException: HAPI-2239:  : HAPI-0488: Failed to parse match URL[ExplanationOfBenefit?service-date=ge2019-01-19] - Resource type ExplanationOfBenefit does not hav'
+type_filter_registered {'Condition': 1, 'Coverage': 3, 'Encounter': 2, 'ExplanationOfBenefit': 7, 'Observation': 2, 'Patient': 3} patients=['m1', 'm2', 'm4']
+service-date search after reindex found 8 claims
+after the window   kept {'Condition': 1, 'Observation': 2, 'Encounter': 2, 'Patient': 3, 'Coverage': 3, 'ExplanationOfBenefit': 6}
+  not sent: Condition/cond-m1-1 2017-05-05: older than five years
+  not sent: Condition/cond-m4-1 -: no date of service; held for review
+  not sent: Encounter/enc-m1-1 2017-05-05: older than five years
+  not sent: ExplanationOfBenefit/eob-m1-1 2016-03-02: older than five years
+  not sent: ExplanationOfBenefit/eob-m1-2 2018-11-21: older than five years
+  not sent: ExplanationOfBenefit/eob-m1-3 2019-01-18: older than five years
+  not sent: ExplanationOfBenefit/eob-m4-2 2024-02-01: date of service after the request
+  not sent: Observation/obs-m1-1 2018-02-01: older than five years
+type filter + window kept {'Condition': 1, 'Observation': 2, 'Patient': 3, 'Encounter': 2, 'Coverage': 3, 'ExplanationOfBenefit': 6}
+  not sent: ExplanationOfBenefit/eob-m4-2: date of service after the request
