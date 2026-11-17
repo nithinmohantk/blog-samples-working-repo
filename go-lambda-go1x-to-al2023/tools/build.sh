@@ -27,6 +27,9 @@ build rpc-bootstrap    bootstrap amd64 0 ""            ""
 # The recommended build for provided.al2023: RPC code left out, symbol tables stripped.
 build al2023-amd64     bootstrap amd64 0 lambda.norpc  "-s -w"
 build al2023-arm64     bootstrap arm64 0 lambda.norpc  "-s -w"
+# The two size levers taken one at a time.
+build norpc-unstripped bootstrap amd64 0 lambda.norpc  ""
+build rpc-stripped     bootstrap amd64 0 ""            "-s -w"
 # Built on the CI runner with cgo left on, which is Go's default when a C compiler is present.
 build cgo-bootstrap    bootstrap amd64 1 lambda.norpc  "-s -w"
 build cgo-main         main      amd64 1 ""            ""

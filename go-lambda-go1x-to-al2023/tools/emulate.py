@@ -83,7 +83,7 @@ def run(label, folder, image, platform, mount, handler, expected):
         result["responses"][name] = {"http": status, "result": body}
     time.sleep(1)
     logs = docker("logs", NAME)
-    result["log"] = [line for line in (logs.stdout + logs.stderr).splitlines() if line.strip()][-25:]
+    result["log"] = [line for line in (logs.stdout + logs.stderr).splitlines() if line.strip()]
     docker("rm", "-f", NAME)
     return result
 

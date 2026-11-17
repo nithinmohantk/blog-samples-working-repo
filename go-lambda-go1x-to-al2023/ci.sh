@@ -32,6 +32,13 @@ echo "== builds"
 tools/build.sh "$PWD/dist" 2>&1 | tee "$out/build.txt"; [ "${PIPESTATUS[0]}" -eq 0 ] || status=1
 cp dist/build.tsv dist/buildinfo.txt "$out/"
 
+echo "== what the go1.x image starts"
+docker run --rm --platform linux/amd64 --entrypoint /bin/sh "$GO_IMAGE" -c \
+  'ls -la /var/runtime; for f in /var/runtime/*; do echo "== $f"; head -c 400 "$f" | strings | head -5; done; echo "== strings mentioning the RPC port"; strings /var/runtime/* 2>/dev/null | grep -m5 _LAMBDA_SERVER_PORT' \
+  > "$out/go1x-image-runtime.txt" 2>&1
+docker run --rm --platform linux/amd64 -v "$PWD/dist/cgo-main:/var/task:ro" --entrypoint /var/task/main "$GO_IMAGE" \
+  > "$out/cgo-in-go1x-image.txt" 2>&1 || true
+
 echo "== in the Lambda runtime emulator"
 python -u tools/emulate.py "$PWD/dist" "$GO_IMAGE" "$AL2023_IMAGE" "$out" 2>&1 | tee "$out/emulator.txt"
 [ "${PIPESTATUS[0]}" -eq 0 ] || status=1
