@@ -1,0 +1,32 @@
+{
+  "version": "2.0",
+  "routeKey": "GET /orders/{id}",
+  "rawPath": "/orders/ord-999999",
+  "rawQueryString": "",
+  "headers": {
+    "accept": "application/json",
+    "host": "example.execute-api.eu-west-1.amazonaws.com"
+  },
+  "requestContext": {
+    "accountId": "111122223333",
+    "apiId": "example",
+    "domainName": "example.execute-api.eu-west-1.amazonaws.com",
+    "domainPrefix": "example",
+    "http": {
+      "method": "GET",
+      "path": "/orders/ord-999999",
+      "protocol": "HTTP/1.1",
+      "sourceIp": "192.0.2.10",
+      "userAgent": "curl/8.4.0"
+    },
+    "requestId": "Rq1AbCdEfGhIjKl=",
+    "routeKey": "GET /orders/{id}",
+    "stage": "$default",
+    "time": "05/Jan/2024:10:15:00 +0000",
+    "timeEpoch": 1704449700000
+  },
+  "pathParameters": {
+    "id": "ord-999999"
+  },
+  "isBase64Encoded": false
+}
