@@ -14,10 +14,10 @@ build() {  # build <variant> <file name> <GOARCH> <CGO_ENABLED> <tags> <extra ld
      go build -trimpath -tags "$tags" -ldflags "$ldflags" -o "$dist/$variant/$name" .)
   local bin="$dist/$variant/$name" linking glibc
   if file "$bin" | grep -q 'statically linked'; then linking=static; else linking=dynamic; fi
-  glibc=$( (objdump -T "$bin" 2>/dev/null || true) | grep -o 'GLIBC_[0-9.]*' | sort -uV | tail -1)
+  glibc=$( (objdump -T "$bin" 2>/dev/null || true) | { grep -o 'GLIBC_[0-9.]*' || true; } | sort -uV | tail -1)
   printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n' "$variant" "$name" "$arch" "$cgo" "${tags:--}" \
     "$(stat -c %s "$bin")" "$linking" "${glibc:--}" >> "$dist/build.tsv"
-  go version -m "$bin" | grep -E 'build\s+(CGO_ENABLED|-tags|GOARCH|-ldflags)' | sed "s|^|$variant: |" >> "$dist/buildinfo.txt"
+  go version -m "$bin" | { grep -E 'build[[:space:]]+(CGO_ENABLED|-tags|GOARCH|-ldflags)' || true; } | sed "s|^|$variant: |" >> "$dist/buildinfo.txt"
 }
 
 # What a go1.x pipeline produced: an executable called main, with the RPC entry point compiled in.
