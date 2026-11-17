@@ -49,6 +49,7 @@ Each folder has its own README that says what the code does, how to run it, and 
 | `aws-emulator-first-look` | [AWS Emulator, Two Days In: A Lab Notebook](https://www.dataa.dev/2026/11/13/aws-emulator-two-days-in-a-lab-notebook/) | Bash, Python |
 | `bedrock-healthcare-genai-pipeline` | [Taking a GenAI Assistant to Production on Amazon Bedrock: Knowledge Base, Fine-Tuning and Release Gates for Irish Healthcare](https://www.dataa.dev/2026/06/20/genai-assistant-on-amazon-bedrock-for-irish-healthcare/) | Python, JSON |
 | `go-lambda-go1x-to-al2023` | [Go on AWS Lambda After go1.x: Moving to provided.al2023](https://www.dataa.dev/2024/01/06/go-on-aws-lambda-after-go1-x-moving-to-provided-al2023/) | Go, Python, HCL |
+| `cms-0057f-payer-to-payer` | [CMS-0057-F for FHIR Teams: The Payer-to-Payer Five-Year Window and What Bulk Data Can Filter](https://www.dataa.dev/2024/01/20/cms-0057-f-for-fhir-teams-payer-to-payer-five-year-window/) | Python |
 
 ## Verification status
 
