@@ -48,6 +48,7 @@ Each folder has its own README that says what the code does, how to run it, and 
 | `sqlserver2025-vector-json` | [SQL Server 2025 for Architects: The Vector Type and Native JSON](https://www.dataa.dev/2026/04/25/sql-server-2025-for-architects-the-vector-type-and-native-json/) | T-SQL, C# |
 | `aws-emulator-first-look` | [AWS Emulator, Two Days In: A Lab Notebook](https://www.dataa.dev/2026/11/13/aws-emulator-two-days-in-a-lab-notebook/) | Bash, Python |
 | `bedrock-healthcare-genai-pipeline` | [Taking a GenAI Assistant to Production on Amazon Bedrock: Knowledge Base, Fine-Tuning and Release Gates for Irish Healthcare](https://www.dataa.dev/2026/06/20/genai-assistant-on-amazon-bedrock-for-irish-healthcare/) | Python, JSON |
+| `go-lambda-go1x-to-al2023` | [Go on AWS Lambda After go1.x: Moving to provided.al2023](https://www.dataa.dev/2024/01/06/go-on-aws-lambda-after-go1-x-moving-to-provided-al2023/) | Go, Python, HCL |
 
 ## Verification status
 
