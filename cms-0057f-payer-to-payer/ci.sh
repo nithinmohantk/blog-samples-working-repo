@@ -15,6 +15,7 @@ docker run -d --name hapi -p 127.0.0.1:8080:8080 \
   -e hapi.fhir.bulk_export_enabled=true -e hapi.fhir.fhir_version=R4 "$HAPI_IMAGE" > /dev/null || exit 2
 python -u tools/run_experiments.py http://127.0.0.1:8080/fhir "$out" 2>&1 | tee "$out/run.txt"; [ "${PIPESTATUS[0]}" -eq 0 ] || status=1
 docker logs hapi 2>&1 | grep -iE "bulk|export|error" | tail -40 > "$out/hapi-log-excerpt.txt"
+docker logs hapi 2>&1 | grep -oE 'HAPI-0488: [^]]*\][^"]*' | sort -u > "$out/hapi-errors.txt"
 docker rm -f hapi > /dev/null
 { echo "image $HAPI_IMAGE"; python --version; python -m pytest --version; } > "$out/versions.txt" 2>&1
 exit $status
