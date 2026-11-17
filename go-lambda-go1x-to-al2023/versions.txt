@@ -1,0 +1,9 @@
+go1.x image            public.ecr.aws/lambda/go:1.2024.01.05.16
+provided.al2023 image  public.ecr.aws/lambda/provided:al2023.2024.01.05.14
+glibc in go1.x image   ldd (GNU libc) 2.17
+glibc in al2023 image  ldd (GNU libc) 2.34
+glibc on the runner    ldd (Ubuntu GLIBC 2.43-2ubuntu2.4) 2.43
+go version go1.21.5 linux/amd64
+Terraform v1.6.6
+Python 3.12.16
+Docker version 29.4.2, build 055a478

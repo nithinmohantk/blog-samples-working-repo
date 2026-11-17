@@ -1,0 +1,20 @@
+go1.x image, go1.x build                         worked=True  same=True  [known 200, malformed 400, unknown 404] as expected
+provided.al2023, norpc build, x86_64             worked=True  same=True  [known 200, malformed 400, unknown 404] as expected
+provided.al2023, norpc build, arm64 (QEMU)       worked=True  same=True  [known 200, malformed 400, unknown 404] as expected
+provided.al2023, go1.x build renamed bootstrap   worked=True  same=True  [known 200, malformed 400, unknown 404] as expected
+provided.al2023, go1.x package unchanged         worked=False same=False [known error, malformed error, unknown error] as expected
+    | 17 Nov 2026 21:41:53,271 [INFO] (rapid) INIT REPORT(durationMs: 0.140000)
+    | 17 Nov 2026 21:41:53,271 [INFO] (rapid) INVOKE START(requestId: bd240ef6-dbc6-4580-8b49-6acfa896d57c)
+    | 17 Nov 2026 21:41:53,271 [ERROR] (rapid) Invoke failed InvokeID=bd240ef6-dbc6-4580-8b49-6acfa896d57c error=fork/exec /var/runtime/bootstrap: no such file or directory
+    | 17 Nov 2026 21:41:53,271 [ERROR] (rapid) Invoke DONE failed: Runtime.InvalidEntrypoint
+    | 17 Nov 2026 21:41:53,271 [WARNING] (rapid) Reset initiated: ReleaseFail
+    | 17 Nov 2026 21:41:53,271 [INFO] (rapid) Waiting for runtime domain processes termination
+provided.al2023, cgo build from the CI runner    worked=True  same=True  [known 200, malformed 400, unknown 404] recorded
+go1.x image, cgo build from the CI runner        worked=False same=False [known error, malformed error, unknown error] recorded
+    | 17 Nov 2026 21:41:55,720 [INFO] (rapid) INIT REPORT(durationMs: 2.925000)
+    | 17 Nov 2026 21:41:55,720 [INFO] (rapid) INVOKE START(requestId: 6d8b710e-0394-43ba-b6ec-a73ee527c99a)
+    | 17 Nov 2026 21:41:55,721 [ERROR] (rapid) Invoke failed error=Runtime exited with error: exit status 1 InvokeID=6d8b710e-0394-43ba-b6ec-a73ee527c99a
+    | 17 Nov 2026 21:41:55,721 [ERROR] (rapid) Invoke DONE failed: Runtime.ExitError
+    | 17 Nov 2026 21:41:55,721 [WARNING] (rapid) Reset initiated: ReleaseFail
+    | 17 Nov 2026 21:41:55,721 [INFO] (rapid) Waiting for runtime domain processes termination
+go1.x image, norpc build                         worked=True  same=True  [known 200, malformed 400, unknown 404] recorded

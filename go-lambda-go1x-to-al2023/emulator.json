@@ -1,0 +1,551 @@
+[
+  {
+    "scenario": "go1.x image, go1.x build",
+    "build": "go1x",
+    "image": "public.ecr.aws/lambda/go:1.2024.01.05.16",
+    "platform": "linux/amd64",
+    "expected": true,
+    "started": true,
+    "responses": {
+      "known": {
+        "http": 200,
+        "result": {
+          "statusCode": 200,
+          "body": {
+            "id": "ord-100001",
+            "status": "DISPATCHED",
+            "updatedAt": "2023-12-18T09:30:00Z"
+          }
+        }
+      },
+      "malformed": {
+        "http": 200,
+        "result": {
+          "statusCode": 400,
+          "body": {
+            "error": "order id must look like ord-123456"
+          }
+        }
+      },
+      "unknown": {
+        "http": 200,
+        "result": {
+          "statusCode": 404,
+          "body": {
+            "error": "no such order"
+          }
+        }
+      }
+    },
+    "log": [
+      "START RequestId: ae48437a-d720-4e98-a59d-aa8eeb018382 Version: $LATEST",
+      "{\"time\":\"2026-11-17T21:41:47.66084725Z\",\"level\":\"INFO\",\"msg\":\"order returned\",\"requestId\":\"aa3ef0d3-9cc9-4741-ab1a-036f9b63f85e\",\"id\":\"ord-100001\",\"status\":\"DISPATCHED\"}",
+      "END RequestId: aa3ef0d3-9cc9-4741-ab1a-036f9b63f85e",
+      "REPORT RequestId: aa3ef0d3-9cc9-4741-ab1a-036f9b63f85e\tInit Duration: 0.07 ms\tDuration: 5.87 ms\tBilled Duration: 6 ms\tMemory Size: 3008 MB\tMax Memory Used: 3008 MB\t",
+      "START RequestId: 6c040f82-c00c-4dd0-a7f8-1b5c36e2091a Version: $LATEST",
+      "{\"time\":\"2026-11-17T21:41:47.662245206Z\",\"level\":\"INFO\",\"msg\":\"rejected order id\",\"requestId\":\"438d7a93-a493-4c38-9352-4e62c83f466b\",\"id\":\"100001\"}",
+      "END RequestId: 438d7a93-a493-4c38-9352-4e62c83f466b",
+      "REPORT RequestId: 438d7a93-a493-4c38-9352-4e62c83f466b\tDuration: 1.03 ms\tBilled Duration: 2 ms\tMemory Size: 3008 MB\tMax Memory Used: 3008 MB\t",
+      "START RequestId: 65fd5add-1b04-423f-8627-4e52615981f6 Version: $LATEST",
+      "END RequestId: c88ccf13-f7d5-46d4-b719-9404ac8f1670",
+      "REPORT RequestId: c88ccf13-f7d5-46d4-b719-9404ac8f1670\tDuration: 0.58 ms\tBilled Duration: 1 ms\tMemory Size: 3008 MB\tMax Memory Used: 3008 MB\t",
+      "17 Nov 2026 21:41:47,646 [INFO] (rapid) exec '/var/runtime/bootstrap' (cwd=/var/task, handler=)",
+      "17 Nov 2026 21:41:47,655 [INFO] (rapid) INIT START(type: on-demand, phase: init)",
+      "17 Nov 2026 21:41:47,655 [INFO] (rapid) The extension's directory \"/opt/extensions\" does not exist, assuming no extensions to be loaded.",
+      "17 Nov 2026 21:41:47,655 [INFO] (rapid) Starting runtime without AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_SESSION_TOKEN , Expected?: false",
+      "17 Nov 2026 21:41:47,660 [INFO] (rapid) INIT RTDONE(status: success)",
+      "17 Nov 2026 21:41:47,660 [INFO] (rapid) INIT REPORT(durationMs: 4.790000)",
+      "17 Nov 2026 21:41:47,660 [INFO] (rapid) INVOKE START(requestId: aa3ef0d3-9cc9-4741-ab1a-036f9b63f85e)",
+      "17 Nov 2026 21:41:47,661 [INFO] (rapid) INVOKE RTDONE(status: success, produced bytes: 0, duration: 0.973000ms)",
+      "17 Nov 2026 21:41:47,662 [INFO] (rapid) INVOKE START(requestId: 438d7a93-a493-4c38-9352-4e62c83f466b)",
+      "17 Nov 2026 21:41:47,663 [INFO] (rapid) INVOKE RTDONE(status: success, produced bytes: 0, duration: 0.954000ms)",
+      "17 Nov 2026 21:41:47,663 [INFO] (rapid) INVOKE START(requestId: c88ccf13-f7d5-46d4-b719-9404ac8f1670)",
+      "17 Nov 2026 21:41:47,664 [INFO] (rapid) INVOKE RTDONE(status: success, produced bytes: 0, duration: 0.498000ms)"
+    ],
+    "worked": true,
+    "same_as_reference": true
+  },
+  {
+    "scenario": "provided.al2023, norpc build, x86_64",
+    "build": "al2023-amd64",
+    "image": "public.ecr.aws/lambda/provided:al2023.2024.01.05.14",
+    "platform": "linux/amd64",
+    "expected": true,
+    "started": true,
+    "responses": {
+      "known": {
+        "http": 200,
+        "result": {
+          "statusCode": 200,
+          "body": {
+            "id": "ord-100001",
+            "status": "DISPATCHED",
+            "updatedAt": "2023-12-18T09:30:00Z"
+          }
+        }
+      },
+      "malformed": {
+        "http": 200,
+        "result": {
+          "statusCode": 400,
+          "body": {
+            "error": "order id must look like ord-123456"
+          }
+        }
+      },
+      "unknown": {
+        "http": 200,
+        "result": {
+          "statusCode": 404,
+          "body": {
+            "error": "no such order"
+          }
+        }
+      }
+    },
+    "log": [
+      "START RequestId: efa08e15-4747-49ae-88a8-241ce8801131 Version: $LATEST",
+      "{\"time\":\"2026-11-17T21:41:48.907187527Z\",\"level\":\"INFO\",\"msg\":\"order returned\",\"requestId\":\"a2662392-5b08-4c9d-a3fb-ca0a9de87d20\",\"id\":\"ord-100001\",\"status\":\"DISPATCHED\"}",
+      "END RequestId: a2662392-5b08-4c9d-a3fb-ca0a9de87d20",
+      "REPORT RequestId: a2662392-5b08-4c9d-a3fb-ca0a9de87d20\tInit Duration: 0.03 ms\tDuration: 2.88 ms\tBilled Duration: 3 ms\tMemory Size: 3008 MB\tMax Memory Used: 3008 MB\t",
+      "START RequestId: 697bf52c-8036-4747-8cf5-b5b7c509a21d Version: $LATEST",
+      "{\"time\":\"2026-11-17T21:41:48.908631339Z\",\"level\":\"INFO\",\"msg\":\"rejected order id\",\"requestId\":\"8215a3e3-02e2-4ded-9eb1-dd77434f1fc0\",\"id\":\"100001\"}",
+      "END RequestId: 8215a3e3-02e2-4ded-9eb1-dd77434f1fc0",
+      "REPORT RequestId: 8215a3e3-02e2-4ded-9eb1-dd77434f1fc0\tDuration: 0.42 ms\tBilled Duration: 1 ms\tMemory Size: 3008 MB\tMax Memory Used: 3008 MB\t",
+      "START RequestId: 74fe1baa-6bb2-492c-ab3f-8de6daab277e Version: $LATEST",
+      "END RequestId: fe46876f-59ad-4771-803c-f60602f3e8fc",
+      "REPORT RequestId: fe46876f-59ad-4771-803c-f60602f3e8fc\tDuration: 0.44 ms\tBilled Duration: 1 ms\tMemory Size: 3008 MB\tMax Memory Used: 3008 MB\t",
+      "17 Nov 2026 21:41:48,902 [INFO] (rapid) exec '/var/runtime/bootstrap' (cwd=/var/task, handler=)",
+      "17 Nov 2026 21:41:48,905 [INFO] (rapid) INIT START(type: on-demand, phase: init)",
+      "17 Nov 2026 21:41:48,905 [INFO] (rapid) The extension's directory \"/opt/extensions\" does not exist, assuming no extensions to be loaded.",
+      "17 Nov 2026 21:41:48,905 [INFO] (rapid) Starting runtime without AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_SESSION_TOKEN , Expected?: false",
+      "17 Nov 2026 21:41:48,906 [INFO] (rapid) INIT RTDONE(status: success)",
+      "17 Nov 2026 21:41:48,906 [INFO] (rapid) INIT REPORT(durationMs: 1.738000)",
+      "17 Nov 2026 21:41:48,906 [INFO] (rapid) INVOKE START(requestId: a2662392-5b08-4c9d-a3fb-ca0a9de87d20)",
+      "17 Nov 2026 21:41:48,907 [INFO] (rapid) INVOKE RTDONE(status: success, produced bytes: 0, duration: 0.960000ms)",
+      "17 Nov 2026 21:41:48,908 [INFO] (rapid) INVOKE START(requestId: 8215a3e3-02e2-4ded-9eb1-dd77434f1fc0)",
+      "17 Nov 2026 21:41:48,908 [INFO] (rapid) INVOKE RTDONE(status: success, produced bytes: 0, duration: 0.326000ms)",
+      "17 Nov 2026 21:41:48,909 [INFO] (rapid) INVOKE START(requestId: fe46876f-59ad-4771-803c-f60602f3e8fc)",
+      "17 Nov 2026 21:41:48,909 [INFO] (rapid) INVOKE RTDONE(status: success, produced bytes: 0, duration: 0.326000ms)"
+    ],
+    "worked": true,
+    "same_as_reference": true
+  },
+  {
+    "scenario": "provided.al2023, norpc build, arm64 (QEMU)",
+    "build": "al2023-arm64",
+    "image": "public.ecr.aws/lambda/provided:al2023.2024.01.05.14",
+    "platform": "linux/arm64",
+    "expected": true,
+    "started": true,
+    "responses": {
+      "known": {
+        "http": 200,
+        "result": {
+          "statusCode": 200,
+          "body": {
+            "id": "ord-100001",
+            "status": "DISPATCHED",
+            "updatedAt": "2023-12-18T09:30:00Z"
+          }
+        }
+      },
+      "malformed": {
+        "http": 200,
+        "result": {
+          "statusCode": 400,
+          "body": {
+            "error": "order id must look like ord-123456"
+          }
+        }
+      },
+      "unknown": {
+        "http": 200,
+        "result": {
+          "statusCode": 404,
+          "body": {
+            "error": "no such order"
+          }
+        }
+      }
+    },
+    "log": [
+      "START RequestId: c2edbae9-d638-4f86-8b5e-2ce1f43bc8a9 Version: $LATEST",
+      "{\"time\":\"2026-11-17T21:41:50.787537151Z\",\"level\":\"INFO\",\"msg\":\"order returned\",\"requestId\":\"8a65edc4-df13-4a0e-b766-b320b3939118\",\"id\":\"ord-100001\",\"status\":\"DISPATCHED\"}",
+      "END RequestId: 8a65edc4-df13-4a0e-b766-b320b3939118",
+      "REPORT RequestId: 8a65edc4-df13-4a0e-b766-b320b3939118\tInit Duration: 2.10 ms\tDuration: 170.86 ms\tBilled Duration: 171 ms\tMemory Size: 3008 MB\tMax Memory Used: 3008 MB\t",
+      "START RequestId: 0c6e13f5-1017-47cb-9cff-07ac0cf0caed Version: $LATEST",
+      "{\"time\":\"2026-11-17T21:41:50.829737957Z\",\"level\":\"INFO\",\"msg\":\"rejected order id\",\"requestId\":\"0564b652-ba6c-4578-86c8-187522175864\",\"id\":\"100001\"}",
+      "END RequestId: 0564b652-ba6c-4578-86c8-187522175864",
+      "REPORT RequestId: 0564b652-ba6c-4578-86c8-187522175864\tDuration: 3.51 ms\tBilled Duration: 4 ms\tMemory Size: 3008 MB\tMax Memory Used: 3008 MB\t",
+      "START RequestId: 6071758c-02fa-43c8-b991-b1bfebd8e2e9 Version: $LATEST",
+      "END RequestId: 09dbc591-7678-4cd7-adf6-71d0b02e12db",
+      "REPORT RequestId: 09dbc591-7678-4cd7-adf6-71d0b02e12db\tDuration: 2.59 ms\tBilled Duration: 3 ms\tMemory Size: 3008 MB\tMax Memory Used: 3008 MB\t",
+      "17 Nov 2026 21:41:50,251 [INFO] (rapid) exec '/var/runtime/bootstrap' (cwd=/var/task, handler=)",
+      "17 Nov 2026 21:41:50,655 [INFO] (rapid) INIT START(type: on-demand, phase: init)",
+      "17 Nov 2026 21:41:50,658 [INFO] (rapid) The extension's directory \"/opt/extensions\" does not exist, assuming no extensions to be loaded.",
+      "17 Nov 2026 21:41:50,662 [INFO] (rapid) Starting runtime without AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_SESSION_TOKEN , Expected?: false",
+      "17 Nov 2026 21:41:50,758 [INFO] (rapid) INIT RTDONE(status: success)",
+      "17 Nov 2026 21:41:50,759 [INFO] (rapid) INIT REPORT(durationMs: 105.137000)",
+      "17 Nov 2026 21:41:50,761 [INFO] (rapid) INVOKE START(requestId: 8a65edc4-df13-4a0e-b766-b320b3939118)",
+      "17 Nov 2026 21:41:50,824 [INFO] (rapid) INVOKE RTDONE(status: success, produced bytes: 0, duration: 61.735000ms)",
+      "17 Nov 2026 21:41:50,828 [INFO] (rapid) INVOKE START(requestId: 0564b652-ba6c-4578-86c8-187522175864)",
+      "17 Nov 2026 21:41:50,831 [INFO] (rapid) INVOKE RTDONE(status: success, produced bytes: 0, duration: 2.854000ms)",
+      "17 Nov 2026 21:41:50,832 [INFO] (rapid) INVOKE START(requestId: 09dbc591-7678-4cd7-adf6-71d0b02e12db)",
+      "17 Nov 2026 21:41:50,835 [INFO] (rapid) INVOKE RTDONE(status: success, produced bytes: 0, duration: 2.132000ms)"
+    ],
+    "worked": true,
+    "same_as_reference": true
+  },
+  {
+    "scenario": "provided.al2023, go1.x build renamed bootstrap",
+    "build": "rpc-bootstrap",
+    "image": "public.ecr.aws/lambda/provided:al2023.2024.01.05.14",
+    "platform": "linux/amd64",
+    "expected": true,
+    "started": true,
+    "responses": {
+      "known": {
+        "http": 200,
+        "result": {
+          "statusCode": 200,
+          "body": {
+            "id": "ord-100001",
+            "status": "DISPATCHED",
+            "updatedAt": "2023-12-18T09:30:00Z"
+          }
+        }
+      },
+      "malformed": {
+        "http": 200,
+        "result": {
+          "statusCode": 400,
+          "body": {
+            "error": "order id must look like ord-123456"
+          }
+        }
+      },
+      "unknown": {
+        "http": 200,
+        "result": {
+          "statusCode": 404,
+          "body": {
+            "error": "no such order"
+          }
+        }
+      }
+    },
+    "log": [
+      "START RequestId: 9a2108cd-d318-4c89-b628-375faf7e26cf Version: $LATEST",
+      "{\"time\":\"2026-11-17T21:41:52.056463028Z\",\"level\":\"INFO\",\"msg\":\"order returned\",\"requestId\":\"20d8d189-0720-4f24-a094-c5a3615a1984\",\"id\":\"ord-100001\",\"status\":\"DISPATCHED\"}",
+      "END RequestId: 20d8d189-0720-4f24-a094-c5a3615a1984",
+      "REPORT RequestId: 20d8d189-0720-4f24-a094-c5a3615a1984\tInit Duration: 0.03 ms\tDuration: 3.03 ms\tBilled Duration: 4 ms\tMemory Size: 3008 MB\tMax Memory Used: 3008 MB\t",
+      "START RequestId: 42b77d37-a2f7-4647-bae1-91ee87568fd8 Version: $LATEST",
+      "{\"time\":\"2026-11-17T21:41:52.057657388Z\",\"level\":\"INFO\",\"msg\":\"rejected order id\",\"requestId\":\"b46dbb8d-836f-48d2-bcfb-9c08ddfdcb3b\",\"id\":\"100001\"}",
+      "END RequestId: b46dbb8d-836f-48d2-bcfb-9c08ddfdcb3b",
+      "REPORT RequestId: b46dbb8d-836f-48d2-bcfb-9c08ddfdcb3b\tDuration: 0.41 ms\tBilled Duration: 1 ms\tMemory Size: 3008 MB\tMax Memory Used: 3008 MB\t",
+      "START RequestId: 1c22a5fb-90a4-42f6-9f3f-6bf22f07f60c Version: $LATEST",
+      "END RequestId: 31a0582f-7746-4d8d-b60d-ae910c912689",
+      "REPORT RequestId: 31a0582f-7746-4d8d-b60d-ae910c912689\tDuration: 0.35 ms\tBilled Duration: 1 ms\tMemory Size: 3008 MB\tMax Memory Used: 3008 MB\t",
+      "17 Nov 2026 21:41:52,052 [INFO] (rapid) exec '/var/runtime/bootstrap' (cwd=/var/task, handler=)",
+      "17 Nov 2026 21:41:52,053 [INFO] (rapid) INIT START(type: on-demand, phase: init)",
+      "17 Nov 2026 21:41:52,053 [INFO] (rapid) The extension's directory \"/opt/extensions\" does not exist, assuming no extensions to be loaded.",
+      "17 Nov 2026 21:41:52,054 [INFO] (rapid) Starting runtime without AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_SESSION_TOKEN , Expected?: false",
+      "17 Nov 2026 21:41:52,056 [INFO] (rapid) INIT RTDONE(status: success)",
+      "17 Nov 2026 21:41:52,056 [INFO] (rapid) INIT REPORT(durationMs: 2.192000)",
+      "17 Nov 2026 21:41:52,056 [INFO] (rapid) INVOKE START(requestId: 20d8d189-0720-4f24-a094-c5a3615a1984)",
+      "17 Nov 2026 21:41:52,056 [INFO] (rapid) INVOKE RTDONE(status: success, produced bytes: 0, duration: 0.707000ms)",
+      "17 Nov 2026 21:41:52,057 [INFO] (rapid) INVOKE START(requestId: b46dbb8d-836f-48d2-bcfb-9c08ddfdcb3b)",
+      "17 Nov 2026 21:41:52,057 [INFO] (rapid) INVOKE RTDONE(status: success, produced bytes: 0, duration: 0.329000ms)",
+      "17 Nov 2026 21:41:52,058 [INFO] (rapid) INVOKE START(requestId: 31a0582f-7746-4d8d-b60d-ae910c912689)",
+      "17 Nov 2026 21:41:52,058 [INFO] (rapid) INVOKE RTDONE(status: success, produced bytes: 0, duration: 0.264000ms)"
+    ],
+    "worked": true,
+    "same_as_reference": true
+  },
+  {
+    "scenario": "provided.al2023, go1.x package unchanged",
+    "build": "go1x",
+    "image": "public.ecr.aws/lambda/provided:al2023.2024.01.05.14",
+    "platform": "linux/amd64",
+    "expected": false,
+    "started": true,
+    "responses": {
+      "known": {
+        "http": 502,
+        "result": ""
+      },
+      "malformed": {
+        "http": 502,
+        "result": ""
+      },
+      "unknown": {
+        "http": 502,
+        "result": ""
+      }
+    },
+    "log": [
+      "START RequestId: fdf31274-48e7-4602-817a-52fb95239949 Version: $LATEST",
+      "START RequestId: b30798f7-0848-43d1-82f2-bf95da290b14 Version: $LATEST",
+      "START RequestId: 723cb225-73e7-4863-a947-930a2b415ad3 Version: $LATEST",
+      "17 Nov 2026 21:41:53,265 [INFO] (rapid) exec '/var/runtime/bootstrap' (cwd=/var/task, handler=)",
+      "17 Nov 2026 21:41:53,268 [INFO] (rapid) INIT START(type: on-demand, phase: init)",
+      "17 Nov 2026 21:41:53,268 [INFO] (rapid) The extension's directory \"/opt/extensions\" does not exist, assuming no extensions to be loaded.",
+      "17 Nov 2026 21:41:53,268 [INFO] (rapid) Starting runtime without AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_SESSION_TOKEN , Expected?: false",
+      "17 Nov 2026 21:41:53,268 [WARNING] (rapid) First fatal error stored in appctx: Runtime.InvalidEntrypoint",
+      "17 Nov 2026 21:41:53,268 [INFO] (rapid) INIT RTDONE(status: error)",
+      "17 Nov 2026 21:41:53,268 [INFO] (rapid) INIT REPORT(durationMs: 0.226000)",
+      "17 Nov 2026 21:41:53,268 [ERROR] (rapid) Init failed error=fork/exec /var/runtime/bootstrap: no such file or directory InvokeID=",
+      "17 Nov 2026 21:41:53,268 [WARNING] (rapid) Shutdown initiated: spindown",
+      "17 Nov 2026 21:41:53,268 [INFO] (rapid) Waiting for runtime domain processes termination",
+      "17 Nov 2026 21:41:53,268 [INFO] (rapid) INIT START(type: on-demand, phase: invoke)",
+      "17 Nov 2026 21:41:53,268 [INFO] (rapid) The extension's directory \"/opt/extensions\" does not exist, assuming no extensions to be loaded.",
+      "17 Nov 2026 21:41:53,268 [INFO] (rapid) Starting runtime without AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_SESSION_TOKEN , Expected?: false",
+      "17 Nov 2026 21:41:53,268 [WARNING] (rapid) First fatal error stored in appctx: Runtime.InvalidEntrypoint",
+      "17 Nov 2026 21:41:53,268 [INFO] (rapid) INIT RTDONE(status: error)",
+      "17 Nov 2026 21:41:53,268 [INFO] (rapid) INIT REPORT(durationMs: 0.204000)",
+      "17 Nov 2026 21:41:53,268 [INFO] (rapid) INVOKE START(requestId: 780e21ec-9085-4c3b-8f51-af47b816edef)",
+      "17 Nov 2026 21:41:53,268 [ERROR] (rapid) Invoke failed error=fork/exec /var/runtime/bootstrap: no such file or directory InvokeID=780e21ec-9085-4c3b-8f51-af47b816edef",
+      "17 Nov 2026 21:41:53,269 [ERROR] (rapid) Invoke DONE failed: Runtime.InvalidEntrypoint",
+      "17 Nov 2026 21:41:53,269 [WARNING] (rapid) Reset initiated: ReleaseFail",
+      "17 Nov 2026 21:41:53,269 [INFO] (rapid) Waiting for runtime domain processes termination",
+      "17 Nov 2026 21:41:53,270 [INFO] (rapid) INIT START(type: on-demand, phase: invoke)",
+      "17 Nov 2026 21:41:53,270 [INFO] (rapid) The extension's directory \"/opt/extensions\" does not exist, assuming no extensions to be loaded.",
+      "17 Nov 2026 21:41:53,270 [INFO] (rapid) Starting runtime without AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_SESSION_TOKEN , Expected?: false",
+      "17 Nov 2026 21:41:53,270 [WARNING] (rapid) First fatal error stored in appctx: Runtime.InvalidEntrypoint",
+      "17 Nov 2026 21:41:53,270 [INFO] (rapid) INIT RTDONE(status: error)",
+      "17 Nov 2026 21:41:53,270 [INFO] (rapid) INIT REPORT(durationMs: 0.126000)",
+      "17 Nov 2026 21:41:53,270 [INFO] (rapid) INVOKE START(requestId: 39e30ccf-ee82-4ce3-98f6-76cb9fb7d6b9)",
+      "17 Nov 2026 21:41:53,270 [ERROR] (rapid) Invoke failed error=fork/exec /var/runtime/bootstrap: no such file or directory InvokeID=39e30ccf-ee82-4ce3-98f6-76cb9fb7d6b9",
+      "17 Nov 2026 21:41:53,270 [ERROR] (rapid) Invoke DONE failed: Runtime.InvalidEntrypoint",
+      "17 Nov 2026 21:41:53,270 [WARNING] (rapid) Reset initiated: ReleaseFail",
+      "17 Nov 2026 21:41:53,270 [INFO] (rapid) Waiting for runtime domain processes termination",
+      "17 Nov 2026 21:41:53,270 [INFO] (rapid) INIT START(type: on-demand, phase: invoke)",
+      "17 Nov 2026 21:41:53,270 [INFO] (rapid) The extension's directory \"/opt/extensions\" does not exist, assuming no extensions to be loaded.",
+      "17 Nov 2026 21:41:53,270 [INFO] (rapid) Starting runtime without AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_SESSION_TOKEN , Expected?: false",
+      "17 Nov 2026 21:41:53,271 [WARNING] (rapid) First fatal error stored in appctx: Runtime.InvalidEntrypoint",
+      "17 Nov 2026 21:41:53,271 [INFO] (rapid) INIT RTDONE(status: error)",
+      "17 Nov 2026 21:41:53,271 [INFO] (rapid) INIT REPORT(durationMs: 0.140000)",
+      "17 Nov 2026 21:41:53,271 [INFO] (rapid) INVOKE START(requestId: bd240ef6-dbc6-4580-8b49-6acfa896d57c)",
+      "17 Nov 2026 21:41:53,271 [ERROR] (rapid) Invoke failed InvokeID=bd240ef6-dbc6-4580-8b49-6acfa896d57c error=fork/exec /var/runtime/bootstrap: no such file or directory",
+      "17 Nov 2026 21:41:53,271 [ERROR] (rapid) Invoke DONE failed: Runtime.InvalidEntrypoint",
+      "17 Nov 2026 21:41:53,271 [WARNING] (rapid) Reset initiated: ReleaseFail",
+      "17 Nov 2026 21:41:53,271 [INFO] (rapid) Waiting for runtime domain processes termination"
+    ],
+    "worked": false,
+    "same_as_reference": false
+  },
+  {
+    "scenario": "provided.al2023, cgo build from the CI runner",
+    "build": "cgo-bootstrap",
+    "image": "public.ecr.aws/lambda/provided:al2023.2024.01.05.14",
+    "platform": "linux/amd64",
+    "expected": null,
+    "started": true,
+    "responses": {
+      "known": {
+        "http": 200,
+        "result": {
+          "statusCode": 200,
+          "body": {
+            "id": "ord-100001",
+            "status": "DISPATCHED",
+            "updatedAt": "2023-12-18T09:30:00Z"
+          }
+        }
+      },
+      "malformed": {
+        "http": 200,
+        "result": {
+          "statusCode": 400,
+          "body": {
+            "error": "order id must look like ord-123456"
+          }
+        }
+      },
+      "unknown": {
+        "http": 200,
+        "result": {
+          "statusCode": 404,
+          "body": {
+            "error": "no such order"
+          }
+        }
+      }
+    },
+    "log": [
+      "START RequestId: e19a00c3-e86f-4479-a626-6d66eb5e06b0 Version: $LATEST",
+      "{\"time\":\"2026-11-17T21:41:54.493335476Z\",\"level\":\"INFO\",\"msg\":\"order returned\",\"requestId\":\"f8345062-a1ca-44b9-b6a5-e7bd98f3ba52\",\"id\":\"ord-100001\",\"status\":\"DISPATCHED\"}",
+      "END RequestId: f8345062-a1ca-44b9-b6a5-e7bd98f3ba52",
+      "REPORT RequestId: f8345062-a1ca-44b9-b6a5-e7bd98f3ba52\tInit Duration: 0.04 ms\tDuration: 3.14 ms\tBilled Duration: 4 ms\tMemory Size: 3008 MB\tMax Memory Used: 3008 MB\t",
+      "START RequestId: d5bff1ec-8807-4268-a8f6-23c0c218e9da Version: $LATEST",
+      "{\"time\":\"2026-11-17T21:41:54.494460969Z\",\"level\":\"INFO\",\"msg\":\"rejected order id\",\"requestId\":\"1019fbf6-9e76-4864-b3b0-ce15aa829f11\",\"id\":\"100001\"}",
+      "END RequestId: 1019fbf6-9e76-4864-b3b0-ce15aa829f11",
+      "REPORT RequestId: 1019fbf6-9e76-4864-b3b0-ce15aa829f11\tDuration: 0.41 ms\tBilled Duration: 1 ms\tMemory Size: 3008 MB\tMax Memory Used: 3008 MB\t",
+      "START RequestId: 385b9f0b-e9c1-4d7f-b1b0-acf2e18dd76f Version: $LATEST",
+      "END RequestId: bd186700-ed52-4a46-babe-9bd47cb53685",
+      "REPORT RequestId: bd186700-ed52-4a46-babe-9bd47cb53685\tDuration: 0.42 ms\tBilled Duration: 1 ms\tMemory Size: 3008 MB\tMax Memory Used: 3008 MB\t",
+      "17 Nov 2026 21:41:54,487 [INFO] (rapid) exec '/var/runtime/bootstrap' (cwd=/var/task, handler=)",
+      "17 Nov 2026 21:41:54,490 [INFO] (rapid) INIT START(type: on-demand, phase: init)",
+      "17 Nov 2026 21:41:54,490 [INFO] (rapid) The extension's directory \"/opt/extensions\" does not exist, assuming no extensions to be loaded.",
+      "17 Nov 2026 21:41:54,490 [INFO] (rapid) Starting runtime without AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_SESSION_TOKEN , Expected?: false",
+      "17 Nov 2026 21:41:54,492 [INFO] (rapid) INIT RTDONE(status: success)",
+      "17 Nov 2026 21:41:54,492 [INFO] (rapid) INIT REPORT(durationMs: 2.264000)",
+      "17 Nov 2026 21:41:54,493 [INFO] (rapid) INVOKE START(requestId: f8345062-a1ca-44b9-b6a5-e7bd98f3ba52)",
+      "17 Nov 2026 21:41:54,493 [INFO] (rapid) INVOKE RTDONE(status: success, produced bytes: 0, duration: 0.725000ms)",
+      "17 Nov 2026 21:41:54,494 [INFO] (rapid) INVOKE START(requestId: 1019fbf6-9e76-4864-b3b0-ce15aa829f11)",
+      "17 Nov 2026 21:41:54,494 [INFO] (rapid) INVOKE RTDONE(status: success, produced bytes: 0, duration: 0.335000ms)",
+      "17 Nov 2026 21:41:54,495 [INFO] (rapid) INVOKE START(requestId: bd186700-ed52-4a46-babe-9bd47cb53685)",
+      "17 Nov 2026 21:41:54,495 [INFO] (rapid) INVOKE RTDONE(status: success, produced bytes: 0, duration: 0.324000ms)"
+    ],
+    "worked": true,
+    "same_as_reference": true
+  },
+  {
+    "scenario": "go1.x image, cgo build from the CI runner",
+    "build": "cgo-main",
+    "image": "public.ecr.aws/lambda/go:1.2024.01.05.16",
+    "platform": "linux/amd64",
+    "expected": null,
+    "started": true,
+    "responses": {
+      "known": {
+        "http": 502,
+        "result": ""
+      },
+      "malformed": {
+        "http": 502,
+        "result": ""
+      },
+      "unknown": {
+        "http": 502,
+        "result": ""
+      }
+    },
+    "log": [
+      "START RequestId: 54d596df-4518-47ce-989a-b38c958a3614 Version: $LATEST",
+      "/var/task/main: /lib64/libc.so.6: version `GLIBC_2.34' not found (required by /var/task/main)",
+      "/var/task/main: /lib64/libc.so.6: version `GLIBC_2.32' not found (required by /var/task/main)",
+      "2026/11/17 21:41:55 exit status 1",
+      "START RequestId: 57edafc9-cec3-4966-b456-f1cdcd0dacfc Version: $LATEST",
+      "/var/task/main: /lib64/libc.so.6: version `GLIBC_2.34' not found (required by /var/task/main)",
+      "/var/task/main: /lib64/libc.so.6: version `GLIBC_2.32' not found (required by /var/task/main)",
+      "2026/11/17 21:41:55 exit status 1",
+      "START RequestId: 2623ffe8-04b1-40cd-b4df-46f67801c74b Version: $LATEST",
+      "/var/task/main: /lib64/libc.so.6: version `GLIBC_2.34' not found (required by /var/task/main)",
+      "/var/task/main: /lib64/libc.so.6: version `GLIBC_2.32' not found (required by /var/task/main)",
+      "2026/11/17 21:41:55 exit status 1",
+      "17 Nov 2026 21:41:55,708 [INFO] (rapid) exec '/var/runtime/bootstrap' (cwd=/var/task, handler=)",
+      "17 Nov 2026 21:41:55,710 [INFO] (rapid) INIT START(type: on-demand, phase: init)",
+      "17 Nov 2026 21:41:55,710 [INFO] (rapid) The extension's directory \"/opt/extensions\" does not exist, assuming no extensions to be loaded.",
+      "17 Nov 2026 21:41:55,710 [INFO] (rapid) Starting runtime without AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_SESSION_TOKEN , Expected?: false",
+      "17 Nov 2026 21:41:55,713 [WARNING] (rapid) First fatal error stored in appctx: Runtime.ExitError",
+      "17 Nov 2026 21:41:55,713 [WARNING] (rapid) Process runtime-1 exited: exit status 1",
+      "17 Nov 2026 21:41:55,713 [INFO] (rapid) INIT RTDONE(status: error)",
+      "17 Nov 2026 21:41:55,713 [INFO] (rapid) INIT REPORT(durationMs: 3.196000)",
+      "17 Nov 2026 21:41:55,713 [ERROR] (rapid) Init failed error=Runtime exited with error: exit status 1 InvokeID=",
+      "17 Nov 2026 21:41:55,713 [WARNING] (rapid) Shutdown initiated: spindown",
+      "17 Nov 2026 21:41:55,713 [INFO] (rapid) Waiting for runtime domain processes termination",
+      "17 Nov 2026 21:41:55,713 [INFO] (rapid) INIT START(type: on-demand, phase: invoke)",
+      "17 Nov 2026 21:41:55,713 [INFO] (rapid) The extension's directory \"/opt/extensions\" does not exist, assuming no extensions to be loaded.",
+      "17 Nov 2026 21:41:55,713 [INFO] (rapid) INIT REPORT(durationMs: 0.022000)",
+      "17 Nov 2026 21:41:55,713 [INFO] (rapid) INVOKE START(requestId: 02cd1cc1-14ee-4a5f-ae38-eecb979d9441)",
+      "17 Nov 2026 21:41:55,713 [ERROR] (rapid) Invoke failed error=Runtime exited with error: exit status 1 InvokeID=02cd1cc1-14ee-4a5f-ae38-eecb979d9441",
+      "17 Nov 2026 21:41:55,713 [ERROR] (rapid) Invoke DONE failed: Sandbox.Failure",
+      "17 Nov 2026 21:41:55,713 [WARNING] (rapid) Reset initiated: ReleaseFail",
+      "17 Nov 2026 21:41:55,713 [INFO] (rapid) Waiting for runtime domain processes termination",
+      "17 Nov 2026 21:41:55,714 [INFO] (rapid) INIT START(type: on-demand, phase: invoke)",
+      "17 Nov 2026 21:41:55,714 [INFO] (rapid) The extension's directory \"/opt/extensions\" does not exist, assuming no extensions to be loaded.",
+      "17 Nov 2026 21:41:55,714 [INFO] (rapid) Starting runtime without AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_SESSION_TOKEN , Expected?: false",
+      "17 Nov 2026 21:41:55,717 [WARNING] (rapid) First fatal error stored in appctx: Runtime.ExitError",
+      "17 Nov 2026 21:41:55,717 [WARNING] (rapid) Process runtime-4 exited: exit status 1",
+      "17 Nov 2026 21:41:55,717 [INFO] (rapid) INIT RTDONE(status: error)",
+      "17 Nov 2026 21:41:55,717 [INFO] (rapid) INIT REPORT(durationMs: 2.648000)",
+      "17 Nov 2026 21:41:55,717 [INFO] (rapid) INVOKE START(requestId: d8a6afda-a6ab-41db-9984-a64378986aba)",
+      "17 Nov 2026 21:41:55,717 [ERROR] (rapid) Invoke failed error=Runtime exited with error: exit status 1 InvokeID=d8a6afda-a6ab-41db-9984-a64378986aba",
+      "17 Nov 2026 21:41:55,717 [ERROR] (rapid) Invoke DONE failed: Runtime.ExitError",
+      "17 Nov 2026 21:41:55,717 [WARNING] (rapid) Reset initiated: ReleaseFail",
+      "17 Nov 2026 21:41:55,717 [INFO] (rapid) Waiting for runtime domain processes termination",
+      "17 Nov 2026 21:41:55,718 [INFO] (rapid) INIT START(type: on-demand, phase: invoke)",
+      "17 Nov 2026 21:41:55,718 [INFO] (rapid) The extension's directory \"/opt/extensions\" does not exist, assuming no extensions to be loaded.",
+      "17 Nov 2026 21:41:55,718 [INFO] (rapid) Starting runtime without AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_SESSION_TOKEN , Expected?: false",
+      "17 Nov 2026 21:41:55,720 [WARNING] (rapid) First fatal error stored in appctx: Runtime.ExitError",
+      "17 Nov 2026 21:41:55,720 [WARNING] (rapid) Process runtime-6 exited: exit status 1",
+      "17 Nov 2026 21:41:55,720 [INFO] (rapid) INIT RTDONE(status: error)",
+      "17 Nov 2026 21:41:55,720 [INFO] (rapid) INIT REPORT(durationMs: 2.925000)",
+      "17 Nov 2026 21:41:55,720 [INFO] (rapid) INVOKE START(requestId: 6d8b710e-0394-43ba-b6ec-a73ee527c99a)",
+      "17 Nov 2026 21:41:55,721 [ERROR] (rapid) Invoke failed error=Runtime exited with error: exit status 1 InvokeID=6d8b710e-0394-43ba-b6ec-a73ee527c99a",
+      "17 Nov 2026 21:41:55,721 [ERROR] (rapid) Invoke DONE failed: Runtime.ExitError",
+      "17 Nov 2026 21:41:55,721 [WARNING] (rapid) Reset initiated: ReleaseFail",
+      "17 Nov 2026 21:41:55,721 [INFO] (rapid) Waiting for runtime domain processes termination"
+    ],
+    "worked": false,
+    "same_as_reference": false
+  },
+  {
+    "scenario": "go1.x image, norpc build",
+    "build": "norpc-main",
+    "image": "public.ecr.aws/lambda/go:1.2024.01.05.16",
+    "platform": "linux/amd64",
+    "expected": null,
+    "started": true,
+    "responses": {
+      "known": {
+        "http": 200,
+        "result": {
+          "statusCode": 200,
+          "body": {
+            "id": "ord-100001",
+            "status": "DISPATCHED",
+            "updatedAt": "2023-12-18T09:30:00Z"
+          }
+        }
+      },
+      "malformed": {
+        "http": 200,
+        "result": {
+          "statusCode": 400,
+          "body": {
+            "error": "order id must look like ord-123456"
+          }
+        }
+      },
+      "unknown": {
+        "http": 200,
+        "result": {
+          "statusCode": 404,
+          "body": {
+            "error": "no such order"
+          }
+        }
+      }
+    },
+    "log": [
+      "START RequestId: 5323d008-f7ae-47c3-a6ad-b142a84ffcf8 Version: $LATEST",
+      "{\"time\":\"2026-11-17T21:41:56.945596882Z\",\"level\":\"INFO\",\"msg\":\"order returned\",\"requestId\":\"28fc91ed-0140-4db6-94fb-241f20e14814\",\"id\":\"ord-100001\",\"status\":\"DISPATCHED\"}",
+      "END RequestId: 28fc91ed-0140-4db6-94fb-241f20e14814",
+      "REPORT RequestId: 28fc91ed-0140-4db6-94fb-241f20e14814\tInit Duration: 0.04 ms\tDuration: 5.35 ms\tBilled Duration: 6 ms\tMemory Size: 3008 MB\tMax Memory Used: 3008 MB\t",
+      "START RequestId: b8eee72b-0053-49ec-89ed-616f6d190d28 Version: $LATEST",
+      "{\"time\":\"2026-11-17T21:41:56.946941763Z\",\"level\":\"INFO\",\"msg\":\"rejected order id\",\"requestId\":\"aa4df949-5952-49df-be1a-b991927e08bd\",\"id\":\"100001\"}",
+      "END RequestId: aa4df949-5952-49df-be1a-b991927e08bd",
+      "REPORT RequestId: aa4df949-5952-49df-be1a-b991927e08bd\tDuration: 0.48 ms\tBilled Duration: 1 ms\tMemory Size: 3008 MB\tMax Memory Used: 3008 MB\t",
+      "START RequestId: e5258f66-1427-44cb-8238-2e9212c80b88 Version: $LATEST",
+      "END RequestId: 6d71e0e4-5493-404d-8813-bc13f3af852c",
+      "REPORT RequestId: 6d71e0e4-5493-404d-8813-bc13f3af852c\tDuration: 0.43 ms\tBilled Duration: 1 ms\tMemory Size: 3008 MB\tMax Memory Used: 3008 MB\t",
+      "17 Nov 2026 21:41:56,936 [INFO] (rapid) exec '/var/runtime/bootstrap' (cwd=/var/task, handler=)",
+      "17 Nov 2026 21:41:56,940 [INFO] (rapid) INIT START(type: on-demand, phase: init)",
+      "17 Nov 2026 21:41:56,940 [INFO] (rapid) The extension's directory \"/opt/extensions\" does not exist, assuming no extensions to be loaded.",
+      "17 Nov 2026 21:41:56,940 [INFO] (rapid) Starting runtime without AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_SESSION_TOKEN , Expected?: false",
+      "17 Nov 2026 21:41:56,944 [INFO] (rapid) INIT RTDONE(status: success)",
+      "17 Nov 2026 21:41:56,944 [INFO] (rapid) INIT REPORT(durationMs: 4.174000)",
+      "17 Nov 2026 21:41:56,945 [INFO] (rapid) INVOKE START(requestId: 28fc91ed-0140-4db6-94fb-241f20e14814)",
+      "17 Nov 2026 21:41:56,946 [INFO] (rapid) INVOKE RTDONE(status: success, produced bytes: 0, duration: 0.827000ms)",
+      "17 Nov 2026 21:41:56,946 [INFO] (rapid) INVOKE START(requestId: aa4df949-5952-49df-be1a-b991927e08bd)",
+      "17 Nov 2026 21:41:56,947 [INFO] (rapid) INVOKE RTDONE(status: success, produced bytes: 0, duration: 0.351000ms)",
+      "17 Nov 2026 21:41:56,947 [INFO] (rapid) INVOKE START(requestId: 6d71e0e4-5493-404d-8813-bc13f3af852c)",
+      "17 Nov 2026 21:41:56,948 [INFO] (rapid) INVOKE RTDONE(status: success, produced bytes: 0, duration: 0.355000ms)"
+    ],
+    "worked": true,
+    "same_as_reference": true
+  }
+]

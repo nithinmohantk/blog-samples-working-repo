@@ -1,0 +1,10 @@
+variant	file	GOARCH	CGO	tags	bytes	linking	newest glibc symbol
+go1x	main	amd64	0	-	9969194	static	-
+rpc-bootstrap	bootstrap	amd64	0	-	9969194	static	-
+al2023-amd64	bootstrap	amd64	0	lambda.norpc	5324800	static	-
+al2023-arm64	bootstrap	arm64	0	lambda.norpc	5046272	static	-
+norpc-unstripped	bootstrap	amd64	0	lambda.norpc	7786381	static	-
+rpc-stripped	bootstrap	amd64	0	-	6832128	static	-
+cgo-bootstrap	bootstrap	amd64	1	lambda.norpc	5369856	dynamic	GLIBC_2.34
+cgo-main	main	amd64	1	-	10036855	dynamic	GLIBC_2.34
+norpc-main	main	amd64	0	lambda.norpc	5324800	static	-

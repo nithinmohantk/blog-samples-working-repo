@@ -1,0 +1,7 @@
+OK   al2023-amd64.zip: bootstrap, linux/amd64, static
+OK   al2023-arm64.zip: bootstrap, linux/arm64, static
+WARN rpc-bootstrap.zip: built without -tags lambda.norpc (works, but carries the unused RPC code)
+OK   rpc-bootstrap.zip: bootstrap, linux/amd64, static
+FAIL go1x.zip: no file named bootstrap at the root of the zip (found: main )
+FAIL cgo-bootstrap.zip: built with CGO_ENABLED=1; the binary depends on the build machine's glibc
+FAIL al2023-arm64.zip: GOARCH arm64 does not match the function architecture x86_64
