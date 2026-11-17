@@ -60,8 +60,48 @@ client = BulkClient(base, max_wait_seconds=300)
 runs = {
     "plain": {},
     "since_five_years": {"since": f"{five_years_before(REQUEST_DATE)}T00:00:00Z"},
-    "type_filter": {"type_filters": [f"ExplanationOfBenefit?service-date=ge{five_years_before(REQUEST_DATE)}"]},
+    "type_filter_unregistered": {"type_filters": [f"ExplanationOfBenefit?service-date=ge{five_years_before(REQUEST_DATE)}"]},
 }
+SERVICE_DATE_SP = {
+    "resourceType": "SearchParameter", "id": "eob-service-date", "url": "http://example.org/fhir/SearchParameter/eob-service-date",
+    "name": "service-date", "status": "active", "code": "service-date", "base": ["ExplanationOfBenefit"], "type": "date",
+    "description": "Date of service: the billing period or the item's serviced date (modelled on CARIN Blue Button)",
+    "expression": "ExplanationOfBenefit.billablePeriod | ExplanationOfBenefit.item.serviced",
+}
+WINDOW = str(five_years_before(REQUEST_DATE))
+FILTERS = [f"ExplanationOfBenefit?service-date=ge{WINDOW}", f"Encounter?date=ge{WINDOW}",
+           f"Observation?date=ge{WINDOW}", f"Condition?recorded-date=ge{WINDOW}"]
+
+
+def post(path, resource, method="POST"):
+    req = urllib.request.Request(f"{base}/{path}", data=json.dumps(resource).encode(), method=method,
+                                 headers={"Content-Type": "application/fhir+json"})
+    with urllib.request.urlopen(req, timeout=120) as r:
+        return r.status
+
+
+def search_count(query):
+    with urllib.request.urlopen(f"{base}/{query}&_summary=count", timeout=60) as r:
+        return json.load(r).get("total")
+
+
+def add_service_date_parameter():
+    """Registers the search parameter, reindexes claims, and waits until a search by it finds them."""
+    post("SearchParameter/eob-service-date", SERVICE_DATE_SP, method="PUT")
+    time.sleep(65)                       # HAPI refreshes its search parameter registry about once a minute
+    post("$reindex", {"resourceType": "Parameters", "parameter": [{"name": "url", "valueString": "ExplanationOfBenefit?"}]})
+    deadline = time.time() + 240
+    while time.time() < deadline:
+        try:
+            found = search_count(f"ExplanationOfBenefit?service-date=ge{WINDOW}")
+            if found:
+                return found
+        except OSError:
+            pass
+        time.sleep(10)
+    return 0
+
+
 for name, kwargs in runs.items():
     try:
         result = client.export("p2p-optin", TYPES, **kwargs)
@@ -74,7 +114,20 @@ for name, kwargs in runs.items():
         report[name] = {"error": f"{type(exc).__name__}: {exc}"}
     time.sleep(2)
 
+report["service_date_parameter"] = {"claims_found_by_search": add_service_date_parameter()}
+try:
+    result = client.export("p2p-optin", TYPES, type_filters=FILTERS)
+    report["type_filter_registered"] = {"filters": FILTERS, "counts": result.counts(), "patients": patients_in(result)}
+    filtered = result
+except Exception as exc:
+    report["type_filter_registered"] = {"filters": FILTERS, "error": f"{type(exc).__name__}: {exc}"}
+    filtered = None
+
 decisions = apply_window(plain.resources, REQUEST_DATE)
+if filtered is not None:
+    after = apply_window(filtered.resources, REQUEST_DATE)
+    report["type_filter_then_window"] = {"kept": dict(Counter(d.resource_type for d in after if d.keep)),
+                                         "not_sent": sorted(f"{d.resource_type}/{d.resource_id}: {d.reason}" for d in after if not d.keep)}
 report["window"] = {
     "kept": dict(Counter(d.resource_type for d in decisions if d.keep)),
     "reasons": dict(Counter(d.reason for d in decisions)),
@@ -85,10 +138,14 @@ report["window"] = {
 
 lines = [f"server {report['server'].get('name')} {report['server'].get('version')}, FHIR {report['fhirVersion']}",
          f"request date {REQUEST_DATE}, window starts {report['window_starts']}", f"loaded {report['load']}"]
-for name in runs:
+for name in [*runs, "type_filter_registered"]:
     r = report[name]
     lines.append(f"{name:<17} " + (r["error"] if "error" in r else f"{r['counts']} patients={r['patients']}"))
+lines.append(f"service-date search after reindex found {report['service_date_parameter']['claims_found_by_search']} claims")
 lines.append(f"after the window   kept {report['window']['kept']}")
 lines += [f"  not sent: {x}" for x in report["window"]["held_or_dropped"]]
+if "type_filter_then_window" in report:
+    lines.append(f"type filter + window kept {report['type_filter_then_window']['kept']}")
+    lines += [f"  not sent: {x}" for x in report["type_filter_then_window"]["not_sent"]]
 (out / "experiments.txt").write_text("\n".join(lines) + "\n")
 print("\n".join(lines))
