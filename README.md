@@ -47,6 +47,7 @@ Each folder has its own README that says what the code does, how to run it, and 
 | `dotnet10-on-lambda` | [.NET 10 on AWS Lambda: Managed Runtime, Native AOT and SnapStart](https://www.dataa.dev/2026/04/11/dotnet-10-on-aws-lambda-managed-runtime-native-aot-and-snapstart/) | C#, Python |
 | `sqlserver2025-vector-json` | [SQL Server 2025 for Architects: The Vector Type and Native JSON](https://www.dataa.dev/2026/04/25/sql-server-2025-for-architects-the-vector-type-and-native-json/) | T-SQL, C# |
 | `aws-emulator-first-look` | [AWS Emulator, Two Days In: A Lab Notebook](https://www.dataa.dev/2026/11/13/aws-emulator-two-days-in-a-lab-notebook/) | Bash, Python |
+| `bedrock-healthcare-genai-pipeline` | [Taking a GenAI Assistant to Production on Amazon Bedrock: Knowledge Base, Fine-Tuning and Release Gates for Irish Healthcare](https://www.dataa.dev/2026/06/20/genai-assistant-on-amazon-bedrock-for-irish-healthcare/) | Python, JSON |
 
 ## Verification status
 
