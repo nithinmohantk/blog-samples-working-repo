@@ -39,6 +39,18 @@ docker run --rm --platform linux/amd64 --entrypoint /bin/sh "$GO_IMAGE" -c \
 docker run --rm --platform linux/amd64 -v "$PWD/dist/cgo-main:/var/task:ro" --entrypoint /var/task/main "$GO_IMAGE" \
   > "$out/cgo-in-go1x-image.txt" 2>&1 || true
 
+echo "== package gate"
+check() {  # check <variant> <architecture> <expected exit code>
+  local zip="$PWD/dist/$1.zip"
+  (cd "dist/$1" && zip -q -X "$zip" ./*)
+  tools/check_package.sh "$zip" "$2"; local got=$?
+  [ "$got" -eq "$3" ] || { echo "UNEXPECTED exit $got for $1 (wanted $3)"; return 1; }
+}
+{
+  check al2023-amd64 x86_64 0 && check al2023-arm64 arm64 0 && check rpc-bootstrap x86_64 0 &&
+  check go1x x86_64 1 && check cgo-bootstrap x86_64 1 && check al2023-arm64 x86_64 1
+} 2>&1 | sed "s|$PWD/dist/||" | tee "$out/check-package.txt"; [ "${PIPESTATUS[0]}" -eq 0 ] || status=1
+
 echo "== in the Lambda runtime emulator"
 python -u tools/emulate.py "$PWD/dist" "$GO_IMAGE" "$AL2023_IMAGE" "$out" 2>&1 | tee "$out/emulator.txt"
 [ "${PIPESTATUS[0]}" -eq 0 ] || status=1
