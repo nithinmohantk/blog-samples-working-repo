@@ -1,0 +1,9 @@
+{
+  "title": "Taking a GenAI Assistant to Production on Amazon Bedrock: Knowledge Base, Fine-Tuning and Release Gates for Irish Healthcare",
+  "slug": "genai-assistant-on-amazon-bedrock-for-irish-healthcare",
+  "date": "2026-06-20T09:00:00",
+  "status": "publish",
+  "excerpt": "For an Irish health guidance assistant on Amazon Bedrock, published HIQA and HSE guidance goes into a Knowledge Base in eu-west-1, fine-tuning is kept for behaviour on non-personal data because Nova customisation runs in US Regions, and IHI and PPSN values are blocked by a dataset gate and a Guardrail. A Step Functions release pipeline promotes a change only after a golden-set evaluation and clinical sign-off.",
+  "featured_media": 0,
+  "taxonomy_note": "categories [1484, 1448, 798, 423, 756]; tags [1174 Amazon Bedrock, 835 AWS, 840 Python, 952 Architecture, 821, 1548, 1321, 973?] to confirm at publish"
+}
