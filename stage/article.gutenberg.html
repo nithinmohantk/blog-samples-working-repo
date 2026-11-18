@@ -1,437 +1,376 @@
 <!-- wp:paragraph -->
-<p>Anthropic released the Claude 3 models on 4 March 2024, and Claude 3 Sonnet was on Amazon Bedrock the same day, in US East (N. Virginia) and US West (Oregon). Claude 3 Haiku followed on 13 March, and Claude 3 Opus is due in the coming weeks. On paper the move from Claude 2.1 is a model ID change. In practice it is an API change: Claude 3 does not accept the Text Completions request that every Claude 2 integration on Bedrock was written against.</p>
+<p>In the early hours of Friday 15 March 2024, the Council and the European Parliament reached a provisional agreement on the regulation for a European Health Data Space. The Council published the compromise text on 18 March as document 7553/24. It still needs formal adoption by both institutions, and some passages carry drafting marks, but the obligations for anyone who builds or buys an electronic health record system are now clear enough to plan against.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
-<p>Send a Claude 2 request body to a Claude 3 model ID and <code>InvokeModel</code> answers with a ValidationException saying the model is not supported on this API and to use the Messages API instead. Anything that builds a <code>prompt</code> string with <code>\n\nHuman:</code> and <code>\n\nAssistant:</code> markers has to change before it can use the new models. This article covers what changes, a converter for existing prompts, streaming, and the cost case, with every request checked against Anthropic's own SDK.</p>
+<p>Most of the coverage has been about secondary use: research access, health data access bodies and the new opt-out. This article is about primary use, the care side, and in particular the access path of an EHR system: who may see which data, how a patient's restrictions are applied, what is logged, and what the patient is told. These are the parts a vendor will build first, because they touch every screen and every API call. The sample code implements them on FHIR R4 and runs against a HAPI FHIR server.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:heading {"level":2} -->
-<h2 class="wp-block-heading">What changed in the request</h2>
+<h2 class="wp-block-heading">What the agreement asks of an EHR system</h2>
 <!-- /wp:heading -->
 
 <!-- wp:paragraph -->
-<p>A Text Completions request is one string plus a few parameters. The model was trained on conversations written as <code>\n\nHuman:</code> and <code>\n\nAssistant:</code> turns, so the prompt had to be in that form, and callers added <code>\n\nHuman:</code> as a stop sequence so the model would not write the user's next line as well. A Messages request separates those things:</p>
+<p>Chapter III treats an EHR system as a regulated product. It must meet the essential requirements in Annex II, carry an EU declaration of conformity and a CE marking, and be registered in a public EU database before it is placed on the market. Two software parts are defined in Article 2: a European interoperability component that provides and receives personal electronic health data, and a European logging component that provides logging information on health professionals' access to that data. Together they are the harmonised components that the conformity rules apply to.</p>
 <!-- /wp:paragraph -->
 
-<!-- wp:list -->
-<ul class="wp-block-list">
-<!-- wp:list-item -->
-<li><code>system</code> is a top-level field. In Claude 2, a system prompt was whatever text came before the first Human turn.</li>
-<!-- /wp:list-item -->
-<!-- wp:list-item -->
-<li><code>messages</code> is a list of turns with a <code>role</code> of <code>user</code> or <code>assistant</code>, starting with <code>user</code> and alternating.</li>
-<!-- /wp:list-item -->
-<!-- wp:list-item -->
-<li>Each turn's <code>content</code> is a string or a list of blocks. Text blocks and, for Claude 3, base64 image blocks.</li>
-<!-- /wp:list-item -->
-<!-- wp:list-item -->
-<li><code>max_tokens</code> replaces <code>max_tokens_to_sample</code> and is required. <code>anthropic_version</code> must be <code>bedrock-2023-05-31</code>.</li>
-<!-- /wp:list-item -->
-<!-- wp:list-item -->
-<li><code>temperature</code>, <code>top_p</code>, <code>top_k</code> and <code>stop_sequences</code> keep their meaning.</li>
-<!-- /wp:list-item -->
-</ul>
-<!-- /wp:list -->
+<!-- wp:table {"className":"is-style-stripes"} -->
+<figure class="wp-block-table is-style-stripes"><table><thead><tr><th>Provision</th><th>What it means for the product</th></tr></thead><tbody><tr><td>Article 5(1)</td><td>Six priority categories: patient summaries, ePrescriptions, eDispensations, imaging studies and reports, test results and reports, discharge reports</td></tr><tr><td>Annex II, section 2</td><td>Make data available in the European health record exchange format, capture it at a granularity that allows that export, and do not obstruct export when a customer replaces the system</td></tr><tr><td>Annex II, point 3.2</td><td>Reliable identification and authentication of health professionals</td></tr><tr><td>Annex II, point 3.4</td><td>Log every access: provider, individual, data categories, date and time, origin of the data</td></tr><tr><td>Annex II, point 3.6</td><td>Tools to review and analyse the logs, or a connection to external software that does</td></tr><tr><td>Article 17</td><td>Technical documentation, EU declaration of conformity and CE marking; keep both documents for 10 years</td></tr><tr><td>Article 26a</td><td>Test in the European or national digital testing environment before release; positive results presume conformity for what was tested</td></tr><tr><td>Article 32</td><td>Register in the EU database for EHR systems, including the test results</td></tr></tbody></table></figure>
+<!-- /wp:table -->
+
+<!-- wp:paragraph -->
+<p>The Council's note on the deal describes this as a self-certification scheme supported by a digital testing environment. That is lighter than medical device certification, but it moves the evidence burden onto the vendor: the technical documentation has to show how each Annex II requirement is met, and Article 16 forbids claims about interoperability or security that the product does not support.</p>
+<!-- /wp:paragraph -->
 
 <!-- wp:image {"sizeSlug":"large","linkDestination":"none"} -->
-<figure class="wp-block-image size-large"><img src="{{IMG1_URL}}" alt="Table mapping Text Completions fields to Messages API fields for Claude 3 on Bedrock: prompt to system and messages, max_tokens_to_sample to max_tokens, completion to content text, and usage token counts"/><figcaption class="wp-element-caption">The whole migration on one page.</figcaption></figure>
+<figure class="wp-block-image size-large"><img src="{{IMG1_URL}}" alt="Diagram of an EHR access path under the EHDS provisional agreement: a health professional&#x27;s request passes an access gateway that applies Article 8e restrictions and Article 7a(3) emergency access, reads the FHIR record, and writes an AuditEvent to a logging component that feeds the patient&#x27;s Article 8f access report"/><figcaption class="wp-element-caption">The access path the sample implements, with the article behind each step.</figcaption></figure>
 <!-- /wp:image -->
 
-<!-- wp:paragraph -->
-<p>The response changes too. <code>completion</code> becomes <code>content</code>, a list of blocks, so code that read one string has to join the text blocks. <code>stop_reason</code> gains <code>end_turn</code> for a normal finish. And every response now carries <code>usage</code> with input and output token counts, which Text Completions never returned in the body.</p>
-<!-- /wp:paragraph -->
-
 <!-- wp:heading {"level":2} -->
-<h2 class="wp-block-heading">Converting existing prompts</h2>
+<h2 class="wp-block-heading">Mapping data to the priority categories</h2>
 <!-- /wp:heading -->
 
 <!-- wp:paragraph -->
-<p>Most teams have prompts in code, templates or a database, written for Claude 2. Rewriting them by hand is a risk of its own, because a prompt that has been tuned over months is easy to change by accident. A mechanical conversion keeps the wording identical and moves only the structure:</p>
+<p>Restrictions, logs and the patient's report all speak in terms of the Article 5 categories, so the system needs a reliable way to place each record in one. The provisional agreement does not define that mapping. It will come with the exchange format in implementing acts, due within two years of entry into force. Until then a working mapping, kept in one function so it can change, is the practical choice:</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:code {"language":"python"} -->
-<pre class="wp-block-code"><code lang="python" class="language-python">def parse_prompt(prompt: str) -&gt; tuple[str | None, list[dict]]:
-    """Return (system, messages). Consecutive turns from the same role are merged."""
-    parts = _TURN.split(prompt)
-    system = parts[0].strip() or None
-    if len(parts) &lt; 3:
-        raise PromptFormatError("no '\\n\\nHuman:' turn found")
-    messages: list[dict] = []
-    for marker, text in zip(parts[1::2], parts[2::2]):
-        role = "user" if marker == HUMAN else "assistant"
-        text = text.strip()
-        if messages and messages[-1]["role"] == role:
-            messages[-1]["content"] += "\n\n" + text
-        else:
-            messages.append({"role": role, "content": text})
-    if messages[0]["role"] != "user":
-        raise PromptFormatError("the first turn must be Human")
-    if parts[-2] != ASSISTANT:
-        raise PromptFormatError("the prompt must end with '\\n\\nAssistant:'")
-    # An empty final "Assistant:" just asks for the answer; text there is a prefill and stays.
-    if messages[-1]["role"] == "assistant" and not messages[-1]["content"]:
-        messages.pop()
-    for m in messages:
-        if not m["content"]:
-            raise PromptFormatError(f"empty {m['role']} turn")
-    return system, messages</code></pre>
+<pre class="wp-block-code"><code lang="python" class="language-python">def category_of(resource: dict) -&gt; str | None:
+    """The Article 5 category of one FHIR R4 resource, or None if it is outside the priority categories."""
+    rtype = resource.get("resourceType")
+    if rtype == "MedicationRequest":
+        return EPRESCRIPTION
+    if rtype == "MedicationDispense":
+        return EDISPENSATION
+    if rtype == "ImagingStudy":
+        return IMAGING
+    if rtype in ("Composition", "DocumentReference"):
+        for code in _codes(resource.get("type"), LOINC):
+            if code in DOC_TYPES:
+                return DOC_TYPES[code]
+        return None
+    if rtype == "DiagnosticReport":
+        cats = _codes(resource.get("category"), V2_0074)
+        return IMAGING if cats &amp; RADIOLOGY else TEST_RESULTS
+    if rtype == "Observation":
+        cats = _codes(resource.get("category"), OBS_CATEGORY)
+        if "imaging" in cats:
+            return IMAGING
+        return TEST_RESULTS if cats &amp; {"laboratory", "procedure"} else None
+    return None</code></pre>
 <!-- /wp:code -->
 
 <!-- wp:paragraph -->
-<p>Three details matter. Text before the first Human turn is the system prompt, which is how Claude 2 treated it. Two Human turns in a row, which Claude 2 tolerated, become one user message, because the Messages API requires alternating roles. And text after the final <code>\n\nAssistant:</code> is a prefill, the opening of the answer the caller wants continued, so it stays as a final assistant message instead of being dropped.</p>
+<p>Two cases need care. A DiagnosticReport is a test result or an imaging report depending on its category, so the radiology codes decide. And documents are classified by their LOINC type, which works for structured patient summaries and discharge summaries but not for a scanned letter filed with a generic type. Anything the function cannot place is logged as <code>other</code>, which is visible in the patient's report rather than silently dropped.</p>
 <!-- /wp:paragraph -->
 
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">The log record</h2>
+<!-- /wp:heading -->
+
 <!-- wp:paragraph -->
-<p>The request body around it is a direct mapping, with one deliberate omission:</p>
+<p>Annex II point 3.4 lists five things to log for each access or group of accesses. FHIR R4 already has a resource for this, AuditEvent, and every item has a natural home in it: the organisation and the individual are agents, the categories and the origin are details on each data entity, and the time is <code>recorded</code>.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:code {"language":"python"} -->
-<pre class="wp-block-code"><code lang="python" class="language-python">def convert_body(old: dict) -&gt; dict:
-    """Map a Text Completions request body to a Messages request body."""
-    system, messages = parse_prompt(old["prompt"])
-    new: dict = {"anthropic_version": ANTHROPIC_VERSION, "max_tokens": old["max_tokens_to_sample"],
-                 "messages": [{"role": m["role"], "content": [{"type": "text", "text": m["content"]}]} for m in messages]}
-    if system:
-        new["system"] = system
-    # "\n\nHuman:" was a stop sequence because the model wrote both sides; the Messages API ends turns itself.
-    stops = [s for s in old.get("stop_sequences", []) if s.strip() != "Human:"]
-    if stops:
-        new["stop_sequences"] = stops
-    for key in ("temperature", "top_p", "top_k"):
-        if key in old:
-            new[key] = old[key]
-    return new</code></pre>
+<pre class="wp-block-code"><code lang="python" class="language-python">def access_event(requester: Requester, patient: str, returned: list[dict], *, interaction: str,
+                 emergency: bool = False, observer: str = "Device/ehr-system",
+                 when: datetime | None = None) -&gt; dict:
+    """The AuditEvent for one request. `returned` is what the user actually saw, after any restriction."""
+    recorded = (when or datetime.now(timezone.utc)).isoformat(timespec="milliseconds")
+    entities = [{"what": {"reference": patient},
+                 "type": {"system": ENTITY_TYPE, "code": "1", "display": "Person"},
+                 "role": {"system": OBJECT_ROLE, "code": "1", "display": "Patient"}}]
+    for resource in returned:
+        category = category_of(resource)
+        entities.append({
+            "what": {"reference": f"{resource['resourceType']}/{resource['id']}"},
+            "type": {"system": ENTITY_TYPE, "code": "2", "display": "System Object"},
+            "role": {"system": OBJECT_ROLE, "code": "4", "display": "Domain Resource"},
+            "detail": [{"type": CATEGORY_DETAIL, "valueString": category or "other"},
+                       {"type": ORIGIN_DETAIL, "valueString": origin_of(resource)}],
+        })
+    reason = ("ETREAT", "Emergency Treatment") if emergency else ("TREAT", "treatment")
+    return {
+        "resourceType": "AuditEvent",
+        "type": {"system": DCM, "code": "110110", "display": "Patient Record"},
+        "subtype": [{"system": RESTFUL, "code": interaction}],
+        "action": "R" if interaction == "read" else "E",
+        "recorded": recorded,
+        "outcome": "0",
+        "purposeOfEvent": [{"coding": [{"system": ACT_REASON, "code": reason[0], "display": reason[1]}]}],
+        "agent": [
+            {"who": {"reference": requester.practitioner, "display": requester.practitioner_name},
+             "requestor": True},
+            {"who": {"reference": requester.organization, "display": requester.organization_name},
+             "requestor": False},
+        ],
+        "source": {"observer": {"reference": observer}},
+        "entity": entities,
+    }</code></pre>
 <!-- /wp:code -->
 
 <!-- wp:paragraph -->
-<p><code>\n\nHuman:</code> was a stop sequence only because the model wrote both sides of the conversation. The Messages API ends the assistant's turn itself, so keeping it would do nothing useful; the converter drops it and keeps any other stop sequences. This is what the demo prints for a summary prompt with a system instruction:</p>
+<p>Two design choices matter more than the field mapping. The event lists what the user actually saw after restrictions were applied, not what the query matched; a log that records hidden data as accessed would show the patient accesses that never happened. And the origin is recorded per item, because a patient summary held by a GP may contain results from a laboratory and a hospital, and Annex II asks for the origin of the data, not the location of the copy. This is part of the event that the CI run stored on the HAPI server for an emergency access:</p>
 <!-- /wp:paragraph -->
 
-<!-- wp:code {"language":"text"} -->
-<pre class="wp-block-code"><code lang="text" class="language-text">== summary with a system prompt
-Text Completions body:
-{
-  "prompt": "You summarise clinical notes in one sentence. Never add facts.\n\nHuman: &lt;note&gt;Admitted with chest pain. Troponin negative twice. Discharged day 3 on aspirin.&lt;/note&gt;\n\nAssistant:",
-  "max_tokens_to_sample": 200,
-  "stop_sequences": [
-    "\n\nHuman:"
-  ],
-  "temperature": 0.0
-}
-Messages body:
-{
-  "anthropic_version": "bedrock-2023-05-31",
-  "max_tokens": 200,
-  "messages": [
+<!-- wp:code {"language":"json"} -->
+<pre class="wp-block-code"><code lang="json" class="language-json">  "purposeOfEvent": [
     {
-      "role": "user",
-      "content": [
+      "coding": [
         {
-          "type": "text",
-          "text": "&lt;note&gt;Admitted with chest pain. Troponin negative twice. Discharged day 3 on aspirin.&lt;/note&gt;"
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+          "code": "ETREAT",
+          "display": "Emergency Treatment"
         }
       ]
     }
   ],
-  "system": "You summarise clinical notes in one sentence. Never add facts.",
-  "temperature": 0.0
-}</code></pre>
-<!-- /wp:code -->
-
-<!-- wp:heading {"level":2} -->
-<h2 class="wp-block-heading">Prefill still works, with one change</h2>
-<!-- /wp:heading -->
-
-<!-- wp:paragraph -->
-<p>Prefill is the most useful trick from Claude 2 prompts: end the prompt with the start of the answer, such as an opening brace, and the model continues from there. The Messages API keeps it as a final assistant message. This is the converted body for a JSON extraction prompt:</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:code {"language":"json"} -->
-<pre class="wp-block-code"><code lang="json" class="language-json">{
-  "anthropic_version": "bedrock-2023-05-31",
-  "max_tokens": 100,
-  "messages": [
+  "agent": [
     {
-      "role": "user",
-      "content": [
-        {
-          "type": "text",
-          "text": "Extract the medication names from: aspirin 75 mg, atorvastatin 40 mg."
-        }
-      ]
+      "who": {
+        "reference": "Practitioner/dr-ed-a",
+        "display": "Dr Emergency-A"
+      },
+      "requestor": true
     },
     {
-      "role": "assistant",
-      "content": [
-        {
-          "type": "text",
-          "text": "{\"medications\": ["
-        }
-      ]
+      "who": {
+        "reference": "Organization/hospital-a",
+        "display": "Hospital A"
+      },
+      "requestor": false
     }
-  ],
-  "stop_sequences": [
-    "]}"
-  ]
-}</code></pre>
+  ]</code></pre>
 <!-- /wp:code -->
 
 <!-- wp:paragraph -->
-<p>The change is in the response. The model returns only the continuation, not the prefill, so code that parses the reply as JSON must put the prefill back in front first. The sample's response parser takes the prefill as an argument and does that, for whole and streamed responses alike. Forgetting it is the most likely bug in a migrated JSON pipeline: every reply fails to parse, and the cause is not obvious from the model's output.</p>
+<p>Each data item carries its category and origin as details:</p>
 <!-- /wp:paragraph -->
 
+<!-- wp:code {"language":"json"} -->
+<pre class="wp-block-code"><code lang="json" class="language-json">    {
+      "what": {
+        "reference": "Observation/hba1c-1"
+      },
+      "type": {
+        "system": "http://terminology.hl7.org/CodeSystem/audit-entity-type",
+        "code": "2",
+        "display": "System Object"
+      },
+      "role": {
+        "system": "http://terminology.hl7.org/CodeSystem/object-role",
+        "code": "4",
+        "display": "Domain Resource"
+      },
+      "detail": [
+        {
+          "type": "ehds-category",
+          "valueString": "test-results"
+        },
+        {
+          "type": "ehds-origin",
+          "valueString": "Organization/lab-d"
+        }
+      ]
+    }</code></pre>
+<!-- /wp:code -->
+
 <!-- wp:paragraph -->
-<p>Prompts that were never in the right form get refused rather than guessed at:</p>
+<p>The first CI run found a useful property of HAPI here. The server enforces referential integrity, so an AuditEvent whose <code>source.observer</code> points at a Device that does not exist is rejected with HTTP 400. Because the gateway writes the log before it returns data, the request failed rather than returning data without a log. That is the behaviour to want, and it is worth testing deliberately: one of the unit tests makes the log store fail and checks that nothing is returned.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">Restrictions that leave no trace</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Article 8e gives a person the right to restrict health professionals' and providers' access to all or part of their data, after being told that this may affect their care. It also says the fact that a restriction exists shall not be visible to healthcare providers, and Article 7a(3) adds that providers are not informed of the restricted content. Filtering records is easy. Filtering them without leaving a trace takes more thought:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:code {"language":"python"} -->
+<pre class="wp-block-code"><code lang="python" class="language-python">def visible(resources: list[dict], restriction: Restriction | None, organization: str,
+            *, emergency: bool = False) -&gt; list[dict]:
+    if restriction is None or emergency or organization in restriction.except_providers:
+        return list(resources)
+    return [r for r in resources if category_of(r) not in restriction.categories]
+
+
+def searchset(resources: list[dict]) -&gt; dict:
+    """A Bundle built from the filtered list only. Passing on the server's total would count hidden items."""
+    return {"resourceType": "Bundle", "type": "searchset", "total": len(resources),
+            "entry": [{"fullUrl": f"{r['resourceType']}/{r['id']}", "resource": r,
+                       "search": {"mode": "match"}} for r in resources]}</code></pre>
+<!-- /wp:code -->
+
+<!-- wp:paragraph -->
+<p>The CI scenario shows why <code>searchset</code> builds its own Bundle. The patient restricts test results for everyone except their GP, and a hospital doctor searches for observations:</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:code {"language":"text"} -->
-<pre class="wp-block-code"><code lang="text" class="language-text">== prompt with no Human turn
-Text Completions body:
-{
-  "prompt": "Summarise this: aspirin 75 mg daily.",
-  "max_tokens_to_sample": 100
-}
-Messages body:
-  refused: no '\n\nHuman:' turn found</code></pre>
-<!-- /wp:code -->
-
-<!-- wp:heading {"level":2} -->
-<h2 class="wp-block-heading">Streaming</h2>
-<!-- /wp:heading -->
-
-<!-- wp:paragraph -->
-<p>Streaming changes more than the request does. A Claude 2 stream sent chunks containing a <code>completion</code> fragment and finally a <code>stop_reason</code>. A Claude 3 stream sends typed events, and the text is only in some of them:</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:merpress/mermaidjs -->
-<div class="wp-block-merpress-mermaidjs diagram-source-mermaid"><pre class="mermaid">%%{init: {'theme': 'base', 'themeVariables': {'signalColor': '#0073BB', 'signalTextColor': '#0F172A', 'actorBkg': '#FFF3E0', 'actorBorder': '#FF9900', 'actorTextColor': '#232F3E', 'noteBkgColor': '#FFF8E7', 'noteBorderColor': '#FF9900', 'noteTextColor': '#232F3E'}}}%%
-sequenceDiagram
-    participant App as Your code
-    participant BR as Bedrock Runtime
-    participant C as Claude 3
-    App-&gt;&gt;BR: InvokeModelWithResponseStream (Messages body)
-    BR-&gt;&gt;C: generate
-    C--&gt;&gt;App: message_start (input tokens)
-    C--&gt;&gt;App: content_block_delta (text) ... repeated
-    C--&gt;&gt;App: message_delta (stop_reason, output tokens)
-    C--&gt;&gt;App: message_stop (Bedrock invocation metrics)</pre></div>
-<!-- /wp:merpress/mermaidjs -->
-
-<!-- wp:paragraph -->
-<p><code>message_start</code> carries the input token count, <code>content_block_delta</code> events carry the text, <code>message_delta</code> carries the stop reason and output token count, and Bedrock adds its own invocation metrics to <code>message_stop</code>. Code that concatenated every chunk's <code>completion</code> field now gets nothing back. The sample folds the events into one result:</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:code {"language":"python"} -->
-<pre class="wp-block-code"><code lang="python" class="language-python">def from_stream(events, prefill: str = "") -&gt; Result:
-    """Fold the decoded stream events (message_start ... message_stop) into one Result."""
-    pieces, stop_reason, stop_sequence, input_tokens, output_tokens, extra = [prefill], None, None, 0, 0, {}
-    for event in events:
-        kind = event.get("type")
-        if kind == "message_start":
-            input_tokens = event["message"]["usage"].get("input_tokens", 0)
-        elif kind == "content_block_delta" and event["delta"].get("type") == "text_delta":
-            pieces.append(event["delta"]["text"])
-        elif kind == "message_delta":
-            stop_reason = event["delta"].get("stop_reason")
-            stop_sequence = event["delta"].get("stop_sequence")
-            output_tokens = event.get("usage", {}).get("output_tokens", output_tokens)
-        elif kind == "message_stop" and "amazon-bedrock-invocationMetrics" in event:
-            extra = event["amazon-bedrock-invocationMetrics"]
-    return Result("".join(pieces), stop_reason, stop_sequence, input_tokens, output_tokens, extra)</code></pre>
+<pre class="wp-block-code"><code lang="text" class="language-text">== 2. The patient restricts test results for everyone except their GP (Article 8e)
+Hospital A, Observation: ['bp-1'] total 1   (the server's own total: 3)
+Hospital A, DiagnosticReport: ['xray-report-1'] total 1
+GP Practice B, Observation: ['hba1c-1', 'creat-1', 'bp-1'] total 3</code></pre>
 <!-- /wp:code -->
 
 <!-- wp:paragraph -->
-<p>The client around it is small. It uses Bedrock Runtime's two operations, the only ones it had in March 2024, and lets botocore's adaptive retry mode handle throttling, which is the usual first error on a newly launched model:</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:code {"language":"python"} -->
-<pre class="wp-block-code"><code lang="python" class="language-python"># Throttling is the usual failure on a new model; let botocore back off and retry.
-RETRY = Config(retries={"max_attempts": 8, "mode": "adaptive"}, read_timeout=120)
-
-
-class ClaudeOnBedrock:
-    def __init__(self, model_id: str = SONNET, client=None, region: str = "us-east-1"):
-        self.model_id = model_id
-        self.client = client or boto3.client("bedrock-runtime", region_name=region, config=RETRY)
-
-    def invoke(self, body: dict) -&gt; Result:
-        response = self.client.invoke_model(modelId=self.model_id, body=json.dumps(body),
-                                            contentType="application/json", accept="application/json")
-        result = from_message(json.loads(response["body"].read()), prefill_of(body))
-        log.info("model=%s in=%d out=%d stop=%s", self.model_id, result.input_tokens, result.output_tokens,
-                 result.stop_reason)
-        return result
-
-    def stream(self, body: dict) -&gt; Result:
-        response = self.client.invoke_model_with_response_stream(
-            modelId=self.model_id, body=json.dumps(body), contentType="application/json", accept="application/json")
-        events = (json.loads(part["chunk"]["bytes"]) for part in response["body"] if "chunk" in part)
-        return from_stream(events, prefill_of(body))</code></pre>
-<!-- /wp:code -->
-
-<!-- wp:heading {"level":2} -->
-<h2 class="wp-block-heading">Images in the request</h2>
-<!-- /wp:heading -->
-
-<!-- wp:paragraph -->
-<p>Claude 3 accepts images, which Claude 2 never did, and the Messages API is the only way to send them. An image is a content block inside a user message, next to the text blocks. On Bedrock it has to be in the request body as base64; there is no option to pass a URL or an S3 location, so the application reads the bytes and encodes them itself:</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:code {"language":"python"} -->
-<pre class="wp-block-code"><code lang="python" class="language-python">def image_block(data: bytes, media_type: str) -&gt; dict:
-    """An image as Claude 3 takes it on Bedrock: base64 in the request body, no URLs."""
-    if media_type not in IMAGE_TYPES:
-        raise ValueError(f"unsupported media type {media_type}")
-    return {"type": "image", "source": {"type": "base64", "media_type": media_type,
-                                        "data": base64.b64encode(data).decode("ascii")}}
-
-
-def user_message</code></pre>
-<!-- /wp:code -->
-
-<!-- wp:paragraph -->
-<p>JPEG, PNG, GIF and WebP are accepted. Base64 adds about a third to the size, and the whole request body has a size limit, so large photos should be resized before encoding; this also reduces input tokens, because an image is charged by its pixel dimensions. The sample's test builds a message with a 1x1 PNG and a question, sends it through Anthropic's Bedrock client and checks that the body is identical to the one built by hand. It also checks that an unsupported type such as TIFF is refused before any request is made.</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:paragraph -->
-<p>Image input changes more than the request shape. A prompt that used to describe a document in words can now include the page itself, and that is a product decision, not part of the migration. Treat it as a separate change after the API move is done and tested.</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:heading {"level":2} -->
-<h2 class="wp-block-heading">Errors to expect</h2>
-<!-- /wp:heading -->
-
-<!-- wp:paragraph -->
-<p>The API change does not change how Bedrock reports failures, but a migration exercises the error paths more than usual: new model IDs, new account permissions and new quotas all arrive at once. The service model in botocore 1.34.64 lists these errors for <code>InvokeModel</code>, as printed in the CI run below. Three of them matter most during a move:</p>
+<p>The server counted three matching observations. A gateway that filtered the entries but passed on the server's total would tell the hospital that two results exist and are being withheld, which is exactly what Article 8e forbids. The count is the obvious leak; there are others that a test suite should cover:</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:list -->
 <ul class="wp-block-list">
 <!-- wp:list-item -->
-<li><strong>ValidationException</strong> is the error for a Text Completions body sent to Claude 3, and for a Messages body that breaks a rule, such as two user messages in a row, an empty content block or a missing <code>max_tokens</code>. Treat it as a bug, never retry it.</li>
+<li><strong>References from visible records.</strong> A DiagnosticReport that is shown may reference Observations that are hidden. Following the reference returns nothing, which is itself a signal. Either hide the referring record too or strip the references.</li>
 <!-- /wp:list-item -->
 <!-- wp:list-item -->
-<li><strong>AccessDeniedException</strong> usually means model access has not been granted for this model in this account and Region. It is fixed in the console, not in code.</li>
+<li><strong>Data embedded in documents.</strong> A patient summary can contain recent results in its narrative. Category filtering at resource level does not remove them; that needs section-level handling or a regenerated summary.</li>
 <!-- /wp:list-item -->
 <!-- wp:list-item -->
-<li><strong>ThrottlingException</strong> is normal on a new model with default quotas. Retry with backoff, which is what the adaptive retry mode does, and request a quota increase before moving production traffic.</li>
+<li><strong>Includes and paging.</strong> <code>_include</code>, <code>_revinclude</code> and page sizes computed before filtering all reveal hidden items. The sample avoids them by reading every page and building the result itself.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li><strong>Error messages.</strong> A read of a hidden record by ID must look the same as a read of a record that does not exist.</li>
 <!-- /wp:list-item -->
 </ul>
 <!-- /wp:list -->
 
 <!-- wp:paragraph -->
-<p><code>ModelTimeoutException</code> and <code>ModelErrorException</code> are rarer and worth a single retry. Log the request ID from every failure; it is what AWS Support asks for first.</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:heading {"level":2} -->
-<h2 class="wp-block-heading">Test setup</h2>
-<!-- /wp:heading -->
-
-<!-- wp:paragraph -->
-<p>These tests do not call Bedrock, so they say nothing about what Claude 3 writes. They check the part a migration can get wrong: the shape of every request and response. The reference is Anthropic's own Python SDK, version 0.20.0, the release available on 15 March 2024, which has an <code>AnthropicBedrock</code> client that signs requests for Bedrock. The tests replace its network layer with a stub that records what it would send. This is what the installed SDKs offered:</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:code {"language":"json"} -->
-<pre class="wp-block-code"><code lang="json" class="language-json">{
-  "botocore": "1.34.64",
-  "bedrock-runtime operations": [
-    "InvokeModel",
-    "InvokeModelWithResponseStream"
-  ],
-  "anthropic": "0.20.0",
-  "InvokeModel errors": [
-    "AccessDeniedException",
-    "InternalServerException",
-    "ModelErrorException",
-    "ModelNotReadyException",
-    "ModelTimeoutException",
-    "ResourceNotFoundException",
-    "ServiceQuotaExceededException",
-    "ThrottlingException",
-    "ValidationException"
-  ],
-  "AnthropicBedrock resources": [
-    "completions",
-    "messages"
-  ]
-}</code></pre>
-<!-- /wp:code -->
-
-<!-- wp:paragraph -->
-<p>The central test builds the same request two ways, with the converter and with Anthropic's client, and requires the two JSON bodies to be identical:</p>
+<p>The gateway puts the steps together and keeps the order that matters: filter, log what is shown, then return.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:code {"language":"python"} -->
-<pre class="wp-block-code"><code lang="python" class="language-python">def test_converted_body_is_exactly_what_the_sdk_sends_for_messages():
-    new = convert_body(OLD)
-    seen = {}
-    sdk(capture(seen)).messages.create(model=SONNET, max_tokens=new["max_tokens"], system=new["system"],
-                                       messages=new["messages"], temperature=new["temperature"])
-    assert seen["path"] == f"/model/{SONNET}/invoke"
-    assert seen["body"] == new</code></pre>
+<pre class="wp-block-code"><code lang="python" class="language-python">    def search(self, requester: Requester, patient: str, rtype: str, params: dict | None = None,
+               *, emergency: bool = False) -&gt; dict:
+        query = {"patient": patient, "_count": 100, **(params or {})}
+        found, _server_total = self.fhir.search_all(rtype, query)
+        shown = visible(found, self.restrictions.get(patient), requester.organization, emergency=emergency)
+        # Log before returning: an access that cannot be logged is not served.
+        self.fhir.create(access_event(requester, patient, shown, interaction="search-type",
+                                      emergency=emergency, when=self.clock()))
+        return searchset(shown)</code></pre>
 <!-- /wp:code -->
 
-<!-- wp:paragraph -->
-<p>Other tests feed a documented response through the SDK and through the sample's parser and compare the results, and run the request through botocore's Stubber, which validates the operation's parameters against the Bedrock Runtime service model. For streaming, the tests encode a real AWS event stream, the binary framing with CRC checksums that Bedrock uses, and give the same bytes to botocore's decoder and to the Anthropic SDK's. Both produce the same event sequence and the same text. All 16 tests passed in GitHub Actions on Python 3.12 with boto3 1.34.64.</p>
-<!-- /wp:paragraph -->
-
 <!-- wp:heading {"level":2} -->
-<h2 class="wp-block-heading">What it costs</h2>
+<h2 class="wp-block-heading">Emergency access</h2>
 <!-- /wp:heading -->
 
 <!-- wp:paragraph -->
-<p>The price case is clear even before any quality comparison. The demo prices one month of 50 million input and 10 million output tokens on each model at Bedrock's on-demand rates in US East (N. Virginia):</p>
+<p>Article 7a(3) lets a provider reach restricted data where access is necessary to protect the vital interests of the person, and requires that access to be logged in a clear format the person can easily read. In the sample this is an explicit flag on the request, recorded as <code>purposeOfEvent</code> ETREAT:</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:code {"language":"text"} -->
-<pre class="wp-block-code"><code lang="text" class="language-text">== One month: 50,000,000 input and 10,000,000 output tokens, on-demand, US East (N. Virginia)
-  Claude Instant 1.2   $     64.00
-  Claude 2.0 / 2.1     $    640.00
-  Claude 3 Sonnet      $    300.00
-  Claude 3 Haiku       $     25.00</code></pre>
+<pre class="wp-block-code"><code lang="text" class="language-text">== 3. Emergency access to restricted data (Article 7a(3))
+Hospital A emergency department, Observation: ['hba1c-1', 'creat-1', 'bp-1'] total 3</code></pre>
 <!-- /wp:code -->
 
-<!-- wp:image {"sizeSlug":"large","linkDestination":"none"} -->
-<figure class="wp-block-image size-large"><img src="{{IMG2_URL}}" alt="Bar chart of one month on Bedrock with 50 million input and 10 million output tokens: Claude Instant $64, Claude 2.x $640, Claude 3 Sonnet $300, Claude 3 Haiku $25"/><figcaption class="wp-element-caption">Same tokens, four models.</figcaption></figure>
-<!-- /wp:image -->
+<!-- wp:paragraph -->
+<p>The flag should not be a checkbox anyone can tick. In production it belongs behind a separate permission, a reason the clinician enters, and a review of every use, the usual break-glass controls. There is also a FHIR R4 gap to plan for. The server's CapabilityStatement lists the AuditEvent search parameters it supports, and none of them covers <code>purposeOfEvent</code>:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:code {"language":"text"} -->
+<pre class="wp-block-code"><code lang="text" class="language-text">AuditEvent search parameters in the CapabilityStatement: _content, _filter, _has, _id, _lastUpdated, _profile, _security, _source, _tag, _text, action, address, agent, agent-name, agent-role, altid, date, entity, entity-name, entity-role, entity-type, outcome, patient, policy, site, source, subtype, type</code></pre>
+<!-- /wp:code -->
 
 <!-- wp:paragraph -->
-<p>Claude 3 Sonnet costs less than half of Claude 2.1 for the same tokens, and Claude 3 Haiku costs less than Claude Instant. Both also have a 200,000-token context window. A real workload's token counts will move a little between models, because the tokenizers and the length of answers differ, so measure on your own traffic. This calculation only shows that the price is not the obstacle.</p>
+<p>The CI run confirmed that a search on <code>purpose</code> is rejected as an unknown parameter. A system that needs to list emergency accesses, for a privacy officer's review or for notifications, must either read every event for the patient and filter, as the sample's report does, or define a custom SearchParameter. The <code>entity</code>, <code>patient</code>, <code>agent</code> and <code>date</code> searches all worked as expected and returned the six events the scenario wrote.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:heading {"level":2} -->
-<h2 class="wp-block-heading">Planning the migration</h2>
+<h2 class="wp-block-heading">The patient's access report</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Article 8f gives the person the right to see who accessed their data, including through automatic notifications. The information is provided without delay and free of charge, through the electronic health data access services that Article 8g requires Member States to set up, and stays available for at least three years after each access. It must cover at least the healthcare provider or other individuals who accessed the data, the date and time, and the data accessed. This is the report the sample builds from the events on the server:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:code {"language":"text"} -->
+<pre class="wp-block-code"><code lang="text" class="language-text">When (UTC)               Provider                   Who                Data
+2024-03-21 02:15:07      Hospital A                 Dr Emergency-A     other, test-results  EMERGENCY ACCESS
+2024-03-20 18:40:21      GP Practice B              Dr GP-B            other, test-results
+2024-03-20 18:40:14      Hospital A                 Dr Hospital-A      imaging
+2024-03-20 18:40:07      Hospital A                 Dr Hospital-A      other
+2024-03-20 09:10:14      Hospital A                 Dr Hospital-A      other, test-results
+2024-03-20 09:10:07      GP Practice B              Dr GP-B            patient-summary</code></pre>
+<!-- /wp:code -->
+
+<!-- wp:paragraph -->
+<p>Two details from the text are configuration, not code. Member States may restrict the right in exceptional circumstances, for example where naming a professional would endanger them, so whether the individual's name appears is a setting; the sample renders the same report with the column withheld. And the three years are a minimum. National retention rules for clinical records and logs are often longer, so the deletion check only says when deletion becomes permissible under this rule:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:code {"language":"python"} -->
+<pre class="wp-block-code"><code lang="python" class="language-python">def keep_until(recorded: datetime, years: int = 3) -&gt; datetime:
+    """'At least three years after each data access'. An access on 29 February is kept until 1 March."""
+    try:
+        return recorded.replace(year=recorded.year + years)
+    except ValueError:
+        return recorded.replace(year=recorded.year + years, month=3, day=1)</code></pre>
+<!-- /wp:code -->
+
+<!-- wp:paragraph -->
+<p>The report also exposes the quality of the category mapping. In the run above, the hospital's first search shows <code>other</code> next to test results: that is the blood pressure reading, a vital sign outside the priority categories. A patient will ask what <code>other</code> means, so the final product needs readable names and probably the item names as well.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">Opt-out and access services</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Article 8h lets Member States give people a full, reversible opt-out from access to their data through the EHDS infrastructure, with access still possible to protect vital interests. It is optional, so an EHR system sold in several countries will meet both regimes. The same mechanism as restrictions handles it: an opt-out is a restriction of every category for every provider outside the person's own care setting, with the emergency path unchanged. Building restrictions as data rather than as code, as the sample does, keeps national variants to configuration.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Article 8g also covers proxies, people authorised to act for someone else, such as a parent or carer. Restrictions and access reports therefore need to know who set them and on whose behalf, which is another reason to store them as durable records, for example as FHIR Consent resources, rather than as flags on the patient.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">When it applies</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Article 72 counts everything from entry into force, which is 20 days after publication in the Official Journal. On 23 March 2024 that date is not known, but the sequence is:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image {"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="{{IMG2_URL}}" alt="Timeline of EHDS application periods counted from entry into force: general application after 2 years, implementing acts within 2 years, patient summaries, ePrescriptions and dispensations after 4 years, secondary use after 4 years, imaging, test results and discharge reports after 6 years"/><figcaption class="wp-element-caption">Application periods from Article 72 of the provisional agreement.</figcaption></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>The four-year group, patient summaries, ePrescriptions and dispensations, is where cross-border exchange already runs through MyHealth@EU, so the categories with existing national services come first. Imaging, test results and discharge reports follow two years later. The Chapter II provisions, which include the restriction, logging and access-report rights in this article, are tied to these category dates rather than to the two-year general date, so the access path has to be ready for the first three categories at four years.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">What to do now</h2>
 <!-- /wp:heading -->
 
 <!-- wp:list -->
 <ul class="wp-block-list">
 <!-- wp:list-item -->
-<li><strong>Find every Text Completions call.</strong> Search for <code>max_tokens_to_sample</code> and <code>\n\nHuman:</code>; together they find almost every call site and prompt template.</li>
+<li><strong>Map your data to the six categories.</strong> Find out how much of the record a function like <code>category_of</code> can place today, and what is left as <code>other</code>.</li>
 <!-- /wp:list-item -->
 <!-- wp:list-item -->
-<li><strong>Convert prompts mechanically first.</strong> Keep the wording; change only the structure. Tune prompts for Claude 3 later, as a separate change you can measure.</li>
+<li><strong>Put one access path in front of the record.</strong> Restrictions and logging only work if every screen, API and export goes through them, including batch interfaces and support tools.</li>
 <!-- /wp:list-item -->
 <!-- wp:list-item -->
-<li><strong>Fix response handling.</strong> Join text blocks, re-attach prefills, and map stop reasons where downstream code checks them. The sample's <code>Result.legacy()</code> returns the old shape for callers you cannot change yet.</li>
+<li><strong>Log what was shown, with its origin.</strong> Check the existing audit trail against the five items in Annex II point 3.4; origin of the data is the one most systems lack.</li>
 <!-- /wp:list-item -->
 <!-- wp:list-item -->
-<li><strong>Rewrite stream consumers.</strong> Read text from <code>content_block_delta</code> events only.</li>
+<li><strong>Test for traces of restrictions.</strong> Counts, references, includes, documents and error messages.</li>
 <!-- /wp:list-item -->
 <!-- wp:list-item -->
-<li><strong>Request model access.</strong> Each Claude 3 model needs access granted in the Bedrock console, per account and Region, before the first call.</li>
+<li><strong>Design break-glass access.</strong> Separate permission, recorded reason, review, and a log entry the patient can read.</li>
 <!-- /wp:list-item -->
 <!-- wp:list-item -->
-<li><strong>Compare outputs before switching traffic.</strong> Run the same inputs through Claude 2.1 and Claude 3 and review the differences; a cheaper model that answers differently is still a change to your product.</li>
+<li><strong>Plan the technical documentation.</strong> Each Annex II requirement will need evidence, and the testing environment results go into the EU database.</li>
 <!-- /wp:list-item -->
 <!-- wp:list-item -->
-<li><strong>Use the token counts.</strong> <code>usage</code> in every response makes per-request cost tracking possible without estimating.</li>
+<li><strong>Watch the implementing acts.</strong> The exchange format, the logging format in Annex II and the testing specifications all arrive within two years.</li>
 <!-- /wp:list-item -->
 </ul>
 <!-- /wp:list -->
 
 <!-- wp:html -->
-<div class="callout callout-warning" style="background: #fff3e0; border-left: 4px solid #ff9800; padding: 16px 20px; margin: 20px 0; border-radius: 4px;"><div style="display: flex; align-items: start;"><span style="font-size: 24px; margin-right: 12px;">⚠️</span><div><strong style="color: #f57c00; display: block; margin-bottom: 8px;">CLAUDE 2 STILL WORKS</strong><p style="margin: 0; color: #333;">Nothing here forces a migration today: Claude Instant, Claude 2.0 and Claude 2.1 keep working with Text Completions, and they also accept the Messages API. Moving Claude 2 callers to the Messages API first, without changing the model, separates the API change from the model change and makes each one easier to test.</p></div></div></div>
+<div class="callout callout-warning" style="background: #fff3e0; border-left: 4px solid #ff9800; padding: 16px 20px; margin: 20px 0; border-radius: 4px;"><div style="display: flex; align-items: start;"><span style="font-size: 24px; margin-right: 12px;">⚠️</span><div><strong style="color: #f57c00; display: block; margin-bottom: 8px;">PROVISIONAL TEXT</strong><p style="margin: 0; color: #333;">Article numbers and wording here are from the provisional agreement text of 18 March 2024. The text still has to be formally adopted, and numbering usually changes in the final version. Check the adopted regulation before quoting articles in contracts or tenders.</p></div></div></div>
 <!-- /wp:html -->
 
 <!-- wp:heading {"level":2} -->
@@ -439,11 +378,11 @@ def user_message</code></pre>
 <!-- /wp:heading -->
 
 <!-- wp:table {"className":"is-style-stripes"} -->
-<figure class="wp-block-table is-style-stripes"><table><thead><tr><th>Situation</th><th>Recommendation</th></tr></thead><tbody><tr><td>New feature on Bedrock</td><td>Start with the Messages API and Claude 3 Sonnet or Haiku</td></tr><tr><td>Existing Claude 2.1 feature, cost matters</td><td>Move to the Messages API, then compare Claude 3 Sonnet on your own inputs</td></tr><tr><td>High-volume classification or extraction on Claude Instant</td><td>Try Claude 3 Haiku: cheaper per token and a much larger context</td></tr><tr><td>Prompts that end with a prefill</td><td>Keep the prefill as an assistant message and add it back to the reply</td></tr><tr><td>Streaming user interface</td><td>Rewrite the stream reader for typed events before switching models</td></tr><tr><td>Needs the most capable model</td><td>Wait for Claude 3 Opus on Bedrock; it was announced but not yet available</td></tr></tbody></table></figure>
+<figure class="wp-block-table is-style-stripes"><table><thead><tr><th>Situation</th><th>Recommendation</th></tr></thead><tbody><tr><td>EHR product sold in the EU</td><td>Plan for Chapter III conformity: Annex II evidence, declaration, CE marking and registration</td></tr><tr><td>Existing audit trail logs requests, not data shown</td><td>Change it to log the filtered result, with categories and origin per item</td></tr><tr><td>Restrictions implemented as UI hiding</td><td>Move them into the data access path so APIs and exports apply them too</td></tr><tr><td>FHIR R4 server as the audit store</td><td>Use AuditEvent, write it before returning data, and add a custom SearchParameter for purposeOfEvent if you need to search it</td></tr><tr><td>Selling in several Member States</td><td>Treat opt-out, proxy rules and name disclosure in access reports as configuration</td></tr><tr><td>In-house system at a hospital</td><td>Check whether it falls under Article 13b(2), which has the longer six-year period</td></tr></tbody></table></figure>
 <!-- /wp:table -->
 
 <!-- wp:html -->
-<div class="callout callout-note" style="background: #f5f5f5; border-left: 4px solid #607d8b; padding: 16px 20px; margin: 20px 0; border-radius: 4px;"><div style="display: flex; align-items: start;"><span style="font-size: 24px; margin-right: 12px;">📝</span><div><strong style="color: #455a64; display: block; margin-bottom: 8px;">HOW THIS WAS CHECKED</strong><p style="margin: 0; color: #333;">The sample ran in GitHub Actions (<a href="https://github.com/nithinmohantk/blog-samples-working-repo/actions/runs/44386686277" target="_blank" rel="noopener">run</a>) on Python 3.12 with boto3 and botocore 1.34.64, Anthropic SDK 0.20.0, httpx 0.27.0 and pytest 8.1.1, the versions available on 15 March 2024. All 16 tests passed; the demo output and SDK listing above are copied from that run. No request reached Bedrock: request and response shapes were checked against Anthropic's SDK and botocore, and response contents are synthetic. Prices are Bedrock's on-demand rates for US East (N. Virginia) as published in March 2024.</p></div></div></div>
+<div class="callout callout-note" style="background: #f5f5f5; border-left: 4px solid #607d8b; padding: 16px 20px; margin: 20px 0; border-radius: 4px;"><div style="display: flex; align-items: start;"><span style="font-size: 24px; margin-right: 12px;">📝</span><div><strong style="color: #455a64; display: block; margin-bottom: 8px;">HOW THIS WAS CHECKED</strong><p style="margin: 0; color: #333;">The sample ran in GitHub Actions (<a href="https://github.com/nithinmohantk/blog-samples-working-repo/actions/runs/44390722475" target="_blank" rel="noopener">run</a>) on Python 3.12 with pytest 8.1.1 (packages as of 22 March 2024) against the <code>hapiproject/hapi:v7.0.3</code> image, tagged on 7 March 2024, which reports HAPI FHIR Server 7.0.2. The patient, organisations and clinicians are synthetic. The 14 unit tests passed, and the scenario output above is copied from that run. Article numbers and quotations come from the Council's provisional agreement text, document 7553/24 of 18 March 2024. The category mapping is an assumption, because the exchange format had not been defined. No legal advice is implied.</p></div></div></div>
 <!-- /wp:html -->
 
 <!-- wp:heading {"level":2} -->
@@ -453,29 +392,29 @@ def user_message</code></pre>
 <!-- wp:list -->
 <ul class="wp-block-list">
 <!-- wp:list-item -->
-<li>Claude 3 on Bedrock accepts only the Messages API; a Claude 2 Text Completions body is rejected with a ValidationException.</li>
+<li>The provisional agreement of 15 March 2024 makes EHR systems a regulated product with two harmonised components: interoperability and logging.</li>
 <!-- /wp:list-item -->
 <!-- wp:list-item -->
-<li>Converting prompts is mechanical: text before the first Human turn becomes system, turns become messages, and a trailing Assistant text stays as a prefill.</li>
+<li>Annex II point 3.4 asks for five items per access; the origin of the data is the one most audit trails lack.</li>
 <!-- /wp:list-item -->
 <!-- wp:list-item -->
-<li>The reply does not repeat a prefill; put it back before parsing.</li>
+<li>Article 8e restrictions must leave no trace, so totals, references and errors have to be rebuilt after filtering.</li>
 <!-- /wp:list-item -->
 <!-- wp:list-item -->
-<li>Streams now arrive as typed events, and text is only in content_block_delta.</li>
+<li>Emergency access to restricted data is allowed and must be logged in a form the patient can read; FHIR R4 cannot search AuditEvent by purpose without a custom parameter.</li>
 <!-- /wp:list-item -->
 <!-- wp:list-item -->
-<li>For the same tokens, Claude 3 Sonnet costs less than half of Claude 2.1, and Haiku less than Claude Instant.</li>
+<li>Obligations apply by category, four years after entry into force for summaries and prescriptions and six years for the rest.</li>
 <!-- /wp:list-item -->
 </ul>
 <!-- /wp:list -->
 
 <!-- wp:paragraph -->
-<p>If your migration turned up a prompt pattern the converter does not handle, let me know in the comments below.</p>
+<p>If you are working through the Annex II requirements for your own product, let me know in the comments below which ones are proving hardest.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:html -->
-<div class="callout callout-tip sample-code-link" style="background: #e8f5e9; border-left: 4px solid #4caf50; padding: 16px 20px; margin: 20px 0; border-radius: 4px;"><div style="display: flex; align-items: start;"><span style="font-size: 24px; margin-right: 12px;">💡</span><div><strong style="color: #388e3c; display: block; margin-bottom: 8px;">GET THE CODE</strong><p style="margin: 0; color: #333;">The complete sample for this article is on GitHub: <a href="https://github.com/nithinmohantk/blog-samples-working-repo/tree/main/claude3-bedrock-messages-migration" target="_blank" rel="noopener">nithinmohantk/blog-samples-working-repo/claude3-bedrock-messages-migration</a>. Clone it with <code>git clone https://github.com/nithinmohantk/blog-samples-working-repo.git</code> and open the <code>claude3-bedrock-messages-migration</code> folder. Its README says how to run it and what has been verified.</p></div></div></div>
+<div class="callout callout-tip sample-code-link" style="background: #e8f5e9; border-left: 4px solid #4caf50; padding: 16px 20px; margin: 20px 0; border-radius: 4px;"><div style="display: flex; align-items: start;"><span style="font-size: 24px; margin-right: 12px;">💡</span><div><strong style="color: #388e3c; display: block; margin-bottom: 8px;">GET THE CODE</strong><p style="margin: 0; color: #333;">The complete sample for this article is on GitHub: <a href="https://github.com/nithinmohantk/blog-samples-working-repo/tree/main/ehds-access-logging" target="_blank" rel="noopener">nithinmohantk/blog-samples-working-repo/ehds-access-logging</a>. Clone it with <code>git clone https://github.com/nithinmohantk/blog-samples-working-repo.git</code> and open the <code>ehds-access-logging</code> folder. Its README says how to run it and what has been verified.</p></div></div></div>
 <!-- /wp:html -->
 
 <!-- wp:heading {"level":2} -->
@@ -484,28 +423,30 @@ def user_message</code></pre>
 
 <!-- wp:html -->
 <dl style="background:#F6F8FA;border:1px solid #D0D7DE;border-radius:8px;padding:20px 24px;margin:24px 0">
-  <dt style="font-weight:700;margin-top:12px;color:#24292F">Amazon Bedrock</dt>
-  <dd style="margin:4px 0 0 20px;color:#57606A">AWS's managed service for foundation models, called through the Bedrock Runtime API.</dd>
-  <dt style="font-weight:700;margin-top:12px;color:#24292F">Text Completions API</dt>
-  <dd style="margin:4px 0 0 20px;color:#57606A">Anthropic's original API: one prompt string in Human and Assistant form, one completion string out.</dd>
-  <dt style="font-weight:700;margin-top:12px;color:#24292F">Messages API</dt>
-  <dd style="margin:4px 0 0 20px;color:#57606A">Anthropic's API with a system field and a list of user and assistant messages made of content blocks.</dd>
-  <dt style="font-weight:700;margin-top:12px;color:#24292F">anthropic_version</dt>
-  <dd style="margin:4px 0 0 20px;color:#57606A">Required request field on Bedrock; bedrock-2023-05-31 for the Messages API.</dd>
-  <dt style="font-weight:700;margin-top:12px;color:#24292F">System prompt</dt>
-  <dd style="margin:4px 0 0 20px;color:#57606A">Instructions that apply to the whole conversation; a top-level field in the Messages API.</dd>
-  <dt style="font-weight:700;margin-top:12px;color:#24292F">Prefill</dt>
-  <dd style="margin:4px 0 0 20px;color:#57606A">Text placed at the start of the assistant's turn so the model continues from it.</dd>
-  <dt style="font-weight:700;margin-top:12px;color:#24292F">Content block</dt>
-  <dd style="margin:4px 0 0 20px;color:#57606A">One part of a message, such as a text block or an image block.</dd>
-  <dt style="font-weight:700;margin-top:12px;color:#24292F">Stop sequence</dt>
-  <dd style="margin:4px 0 0 20px;color:#57606A">A string that ends generation when the model produces it.</dd>
-  <dt style="font-weight:700;margin-top:12px;color:#24292F">InvokeModelWithResponseStream</dt>
-  <dd style="margin:4px 0 0 20px;color:#57606A">The Bedrock Runtime operation that returns the response as an AWS event stream.</dd>
-  <dt style="font-weight:700;margin-top:12px;color:#24292F">AWS event stream</dt>
-  <dd style="margin:4px 0 0 20px;color:#57606A">AWS's binary framing for streamed responses, with headers and CRC checksums per message.</dd>
-  <dt style="font-weight:700;margin-top:12px;color:#24292F">Stubber</dt>
-  <dd style="margin:4px 0 0 20px;color:#57606A">A botocore utility that returns canned responses and checks request parameters against the service model.</dd>
+  <dt style="font-weight:700;margin-top:12px;color:#24292F">EHDS</dt>
+  <dd style="margin:4px 0 0 20px;color:#57606A">European Health Data Space: the EU regulation on primary and secondary use of electronic health data.</dd>
+  <dt style="font-weight:700;margin-top:12px;color:#24292F">Provisional agreement</dt>
+  <dd style="margin:4px 0 0 20px;color:#57606A">The text agreed by Council and Parliament negotiators, before formal adoption by both.</dd>
+  <dt style="font-weight:700;margin-top:12px;color:#24292F">Primary use</dt>
+  <dd style="margin:4px 0 0 20px;color:#57606A">Use of health data for the care of the person it describes.</dd>
+  <dt style="font-weight:700;margin-top:12px;color:#24292F">Secondary use</dt>
+  <dd style="margin:4px 0 0 20px;color:#57606A">Use of health data for research, policy, statistics and similar purposes.</dd>
+  <dt style="font-weight:700;margin-top:12px;color:#24292F">EHR system</dt>
+  <dd style="margin:4px 0 0 20px;color:#57606A">A system for storing and sharing electronic health records; Article 2 gives the full definition.</dd>
+  <dt style="font-weight:700;margin-top:12px;color:#24292F">Harmonised components</dt>
+  <dd style="margin:4px 0 0 20px;color:#57606A">The European interoperability component and the European logging component of an EHR system.</dd>
+  <dt style="font-weight:700;margin-top:12px;color:#24292F">Priority categories</dt>
+  <dd style="margin:4px 0 0 20px;color:#57606A">The six data categories in Article 5(1) that must be exchangeable first.</dd>
+  <dt style="font-weight:700;margin-top:12px;color:#24292F">European health record exchange format</dt>
+  <dd style="margin:4px 0 0 20px;color:#57606A">The common format for the priority categories, to be specified in implementing acts.</dd>
+  <dt style="font-weight:700;margin-top:12px;color:#24292F">AuditEvent</dt>
+  <dd style="margin:4px 0 0 20px;color:#57606A">The FHIR resource for recording security and access events.</dd>
+  <dt style="font-weight:700;margin-top:12px;color:#24292F">ETREAT</dt>
+  <dd style="margin:4px 0 0 20px;color:#57606A">HL7 v3 ActReason code for emergency treatment, used here to mark vital-interest access.</dd>
+  <dt style="font-weight:700;margin-top:12px;color:#24292F">Break-glass access</dt>
+  <dd style="margin:4px 0 0 20px;color:#57606A">An emergency override of normal access controls, with extra logging and review.</dd>
+  <dt style="font-weight:700;margin-top:12px;color:#24292F">CapabilityStatement</dt>
+  <dd style="margin:4px 0 0 20px;color:#57606A">A FHIR server's description of what it supports, including search parameters.</dd>
 </dl>
 <!-- /wp:html -->
 
@@ -515,13 +456,12 @@ def user_message</code></pre>
 
 <!-- wp:html -->
 <ul style="background:#F6F8FA;border:1px solid #D0D7DE;border-radius:8px;padding:20px 24px;margin:24px 0;list-style:none">
-  <li style="margin:10px 0"><a href="https://aws.amazon.com/about-aws/whats-new/2024/03/anthropics-claude-3-sonnet-model-amazon-bedrock" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; Claude 3 Sonnet model now available on Amazon Bedrock</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— What&#x27;s New, 4 March 2024</span></li>
-  <li style="margin:10px 0"><a href="https://aws.amazon.com/about-aws/whats-new/2024/03/anthropics-claude-3-haiku-model-amazon-bedrock" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; Claude 3 Haiku model now available on Amazon Bedrock</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— What&#x27;s New, 13 March 2024</span></li>
-  <li style="margin:10px 0"><a href="https://docs.aws.amazon.com/bedrock/latest/userguide/model-parameters-anthropic-claude-messages.html" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; Anthropic Claude Messages API on Bedrock</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— Request and response fields, and migrating from Text Completions</span></li>
-  <li style="margin:10px 0"><a href="https://docs.aws.amazon.com/bedrock/latest/userguide/model-parameters-anthropic-claude-text-completion.html" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; Anthropic Claude Text Completions API on Bedrock</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— The Claude 2 request format</span></li>
-  <li style="margin:10px 0"><a href="https://docs.anthropic.com/claude/reference/migrating-from-text-completions-to-messages" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; Migrating from Text Completions</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— Anthropic&#x27;s migration guide</span></li>
-  <li style="margin:10px 0"><a href="https://github.com/anthropics/anthropic-sdk-python" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; Anthropic Python SDK</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— Includes the AnthropicBedrock client used as the reference</span></li>
-  <li style="margin:10px 0"><a href="https://aws.amazon.com/bedrock/pricing/" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; Amazon Bedrock pricing</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— On-demand prices per 1,000 tokens</span></li>
-  <li style="margin:10px 0"><a href="https://github.com/nithinmohantk/blog-samples-working-repo/tree/main/claude3-bedrock-messages-migration" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; Sample code for this article</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— Converter, client, stream parser, cost model and tests</span></li>
+  <li style="margin:10px 0"><a href="https://www.consilium.europa.eu/en/press/press-releases/2024/03/15/european-health-data-space-council-and-parliament-strike-provisional-deal/" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; European Health Data Space: Council and Parliament strike deal</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— Council press release, 15 March 2024</span></li>
+  <li style="margin:10px 0"><a href="https://www.consilium.europa.eu/media/70909/st07553-en24.pdf" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; Provisional agreement text</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— Council document 7553/24, 18 March 2024</span></li>
+  <li style="margin:10px 0"><a href="https://www.europarl.europa.eu/news/en/press-room/20240304IPR18765/eu-health-data-space-to-support-patients-and-research" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; EU Health Data Space to support patients and research</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— European Parliament press release</span></li>
+  <li style="margin:10px 0"><a href="https://health.ec.europa.eu/ehealth-digital-health-and-care/european-health-data-space_en" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; European Health Data Space</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— European Commission overview</span></li>
+  <li style="margin:10px 0"><a href="https://hl7.org/fhir/R4/auditevent.html" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; FHIR R4 AuditEvent</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— Resource definition and search parameters</span></li>
+  <li style="margin:10px 0"><a href="https://github.com/hapifhir/hapi-fhir-jpaserver-starter" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; HAPI FHIR JPA Server Starter</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— The server image used in the tests</span></li>
+  <li style="margin:10px 0"><a href="https://github.com/nithinmohantk/blog-samples-working-repo/tree/main/ehds-access-logging" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; Sample code for this article</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— Categories, AuditEvent builder, restriction filter, gateway, patient report and tests</span></li>
 </ul>
 <!-- /wp:html -->

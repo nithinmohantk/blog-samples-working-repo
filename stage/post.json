@@ -1,6 +1,6 @@
 {
-  "title": "Claude 3 on Amazon Bedrock: Moving from Text Completions to the Messages API",
-  "slug": "claude-3-bedrock-text-completions-to-messages-api",
-  "date": "2024-03-16T09:00:00",
-  "excerpt": "Claude 3 Sonnet and Haiku on Bedrock accept only the Messages API. A converter for Claude 2 prompts, the prefill and streaming changes that break existing code, and every request checked against Anthropic's own SDK of March 2024."
+  "title": "EHDS Provisional Agreement: What EHR Systems Must Build Into the Access Path",
+  "slug": "ehds-provisional-agreement-what-ehr-systems-must-build",
+  "date": "2024-03-23T09:00:00",
+  "excerpt": "The March 2024 EHDS deal makes EHR systems a regulated product with a logging component. Access logs per Annex II, restrictions that leave no trace, emergency access and the patient's access report, built on FHIR R4 and tested on HAPI FHIR."
 }
