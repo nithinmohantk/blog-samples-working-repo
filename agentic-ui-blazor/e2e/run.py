@@ -42,6 +42,9 @@ def main() -> int:
     with sync_playwright() as playwright:
         browser = playwright.chromium.launch()
         page = browser.new_page(viewport={"width": 1376, "height": 768})
+        hosts: dict[str, int] = {}
+        page.on("request", lambda request: hosts.__setitem__(request.url.split("/")[2], hosts.get(request.url.split("/")[2], 0) + 1))
+        page.on("websocket", lambda socket: hosts.__setitem__("websocket " + socket.url.split("/")[2], 1))
         page.goto(WEB)
 
         def order_card():
@@ -54,7 +57,10 @@ def main() -> int:
 
         def approval_shown():
             ask(page, "Refund order O-1003")
-            expect(page.locator(".sc-ai-approval").last.get_by_role("button", name="Approve")).to_be_visible(timeout=15000)
+            approve_button = page.locator(".sc-ai-approval").last.get_by_role("button", name="Approve")
+            expect(approve_button).to_be_visible(timeout=15000)
+            approve_button.scroll_into_view_if_needed()
+            page.wait_for_timeout(300)
             page.screenshot(path=f"{OUT}/shot-2-approval.png")
             state = ledger()
             assert state["attempts"] == 0, state
@@ -97,6 +103,8 @@ def main() -> int:
             ask(page, "Draft a formal reply for order O-1001")
             reply = page.locator(".reply-panel__reply")
             expect(reply).to_have_value("Dear Test Customer One, your order O-1001 (Synthetic kettle) is recorded as delivered with Example Post. Regards, Sam, Order Desk", timeout=15000)
+            expect(page.locator("textarea.sc-ai-input__textarea")).to_be_enabled(timeout=15000)
+            page.wait_for_timeout(300)
             page.screenshot(path=f"{OUT}/shot-3-shared-state.png")
             return reply.input_value()
 
@@ -123,6 +131,13 @@ def main() -> int:
         step("state from the agent fills the panel", state_from_agent)
         step("state edited by the user reaches the agent", state_to_agent)
         step("stop ends the run on the server", stop)
+
+        def browser_never_calls_the_agent():
+            agent_host = AGENT.split("/")[2]
+            assert not any(agent_host in host for host in hosts), hosts
+            return f"hosts the browser talked to: {sorted(hosts)}"
+
+        step("the browser never calls the agent service", browser_never_calls_the_agent)
         browser.close()
 
     with open(f"{OUT}/e2e.json", "w", encoding="utf-8") as handle:
