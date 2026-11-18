@@ -1,0 +1,1 @@
+shm              64M  1.1M   63M   2% /dev/shm

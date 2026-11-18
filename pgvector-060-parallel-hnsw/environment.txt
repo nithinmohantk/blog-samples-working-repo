@@ -1,0 +1,7 @@
+runner: 4 vCPU, 15 GiB RAM
+Docker version 29.4.2, build 055a478
+Python 3.12.16
+psycopg 3.1.17
+numpy 1.26.3
+h5py 3.10.0
+pytest 8.0.0
