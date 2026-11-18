@@ -1,0 +1,37 @@
+== 5. browser again: the same web app, with the framework host behind it
+-- one request with curl, as it arrives
+data: {"type":"RUN_STARTED","threadId":"t-curl","runId":"r-curl"}
+
+data: {"type":"TOOL_CALL_START","toolCallId":"call-e169f0cb","toolCallName":"get_order","parentMessageId":"7a53f99ccc5b44cbbfdc578386890788","rawEvent":{"authorName":"desk","role":"assistant","contents":[{"$type":"functi
+
+data: {"type":"TOOL_CALL_ARGS","toolCallId":"call-e169f0cb","delta":"{\"orderId\":\"O-1002\"}","rawEvent":{"authorName":"desk","role":"assistant","contents":[{"$type":"functionCall","name":"get_order","arguments":{"order
+
+data: {"type":"TOOL_CALL_END","toolCallId":"call-e169f0cb","rawEvent":{"authorName":"desk","role":"assistant","contents":[{"$type":"functionCall","name":"get_order","arguments":{"orderId":"O-1002"},"informationalOnly":fa
+
+data: {"type":"TOOL_CALL_RESULT","messageId":"call-e169f0cb","toolCallId":"call-e169f0cb","content":"{\"id\":\"O-1002\",\"customer\":\"Test Customer Two\",\"item\":\"Synthetic desk lamp\",\"total\":18.25,\"status\":\"in 
+
+data: {"type":"TEXT_MESSAGE_START","messageId":"9b4e2a17cd5947839e7cf461d9e8485d","role":"assistant","name":"desk","rawEvent":{"authorName":"desk","role":"assistant","contents":[{"$type":"text","text":"Here ","annotation
+
+data: {"type":"TEXT_MESSAGE_CONTENT","messageId":"9b4e2a17cd5947839e7cf461d9e8485d","delta":"Here ","rawEvent":{"authorName":"desk","role":"assistant","contents":[{"$type":"text","text":"Here ","annotations":null,"additi
+
+data: {"type":"TEXT_MESSAGE_CONTENT","messageId":"9b4e2a17cd5947839e7cf461d9e8485d","delta":"is ","rawEvent":{"authorName":"desk","role":"assistant","contents":[{"$type":"text","text":"is ","annotations":null,"additional
+
+data: {"type":"TEXT_MESSAGE_CONTENT","messageId":"9b4e2a17cd5947839e7cf461d9e8485d","delta":"the ","rawEvent":{"authorName":"desk","role":"assistant","contents":[{"$type":"text","text":"the ","annotations":null,"addition
+
+data: {"type":"TEXT_MESSAGE_CONTENT","messageId":"9b4e2a17cd5947839e7cf461d9e8485d","delta":"order.","rawEvent":{"authorName":"desk","role":"assistant","contents":[{"$type":"text","text":"order.","annotations":null,"addi
+
+data: {"type":"TEXT_MESSAGE_END","messageId":"9b4e2a17cd5947839e7cf461d9e8485d"}
+
+data: {"type":"RUN_FINISHED","threadId":"t-curl","runId":"r-curl","outcome":{"type":"success"}}
+
+-- browser steps
+ok   order card from a backend tool: O-1001 | Synthetic kettle | Customer | Test Customer One | Total | 42.00 EUR | Status | delivered | Carrier | Example Post
+ok   refund waits for approval: buttons shown; refund attempts so far: 0
+ok   approve pays once: refunds: [('O-1003', 37.5)]
+ok   reject pays nothing: refunds: 1, attempts: 1
+ok   approving the same refund again pays nothing more: refunds: 1, attempts: 2
+ok   state from the agent fills the panel: Hi Test Customer One, good news: order O-1001 (Synthetic kettle) is delivered with Example Post.
+ok   state edited by the user reaches the agent: Dear Test Customer One, your order O-1001 (Synthetic kettle) is recorded as delivered with Example Post. Regards, Sam, Order Desk
+ok   stop ends the run on the server: server stream ended after 6 events, no RUN_FINISHED
+ok   the browser never calls the agent service: hosts the browser talked to: ['127.0.0.1:5102', 'websocket 127.0.0.1:5102']
+9 of 9 browser steps passed

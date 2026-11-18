@@ -1,0 +1,12 @@
+== 1. versions
+11.0.100
+Microsoft.AspNetCore.App 11.0.0 [/usr/share/dotnet/shared/Microsoft.AspNetCore.App]
+Microsoft.NETCore.App 11.0.0 [/usr/share/dotnet/shared/Microsoft.NETCore.App]
+Linux 7.0.0-1019-azure x86_64
+-- target frameworks inside the packages, and the day each version was published
+microsoft.aspnetcore.components.ai 0.1.0-preview.1.26466.103: lib ['net11.0']; published 2026-09-16
+agui.client 1.0.1: lib ['net10.0', 'net472', 'net8.0', 'net9.0', 'netstandard2.0']; published 2026-10-12
+agui.server 1.0.1: lib ['net10.0', 'net8.0', 'net9.0']; published 2026-10-12
+microsoft.extensions.ai 11.0.0: lib ['net10.0', 'net11.0', 'net462', 'net8.0', 'net9.0', 'netstandard2.0']; published 2026-11-10
+bunit 2.15.2: lib ['net10.0', 'net11.0', 'net8.0', 'net9.0']; published 2026-11-10
+microsoft.agents.ai.hosting.agui.aspnetcore 1.28.0-preview.261106.1: lib ['net10.0', 'net8.0', 'net9.0']; published 2026-11-06

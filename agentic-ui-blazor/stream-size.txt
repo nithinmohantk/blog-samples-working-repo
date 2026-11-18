@@ -1,0 +1,4 @@
+framework  Where is order O-1002?     events  12  without rawEvent   4901 bytes  with rawEvent   4901 bytes  ratio 1.0x
+hand-built Where is order O-1002?     events  12  without rawEvent   1430 bytes  with rawEvent   4978 bytes  ratio 3.5x
+framework  hello                      events  31  without rawEvent  12516 bytes  with rawEvent  12516 bytes  ratio 1.0x
+hand-built hello                      events  31  without rawEvent   3101 bytes  with rawEvent  12446 bytes  ratio 4.0x

@@ -1,0 +1,24 @@
+data: {"type":"RUN_STARTED","threadId":"t-curl","runId":"r-curl","protocolVersion":"1.0"}
+
+data: {"type":"TOOL_CALL_START","toolCallId":"call-b335582b","toolCallName":"get_order","parentMessageId":"ecb9ea4c70724899be552029896dccfc"}
+
+data: {"type":"TOOL_CALL_ARGS","toolCallId":"call-b335582b","delta":"{\u0022orderId\u0022:\u0022O-1002\u0022}"}
+
+data: {"type":"TOOL_CALL_END","toolCallId":"call-b335582b"}
+
+data: {"type":"TOOL_CALL_RESULT","messageId":"call-b335582b","toolCallId":"call-b335582b","content":"{\u0022id\u0022:\u0022O-1002\u0022,\u0022customer\u0022:\u0022Test Customer Two\u0022,\u0022item\u0022:\u0022Synthetic desk lamp\u0022,\u0022total\u0022:18.25,\u0022status\u0022:\u0022in transit\u0022,\u0022carrier\u0022:\u0022Example Courier\u0022}"}
+
+data: {"type":"TEXT_MESSAGE_START","messageId":"80f8875181db4bc2b3d5beec4048dbb2","role":"assistant"}
+
+data: {"type":"TEXT_MESSAGE_CONTENT","messageId":"80f8875181db4bc2b3d5beec4048dbb2","delta":"Here "}
+
+data: {"type":"TEXT_MESSAGE_CONTENT","messageId":"80f8875181db4bc2b3d5beec4048dbb2","delta":"is "}
+
+data: {"type":"TEXT_MESSAGE_CONTENT","messageId":"80f8875181db4bc2b3d5beec4048dbb2","delta":"the "}
+
+data: {"type":"TEXT_MESSAGE_CONTENT","messageId":"80f8875181db4bc2b3d5beec4048dbb2","delta":"order."}
+
+data: {"type":"TEXT_MESSAGE_END","messageId":"80f8875181db4bc2b3d5beec4048dbb2"}
+
+data: {"type":"RUN_FINISHED","threadId":"t-curl","runId":"r-curl","outcome":{"type":"success"}}
+

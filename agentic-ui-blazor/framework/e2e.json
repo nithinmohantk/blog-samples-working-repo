@@ -1,0 +1,56 @@
+[
+ {
+  "step": "order card from a backend tool",
+  "ok": true,
+  "seconds": 0.49,
+  "detail": "O-1001 | Synthetic kettle | Customer | Test Customer One | Total | 42.00 EUR | Status | delivered | Carrier | Example Post"
+ },
+ {
+  "step": "refund waits for approval",
+  "ok": true,
+  "seconds": 0.53,
+  "detail": "buttons shown; refund attempts so far: 0"
+ },
+ {
+  "step": "approve pays once",
+  "ok": true,
+  "seconds": 0.22,
+  "detail": "refunds: [('O-1003', 37.5)]"
+ },
+ {
+  "step": "reject pays nothing",
+  "ok": true,
+  "seconds": 0.2,
+  "detail": "refunds: 1, attempts: 1"
+ },
+ {
+  "step": "approving the same refund again pays nothing more",
+  "ok": true,
+  "seconds": 0.35,
+  "detail": "refunds: 1, attempts: 2"
+ },
+ {
+  "step": "state from the agent fills the panel",
+  "ok": true,
+  "seconds": 0.06,
+  "detail": "Hi Test Customer One, good news: order O-1001 (Synthetic kettle) is delivered with Example Post."
+ },
+ {
+  "step": "state edited by the user reaches the agent",
+  "ok": true,
+  "seconds": 0.97,
+  "detail": "Dear Test Customer One, your order O-1001 (Synthetic kettle) is recorded as delivered with Example Post. Regards, Sam, Order Desk"
+ },
+ {
+  "step": "stop ends the run on the server",
+  "ok": true,
+  "seconds": 2.24,
+  "detail": "server stream ended after 6 events, no RUN_FINISHED"
+ },
+ {
+  "step": "the browser never calls the agent service",
+  "ok": true,
+  "seconds": 0.0,
+  "detail": "hosts the browser talked to: ['127.0.0.1:5102', 'websocket 127.0.0.1:5102']"
+ }
+]

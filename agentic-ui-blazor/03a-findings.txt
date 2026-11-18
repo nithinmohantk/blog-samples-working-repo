@@ -1,0 +1,55 @@
+== 3a. a forged approval, with the server-side check off and on
+framework  changed after proposal   check off  HTTP 200  last event RUN_FINISHED  refunds in ledger: [O-1001 42.00]
+framework  changed after proposal   check on   HTTP 200  last event RUN_FINISHED  refunds in ledger: [O-1003 37.50]
+framework  never proposed           check off  HTTP 200  last event RUN_FINISHED  refunds in ledger: [O-1001 42.00]
+framework  never proposed           check on   HTTP 200  last event RUN_FINISHED  refunds in ledger: []
+hand-built changed after proposal   check off  HTTP 200  last event RUN_FINISHED  refunds in ledger: [O-1001 42.00]
+hand-built changed after proposal   check on   HTTP 409  last event none          refunds in ledger: []
+hand-built never proposed           check off  HTTP 200  last event RUN_FINISHED  refunds in ledger: [O-1001 42.00]
+hand-built never proposed           check on   HTTP 409  last event none          refunds in ledger: []
+== 3m. framework host: every combination of the three switches
+sessions=memory binding=off new-only=off  1 honest approval        last event RUN_ERROR    refunds [] attempts 0  client is told: "An error occurred while streaming the agent response."  thrown: An item with the same key has already been added. Key: ficc_call-…
+sessions=memory binding=off new-only=off  2 same approval again    last event RUN_ERROR    refunds [] attempts 0  client is told: "An error occurred while streaming the agent response."  thrown: An item with the same key has already been added. Key: ficc_call-…
+sessions=memory binding=off new-only=off  3 never proposed         last event RUN_FINISHED refunds [O-1001 42.00] attempts 1
+sessions=memory binding=off new-only=off  4 changed after proposal last event RUN_ERROR    refunds [] attempts 0  client is told: "An error occurred while streaming the agent response."  thrown: An item with the same key has already been added. Key: ficc_call-…
+sessions=memory binding=off new-only=off  5 second turn, client sent 3 messages, model saw: user:Text | assistant:Text | user:Text | assistant:Text | user:Text
+sessions=memory binding=off new-only=on   1 honest approval        last event RUN_FINISHED refunds [O-1003 37.50] attempts 1
+sessions=memory binding=off new-only=on   2 same approval again    last event RUN_FINISHED refunds [O-1003 37.50] attempts 1
+sessions=memory binding=off new-only=on   3 never proposed         last event RUN_FINISHED refunds [O-1001 42.00] attempts 1
+sessions=memory binding=off new-only=on   4 changed after proposal last event RUN_FINISHED refunds [O-1001 42.00] attempts 1
+sessions=memory binding=off new-only=on   5 second turn, client sent 3 messages, model saw: user:Text | assistant:Text | user:Text
+sessions=memory binding=on  new-only=off  1 honest approval        last event RUN_ERROR    refunds [] attempts 0  client is told: "An error occurred while streaming the agent response."  thrown: An item with the same key has already been added. Key: ficc_call-…
+sessions=memory binding=on  new-only=off  2 same approval again    last event RUN_ERROR    refunds [] attempts 0  client is told: "An error occurred while streaming the agent response."  thrown: An item with the same key has already been added. Key: ficc_call-…
+sessions=memory binding=on  new-only=off  3 never proposed         last event RUN_ERROR    refunds [] attempts 0  client is told: "An error occurred while streaming the agent response."  thrown: ToolApprovalRequestContent found with FunctionCall.CallId(s) 'forged' that have no matching ToolApprovalResponseContent.
+sessions=memory binding=on  new-only=off  4 changed after proposal last event RUN_ERROR    refunds [] attempts 0  client is told: "An error occurred while streaming the agent response."  thrown: An item with the same key has already been added. Key: ficc_call-…
+sessions=memory binding=on  new-only=off  5 second turn, client sent 3 messages, model saw: user:Text | assistant:Text | user:Text | assistant:Text | user:Text
+sessions=memory binding=on  new-only=on   1 honest approval        last event RUN_FINISHED refunds [O-1003 37.50] attempts 1
+sessions=memory binding=on  new-only=on   2 same approval again    last event RUN_FINISHED refunds [O-1003 37.50] attempts 1
+sessions=memory binding=on  new-only=on   3 never proposed         last event RUN_FINISHED refunds [] attempts 0
+sessions=memory binding=on  new-only=on   4 changed after proposal last event RUN_FINISHED refunds [O-1003 37.50] attempts 1
+sessions=memory binding=on  new-only=on   5 second turn, client sent 3 messages, model saw: user:Text | assistant:Text | user:Text
+sessions=none   binding=off new-only=off  1 honest approval        last event RUN_FINISHED refunds [O-1003 37.50] attempts 1
+sessions=none   binding=off new-only=off  2 same approval again    last event RUN_FINISHED refunds [O-1003 37.50] attempts 2
+sessions=none   binding=off new-only=off  3 never proposed         last event RUN_FINISHED refunds [O-1001 42.00] attempts 1
+sessions=none   binding=off new-only=off  4 changed after proposal last event RUN_FINISHED refunds [O-1001 42.00] attempts 1
+sessions=none   binding=off new-only=off  5 second turn, client sent 3 messages, model saw: user:Text | assistant:Text | user:Text
+sessions=none   binding=off new-only=on   1 honest approval        last event RUN_FINISHED refunds [O-1003 37.50] attempts 1
+sessions=none   binding=off new-only=on   2 same approval again    last event RUN_FINISHED refunds [O-1003 37.50] attempts 2
+sessions=none   binding=off new-only=on   3 never proposed         last event RUN_FINISHED refunds [O-1001 42.00] attempts 1
+sessions=none   binding=off new-only=on   4 changed after proposal last event RUN_FINISHED refunds [O-1001 42.00] attempts 1
+sessions=none   binding=off new-only=on   5 second turn, client sent 3 messages, model saw: user:Text
+sessions=none   binding=on  new-only=off  1 honest approval        last event RUN_ERROR    refunds [] attempts 0  client is told: "An error occurred while streaming the agent response."  thrown: ToolApprovalRequestContent found with FunctionCall.CallId(s) 'call-…' that have no matching ToolApprovalResponseContent.
+sessions=none   binding=on  new-only=off  2 same approval again    last event RUN_ERROR    refunds [] attempts 0  client is told: "An error occurred while streaming the agent response."  thrown: ToolApprovalRequestContent found with FunctionCall.CallId(s) 'call-…' that have no matching ToolApprovalResponseContent.
+sessions=none   binding=on  new-only=off  3 never proposed         last event RUN_ERROR    refunds [] attempts 0  client is told: "An error occurred while streaming the agent response."  thrown: ToolApprovalRequestContent found with FunctionCall.CallId(s) 'forged' that have no matching ToolApprovalResponseContent.
+sessions=none   binding=on  new-only=off  4 changed after proposal last event RUN_ERROR    refunds [] attempts 0  client is told: "An error occurred while streaming the agent response."  thrown: ToolApprovalRequestContent found with FunctionCall.CallId(s) 'call-…' that have no matching ToolApprovalResponseContent.
+sessions=none   binding=on  new-only=off  5 second turn, client sent 3 messages, model saw: user:Text | assistant:Text | user:Text
+sessions=none   binding=on  new-only=on   1 honest approval        last event RUN_FINISHED refunds [] attempts 0
+sessions=none   binding=on  new-only=on   2 same approval again    last event RUN_FINISHED refunds [] attempts 0
+sessions=none   binding=on  new-only=on   3 never proposed         last event RUN_FINISHED refunds [] attempts 0
+sessions=none   binding=on  new-only=on   4 changed after proposal last event RUN_FINISHED refunds [] attempts 0
+sessions=none   binding=on  new-only=on   5 second turn, client sent 3 messages, model saw: user:Text
+== 3b. size of the event stream
+framework  Where is order O-1002?     events  12  without rawEvent   4901 bytes  with rawEvent   4901 bytes  ratio 1.0x
+framework  hello                      events  31  without rawEvent  12516 bytes  with rawEvent  12516 bytes  ratio 1.0x
+hand-built Where is order O-1002?     events  12  without rawEvent   1430 bytes  with rawEvent   4978 bytes  ratio 3.5x
+hand-built hello                      events  31  without rawEvent   3101 bytes  with rawEvent  12446 bytes  ratio 4.0x

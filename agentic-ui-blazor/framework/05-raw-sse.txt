@@ -1,0 +1,24 @@
+data: {"type":"RUN_STARTED","threadId":"t-curl","runId":"r-curl"}
+
+data: {"type":"TOOL_CALL_START","toolCallId":"call-e169f0cb","toolCallName":"get_order","parentMessageId":"7a53f99ccc5b44cbbfdc578386890788","rawEvent":{"authorName":"desk","role":"assistant","contents":[{"$type":"functionCall","name":"get_order","arguments":{"orderId":"O-1002"},"informationalOnly":false,"callId":"call-e169f0cb","annotations":null,"additionalProperties":null}],"additionalProperties":null,"responseId":null,"messageId":"7a53f99ccc5b44cbbfdc578386890788","conversationId":null,"createdAt":null,"finishReason":"tool_calls","modelId":null,"continuationToken":null}}
+
+data: {"type":"TOOL_CALL_ARGS","toolCallId":"call-e169f0cb","delta":"{\"orderId\":\"O-1002\"}","rawEvent":{"authorName":"desk","role":"assistant","contents":[{"$type":"functionCall","name":"get_order","arguments":{"orderId":"O-1002"},"informationalOnly":false,"callId":"call-e169f0cb","annotations":null,"additionalProperties":null}],"additionalProperties":null,"responseId":null,"messageId":"7a53f99ccc5b44cbbfdc578386890788","conversationId":null,"createdAt":null,"finishReason":"tool_calls","modelId":null,"continuationToken":null}}
+
+data: {"type":"TOOL_CALL_END","toolCallId":"call-e169f0cb","rawEvent":{"authorName":"desk","role":"assistant","contents":[{"$type":"functionCall","name":"get_order","arguments":{"orderId":"O-1002"},"informationalOnly":false,"callId":"call-e169f0cb","annotations":null,"additionalProperties":null}],"additionalProperties":null,"responseId":null,"messageId":"7a53f99ccc5b44cbbfdc578386890788","conversationId":null,"createdAt":null,"finishReason":"tool_calls","modelId":null,"continuationToken":null}}
+
+data: {"type":"TOOL_CALL_RESULT","messageId":"call-e169f0cb","toolCallId":"call-e169f0cb","content":"{\"id\":\"O-1002\",\"customer\":\"Test Customer Two\",\"item\":\"Synthetic desk lamp\",\"total\":18.25,\"status\":\"in transit\",\"carrier\":\"Example Courier\"}","rawEvent":{"authorName":"desk","role":"tool","contents":[{"$type":"functionResult","result":{"id":"O-1002","customer":"Test Customer Two","item":"Synthetic desk lamp","total":18.25,"status":"in transit","carrier":"Example Courier"},"callId":"call-e169f0cb","annotations":null,"additionalProperties":null}],"additionalProperties":null,"responseId":"31d006a60bef47a29809055819faf687","messageId":"31d006a60bef47a29809055819faf687","conversationId":null,"createdAt":"2026-11-18T17:57:39.9878998+00:00","finishReason":null,"modelId":null,"continuationToken":null}}
+
+data: {"type":"TEXT_MESSAGE_START","messageId":"9b4e2a17cd5947839e7cf461d9e8485d","role":"assistant","name":"desk","rawEvent":{"authorName":"desk","role":"assistant","contents":[{"$type":"text","text":"Here ","annotations":null,"additionalProperties":null}],"additionalProperties":null,"responseId":null,"messageId":"9b4e2a17cd5947839e7cf461d9e8485d","conversationId":null,"createdAt":null,"finishReason":null,"modelId":null,"continuationToken":null}}
+
+data: {"type":"TEXT_MESSAGE_CONTENT","messageId":"9b4e2a17cd5947839e7cf461d9e8485d","delta":"Here ","rawEvent":{"authorName":"desk","role":"assistant","contents":[{"$type":"text","text":"Here ","annotations":null,"additionalProperties":null}],"additionalProperties":null,"responseId":null,"messageId":"9b4e2a17cd5947839e7cf461d9e8485d","conversationId":null,"createdAt":null,"finishReason":null,"modelId":null,"continuationToken":null}}
+
+data: {"type":"TEXT_MESSAGE_CONTENT","messageId":"9b4e2a17cd5947839e7cf461d9e8485d","delta":"is ","rawEvent":{"authorName":"desk","role":"assistant","contents":[{"$type":"text","text":"is ","annotations":null,"additionalProperties":null}],"additionalProperties":null,"responseId":null,"messageId":"9b4e2a17cd5947839e7cf461d9e8485d","conversationId":null,"createdAt":null,"finishReason":null,"modelId":null,"continuationToken":null}}
+
+data: {"type":"TEXT_MESSAGE_CONTENT","messageId":"9b4e2a17cd5947839e7cf461d9e8485d","delta":"the ","rawEvent":{"authorName":"desk","role":"assistant","contents":[{"$type":"text","text":"the ","annotations":null,"additionalProperties":null}],"additionalProperties":null,"responseId":null,"messageId":"9b4e2a17cd5947839e7cf461d9e8485d","conversationId":null,"createdAt":null,"finishReason":null,"modelId":null,"continuationToken":null}}
+
+data: {"type":"TEXT_MESSAGE_CONTENT","messageId":"9b4e2a17cd5947839e7cf461d9e8485d","delta":"order.","rawEvent":{"authorName":"desk","role":"assistant","contents":[{"$type":"text","text":"order.","annotations":null,"additionalProperties":null}],"additionalProperties":null,"responseId":null,"messageId":"9b4e2a17cd5947839e7cf461d9e8485d","conversationId":null,"createdAt":null,"finishReason":"stop","modelId":null,"continuationToken":null}}
+
+data: {"type":"TEXT_MESSAGE_END","messageId":"9b4e2a17cd5947839e7cf461d9e8485d"}
+
+data: {"type":"RUN_FINISHED","threadId":"t-curl","runId":"r-curl","outcome":{"type":"success"}}
+

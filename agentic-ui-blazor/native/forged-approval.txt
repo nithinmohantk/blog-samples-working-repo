@@ -1,0 +1,8 @@
+hand-built never proposed           check on   HTTP 409  last event none          refunds in ledger: []
+hand-built never proposed           check off  HTTP 200  last event RUN_FINISHED  refunds in ledger: [O-1001 42.00]
+framework  never proposed           check off  HTTP 200  last event RUN_FINISHED  refunds in ledger: [O-1001 42.00]
+hand-built changed after proposal   check off  HTTP 200  last event RUN_FINISHED  refunds in ledger: [O-1001 42.00]
+framework  changed after proposal   check off  HTTP 200  last event RUN_FINISHED  refunds in ledger: [O-1001 42.00]
+hand-built changed after proposal   check on   HTTP 409  last event none          refunds in ledger: []
+framework  changed after proposal   check on   HTTP 200  last event RUN_FINISHED  refunds in ledger: [O-1003 37.50]
+framework  never proposed           check on   HTTP 200  last event RUN_FINISHED  refunds in ledger: []

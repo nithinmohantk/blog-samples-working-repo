@@ -1,0 +1,246 @@
+info: Microsoft.AspNetCore.DataProtection.KeyManagement.XmlKeyManager[62]
+      User profile is available. Using '/home/runner/.aspnet/DataProtection-Keys' as key repository; keys will not be encrypted at rest.
+info: Microsoft.Hosting.Lifetime[14]
+      Now listening on: http://127.0.0.1:5102
+info: Microsoft.Hosting.Lifetime[0]
+      Application started. Press Ctrl+C to shut down.
+info: Microsoft.Hosting.Lifetime[0]
+      Hosting environment: Development
+info: Microsoft.Hosting.Lifetime[0]
+      Content root path: /home/runner/work/blog-samples-working-repo/blog-samples-working-repo/agentic-ui-blazor/src/Desk.Web
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5102/ - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint '/ (/)'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint '/ (/)'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5102/ - 200 - text/html;+charset=utf-8 107.9041ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5102/ - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint '/ (/)'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint '/ (/)'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5102/ - 200 - text/html;+charset=utf-8 5.9311ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5102/_content/Microsoft.AspNetCore.Components.AI/ai-chat.jgw3rr6wlp.css - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5102/_framework/blazor.web.yrew3uaoal.js - - -
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5102/app.ydt9s98pya.css - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[2]
+      Sending file. Request path: '_content/Microsoft.AspNetCore.Components.AI/ai-chat.jgw3rr6wlp.css'. Physical path: '/home/runner/work/blog-samples-working-repo/blog-samples-working-repo/agentic-ui-blazor/src/Desk.Web/obj/Release/net11.0/compressed/jnxlfftgnk-{0}-jgw3rr6wlp-jgw3rr6wlp.gz'
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[2]
+      Sending file. Request path: 'app.ydt9s98pya.css'. Physical path: '/home/runner/work/blog-samples-working-repo/blog-samples-working-repo/agentic-ui-blazor/src/Desk.Web/obj/Release/net11.0/compressed/jpuvwrqf9w-{0}-ydt9s98pya-ydt9s98pya.gz'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5102/app.ydt9s98pya.css - 200 566 text/css 10.7713ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5102/_content/Microsoft.AspNetCore.Components.AI/ai-chat.jgw3rr6wlp.css - 200 11665 text/css 13.7080ms
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[2]
+      Sending file. Request path: '_framework/blazor.web.yrew3uaoal.js'. Physical path: '/home/runner/work/blog-samples-working-repo/blog-samples-working-repo/agentic-ui-blazor/src/Desk.Web/obj/Release/net11.0/compressed/py6h71ds0g-{0}-yrew3uaoal-yrew3uaoal.gz'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5102/_framework/blazor.web.yrew3uaoal.js - 200 67898 text/javascript 17.0842ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5102/_blazor/initializers - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5102/_blazor/initializers - 200 - application/json;+charset=utf-8 16.7634ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 POST http://127.0.0.1:5102/_blazor/negotiate?negotiateVersion=1 - - 0
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 POST http://127.0.0.1:5102/_blazor/negotiate?negotiateVersion=1 - 200 316 application/json 7.3866ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5102/_blazor?id=XT7azS2SqZEhMoR5zUYxKA - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: RichContentBlock Id=081ae0b63eca4d17a600ca729ee49bc9 Role=user
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[100]
+      SendMessageAsync: Streaming assistant response
+info: System.Net.Http.HttpClient.agent.LogicalHandler[100]
+      Start processing HTTP request POST http://127.0.0.1:5103/agent
+info: System.Net.Http.HttpClient.agent.ClientHandler[100]
+      Sending HTTP request POST http://127.0.0.1:5103/agent
+info: System.Net.Http.HttpClient.agent.ClientHandler[101]
+      Received HTTP response headers after 20.6198ms - 200
+info: System.Net.Http.HttpClient.agent.LogicalHandler[101]
+      End processing HTTP request after 27.2364ms - 200
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: OrderToolBlock Id=call-a488a232 Role=assistant
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: RichContentBlock Id=07bda2c486f44f9ca4d0ffe7c7245682 Role=assistant
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[102]
+      SendMessageAsync: Stream complete. Total updates=8
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: RichContentBlock Id=42868ed7d4fe4e8786760670d2338561 Role=user
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[100]
+      SendMessageAsync: Streaming assistant response
+info: System.Net.Http.HttpClient.agent.LogicalHandler[100]
+      Start processing HTTP request POST http://127.0.0.1:5103/agent
+info: System.Net.Http.HttpClient.agent.ClientHandler[100]
+      Sending HTTP request POST http://127.0.0.1:5103/agent
+info: System.Net.Http.HttpClient.agent.ClientHandler[101]
+      Received HTTP response headers after 24.4634ms - 200
+info: System.Net.Http.HttpClient.agent.LogicalHandler[101]
+      End processing HTTP request after 24.5919ms - 200
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: FunctionApprovalBlock Id=call-710691f7 Role=assistant
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[102]
+      SendMessageAsync: Stream complete. Total updates=2
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[100]
+      SendMessageAsync: Streaming assistant response
+info: System.Net.Http.HttpClient.agent.LogicalHandler[100]
+      Start processing HTTP request POST http://127.0.0.1:5103/agent
+info: System.Net.Http.HttpClient.agent.ClientHandler[100]
+      Sending HTTP request POST http://127.0.0.1:5103/agent
+info: System.Net.Http.HttpClient.agent.ClientHandler[101]
+      Received HTTP response headers after 11.4719ms - 200
+info: System.Net.Http.HttpClient.agent.LogicalHandler[101]
+      End processing HTTP request after 11.5713ms - 200
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: FunctionInvocationContentBlock Id=call-710691f7 Role=assistant
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: RichContentBlock Id=8407623db2b04f6dbb16e1bab74c2c63 Role=assistant
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[102]
+      SendMessageAsync: Stream complete. Total updates=8
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: RichContentBlock Id=a133ad707dde4ffcb0f4b8a9811c9d1a Role=user
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[100]
+      SendMessageAsync: Streaming assistant response
+info: System.Net.Http.HttpClient.agent.LogicalHandler[100]
+      Start processing HTTP request POST http://127.0.0.1:5103/agent
+info: System.Net.Http.HttpClient.agent.ClientHandler[100]
+      Sending HTTP request POST http://127.0.0.1:5103/agent
+info: System.Net.Http.HttpClient.agent.ClientHandler[101]
+      Received HTTP response headers after 3.0007ms - 200
+info: System.Net.Http.HttpClient.agent.LogicalHandler[101]
+      End processing HTTP request after 3.0944ms - 200
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: FunctionApprovalBlock Id=call-3293014d Role=assistant
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[102]
+      SendMessageAsync: Stream complete. Total updates=2
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[100]
+      SendMessageAsync: Streaming assistant response
+info: System.Net.Http.HttpClient.agent.LogicalHandler[100]
+      Start processing HTTP request POST http://127.0.0.1:5103/agent
+info: System.Net.Http.HttpClient.agent.ClientHandler[100]
+      Sending HTTP request POST http://127.0.0.1:5103/agent
+info: System.Net.Http.HttpClient.agent.ClientHandler[101]
+      Received HTTP response headers after 2.7383ms - 200
+info: System.Net.Http.HttpClient.agent.LogicalHandler[101]
+      End processing HTTP request after 2.8343ms - 200
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: FunctionInvocationContentBlock Id=call-3293014d Role=assistant
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: RichContentBlock Id=812211eadc7b428282d165a50dab37a8 Role=assistant
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[102]
+      SendMessageAsync: Stream complete. Total updates=13
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: RichContentBlock Id=5b7c699cde1f465da088f7d1a65c53a7 Role=user
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[100]
+      SendMessageAsync: Streaming assistant response
+info: System.Net.Http.HttpClient.agent.LogicalHandler[100]
+      Start processing HTTP request POST http://127.0.0.1:5103/agent
+info: System.Net.Http.HttpClient.agent.ClientHandler[100]
+      Sending HTTP request POST http://127.0.0.1:5103/agent
+info: System.Net.Http.HttpClient.agent.ClientHandler[101]
+      Received HTTP response headers after 6.9355ms - 200
+info: System.Net.Http.HttpClient.agent.LogicalHandler[101]
+      End processing HTTP request after 7.0407ms - 200
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: FunctionApprovalBlock Id=call-d8af346a Role=assistant
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[102]
+      SendMessageAsync: Stream complete. Total updates=2
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[100]
+      SendMessageAsync: Streaming assistant response
+info: System.Net.Http.HttpClient.agent.LogicalHandler[100]
+      Start processing HTTP request POST http://127.0.0.1:5103/agent
+info: System.Net.Http.HttpClient.agent.ClientHandler[100]
+      Sending HTTP request POST http://127.0.0.1:5103/agent
+info: System.Net.Http.HttpClient.agent.ClientHandler[101]
+      Received HTTP response headers after 2.0222ms - 200
+info: System.Net.Http.HttpClient.agent.LogicalHandler[101]
+      End processing HTTP request after 2.1082ms - 200
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: FunctionInvocationContentBlock Id=call-d8af346a Role=assistant
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: RichContentBlock Id=1038c4df4c5e4cb5be8926e4cfcbdc28 Role=assistant
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[102]
+      SendMessageAsync: Stream complete. Total updates=14
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: RichContentBlock Id=74a42d14808e41b0857a88826ed6b7c1 Role=user
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[100]
+      SendMessageAsync: Streaming assistant response
+info: System.Net.Http.HttpClient.agent.LogicalHandler[100]
+      Start processing HTTP request POST http://127.0.0.1:5103/agent
+info: System.Net.Http.HttpClient.agent.ClientHandler[100]
+      Sending HTTP request POST http://127.0.0.1:5103/agent
+info: System.Net.Http.HttpClient.agent.ClientHandler[101]
+      Received HTTP response headers after 3.2357ms - 200
+info: System.Net.Http.HttpClient.agent.LogicalHandler[101]
+      End processing HTTP request after 3.3252ms - 200
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: FunctionInvocationContentBlock Id=call-7180a930 Role=assistant
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: RichContentBlock Id=dfae46abd9a0483085ae99f6b3c65f86 Role=assistant
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[102]
+      SendMessageAsync: Stream complete. Total updates=22
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: RichContentBlock Id=b1f8cf50a9544871bfa458c6275be0a0 Role=user
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[100]
+      SendMessageAsync: Streaming assistant response
+info: System.Net.Http.HttpClient.agent.LogicalHandler[100]
+      Start processing HTTP request POST http://127.0.0.1:5103/agent
+info: System.Net.Http.HttpClient.agent.ClientHandler[100]
+      Sending HTTP request POST http://127.0.0.1:5103/agent
+info: System.Net.Http.HttpClient.agent.ClientHandler[101]
+      Received HTTP response headers after 2.4715ms - 200
+info: System.Net.Http.HttpClient.agent.LogicalHandler[101]
+      End processing HTTP request after 2.5729ms - 200
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: FunctionInvocationContentBlock Id=call-2576f96a Role=assistant
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: RichContentBlock Id=a75520d30d5f48db893880cc89194804 Role=assistant
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[102]
+      SendMessageAsync: Stream complete. Total updates=22
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: RichContentBlock Id=f2d2f4e59fc84240b0845eaaaeac1869 Role=user
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[100]
+      SendMessageAsync: Streaming assistant response
+info: System.Net.Http.HttpClient.agent.LogicalHandler[100]
+      Start processing HTTP request POST http://127.0.0.1:5103/agent
+info: System.Net.Http.HttpClient.agent.ClientHandler[100]
+      Sending HTTP request POST http://127.0.0.1:5103/agent
+info: System.Net.Http.HttpClient.agent.ClientHandler[101]
+      Received HTTP response headers after 154.198ms - 200
+info: System.Net.Http.HttpClient.agent.LogicalHandler[101]
+      End processing HTTP request after 154.3368ms - 200
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: RichContentBlock Id=e121a7f4bcc54621acc91a35fefb8902 Role=assistant
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5102/_blazor?id=XT7azS2SqZEhMoR5zUYxKA - 101 - - 5026.9218ms
+info: Microsoft.Hosting.Lifetime[0]
+      Application is shutting down...

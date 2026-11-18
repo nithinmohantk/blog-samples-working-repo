@@ -1,0 +1,392 @@
+## framework: the same approval sent twice
+request 1: messages=[user] state=none resume=none
+events 1: RUN_STARTED, TOOL_CALL_START, TOOL_CALL_ARGS, TOOL_CALL_END, RUN_FINISHED
+{
+  "type": "RUN_FINISHED",
+  "threadId": "t-twice",
+  "runId": "run_pZeFDj0RI4xFdSqX0SKGsW3B",
+  "outcome": {
+    "type": "interrupt",
+    "interrupts": [
+      {
+        "id": "ficc_call-7abeb980",
+        "reason": "tool_call",
+        "message": "Approval required for tool call: refund_order",
+        "toolCallId": "call-7abeb980",
+        "responseSchema": {
+          "type": "object",
+          "properties": {
+            "approved": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "approved"
+          ]
+        }
+      }
+    ]
+  }
+}
+request 2: messages=[user] state=none resume=[{"interruptId":"ficc_call-7abeb980","status":"resolved","payload":{"approved":true,"toolCall":{"callId":"call-7abeb980","name":"refund_order","arguments":{"orderId":"O-1003","amount":37.50,"reason":"Requested at the order desk"}}}}]
+events 2: RUN_STARTED, TOOL_CALL_START, TOOL_CALL_ARGS, TOOL_CALL_END, TOOL_CALL_RESULT, TEXT_MESSAGE_START, TEXT_MESSAGE_CONTENT x4, TEXT_MESSAGE_END, RUN_FINISHED
+{
+  "type": "RUN_FINISHED",
+  "threadId": "t-twice",
+  "runId": "run_gX4Xa4BAykBDEmm7rTafX4IH",
+  "outcome": {
+    "type": "success"
+  }
+}
+request 3: messages=[user] state=none resume=[{"interruptId":"ficc_call-7abeb980","status":"resolved","payload":{"approved":true,"toolCall":{"callId":"call-7abeb980","name":"refund_order","arguments":{"orderId":"O-1003","amount":37.50,"reason":"Requested at the order desk"}}}}]
+events 3: RUN_STARTED, TEXT_MESSAGE_START, TEXT_MESSAGE_CONTENT x27, TEXT_MESSAGE_END, RUN_FINISHED
+{
+  "type": "RUN_FINISHED",
+  "threadId": "t-twice",
+  "runId": "run_GaHFHm5T1VAKEzve5qdCC3zk",
+  "outcome": {
+    "type": "success"
+  }
+}
+
+## hand-built: approval, approved
+request 1: messages=[user] state=none resume=none
+events 1: RUN_STARTED, TOOL_CALL_START, TOOL_CALL_ARGS, TOOL_CALL_END, RUN_FINISHED
+{
+  "type": "RUN_FINISHED",
+  "threadId": "t-approval-True",
+  "runId": "run_bDNdwZrw2pUV4EcbSV3LhCtv",
+  "outcome": {
+    "type": "interrupt",
+    "interrupts": [
+      {
+        "id": "ficc_call-897bf9d1",
+        "reason": "tool_call",
+        "message": "Approval required for tool call: refund_order",
+        "toolCallId": "call-897bf9d1",
+        "responseSchema": {
+          "type": "object",
+          "properties": {
+            "approved": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "approved"
+          ]
+        }
+      }
+    ]
+  }
+}
+request 2: messages=[user] state=none resume=[{"interruptId":"ficc_call-897bf9d1","status":"resolved","payload":{"approved":true,"toolCall":{"callId":"call-897bf9d1","name":"refund_order","arguments":{"orderId":"O-1003","amount":37.50,"reason":"Requested at the order desk"}}}}]
+events 2: RUN_STARTED, TOOL_CALL_START, TOOL_CALL_ARGS, TOOL_CALL_END, TOOL_CALL_RESULT, TEXT_MESSAGE_START, TEXT_MESSAGE_CONTENT x4, TEXT_MESSAGE_END, RUN_FINISHED
+{
+  "type": "RUN_FINISHED",
+  "threadId": "t-approval-True",
+  "runId": "run_pZiGo43VIDpDANm0l4LAsKlu",
+  "outcome": {
+    "type": "success"
+  }
+}
+
+## hand-built: approval, rejected
+request 1: messages=[user] state=none resume=none
+events 1: RUN_STARTED, TOOL_CALL_START, TOOL_CALL_ARGS, TOOL_CALL_END, RUN_FINISHED
+{
+  "type": "RUN_FINISHED",
+  "threadId": "t-approval-False",
+  "runId": "run_OJU5RSqeWbh9R1FAvXWdeU10",
+  "outcome": {
+    "type": "interrupt",
+    "interrupts": [
+      {
+        "id": "ficc_call-71b9b911",
+        "reason": "tool_call",
+        "message": "Approval required for tool call: refund_order",
+        "toolCallId": "call-71b9b911",
+        "responseSchema": {
+          "type": "object",
+          "properties": {
+            "approved": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "approved"
+          ]
+        }
+      }
+    ]
+  }
+}
+request 2: messages=[user] state=none resume=[{"interruptId":"ficc_call-71b9b911","status":"resolved","payload":{"approved":false,"toolCall":{"callId":"call-71b9b911","name":"refund_order","arguments":{"orderId":"O-1003","amount":37.50,"reason":"Requested at the order desk"}}}}]
+events 2: RUN_STARTED, TOOL_CALL_START, TOOL_CALL_ARGS, TOOL_CALL_END, TOOL_CALL_RESULT, TEXT_MESSAGE_START, TEXT_MESSAGE_CONTENT x9, TEXT_MESSAGE_END, RUN_FINISHED
+{
+  "type": "RUN_FINISHED",
+  "threadId": "t-approval-False",
+  "runId": "run_mHMf5aKWrzCJ09fQHE3gErnH",
+  "outcome": {
+    "type": "success"
+  }
+}
+
+## framework: text
+request 1: messages=[user] state=none resume=none
+events 1: RUN_STARTED, TEXT_MESSAGE_START, TEXT_MESSAGE_CONTENT x27, TEXT_MESSAGE_END, RUN_FINISHED
+{
+  "type": "RUN_FINISHED",
+  "threadId": "thread_C4ZG27NCFAuIYQHdryOF6L6g",
+  "runId": "run_OskH2ZFFA23nSGIQohGIVlam",
+  "outcome": {
+    "type": "success"
+  }
+}
+
+## framework: approval, approved
+request 1: messages=[user] state=none resume=none
+events 1: RUN_STARTED, TOOL_CALL_START, TOOL_CALL_ARGS, TOOL_CALL_END, RUN_FINISHED
+{
+  "type": "RUN_FINISHED",
+  "threadId": "t-approval-True",
+  "runId": "run_JpVhtelc6Fknc8egw1YCESOc",
+  "outcome": {
+    "type": "interrupt",
+    "interrupts": [
+      {
+        "id": "ficc_call-c1c11ad0",
+        "reason": "tool_call",
+        "message": "Approval required for tool call: refund_order",
+        "toolCallId": "call-c1c11ad0",
+        "responseSchema": {
+          "type": "object",
+          "properties": {
+            "approved": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "approved"
+          ]
+        }
+      }
+    ]
+  }
+}
+request 2: messages=[user] state=none resume=[{"interruptId":"ficc_call-c1c11ad0","status":"resolved","payload":{"approved":true,"toolCall":{"callId":"call-c1c11ad0","name":"refund_order","arguments":{"orderId":"O-1003","amount":37.50,"reason":"Requested at the order desk"}}}}]
+events 2: RUN_STARTED, TOOL_CALL_START, TOOL_CALL_ARGS, TOOL_CALL_END, TOOL_CALL_RESULT, TEXT_MESSAGE_START, TEXT_MESSAGE_CONTENT x4, TEXT_MESSAGE_END, RUN_FINISHED
+{
+  "type": "RUN_FINISHED",
+  "threadId": "t-approval-True",
+  "runId": "run_j3GrPQN846oG2GxULouENYKG",
+  "outcome": {
+    "type": "success"
+  }
+}
+
+## framework: approval, rejected
+request 1: messages=[user] state=none resume=none
+events 1: RUN_STARTED, TOOL_CALL_START, TOOL_CALL_ARGS, TOOL_CALL_END, RUN_FINISHED
+{
+  "type": "RUN_FINISHED",
+  "threadId": "t-approval-False",
+  "runId": "run_ANFI7SaSErRQ0LgbO0SbyO1a",
+  "outcome": {
+    "type": "interrupt",
+    "interrupts": [
+      {
+        "id": "ficc_call-3ffbd978",
+        "reason": "tool_call",
+        "message": "Approval required for tool call: refund_order",
+        "toolCallId": "call-3ffbd978",
+        "responseSchema": {
+          "type": "object",
+          "properties": {
+            "approved": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "approved"
+          ]
+        }
+      }
+    ]
+  }
+}
+request 2: messages=[user] state=none resume=[{"interruptId":"ficc_call-3ffbd978","status":"resolved","payload":{"approved":false,"toolCall":{"callId":"call-3ffbd978","name":"refund_order","arguments":{"orderId":"O-1003","amount":37.50,"reason":"Requested at the order desk"}}}}]
+events 2: RUN_STARTED, TOOL_CALL_START, TOOL_CALL_ARGS, TOOL_CALL_END, TOOL_CALL_RESULT, TEXT_MESSAGE_START, TEXT_MESSAGE_CONTENT x9, TEXT_MESSAGE_END, RUN_FINISHED
+{
+  "type": "RUN_FINISHED",
+  "threadId": "t-approval-False",
+  "runId": "run_Qh6YYA53BINjF2ymREdhhyu2",
+  "outcome": {
+    "type": "success"
+  }
+}
+
+## hand-built: text
+request 1: messages=[user] state=none resume=none
+events 1: RUN_STARTED, TEXT_MESSAGE_START, TEXT_MESSAGE_CONTENT x27, TEXT_MESSAGE_END, RUN_FINISHED
+{
+  "type": "RUN_FINISHED",
+  "threadId": "thread_WKJoGEmJQTUk3iU3XIT5SJyg",
+  "runId": "run_0QBkxGcfG7BAcq95F9ud6b2i",
+  "outcome": {
+    "type": "success"
+  }
+}
+
+## framework: shared state
+request 1: messages=[user] state=none resume=none
+events 1: RUN_STARTED, TOOL_CALL_START, TOOL_CALL_ARGS, TOOL_CALL_END, TOOL_CALL_RESULT, STATE_SNAPSHOT, TEXT_MESSAGE_START, TEXT_MESSAGE_CONTENT x17, TEXT_MESSAGE_END, RUN_FINISHED
+{
+  "type": "STATE_SNAPSHOT",
+  "snapshot": {
+    "orderId": "O-1001",
+    "tone": "friendly",
+    "reply": "Hi Test Customer One, good news: order O-1001 (Synthetic kettle) is delivered with Example Post.",
+    "signature": ""
+  }
+}
+{
+  "type": "RUN_FINISHED",
+  "threadId": "thread_l1d0I32TVT85WfIKVbrq9qFs",
+  "runId": "run_exvovgQQVWaSHmFbrClNV4G4",
+  "outcome": {
+    "type": "success"
+  }
+}
+request 2: messages=[user] state={"signature":"Sam, Order Desk"} resume=none
+events 2: RUN_STARTED, TOOL_CALL_START, TOOL_CALL_ARGS, TOOL_CALL_END, TOOL_CALL_RESULT, STATE_SNAPSHOT, TEXT_MESSAGE_START, TEXT_MESSAGE_CONTENT x17, TEXT_MESSAGE_END, RUN_FINISHED
+{
+  "type": "STATE_SNAPSHOT",
+  "snapshot": {
+    "orderId": "O-1001",
+    "tone": "formal",
+    "reply": "Dear Test Customer One, your order O-1001 (Synthetic kettle) is recorded as delivered with Example Post. Regards, Sam, Order Desk",
+    "signature": "Sam, Order Desk"
+  }
+}
+{
+  "type": "RUN_FINISHED",
+  "threadId": "thread_ENbmpS3Qn3juid3F2qLc5e15",
+  "runId": "run_9vHoN2dcxWgG23k9pWPRQXYy",
+  "outcome": {
+    "type": "success"
+  }
+}
+
+## hand-built: the same approval sent twice
+request 1: messages=[user] state=none resume=none
+events 1: RUN_STARTED, TOOL_CALL_START, TOOL_CALL_ARGS, TOOL_CALL_END, RUN_FINISHED
+{
+  "type": "RUN_FINISHED",
+  "threadId": "t-twice",
+  "runId": "run_Ot4IqtyuGEUDRDq2UKdoeA66",
+  "outcome": {
+    "type": "interrupt",
+    "interrupts": [
+      {
+        "id": "ficc_call-d7d66b58",
+        "reason": "tool_call",
+        "message": "Approval required for tool call: refund_order",
+        "toolCallId": "call-d7d66b58",
+        "responseSchema": {
+          "type": "object",
+          "properties": {
+            "approved": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "approved"
+          ]
+        }
+      }
+    ]
+  }
+}
+request 2: messages=[user] state=none resume=[{"interruptId":"ficc_call-d7d66b58","status":"resolved","payload":{"approved":true,"toolCall":{"callId":"call-d7d66b58","name":"refund_order","arguments":{"orderId":"O-1003","amount":37.50,"reason":"Requested at the order desk"}}}}]
+events 2: RUN_STARTED, TOOL_CALL_START, TOOL_CALL_ARGS, TOOL_CALL_END, TOOL_CALL_RESULT, TEXT_MESSAGE_START, TEXT_MESSAGE_CONTENT x4, TEXT_MESSAGE_END, RUN_FINISHED
+{
+  "type": "RUN_FINISHED",
+  "threadId": "t-twice",
+  "runId": "run_aXitafamm2mLhYwkYshJBaHf",
+  "outcome": {
+    "type": "success"
+  }
+}
+
+## hand-built: backend tool
+request 1: messages=[user] state=none resume=none
+events 1: RUN_STARTED, TOOL_CALL_START, TOOL_CALL_ARGS, TOOL_CALL_END, TOOL_CALL_RESULT, TEXT_MESSAGE_START, TEXT_MESSAGE_CONTENT x4, TEXT_MESSAGE_END, RUN_FINISHED
+{
+  "type": "RUN_FINISHED",
+  "threadId": "thread_zzka6In3Pbj0Kj9PLXKQbsU9",
+  "runId": "run_0M9FIQsbMPRRQsYHdoWPrCWx",
+  "outcome": {
+    "type": "success"
+  }
+}
+
+## framework: cancelled
+request 1: messages=[user] state=none resume=none
+events 1: RUN_STARTED, TEXT_MESSAGE_START, TEXT_MESSAGE_CONTENT x3  [stream ended early]
+
+## framework: backend tool
+request 1: messages=[user] state=none resume=none
+events 1: RUN_STARTED, TOOL_CALL_START, TOOL_CALL_ARGS, TOOL_CALL_END, TOOL_CALL_RESULT, TEXT_MESSAGE_START, TEXT_MESSAGE_CONTENT x4, TEXT_MESSAGE_END, RUN_FINISHED
+{
+  "type": "RUN_FINISHED",
+  "threadId": "thread_nxRlFrtFbITRf0tONtquY0y6",
+  "runId": "run_NLvuBgEN53fnV2tpjGmbkxzg",
+  "outcome": {
+    "type": "success"
+  }
+}
+
+## hand-built: cancelled
+request 1: messages=[user] state=none resume=none
+events 1: RUN_STARTED, TEXT_MESSAGE_START, TEXT_MESSAGE_CONTENT x3  [stream ended early]
+
+## hand-built: shared state
+request 1: messages=[user] state=none resume=none
+events 1: RUN_STARTED, TOOL_CALL_START, TOOL_CALL_ARGS, TOOL_CALL_END, TOOL_CALL_RESULT, STATE_SNAPSHOT, TEXT_MESSAGE_START, TEXT_MESSAGE_CONTENT x17, TEXT_MESSAGE_END, RUN_FINISHED
+{
+  "type": "STATE_SNAPSHOT",
+  "snapshot": {
+    "orderId": "O-1001",
+    "tone": "friendly",
+    "reply": "Hi Test Customer One, good news: order O-1001 (Synthetic kettle) is delivered with Example Post.",
+    "signature": ""
+  }
+}
+{
+  "type": "RUN_FINISHED",
+  "threadId": "thread_7ubaPWZvV0uUYcTo00w7inKW",
+  "runId": "run_Wt38wxLw1f9AzkJA2oHTF2ld",
+  "outcome": {
+    "type": "success"
+  }
+}
+request 2: messages=[user] state={"signature":"Sam, Order Desk"} resume=none
+events 2: RUN_STARTED, TOOL_CALL_START, TOOL_CALL_ARGS, TOOL_CALL_END, TOOL_CALL_RESULT, STATE_SNAPSHOT, TEXT_MESSAGE_START, TEXT_MESSAGE_CONTENT x17, TEXT_MESSAGE_END, RUN_FINISHED
+{
+  "type": "STATE_SNAPSHOT",
+  "snapshot": {
+    "orderId": "O-1001",
+    "tone": "formal",
+    "reply": "Dear Test Customer One, your order O-1001 (Synthetic kettle) is recorded as delivered with Example Post. Regards, Sam, Order Desk",
+    "signature": "Sam, Order Desk"
+  }
+}
+{
+  "type": "RUN_FINISHED",
+  "threadId": "thread_Cp1cyG4bYTXD5pmuqucQIVH9",
+  "runId": "run_c7RCjqvXkqzJxJeB9IKJbphL",
+  "outcome": {
+    "type": "success"
+  }
+}
+

@@ -1,0 +1,40 @@
+sessions=memory binding=off new-only=on   1 honest approval        last event RUN_FINISHED refunds [O-1003 37.50] attempts 1
+sessions=memory binding=off new-only=on   2 same approval again    last event RUN_FINISHED refunds [O-1003 37.50] attempts 1
+sessions=memory binding=off new-only=on   3 never proposed         last event RUN_FINISHED refunds [O-1001 42.00] attempts 1
+sessions=memory binding=off new-only=on   4 changed after proposal last event RUN_FINISHED refunds [O-1001 42.00] attempts 1
+sessions=memory binding=off new-only=on   5 second turn, client sent 3 messages, model saw: user:Text | assistant:Text | user:Text
+sessions=none   binding=off new-only=on   1 honest approval        last event RUN_FINISHED refunds [O-1003 37.50] attempts 1
+sessions=none   binding=off new-only=on   2 same approval again    last event RUN_FINISHED refunds [O-1003 37.50] attempts 2
+sessions=none   binding=off new-only=on   3 never proposed         last event RUN_FINISHED refunds [O-1001 42.00] attempts 1
+sessions=none   binding=off new-only=on   4 changed after proposal last event RUN_FINISHED refunds [O-1001 42.00] attempts 1
+sessions=none   binding=off new-only=on   5 second turn, client sent 3 messages, model saw: user:Text
+sessions=none   binding=on  new-only=off  1 honest approval        last event RUN_ERROR    refunds [] attempts 0  client is told: "An error occurred while streaming the agent response."  thrown: ToolApprovalRequestContent found with FunctionCall.CallId(s) 'call-…' that have no matching ToolApprovalResponseContent.
+sessions=none   binding=on  new-only=off  2 same approval again    last event RUN_ERROR    refunds [] attempts 0  client is told: "An error occurred while streaming the agent response."  thrown: ToolApprovalRequestContent found with FunctionCall.CallId(s) 'call-…' that have no matching ToolApprovalResponseContent.
+sessions=none   binding=on  new-only=off  3 never proposed         last event RUN_ERROR    refunds [] attempts 0  client is told: "An error occurred while streaming the agent response."  thrown: ToolApprovalRequestContent found with FunctionCall.CallId(s) 'forged' that have no matching ToolApprovalResponseContent.
+sessions=none   binding=on  new-only=off  4 changed after proposal last event RUN_ERROR    refunds [] attempts 0  client is told: "An error occurred while streaming the agent response."  thrown: ToolApprovalRequestContent found with FunctionCall.CallId(s) 'call-…' that have no matching ToolApprovalResponseContent.
+sessions=none   binding=on  new-only=off  5 second turn, client sent 3 messages, model saw: user:Text | assistant:Text | user:Text
+sessions=memory binding=on  new-only=off  1 honest approval        last event RUN_ERROR    refunds [] attempts 0  client is told: "An error occurred while streaming the agent response."  thrown: An item with the same key has already been added. Key: ficc_call-…
+sessions=memory binding=on  new-only=off  2 same approval again    last event RUN_ERROR    refunds [] attempts 0  client is told: "An error occurred while streaming the agent response."  thrown: An item with the same key has already been added. Key: ficc_call-…
+sessions=memory binding=on  new-only=off  3 never proposed         last event RUN_ERROR    refunds [] attempts 0  client is told: "An error occurred while streaming the agent response."  thrown: ToolApprovalRequestContent found with FunctionCall.CallId(s) 'forged' that have no matching ToolApprovalResponseContent.
+sessions=memory binding=on  new-only=off  4 changed after proposal last event RUN_ERROR    refunds [] attempts 0  client is told: "An error occurred while streaming the agent response."  thrown: An item with the same key has already been added. Key: ficc_call-…
+sessions=memory binding=on  new-only=off  5 second turn, client sent 3 messages, model saw: user:Text | assistant:Text | user:Text | assistant:Text | user:Text
+sessions=memory binding=on  new-only=on   1 honest approval        last event RUN_FINISHED refunds [O-1003 37.50] attempts 1
+sessions=memory binding=on  new-only=on   2 same approval again    last event RUN_FINISHED refunds [O-1003 37.50] attempts 1
+sessions=memory binding=on  new-only=on   3 never proposed         last event RUN_FINISHED refunds [] attempts 0
+sessions=memory binding=on  new-only=on   4 changed after proposal last event RUN_FINISHED refunds [O-1003 37.50] attempts 1
+sessions=memory binding=on  new-only=on   5 second turn, client sent 3 messages, model saw: user:Text | assistant:Text | user:Text
+sessions=none   binding=off new-only=off  1 honest approval        last event RUN_FINISHED refunds [O-1003 37.50] attempts 1
+sessions=none   binding=off new-only=off  2 same approval again    last event RUN_FINISHED refunds [O-1003 37.50] attempts 2
+sessions=none   binding=off new-only=off  3 never proposed         last event RUN_FINISHED refunds [O-1001 42.00] attempts 1
+sessions=none   binding=off new-only=off  4 changed after proposal last event RUN_FINISHED refunds [O-1001 42.00] attempts 1
+sessions=none   binding=off new-only=off  5 second turn, client sent 3 messages, model saw: user:Text | assistant:Text | user:Text
+sessions=memory binding=off new-only=off  1 honest approval        last event RUN_ERROR    refunds [] attempts 0  client is told: "An error occurred while streaming the agent response."  thrown: An item with the same key has already been added. Key: ficc_call-…
+sessions=memory binding=off new-only=off  2 same approval again    last event RUN_ERROR    refunds [] attempts 0  client is told: "An error occurred while streaming the agent response."  thrown: An item with the same key has already been added. Key: ficc_call-…
+sessions=memory binding=off new-only=off  3 never proposed         last event RUN_FINISHED refunds [O-1001 42.00] attempts 1
+sessions=memory binding=off new-only=off  4 changed after proposal last event RUN_ERROR    refunds [] attempts 0  client is told: "An error occurred while streaming the agent response."  thrown: An item with the same key has already been added. Key: ficc_call-…
+sessions=memory binding=off new-only=off  5 second turn, client sent 3 messages, model saw: user:Text | assistant:Text | user:Text | assistant:Text | user:Text
+sessions=none   binding=on  new-only=on   1 honest approval        last event RUN_FINISHED refunds [] attempts 0
+sessions=none   binding=on  new-only=on   2 same approval again    last event RUN_FINISHED refunds [] attempts 0
+sessions=none   binding=on  new-only=on   3 never proposed         last event RUN_FINISHED refunds [] attempts 0
+sessions=none   binding=on  new-only=on   4 changed after proposal last event RUN_FINISHED refunds [] attempts 0
+sessions=none   binding=on  new-only=on   5 second turn, client sent 3 messages, model saw: user:Text
