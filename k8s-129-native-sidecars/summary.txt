@@ -1,0 +1,45 @@
+[v1.29/job-classic] server v1.29.2
+  job_condition: none after 60 s
+  seconds_to_condition: None
+  pod_phase: Running
+  log-shipper     main reason=None exit=None restarts=0
+  main            main reason=Completed exit=0 restarts=0
+[v1.29/job-native] server v1.29.2
+  job_condition: Complete
+  seconds_to_condition: 40.3
+  pod_phase: Succeeded
+  log-shipper     init reason=Error exit=137 restarts=0
+  main            main reason=Completed exit=0 restarts=0
+[v1.29/startup-order] server v1.29.2
+  main_started_after_proxy_s: 9.0
+  proxy           init reason=None exit=None restarts=0
+  main            main reason=None exit=None restarts=0
+[v1.29/termination-order] server v1.29.2
+  delete_returned_after_s: 6.0
+    0.00s  main            TERM
+    3.01s  main            exit
+    3.05s  second-sidecar  TERM
+    4.05s  second-sidecar  exit
+    4.09s  first-sidecar   TERM
+    5.09s  first-sidecar   exit
+  final first-sidecar   exit=0 reason=Completed
+  final second-sidecar  exit=0 reason=Completed
+  final main            exit=0 reason=Completed
+[v1.29/grace-squeeze] server v1.29.2
+  delete_returned_after_s: 13.0
+    0.00s  main            TERM-ignored
+   10.00s  log-shipper     TERM
+  final log-shipper     exit=137 reason=Error
+  final main            exit=137 reason=Error
+[v1.29/sidecar-crash] server v1.29.2
+  job_condition: Complete
+  seconds_to_condition: 29.7
+  pod_phase: Succeeded
+  log-shipper     init reason=Error exit=1 restarts=2
+  main            main reason=Completed exit=0 restarts=0
+[v1.28/native-on-old] server v1.28.7
+  pod_phase: Pending
+  stored_restartPolicy: (field dropped)
+  job_condition_after_45s: None
+  log-shipper     init reason=None exit=None restarts=0
+  main            main reason=PodInitializing exit=None restarts=0

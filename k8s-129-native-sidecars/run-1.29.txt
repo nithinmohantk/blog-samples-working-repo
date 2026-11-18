@@ -1,0 +1,190 @@
+{
+  "v1.29/job-classic": {
+    "server": "v1.29.2",
+    "job_condition": "none after 60 s",
+    "seconds_to_condition": null,
+    "pod_phase": "Running",
+    "containers": {
+      "log-shipper": {
+        "kind": "main",
+        "started": "2026-11-18T17:43:50Z",
+        "finished": null,
+        "exit_code": null,
+        "reason": null,
+        "restarts": 0,
+        "ready": true
+      },
+      "main": {
+        "kind": "main",
+        "started": "2026-11-18T17:43:49Z",
+        "finished": "2026-11-18T17:43:54Z",
+        "exit_code": 0,
+        "reason": "Completed",
+        "restarts": 0,
+        "ready": false
+      }
+    }
+  }
+}
+{
+  "v1.29/job-native": {
+    "server": "v1.29.2",
+    "job_condition": "Complete",
+    "seconds_to_condition": 40.3,
+    "pod_phase": "Succeeded",
+    "containers": {
+      "log-shipper": {
+        "kind": "init",
+        "started": "2026-11-18T17:45:19Z",
+        "finished": "2026-11-18T17:45:55Z",
+        "exit_code": 137,
+        "reason": "Error",
+        "restarts": 0,
+        "ready": false
+      },
+      "main": {
+        "kind": "main",
+        "started": "2026-11-18T17:45:19Z",
+        "finished": "2026-11-18T17:45:24Z",
+        "exit_code": 0,
+        "reason": "Completed",
+        "restarts": 0,
+        "ready": false
+      }
+    }
+  }
+}
+{
+  "v1.29/startup-order": {
+    "server": "v1.29.2",
+    "containers": {
+      "proxy": {
+        "kind": "init",
+        "started": "2026-11-18T17:45:59Z",
+        "finished": null,
+        "exit_code": null,
+        "reason": null,
+        "restarts": 0,
+        "ready": true
+      },
+      "main": {
+        "kind": "main",
+        "started": "2026-11-18T17:46:08Z",
+        "finished": null,
+        "exit_code": null,
+        "reason": null,
+        "restarts": 0,
+        "ready": true
+      }
+    },
+    "main_started_after_proxy_s": 9.0
+  }
+}
+{
+  "v1.29/termination-order": {
+    "server": "v1.29.2",
+    "delete_returned_after_s": 6.0,
+    "events": [
+      [
+        0.0,
+        "main",
+        "TERM"
+      ],
+      [
+        3.01,
+        "main",
+        "exit"
+      ],
+      [
+        3.05,
+        "second-sidecar",
+        "TERM"
+      ],
+      [
+        4.05,
+        "second-sidecar",
+        "exit"
+      ],
+      [
+        4.09,
+        "first-sidecar",
+        "TERM"
+      ],
+      [
+        5.09,
+        "first-sidecar",
+        "exit"
+      ]
+    ],
+    "final_states": {
+      "first-sidecar": {
+        "exit_code": 0,
+        "reason": "Completed"
+      },
+      "second-sidecar": {
+        "exit_code": 0,
+        "reason": "Completed"
+      },
+      "main": {
+        "exit_code": 0,
+        "reason": "Completed"
+      }
+    }
+  }
+}
+{
+  "v1.29/grace-squeeze": {
+    "server": "v1.29.2",
+    "delete_returned_after_s": 13.0,
+    "events": [
+      [
+        0.0,
+        "main",
+        "TERM-ignored"
+      ],
+      [
+        10.0,
+        "log-shipper",
+        "TERM"
+      ]
+    ],
+    "final_states": {
+      "log-shipper": {
+        "exit_code": 137,
+        "reason": "Error"
+      },
+      "main": {
+        "exit_code": 137,
+        "reason": "Error"
+      }
+    }
+  }
+}
+{
+  "v1.29/sidecar-crash": {
+    "server": "v1.29.2",
+    "job_condition": "Complete",
+    "seconds_to_condition": 29.7,
+    "pod_phase": "Succeeded",
+    "containers": {
+      "log-shipper": {
+        "kind": "init",
+        "started": "2026-11-18T17:47:05Z",
+        "finished": "2026-11-18T17:47:08Z",
+        "exit_code": 1,
+        "reason": "Error",
+        "restarts": 2,
+        "ready": false
+      },
+      "main": {
+        "kind": "main",
+        "started": "2026-11-18T17:46:44Z",
+        "finished": "2026-11-18T17:47:09Z",
+        "exit_code": 0,
+        "reason": "Completed",
+        "restarts": 0,
+        "ready": false
+      }
+    }
+  }
+}

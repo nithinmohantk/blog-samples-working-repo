@@ -1,0 +1,28 @@
+{
+  "v1.28/native-on-old": {
+    "server": "v1.28.7",
+    "stored_restartPolicy": "(field dropped)",
+    "job_condition_after_45s": null,
+    "pod_phase": "Pending",
+    "containers": {
+      "log-shipper": {
+        "kind": "init",
+        "started": "2026-11-18T17:47:54Z",
+        "finished": null,
+        "exit_code": null,
+        "reason": null,
+        "restarts": 0,
+        "ready": false
+      },
+      "main": {
+        "kind": "main",
+        "started": null,
+        "finished": null,
+        "exit_code": null,
+        "reason": "PodInitializing",
+        "restarts": 0,
+        "ready": false
+      }
+    }
+  }
+}
