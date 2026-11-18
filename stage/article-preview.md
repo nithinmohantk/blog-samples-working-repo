@@ -1,271 +1,256 @@
-# The xz Backdoor (CVE-2024-3094): SBOM Triage for Images and Lambda Layers, and Where SBOMs Go Blind
+# Redis Changes Its Licence, Valkey Forks: What It Means for Your Deployments, and a One-Way Data Trap
 
-*Sunday 31 March 2024. Slug `xz-backdoor-cve-2024-3094-sbom-triage-images-lambda-layers`*
+*Saturday 30 March 2024. Slug `redis-licence-change-valkey-fork-deployments-rdb-rollback`*
 
-**Excerpt:** Which xz versions count, a version check that does not flag Debian's fix, and why a Pillow Lambda layer carries a liblzma no SBOM lists. Tested with Syft 1.1.0 on March 2024 images, without downloading a backdoored binary.
+**Excerpt:** Redis 7.4 moves to RSALv2/SSPLv1 and Valkey forks 7.2.4. An inventory tool, why INFO cannot tell the forks apart, and tests showing Redis 7.2.4 data moves to Valkey cleanly but Valkey's development line writes an RDB format Redis 7.2.4 cannot read.
 
-On Friday 29 March 2024, Andres Freund reported on the oss-security list that the upstream xz repository and release tarballs had been backdoored. By the evening CVE-2024-3094 had a CVSS score of 10.0, CISA had told everyone to go back to an uncompromised version such as 5.4.6, and Red Hat had told Fedora Rawhide users to stop using those machines. Since then, most security teams have been answering one question for every image, host and artefact they own: do we have it?
+On 20 March 2024 Redis Ltd. announced that Redis would no longer be released under the three-clause BSD licence. Starting with Redis 7.4, the server is dual-licensed under the Redis Source Available License v2 and the Server Side Public License v1, neither of which is an OSI-approved open source licence. Eight days later, on 28 March, the Linux Foundation announced Valkey, a fork that continues from Redis 7.2.4 under BSD, with AWS, Google Cloud, Oracle, Ericsson and Snap among its supporters.
 
-This article is about answering that question properly, from SBOMs, for container images and Lambda layers. It covers which versions count, a version check that does not flag the fix, why a package-level SBOM can miss a copy of liblzma entirely, and how to read a library's version without running the code you are worried about. The sample code was run against real images from March 2024 and a Lambda layer, and it does not download any compromised binary.
+For most teams the immediate question is not philosophical. It is which of their Redis deployments are affected, whether anything needs to happen now, and whether a move to a fork is safe. This article answers those questions with a small inventory tool and with tests run on both servers built from source: Redis 7.2.4, the last BSD release, and Valkey as it stood on 29 March, before it had made a release of its own.
 
-## What is affected, as of 31 March
+## What actually changed
 
-The malicious code is in xz 5.6.0, released on 24 February, and 5.6.1, released on 9 March. The payload sat in obfuscated test files committed to the repository, but the trigger was only in the release tarballs: an extra build script that, during configure, decides whether to inject that object code into the library. Freund's report lists the conditions it checks: an x86-64 Linux target with glibc, built with gcc and the GNU linker, as part of a Debian or RPM package build. The injected code then targets sshd, which does not use liblzma directly but loads it through libsystemd on distributions that patch OpenSSH for systemd notification.
+The change applies to future releases, not to code already published. Redis 7.2.x and everything before it stay BSD-licensed, and Redis has said security fixes will continue to be backported to those versions under BSD. What changes is what you can do with Redis 7.4 and later:
 
-| Source | What it says |
+| Licence | What it allows and limits |
 | :--- | :--- |
-| Upstream | xz 5.6.0 and 5.6.1 are compromised; go back to 5.4.x (CISA suggests 5.4.6) |
-| Debian (DSA-5649-1) | No stable release affected; testing, unstable and experimental from 5.5.1alpha-0.1 to 5.6.1-1 are; fixed as 5.6.1+really5.4.5-1 |
-| Red Hat / Fedora | No RHEL release affected; Fedora 41 and Rawhide received 5.6.x; Fedora 40 beta shipped xz-libs 5.6.0-1.fc40 and 5.6.0-2.fc40, where the injection is not believed to have worked, but users should still revert to 5.4.x |
-| Kali | Affected if updated between 26 and 29 March |
-| openSUSE | Tumbleweed and MicroOS updated between 7 and 28 March |
-| Arch Linux | Installation medium, VM images and container images built between 24 February and 28 March carried 5.6.x |
-| AWS | Amazon Linux and Bottlerocket not affected; AWS services do not use the affected software |
+| BSD-3-Clause (Redis up to 7.2.x, Valkey) | Use, modify, redistribute and offer as a service without conditions beyond keeping the notice |
+| RSALv2 (Redis 7.4 and later) | Use, copy, modify and distribute, but with limits on commercialising the software, including offering it to others as a managed service |
+| SSPLv1 (Redis 7.4 and later, alternative) | Copyleft; offering the software as a service requires publishing the source of the whole service stack under the SSPL |
+| LGPL-3.0-only (Redict changes) | Copyleft on the library itself; Redict is a separate fork announced on 22 March |
 
-For most production fleets the answer is therefore no: stable Debian, released Ubuntu LTS versions, RHEL and Amazon Linux never shipped 5.6.x. The exposure is in places that follow fast-moving distributions: developer laptops, CI runners and build images on Debian testing or Fedora Rawhide, Arch-based containers, and anything a team built from those. That is exactly what an SBOM inventory should find quickly, if it is read correctly.
+Redis says the change does not affect people who use Redis inside their own applications, third-party client libraries, or existing commercial customers. The target is cloud providers selling Redis as a service. For a company that runs Redis behind its own product, the practical impact is smaller than the headlines suggest, but not zero: distributions may drop or replace the package, container tags will move to 7.4 when it ships, and procurement and open source policies often forbid non-OSI licences regardless of how they would apply.
 
-## A version check that does not flag the fix
+![Six cards showing what the Redis licence change means for internal self-hosted use, ElastiCache customers, companies selling Redis as a service, floating image tags, distribution packages and the Valkey and Redict forks](img1.jpg)
+*The impact depends on how you run Redis, not on the fact that you run it.*
 
-The first scripts written on Friday searched for the strings 5.6.0 and 5.6.1. That fails in both directions. Debian's fixed package is versioned 5.6.1+really5.4.5-1, because a package version may not go backwards, so a substring search flags the fix. An unrelated package that happens to be at 5.6.1 is flagged too. And it misses 5.5.1alpha, the development release that Debian also lists as compromised. These are the results on a synthetic SBOM holding the versions from the advisories:
+## What applies to ElastiCache
+
+Amazon ElastiCache customers do not hold the licence obligation; AWS does, as the provider. On 30 March the newest ElastiCache engine is Redis 7.1, released in November 2023 and also used by ElastiCache Serverless, and it is built from code that predates the change. AWS is one of Valkey's founding supporters, with an AWS principal engineer among its creators, but it has not said what future ElastiCache engines will be. There is nothing for ElastiCache customers to do this week except note that the engine roadmap now depends on a decision AWS has not yet announced.
+
+## Finding your deployments
+
+An inventory has two sources: running servers, which can be asked what they are, and image references in registries, Helm values and Compose files, which can be read without connecting to anything. Both are covered by the sample. For running servers, the INFO command is the obvious source:
+
+```python
+def classify(info: dict) -> Licence:
+    """`info` is the parsed INFO SERVER section (redis-py's client.info('server'))."""
+    if str(info.get("server_name", "")).lower() == "valkey" or "valkey_version" in info:
+        return Licence("Valkey", str(info.get("valkey_version", info.get("redis_version"))), "BSD-3-Clause")
+    if "redict_version" in info:
+        return Licence("Redict", str(info["redict_version"]), "LGPL-3.0-only (changes); BSD-3-Clause (inherited code)")
+    raw = str(info.get("redis_version", ""))
+    v = _version(raw)
+    if v == UNSTABLE:
+        return Licence("Redis-compatible development build", raw, "unknown",
+                       "development branches report 255.255.255; check the source the binary was built from "
+                       "(Redis unstable after 20 March 2024 is RSALv2/SSPLv1, Valkey is BSD-3-Clause)")
+    if not v:
+        return Licence("unknown", raw, "unknown")
+    if v >= (7, 4):
+        return Licence("Redis", raw, "RSALv2 or SSPLv1")
+    return Licence("Redis", raw, "BSD-3-Clause")
+```
+
+This is what the two servers said about themselves in the test run:
 
 ```text
-liblzma5  5.6.1-1                naive: FLAG  rules: affected
-liblzma5  5.6.0-0.2              naive: FLAG  rules: affected
-liblzma5  5.5.1alpha-0.1         naive: ok    rules: suspect
-liblzma5  5.6.1+really5.4.5-1    naive: FLAG  rules: not affected
-liblzma5  5.4.1-0.2              naive: ok    rules: not affected
-xz-libs   5.6.0-2.fc40           naive: FLAG  rules: affected
-xz-libs   1:5.4.6-1              naive: ok    rules: not affected
-xz-libs   5.2.5-9.amzn2023.0.2   naive: ok    rules: not affected
-xz-libs   5.4.5-r0               naive: ok    rules: not affected
-libfoo    5.6.1                  naive: FLAG  rules: not an xz package
+Redis 7.2.4: redis_version=7.2.4, redis_git_sha1=d2c8a4b9, redis_mode=standalone, HELLO server=redis, HELLO version=7.2.4, COMMAND COUNT=241
+  licence check: Redis 7.2.4: BSD-3-Clause
+Valkey unstable: redis_version=255.255.255, redis_git_sha1=1950acd1, redis_mode=standalone, HELLO server=redis, HELLO version=255.255.255, COMMAND COUNT=241
+  licence check: Redis-compatible development build 255.255.255: unknown (development branches report 255.255.255; check the source the binary was built from (Redis unstable after 20 March 2024 is RSALv2/SSPLv1, Valkey is BSD-3-Clause))
 ```
 
-The fix is to work out the real upstream version first, then compare that. The rules are small but distribution-specific:
+Valkey on 29 March already builds a binary called `valkey-server`, but everything a client can see still says Redis: `redis_version` is `255.255.255`, the value every Redis development build reports, and `HELLO` returns `server=redis`. A licence check that relies on the server's own answer cannot tell a Valkey build from a Redis development build taken after 20 March, so the classifier returns unknown rather than guessing. Until the forks add their own identifiers, the binary's source and build record are the only reliable evidence. That is an argument for recording the source commit of every server build you deploy.
+
+For image references, the tag carries the version, with one trap:
 
 ```python
-def upstream_version(version: str) -> str:
-    """The upstream xz version inside a distribution package version.
-
-    1:5.6.0-1.fc40        -> 5.6.0        (epoch and RPM release removed)
-    5.6.1+really5.4.5-1   -> 5.4.5        (Debian's revert: the real code is what follows +really)
-    5.4.5-r0              -> 5.4.5        (Alpine)
-    """
-    v = version.split(":", 1)[-1]
-    if "+really" in v:
-        v = v.split("+really", 1)[1]
-    m = re.match(r"(\d+\.\d+\.\d+(?:alpha|beta)?)", v)
-    return m.group(1) if m else v
+def classify_image_tag(image: str) -> Licence:
+    """For inventories that only have image references, e.g. from a registry or a Helm values file."""
+    name, _, tag = image.rpartition(":") if ":" in image.split("/")[-1] else (image, "", "latest")
+    base = name.split("/")[-1]
+    if base == "valkey":
+        return Licence("Valkey", tag, "BSD-3-Clause")
+    if base == "redict":
+        return Licence("Redict", tag, "LGPL-3.0-only (changes); BSD-3-Clause (inherited code)")
+    if base == "redis":
+        v = _version(tag.split("-")[0])
+        if not v or tag in ("latest", "alpine", "bookworm"):
+            return Licence("Redis", tag, "unknown", "floating tag: pin a version, it will move to 7.4")
+        return classify({"redis_version": ".".join(map(str, v))})
+    return Licence("not Redis", tag, "n/a")
 ```
 
-```python
-def classify(name: str, version: str) -> Verdict | None:
-    """None if the package is not part of xz; otherwise a verdict on its version."""
-    if name.lower() not in PACKAGE_NAMES:
-        return None
-    up = upstream_version(version)
-    if up in AFFECTED_UPSTREAM:
-        return Verdict("affected", up, "upstream 5.6.0/5.6.1: replace with 5.4.x")
-    if re.fullmatch(r"5\.5\.\d+(alpha|beta)", up):
-        return Verdict("suspect", up, "5.5.x development release by the same maintainer; Debian lists 5.5.1alpha-0.1 as compromised")
-    return Verdict("not affected", up, "")
-```
+Floating tags such as `redis:latest` and `redis:alpine` are the real risk. They are correct today and will point at Redis 7.4 on the day it is published, changing the licence of a deployment without any change in your repositories. Pinning exact versions is the first concrete action for most teams, and it is worth doing whatever you decide about forks.
 
-Two choices here are judgement, not fact. The 5.5.x development releases are marked suspect rather than affected, because they came from the same maintainer and Debian includes them in its compromised range, but they were not named in the upstream advisory. And Fedora 40 beta's 5.6.0 builds count as affected, because Red Hat asks users to revert them even though the injection is not believed to have worked there. In both cases the action is the same: replace with 5.4.x.
+## Test setup
 
-## Reading the SBOMs
-
-Syft writes CycloneDX and SPDX JSON, and teams usually keep whichever their tooling settled on. The triage code reads both and the tests require identical verdicts from each, which catches the common mistake of reading one format's nested components but not the other's:
-
-```python
-def packages(doc: dict):
-    """(name, version, purl) for every package, whichever of the two formats the document is."""
-    if doc.get("bomFormat") == "CycloneDX":
-        def walk(components):
-            for c in components or []:
-                yield c.get("name", ""), c.get("version", ""), c.get("purl", "")
-                yield from walk(c.get("components"))
-        yield from walk(doc.get("components"))
-    elif "spdxVersion" in doc:
-        for p in doc.get("packages", []):
-            purl = next((r["referenceLocator"] for r in p.get("externalRefs", [])
-                         if r.get("referenceType") == "purl"), "")
-            yield p.get("name", ""), p.get("versionInfo", ""), purl
-    else:
-        raise ValueError("neither CycloneDX nor SPDX JSON")
-```
-
-The CI job installs Syft v1.1.0, the release of 25 March 2024, and verifies its checksum before use. A supply-chain incident is a poor time to pipe an installer script into a shell:
+Valkey had no release on 30 March; its repository held a `7.2` branch at exactly the Redis 7.2.4 commit and an `unstable` branch carried over from Redis's development branch. The tests build Redis 7.2.4 from its tag and Valkey's `unstable` branch at its last commit of 29 March, then run four checks with redis-py 5.0.3, the client release current at the time:
 
 ```bash
-          base=https://github.com/anchore/syft/releases/download/v1.1.0
-          curl -sSfLO "$base/syft_1.1.0_linux_amd64.tar.gz"
-          curl -sSfLO "$base/syft_1.1.0_checksums.txt"
-          grep " syft_1.1.0_linux_amd64.tar.gz$" syft_1.1.0_checksums.txt | sha256sum -c -
-          tar -xzf syft_1.1.0_linux_amd64.tar.gz -C "$HOME/bin" syft
+REDIS_TAG=7.2.4                                            # 9 January 2024, the last BSD-3-Clause release
+VALKEY_SHA=1950acd1e2b8c2282d51e528377f6e564eb447cd       # valkey unstable, 29 March 2024; no release existed yet
+
+build() {  # build <name> <repo url> <ref>
+  local dir="$work/$1"
+  rm -rf "$dir" && mkdir -p "$dir" && cd "$dir"
+  git init -q && git remote add origin "$2" && git fetch -q --depth 1 origin "$3" && git checkout -q FETCH_HEAD
+  make -j"$(nproc)" BUILD_TLS=no > "$work/$1-build.log" 2>&1 || { tail -30 "$work/$1-build.log"; return 1; }
+  cd - > /dev/null
+}
+
+echo "== unit tests"
 ```
 
-These are the results for five public images as they were published in March 2024, comparing the SBOM's package entry with a scan of every liblzma file in the image's exported filesystem:
-
-```text
-debian:bookworm-20240311-slim
-  SBOM:  liblzma5 5.4.1-0.2 (not affected)
-  bytes: liblzma.so.5.4.1 = 5.4.1
-ubuntu:jammy-20240227
-  SBOM:  liblzma5 5.2.5-2ubuntu1 (not affected)
-  bytes: liblzma.so.5.2.5 = 5.2.5
-alpine:3.19.1
-  SBOM:  no xz package
-  bytes: no liblzma file
-amazonlinux:2023.3.20240312.0
-  SBOM:  xz-libs 5.2.5-9.amzn2023.0.2 (not affected)
-  bytes: liblzma.so.5.2.5 = 5.2.5
-python:3.12.2-slim-bookworm
-  SBOM:  liblzma5 5.4.1-0.2 (not affected)
-  bytes: liblzma.so.5.4.1 = 5.4.1
-```
-
-None of them is affected, which matches the advisories. Two details are worth noting. Alpine's base image has no xz package at all, because BusyBox provides the command. And in every image the package database and the file agree, which is what makes the package-level SBOM trustworthy for these images. That agreement does not hold everywhere.
-
-![Table comparing Syft SBOM entries with a byte scan of liblzma files for five March 2024 container images and a Lambda layer with Pillow 10.2.0; the layer's SBOM lists only Pillow while the byte scan finds a vendored liblzma 5.4.5](img1.jpg)
-*The SBOM and the bytes agree for every image, but not for the layer.*
-
-## Where an SBOM goes blind
-
-Python wheels built for manylinux bundle the C libraries they need, renamed with a hash so they cannot clash with the system's copies. A Lambda layer built from such wheels carries those libraries, and no package database records them. Pillow is a common example. The sample builds a layer the way most teams do:
+Each server is started from a fresh directory, optionally with an RDB file copied in, so the same helper covers normal start-up, loading the other server's snapshot, and replication:
 
 ```python
-layer_dir = work / "layer"
-run(sys.executable, "-m", "pip", "install", "-q", "--target", str(layer_dir / "python"), "--only-binary=:all:",
-    "--platform", "manylinux2014_x86_64", "--python-version", "3.12", "--implementation", "cp", "pillow==10.2.0")
-layer_zip = work / "pillow-layer.zip"
-run("bash", "-c", f"cd {layer_dir} && zip -qr {layer_zip} python")
-cdx, _ = syft(
+def start(binary: Path, port: int, name: str, rdb: Path | None = None) -> redis.Redis:
+    d = WORK / name
+    shutil.rmtree(d, ignore_errors=True)
+    d.mkdir(parents=True)
+    if rdb:
+        shutil.copy(rdb, d / "dump.rdb")
+    subprocess.run([str(binary), "--port", str(port), "--dir", str(d), "--dbfilename", "dump.rdb",
+                    "--save", "", "--appendonly", "no", "--enable-debug-command", "yes",
+                    "--daemonize", "yes", "--logfile", str(d / "server.log")], check=True)
+    r = redis.Redis(port=port, decode_responses=True)
+    for _ in range(100):
+        try:
+            if r.ping():
+                return r
+        except redis.ConnectionError:
+            time.sleep(0.1)
+        except redis.BusyLoadingError:
+            time.sleep(0.1)
+    return r
 ```
 
-And this is what each method sees:
+## Results: commands and data
+
+The workload covers strings, hashes, lists, sets, sorted sets, streams with consumer groups, HyperLogLog, bitmaps, geospatial commands, a Lua script, a Redis Functions library with an error path, a transaction, object encodings and the expiry options added in Redis 7.0. Every result was compared value by value, and the whole dataset was compared with `DEBUG DIGEST`:
 
 ```text
-Syft packages in the layer: pillow
-xz packages in the layer SBOM: 0
-liblzma file: python/pillow.libs/liblzma-d1e41b3a.so.5.4.5 (270,265 bytes), embedded version 5.4.5
+17 checks, 17 identical
+digest after workload: redis 71b0efa498711272a034839d1e5228452f5e2b56 valkey 71b0efa498711272a034839d1e5228452f5e2b56
 ```
 
-Syft records Pillow as a Python package, which is correct, but the liblzma inside it is invisible: it is not a package, it is a file inside one. Pillow 10.2.0 carries liblzma 5.4.5, so this layer is safe, but the method that confirmed it was reading the file, not the SBOM. The same applies to anything that vendors compression libraries: other Python wheels, statically linked Go and Rust binaries, Java native bundles and appliance images.
+No differences, which is expected: Valkey had changed names and documentation, not behaviour. Both servers also reported the same 241 commands, and the client needed no change at all: the workload used an unmodified redis-py 5.0.3 against both. One client-side detail is worth checking in your own tooling. Libraries and scripts that compare `redis_version` to decide which features to use will read 255.255.255 as newer than any release, which is right for a development build but may enable code paths the server does not support. The interesting results are in the data files.
 
-## Reading a version without loading the library
+## Results: RDB files and replication
 
-The obvious way to ask a shared library for its version is to load it and call `lzma_version_string()`, through ctypes, a short C program, or the `xz` binary next to it. For this incident that is the wrong move. The injected code runs while the library is being loaded and its symbols are resolved, before any function is called, so loading a suspect copy executes the backdoor's setup code on the machine doing the triage. Reading the file is safe:
-
-```python
-NAME = re.compile(r"(^|/)liblzma[^/]*\.so(\.[0-9.]+)?$")
-# LZMA_VERSION_STRING is stored as a NUL-terminated string, e.g. b"\x005.4.5\x00".
-VERSION = re.compile(rb"\x00(5\.\d+\.\d+(?:alpha|beta)?)\x00")
-ELF = b"\x7fELF"
-
-
-@dataclass(frozen=True)
-class LibraryCopy:
-    container: str
-    path: str
-    size: int
-    versions: tuple[str, ...]      # every candidate string found; exactly one is the normal case
-
-
-def versions_in(data: bytes) -> tuple[str, ...]:
-    if not data.startswith(ELF):
-        return ()
-    return tuple(sorted({m.group(1).decode() for m in VERSION.finditer(data)}))
-
-
-def _from_zip
+```text
+RDB header written by Redis 7.2.4: REDIS0011; by Valkey unstable: REDIS0012
+Redis 7.2.4 RDB -> Valkey: started=True, keys=13, same digest=True, functions=['inventory']
+Valkey RDB -> Redis 7.2.4: started=False
+  log: Redis version=7.2.4, bits=64, commit=d2c8a4b9, modified=0, pid=12505, just started
+  log: Can't handle RDB format version 12
 ```
 
-liblzma keeps its version as a NUL-terminated string in read-only data. Across the five images and the Pillow layer, the pattern found exactly one candidate in each library and it matched the package version every time, as the table above shows. The file name is a hint but not evidence: the soname link is just `liblzma.so.5`, and vendored copies carry a hash in the name. The unit tests check that a misleadingly named file is still reported with the version in its bytes.
+```text
+Valkey replica of Redis 7.2.4: link up
+  key written after sync, read on the Valkey replica: 'written on the Redis primary'; digests equal: True
+Redis 7.2.4 replica of Valkey: link down after 15 s
+  log: Can't handle RDB format version 12
+  log: MASTER <-> REPLICA sync started
+  log: MASTER <-> REPLICA sync: Flushing old data
+  log: MASTER <-> REPLICA sync: Loading DB in memory
+  log: MASTER <-> REPLICA sync: receiving streamed RDB from master with EOF to disk
+```
 
-This is a version check, not a malware detector. A compromised 5.6.1 build reports 5.6.1 like a clean one. The detection scripts published since Friday look for the injected function's byte pattern; they answer a different question, whether this particular build had the injection applied, which matters for forensics on a host that was running sshd but not for deciding what to remove.
+![Diagram of migration paths between Redis 7.2.4 and Valkey unstable: Redis RDB files load into Valkey and a Valkey replica syncs from Redis, but Valkey writes RDB format version 12, which Redis 7.2.4 cannot load, so the reverse paths fail](img2.jpg)
+*Moving to Valkey's development line is one-way.*
 
-## Triage, step by step
+Moving data from Redis 7.2.4 to Valkey works both ways you would try: the snapshot loads with all keys and the Functions library, and a Valkey replica syncs from a Redis primary and keeps up with new writes. Moving back does not. Valkey's development branch writes RDB format version 12, and Redis 7.2.4 refuses it, both from a file and over replication, where the replica connects and receives the snapshot, then fails to load it and the link stays down.
 
-![Flow from SBOM and byte scan to an upstream version, then to a verdict: affected for 5.6.0 and 5.6.1, suspect for 5.5.x development releases, not affected for 5.4.x and the +really5.4.5 revert, with the action for each](img2.jpg)
-*One set of rules for every copy, wherever it was found.*
+This is not something Valkey introduced. Redis's own development branch moved to RDB version 12 in October 2023, five months before the licence change, and Valkey's `unstable` branch inherited it. The practical rule is about lines, not projects: a server on the 7.2 line writes version 11 and can be rolled back to Redis 7.2.4; a server on the newer line, from either project, cannot. Any migration plan needs to say which line it targets and accept that the rollback path closes once the first snapshot is written in the new format.
 
-- **Inventory.** Generate or collect an SBOM for every image in your registries, every Lambda layer and every function package. Keep both the SBOM and the scan output; the next advisory will ask the same question.
-- **Scan the bytes as well.** Run the liblzma file scan over the same artefacts. Anything it finds that the SBOM does not list is vendored and needs its own owner.
-- **Classify on the upstream version.** Use rules like the ones above, not a substring search.
-- **Act on affected copies.** Rebuild on a base with 5.4.x and redeploy. Do not patch running containers.
-- **Escalate hosts, not images.** A host that ran sshd with an affected x86-64 glibc build is a security incident: isolate, investigate and rotate credentials, as CISA asks. A container image that was never started with sshd is a rebuild.
-- **Check the build estate.** CI runners and developer images on rolling distributions are the likeliest place to find 5.6.x, and they hold signing keys and deployment credentials.
+## The options on 30 March
 
-> **DO NOT PULL AFFECTED IMAGES TO TEST**  
-> Testing a scanner against a real compromised image means downloading and unpacking the backdoored library. The sample covers affected versions with synthetic SBOMs and fake ELF stubs instead. If you need a positive control for binary detection, use a detection script's published byte pattern in an isolated environment, not a production runner.
+| Option | Licence | State on 30 March 2024 | Main trade-off |
+| :--- | :--- | :--- | :--- |
+| Stay on Redis 7.2.x | BSD-3-Clause | Released; security fixes promised | No new features; eventually unsupported |
+| Move to Redis 7.4 when released | RSALv2 or SSPLv1 | Not yet released | Fine for internal use; check redistribution and service use |
+| Valkey | BSD-3-Clause | Announced 28 March; no release yet | Broad backing, but no release history to judge yet |
+| Redict | LGPL-3.0-only for changes | 7.3.0 release candidate on 26 March | Small independent project; copyleft on changes |
 
-## Lambda specifically
+The fork that matters most for AWS users is Valkey, because AWS is among its backers and the team includes a long-time Redis core maintainer. But a fork announced two days ago is a plan, not a product. Its first releases, its compatibility promises and its support from distributions and managed services will decide whether it becomes the default. For most teams, the sensible position this week is to pin to 7.2.x, take the inventory, and run their own workload against Valkey in staging, so the decision can be made on evidence when the first releases arrive.
 
-AWS has said that Amazon Linux is not affected, and AWS-provided Lambda runtimes are built on it, so a function using a managed runtime with no layers needs no action for its base. What remains is what you add: layers, function packages and container images built on other distributions. Lambda functions do not run sshd, so the published exploit path does not apply inside them. The compromised library is still malicious code from an untrusted source, and the only sensible response is to replace it. Container-image functions built on Debian testing or an Arch base from the affected window are the most likely positives.
+## Planning a cut-over with replication
 
-## Making the next answer quicker
+When the time comes, replication gives a cut-over that is a failover rather than a restore, and the test above shows the mechanics already work from Redis 7.2.4 to Valkey:
 
-Most of the time spent on Friday and Saturday was not analysis. It was finding out what existed: which images were still deployed, which base each was built on, which layers each function used. The incident is a useful prompt to make that inventory permanent rather than rebuilding it under pressure for the next advisory.
+- **Add the new server as a replica.** Point it at the current Redis primary with REPLICAOF and wait for `master_link_status:up`.
+- **Prove the data matches.** Compare `DEBUG DIGEST` on both, or sample keys, while writes continue.
+- **Take a snapshot on the old primary.** This is the rollback point, in a format Redis 7.2.4 can load.
+- **Pause writes and promote.** Stop writes briefly, check replication offsets match, run REPLICAOF NO ONE on the new server and move clients to it.
+- **Keep the old server until confidence is high.** If the new server writes RDB version 12, the rollback snapshot is the only way back.
 
-- **Generate the SBOM at build time and keep it with the digest.** An SBOM produced in the pipeline describes exactly what was shipped. Store it next to the image digest or layer version, not in a spreadsheet keyed by tag, because tags move.
-- **Index by package URL.** A query such as every artefact with `pkg:deb/debian/liblzma5` should return in seconds. A table of digest, purl and version in any database is enough to start.
-- **Record what is deployed, not only what is built.** Registries keep years of images. The useful answer is which affected digests are running now, in which accounts and Regions, and who owns them.
-- **Add a byte scan for native libraries.** Run it on layers, function packages and images, and store its output beside the SBOM, so vendored copies are part of the same query.
-- **Track base-image lineage.** Knowing that forty images derive from one internal base turns forty investigations into one rebuild.
-- **Measure the time to answer.** How long it takes to say whether you have a given package, at a given version, in production is a better indicator of supply-chain readiness than the number of SBOMs generated.
+Three things need separate checks. Sentinel and cluster mode add their own configuration and failover behaviour, which the standalone test here does not cover. Modules from Redis Stack, such as search and JSON, were already under RSALv2 or SSPLv1 before this week and are not part of either fork, so workloads that depend on them need a separate plan. And configuration files, ACL files and monitoring that match on process names or the word redis will need reviewing as the forks rename things.
+
+## What to do now
+
+- **Pin versions.** Replace floating Redis tags with exact versions in every chart, Compose file and Dockerfile. Redis 7.2.4 is BSD and will receive backported security fixes.
+- **Take an inventory.** List every Redis server and image reference with its version and how it is used: internal, embedded in a product you ship, or offered to others as a service.
+- **Check how you use it.** Internal use is unaffected by the new terms. Redistribution in a product and managed-service offerings need a closer reading of RSALv2 and SSPLv1, ideally with your legal team.
+- **Record build provenance.** The server's own version string does not identify the project; the source commit does.
+- **Test a fork in staging, not production.** Valkey had no release on 30 March. Run your workload against it, and test the move with replication so cut-over is a failover rather than a restore.
+- **Plan the rollback before the move.** Stay on the 7.2 line if you need to be able to go back to Redis 7.2.4; keep a Redis-format snapshot taken before cut-over.
+- **Watch the package sources.** Fedora and openSUSE are already discussing dropping Redis, so the package your hosts install may change.
 
 ## Decision framework
 
-| Finding | Action |
+| Situation | Recommendation |
 | :--- | :--- |
-| Package xz 5.6.0 or 5.6.1 in an image | Rebuild on a 5.4.x base and redeploy; quarantine the old image |
-| Same, on a host that ran sshd | Incident: isolate, investigate, rotate credentials, rebuild |
-| Debian 5.5.x alpha or beta | Replace with 5.4.x; treat as affected for reporting |
-| Debian 5.6.1+really5.4.5-1 | Fixed; no action |
-| Fedora 40 beta xz-libs 5.6.0 | Revert to 5.4.x as Red Hat advises |
-| liblzma found by byte scan but not in the SBOM | Find the package that vendors it, check its version, and add byte scanning to the pipeline |
-| Amazon Linux base, managed Lambda runtime | No action for the base; scan layers and packages |
+| Self-hosted Redis for your own applications | Pin 7.2.x; no licence action; evaluate Valkey once it publishes releases |
+| Redis bundled in a product you ship to customers | Review RSALv2 and SSPLv1 before adopting 7.4; plan for a BSD fork or 7.2.x |
+| Redis offered to others as a managed service | 7.4 needs an agreement with Redis or a move to a fork |
+| ElastiCache | No action; watch AWS's engine announcements |
+| Floating image tags | Pin now, whatever else you decide |
+| Planning a move to Valkey | Use replication for cut-over; target the 7.2 line if rollback to Redis 7.2.4 matters |
+
+> **NOT LEGAL ADVICE**  
+> The licence summaries here follow Redis's announcement and FAQ of 20 March 2024. How RSALv2 and SSPLv1 apply to a particular product or service depends on details that only the licence texts and your own lawyers can settle.
 
 > **HOW THIS WAS CHECKED**  
-> The sample ran in GitHub Actions ([run](https://github.com/nithinmohantk/blog-samples-working-repo/actions/runs/44400012484)) with Syft v1.1.0 (checksum verified), Python 3.12 and pytest 8.1.1 (packages as of 30 March 2024). The images are the dated Docker Hub tags shown above and the layer uses Pillow 10.2.0, the release current on 31 March 2024. All 12 unit tests passed and the output above is copied from that run. No image or package containing xz 5.6.x was downloaded; affected versions were tested with synthetic SBOMs and stub ELF files. Advisory details are as published by Debian, Red Hat, CISA and AWS on 29 and 30 March 2024.
+> The sample ran in GitHub Actions ([run](https://github.com/nithinmohantk/blog-samples-working-repo/actions/runs/44418761165)) on Python 3.12 with redis-py 5.0.3 and pytest 8.1.1 (packages as of 29 March 2024). Redis was built from tag 7.2.4 (commit d2c8a4b9) and Valkey from its `unstable` branch at commit 1950acd, the last commit of 29 March 2024. All 18 unit tests passed and the output above is copied from that run. The RDB version history comes from the Redis repository's `src/rdb.h`. Nothing was run against ElastiCache.
 
 ## Key takeaways
 
-- CVE-2024-3094 affects xz 5.6.0 and 5.6.1; stable Debian, released Ubuntu LTS versions, RHEL and Amazon Linux never shipped them.
-- Compare upstream versions, not substrings: Debian's fix is 5.6.1+really5.4.5-1, and 5.5.1alpha is in Debian's compromised range.
-- Package-level SBOMs miss libraries vendored inside wheels and binaries; a Pillow layer carries its own liblzma that no package database lists.
-- Read a suspect library's version from its bytes; loading it runs the injected code.
-- Images get rebuilt; hosts that ran sshd with an affected build get treated as incidents.
+- Redis 7.4 and later are RSALv2 or SSPLv1; Redis 7.2.x and earlier remain BSD with security fixes backported.
+- Internal use is unaffected; redistribution and managed-service offerings are where the new terms bite.
+- Floating tags such as redis:latest will change licence on the day 7.4 ships; pin versions now.
+- A server's INFO output cannot tell Valkey's development build from Redis's; record build provenance.
+- Redis 7.2.4 data moves to Valkey cleanly, but Valkey's development line writes RDB version 12, which Redis 7.2.4 cannot read, so plan the rollback first.
 
-If your own inventory turned up liblzma in a place no SBOM listed, let me know in the comments below where it was.
+If you have already started moving a Redis estate, let me know in the comments below which route you took.
 
 > **GET THE CODE**  
-> [https://github.com/nithinmohantk/blog-samples-working-repo/tree/main/xz-cve-2024-3094-sbom-triage](https://github.com/nithinmohantk/blog-samples-working-repo/tree/main/xz-cve-2024-3094-sbom-triage)
+> [https://github.com/nithinmohantk/blog-samples-working-repo/tree/main/redis-valkey-licence-check](https://github.com/nithinmohantk/blog-samples-working-repo/tree/main/redis-valkey-licence-check)
 
 ## Glossary
 
-- **CVE-2024-3094**: The identifier for the malicious code in xz 5.6.0 and 5.6.1.
-- **xz / liblzma**: The XZ Utils compression tools and the shared library they provide.
-- **SBOM**: Software bill of materials: a machine-readable list of the components in an artefact.
-- **CycloneDX**: An SBOM format from OWASP, commonly written as JSON.
-- **SPDX**: An SBOM format from the Linux Foundation, also an ISO standard.
-- **Syft**: Anchore's open-source tool for generating SBOMs from images, directories and archives.
-- **purl**: Package URL: a standard identifier such as pkg:deb/debian/liblzma5@5.4.1-0.2.
-- **Vendored library**: A copy of a library bundled inside another package instead of installed by the system.
-- **manylinux wheel**: A Python binary package built to run on most Linux distributions, with its C libraries bundled.
-- **IFUNC**: A glibc mechanism that picks a function implementation when a library is loaded.
-- **Epoch**: A prefix such as 1: in a package version that overrides normal version ordering.
-- **+really**: Debian's convention for reverting to an older upstream version under a higher package version.
+- **BSD-3-Clause**: A permissive open source licence; Redis used it until 7.2.x, Valkey keeps it.
+- **RSALv2**: Redis Source Available License v2: source-available, with limits on commercialising the software.
+- **SSPLv1**: Server Side Public License v1: copyleft that extends to the whole stack of a service offering the software.
+- **OSI**: Open Source Initiative, which maintains the list of approved open source licences.
+- **Valkey**: The Linux Foundation fork of Redis 7.2.4, announced on 28 March 2024.
+- **Redict**: A fork of Redis 7.2.4 announced on 22 March 2024, with changes under LGPL-3.0-only.
+- **RDB**: Redis's snapshot file format, also used for the initial sync in replication.
+- **RDB version**: The format number in the file header; a server refuses versions newer than it knows.
+- **Replication**: A replica server copying a primary's data, first by snapshot, then by command stream.
+- **DEBUG DIGEST**: A command that returns a hash of the whole dataset, useful for comparing two servers.
+- **Floating tag**: An image tag such as latest that moves to new versions over time.
+- **255.255.255**: The version that Redis development builds report instead of a release number.
 
 ## References & Further Reading
 
-- [backdoor in upstream xz/liblzma leading to ssh server compromise](https://www.openwall.com/lists/oss-security/2024/03/29/4): Andres Freund, oss-security, 29 March 2024
-- [Reported Supply Chain Compromise Affecting XZ Utils](https://www.cisa.gov/news-events/alerts/2024/03/29/reported-supply-chain-compromise-affecting-xz-utils-data-compression-library-cve-2024-3094): CISA alert, 29 March 2024
-- [DSA-5649-1 xz-utils security update](https://www.debian.org/security/dsa-5649): Debian, 29 March 2024
-- [Urgent security alert for Fedora 41 and Rawhide users](https://www.redhat.com/en/blog/urgent-security-alert-fedora-41-and-rawhide-users): Red Hat, updated 30 March 2024
-- [AWS security bulletin for CVE-2024-3094](https://aws.amazon.com/security/security-bulletins/AWS-2024-002): Amazon Linux and Bottlerocket not affected
-- [Syft v1.1.0](https://github.com/anchore/syft/releases/tag/v1.1.0): The SBOM generator used here
-- [CycloneDX specification](https://cyclonedx.org/specification/overview/): SBOM format
-- [SPDX](https://spdx.dev/): SBOM format
-- [Sample code for this article](https://github.com/nithinmohantk/blog-samples-working-repo/tree/main/xz-cve-2024-3094-sbom-triage): Advisory rules, SBOM readers, byte-level liblzma scan and tests
+- [Redis Adopts Dual Source-Available Licensing](https://redis.io/blog/redis-adopts-dual-source-available-licensing/): Redis, 20 March 2024
+- [Change license from BSD-3 to dual RSALv2+SSPLv1](https://github.com/redis/redis/pull/13157): The pull request that made the change
+- [Linux Foundation Launches Open Source Valkey Community](https://www.linuxfoundation.org/press/linux-foundation-launches-open-source-valkey-community): 28 March 2024
+- [Valkey repository](https://github.com/valkey-io/valkey): Source used for the tests
+- [Redict is an independent, copyleft fork](https://redict.io/posts/2024-03-22-redict-is-an-independent-fork/): 22 March 2024
+- [ElastiCache for Redis 7.1 generally available](https://aws.amazon.com/about-aws/whats-new/2023/11/amazon-elasticache-redis-version-7-1-generally-available): November 2023
+- [The race to replace Redis](https://lwn.net/Articles/966631/): LWN, 28 March 2024
+- [Sample code for this article](https://github.com/nithinmohantk/blog-samples-working-repo/tree/main/redis-valkey-licence-check): Licence classifier, workload, RDB and replication checks

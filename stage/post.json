@@ -1,6 +1,6 @@
 {
-  "title": "The xz Backdoor (CVE-2024-3094): SBOM Triage for Images and Lambda Layers, and Where SBOMs Go Blind",
-  "slug": "xz-backdoor-cve-2024-3094-sbom-triage-images-lambda-layers",
-  "date": "2024-03-31T09:00:00",
-  "excerpt": "Which xz versions count, a version check that does not flag Debian's fix, and why a Pillow Lambda layer carries a liblzma no SBOM lists. Tested with Syft 1.1.0 on March 2024 images, without downloading a backdoored binary."
+  "title": "Redis Changes Its Licence, Valkey Forks: What It Means for Your Deployments, and a One-Way Data Trap",
+  "slug": "redis-licence-change-valkey-fork-deployments-rdb-rollback",
+  "date": "2024-03-30T09:00:00",
+  "excerpt": "Redis 7.4 moves to RSALv2/SSPLv1 and Valkey forks 7.2.4. An inventory tool, why INFO cannot tell the forks apart, and tests showing Redis 7.2.4 data moves to Valkey cleanly but Valkey's development line writes an RDB format Redis 7.2.4 cannot read."
 }
