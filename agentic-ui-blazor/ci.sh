@@ -51,6 +51,15 @@ grep -q "Build succeeded" "$out/02-build.txt" || status=1
 } 2>&1 | tee "$out/03-tests.txt"
 grep -qE "Test Run Successful|Passed!" "$out/03-tests.txt" || status=1
 {
+  echo "== 3n. the wire tests again, on the versions the framework package asks for"
+  mkdir -p "$out/native"
+  DESK_OUT="$out/native" dotnet test tests/Desk.Tests -c Release --artifacts-path "$out/../native-build" -p:ExtensionsAIVersion=10.11.0 -p:AGUIVersion=1.0.0 -p:WithoutBlazor=true --filter "FullyQualifiedName~WireTests" --logger "console;verbosity=normal" 2>&1 | grep -E "^\s+(Passed|Failed|Skipped) |error|Error Message|Assert\.|Expected|Actual|Total tests|Passed:|Failed:|Test Run|Passed!|Failed!" | sort -u | head -n 80
+  dotnet list tests/Desk.Tests package --include-transitive --artifacts-path "$out/../native-build" 2>/dev/null | grep -E "AGUI\.|Agents\.|Extensions.AI |Extensions.AI.Abstractions" | sed 's/  */ /g' | sort -u
+  sort "$out/native/forged-approval.txt" 2>/dev/null
+  grep -v "^   at\|^$" "$out/native/first-chance.txt" 2>/dev/null | sort | uniq -c | cut -c1-300
+} 2>&1 | tee "$out/03n-native.txt"
+
+{
   echo "== 3a. a forged approval, with the server-side check off and on"
   sort "$out/forged-approval.txt"
   echo "== 3b. size of the event stream"
