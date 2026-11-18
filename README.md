@@ -56,6 +56,7 @@ Each folder has its own README that says what the code does, how to run it, and 
 | `k8s-129-native-sidecars` | [Kubernetes 1.29 Native Sidecars: Jobs That Finish, Ordered Shutdown and the 1.28 Trap](https://www.dataa.dev/2024/02/17/kubernetes-1-29-native-sidecars-jobs-shutdown-order/) | YAML, Python |
 | `eks-extended-support-cost` | [EKS Extended Support Pricing: What $0.60 an Hour Means for Your Fleet from 1 April](https://www.dataa.dev/2024/02/24/eks-extended-support-pricing-fleet-cost-from-1-april/) | Python |
 | `claude3-bedrock-messages-migration` | [Claude 3 on Amazon Bedrock: Moving from Text Completions to the Messages API](https://www.dataa.dev/2024/03/16/claude-3-bedrock-text-completions-to-messages-api/) | Python |
+| `ehds-access-logging` | [EHDS Provisional Agreement: What EHR Systems Must Build Into the Access Path](https://www.dataa.dev/2024/03/23/ehds-provisional-agreement-what-ehr-systems-must-build/) | Python, FHIR |
 
 ## Verification status
 
