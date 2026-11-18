@@ -1,0 +1,23 @@
+{
+  "botocore": "1.34.64",
+  "bedrock-runtime operations": [
+    "InvokeModel",
+    "InvokeModelWithResponseStream"
+  ],
+  "anthropic": "0.20.0",
+  "InvokeModel errors": [
+    "AccessDeniedException",
+    "InternalServerException",
+    "ModelErrorException",
+    "ModelNotReadyException",
+    "ModelTimeoutException",
+    "ResourceNotFoundException",
+    "ServiceQuotaExceededException",
+    "ThrottlingException",
+    "ValidationException"
+  ],
+  "AnthropicBedrock resources": [
+    "completions",
+    "messages"
+  ]
+}

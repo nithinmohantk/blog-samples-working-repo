@@ -1,0 +1,82 @@
+== summary with a system prompt
+Text Completions body:
+{
+  "prompt": "You summarise clinical notes in one sentence. Never add facts.\n\nHuman: <note>Admitted with chest pain. Troponin negative twice. Discharged day 3 on aspirin.</note>\n\nAssistant:",
+  "max_tokens_to_sample": 200,
+  "stop_sequences": [
+    "\n\nHuman:"
+  ],
+  "temperature": 0.0
+}
+Messages body:
+{
+  "anthropic_version": "bedrock-2023-05-31",
+  "max_tokens": 200,
+  "messages": [
+    {
+      "role": "user",
+      "content": [
+        {
+          "type": "text",
+          "text": "<note>Admitted with chest pain. Troponin negative twice. Discharged day 3 on aspirin.</note>"
+        }
+      ]
+    }
+  ],
+  "system": "You summarise clinical notes in one sentence. Never add facts.",
+  "temperature": 0.0
+}
+
+== JSON with a prefill
+Text Completions body:
+{
+  "prompt": "\n\nHuman: Extract the medication names from: aspirin 75 mg, atorvastatin 40 mg.\n\nAssistant: {\"medications\": [",
+  "max_tokens_to_sample": 100,
+  "stop_sequences": [
+    "\n\nHuman:",
+    "]}"
+  ]
+}
+Messages body:
+{
+  "anthropic_version": "bedrock-2023-05-31",
+  "max_tokens": 100,
+  "messages": [
+    {
+      "role": "user",
+      "content": [
+        {
+          "type": "text",
+          "text": "Extract the medication names from: aspirin 75 mg, atorvastatin 40 mg."
+        }
+      ]
+    },
+    {
+      "role": "assistant",
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"medications\": ["
+        }
+      ]
+    }
+  ],
+  "stop_sequences": [
+    "]}"
+  ]
+}
+
+== prompt with no Human turn
+Text Completions body:
+{
+  "prompt": "Summarise this: aspirin 75 mg daily.",
+  "max_tokens_to_sample": 100
+}
+Messages body:
+  refused: no '\n\nHuman:' turn found
+
+== One month: 50,000,000 input and 10,000,000 output tokens, on-demand, US East (N. Virginia)
+  Claude Instant 1.2   $     64.00
+  Claude 2.0 / 2.1     $    640.00
+  Claude 3 Sonnet      $    300.00
+  Claude 3 Haiku       $     25.00
