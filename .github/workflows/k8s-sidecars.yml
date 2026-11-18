@@ -26,9 +26,11 @@ jobs:
 
       - name: kind v0.22.0 (14 Feb 2024) and kubectl v1.29.2
         run: |
-          curl -sSLo /usr/local/bin/kind https://github.com/kubernetes-sigs/kind/releases/download/v0.22.0/kind-linux-amd64
-          curl -sSLo /usr/local/bin/kubectl https://dl.k8s.io/release/v1.29.2/bin/linux/amd64/kubectl
-          chmod +x /usr/local/bin/kind /usr/local/bin/kubectl
+          mkdir -p "$HOME/bin"
+          curl -sSLo "$HOME/bin/kind" https://github.com/kubernetes-sigs/kind/releases/download/v0.22.0/kind-linux-amd64
+          curl -sSLo "$HOME/bin/kubectl" https://dl.k8s.io/release/v1.29.2/bin/linux/amd64/kubectl
+          chmod +x "$HOME/bin/kind" "$HOME/bin/kubectl"
+          echo "$HOME/bin" >> "$GITHUB_PATH"
 
       - name: Python packages as of 16 February 2024
         run: |
