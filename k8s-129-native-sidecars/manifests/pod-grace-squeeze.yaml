@@ -1,0 +1,22 @@
+# Main ignores SIGTERM and uses the whole 10-second grace period.
+# The sidecar wants 5 seconds to flush after SIGTERM.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: grace-squeeze
+spec:
+  terminationGracePeriodSeconds: 10
+  volumes:
+    - name: events
+      hostPath: {path: /tmp/sidecar-events/grace-squeeze, type: DirectoryOrCreate}
+  initContainers:
+    - name: log-shipper
+      image: busybox:1.36.1
+      restartPolicy: Always
+      volumeMounts: [{name: events, mountPath: /events}]
+      command: ["sh", "-c", "log() { echo \"$(cut -d' ' -f1 /proc/uptime) log-shipper $1\" >> /events/log; }; trap 'log TERM; sleep 5; log flushed; exit 0' TERM; log start; while true; do sleep 0.2; done"]
+  containers:
+    - name: main
+      image: busybox:1.36.1
+      volumeMounts: [{name: events, mountPath: /events}]
+      command: ["sh", "-c", "log() { echo \"$(cut -d' ' -f1 /proc/uptime) main $1\" >> /events/log; }; trap 'log TERM-ignored' TERM; log start; while true; do sleep 0.2; done"]

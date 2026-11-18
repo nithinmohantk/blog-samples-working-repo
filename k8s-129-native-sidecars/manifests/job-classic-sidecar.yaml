@@ -1,0 +1,17 @@
+# The pre-1.29 pattern: the log shipper is just another container.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: classic-sidecar
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: main
+          image: busybox:1.36.1
+          command: ["sh", "-c", "echo working; sleep 5; echo done"]
+        - name: log-shipper
+          image: busybox:1.36.1
+          command: ["sh", "-c", "while true; do sleep 1; done"]

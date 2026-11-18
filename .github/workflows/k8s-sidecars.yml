@@ -1,0 +1,67 @@
+name: Kubernetes 1.29 native sidecars
+
+on:
+  push:
+    paths:
+      - "k8s-129-native-sidecars/**"
+      - ".github/workflows/k8s-sidecars.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write   # only to publish the result files to a results branch
+
+concurrency:
+  group: k8s-sidecars-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  sidecars:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: kind v0.22.0 (14 Feb 2024) and kubectl v1.29.2
+        run: |
+          curl -sSLo /usr/local/bin/kind https://github.com/kubernetes-sigs/kind/releases/download/v0.22.0/kind-linux-amd64
+          curl -sSLo /usr/local/bin/kubectl https://dl.k8s.io/release/v1.29.2/bin/linux/amd64/kubectl
+          chmod +x /usr/local/bin/kind /usr/local/bin/kubectl
+
+      - name: Python packages as of 16 February 2024
+        run: |
+          pip install -q uv
+          uv pip install --system -q --exclude-newer 2024-02-16 pyyaml pytest
+
+      - name: Run the scenarios
+        id: samples
+        continue-on-error: true
+        run: ./k8s-129-native-sidecars/ci.sh "$GITHUB_WORKSPACE/out/k8s-129-native-sidecars"
+
+      - name: Publish the results
+        if: always()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p out
+          {
+            echo "commit: $GITHUB_SHA"
+            echo "run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+            echo "date: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            echo "samples: ${{ steps.samples.outcome }}"
+          } > out/run.txt
+          publish="$RUNNER_TEMP/publish"
+          rm -rf "$publish" && mkdir -p "$publish" && cp -r out/. "$publish/"
+          cd "$publish"
+          git init -q -b ci-results-k8s-sidecars
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -q -m "Results for $GITHUB_SHA"
+          git push -f "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" ci-results-k8s-sidecars
+
+      - name: Fail the build if a scenario failed
+        if: steps.samples.outcome != 'success'
+        run: exit 1
