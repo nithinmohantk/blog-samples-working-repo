@@ -100,3 +100,16 @@ def test_stream_parsed_identically_by_botocore_and_the_anthropic_sdk():
 
 def test_from_stream_keeps_a_prefill():
     assert from_stream(STREAM, prefill="Result: ").text == "Result: Three findings."
+
+
+def test_image_message_matches_the_sdk():
+    from claude_migrate.content import image_block, text_block, user_message
+    png = bytes.fromhex("89504e470d0a1a0a0000000d49484452000000010000000108060000001f15c4890000000d4944415478da63f8ff"
+                        "ff3f0005fe02fea7d6a5d40000000049454e44ae426082")  # a 1x1 PNG
+    message = user_message(image_block(png, "image/png"), text_block("What colour is this pixel?"))
+    body = {"anthropic_version": "bedrock-2023-05-31", "max_tokens": 50, "messages": [message]}
+    seen = {}
+    sdk(capture(seen)).messages.create(model=HAIKU, max_tokens=50, messages=[message])
+    assert seen["body"] == body
+    with pytest.raises(ValueError):
+        image_block(png, "image/tiff")

@@ -11,5 +11,6 @@ print(json.dumps({
     "botocore": botocore.__version__,
     "bedrock-runtime operations": runtime.operation_names,
     "anthropic": anthropic.__version__,
+    "InvokeModel errors": sorted(e.name for e in runtime.operation_model("InvokeModel").error_shapes),
     "AnthropicBedrock resources": [n for n in ("completions", "messages") if hasattr(client, n)],
 }, indent=2))
