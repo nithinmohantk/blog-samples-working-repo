@@ -28,6 +28,8 @@ RESOURCES = [
      "birthDate": "1971-05-04"},
     org("hospital-a", "Hospital A"), org("gp-b", "GP Practice B"), org("pharmacy-c", "Pharmacy C"),
     org("lab-d", "Laboratory D"),
+    {"resourceType": "Device", "id": "ehr-system", "deviceName": [{"name": "Example EHR 1.0", "type": "user-friendly-name"}],
+     "owner": {"reference": "Organization/hospital-a"}},   # the observer in every AuditEvent; HAPI checks it exists
     prac("dr-hosp-a", "Hospital-A", "Dr"), prac("dr-gp-b", "GP-B", "Dr"), prac("dr-ed-a", "Emergency-A", "Dr"),
     {"resourceType": "Composition", "id": "summary-1", "status": "final",
      "type": {"coding": [{"system": "http://loinc.org", "code": "60591-5", "display": "Patient summary Document"}]},
