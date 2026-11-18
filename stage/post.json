@@ -1,6 +1,6 @@
 {
-  "title": "EKS Extended Support Pricing: What $0.60 an Hour Means for Your Fleet from 1 April",
-  "slug": "eks-extended-support-pricing-fleet-cost-from-1-april",
-  "date": "2024-02-24T09:00:00",
-  "excerpt": "From April 2024 an EKS cluster in extended support costs $0.60 an hour instead of $0.10. A fleet audit and day-by-day cost model show why upgrading 1.24 to 1.25 saves only $360 a year, and why the plan has to reach 1.28 or 1.29."
+  "title": "Claude 3 on Amazon Bedrock: Moving from Text Completions to the Messages API",
+  "slug": "claude-3-bedrock-text-completions-to-messages-api",
+  "date": "2024-03-16T09:00:00",
+  "excerpt": "Claude 3 Sonnet and Haiku on Bedrock accept only the Messages API. A converter for Claude 2 prompts, the prefill and streaming changes that break existing code, and every request checked against Anthropic's own SDK of March 2024."
 }

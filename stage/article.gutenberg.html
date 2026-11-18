@@ -1,144 +1,327 @@
 <!-- wp:paragraph -->
-<p>On 16 January 2024 AWS published the price of Amazon EKS extended support. From the April 2024 billing cycle, a cluster whose Kubernetes version has left standard support costs $0.60 per hour for its control plane instead of $0.10. That is $446.40 in a 31-day month instead of $74.40, for every cluster, before a single node.</p>
+<p>Anthropic released the Claude 3 models on 4 March 2024, and Claude 3 Sonnet was on Amazon Bedrock the same day, in US East (N. Virginia) and US West (Oregon). Claude 3 Haiku followed on 13 March, and Claude 3 Opus is due in the coming weeks. On paper the move from Claude 2.1 is a model ID change. In practice it is an API change: Claude 3 does not accept the Text Completions request that every Claude 2 integration on Bedrock was written against.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
-<p>Extended support itself is not new. EKS opened a public preview on 4 October 2023 that keeps versions 1.23 and later supported for twelve months after standard support ends, and during the preview it cost nothing extra. Version 1.23 has been in extended support since 11 October 2023, and 1.24 joined it at the end of January. Five weeks from now those clusters start paying six times as much. This article works out what that means for a fleet, and why upgrading one version is a much smaller saving than it looks.</p>
+<p>Send a Claude 2 request body to a Claude 3 model ID and <code>InvokeModel</code> answers with a ValidationException saying the model is not supported on this API and to use the Messages API instead. Anything that builds a <code>prompt</code> string with <code>\n\nHuman:</code> and <code>\n\nAssistant:</code> markers has to change before it can use the new models. This article covers what changes, a converter for existing prompts, streaming, and the cost case, with every request checked against Anthropic's own SDK.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:heading {"level":2} -->
-<h2 class="wp-block-heading">How the price works</h2>
+<h2 class="wp-block-heading">What changed in the request</h2>
 <!-- /wp:heading -->
 
 <!-- wp:paragraph -->
-<p>Each Kubernetes minor version gets 14 months of standard support from the day EKS releases it, then 12 months of extended support, 26 months in all. The price depends only on the control plane's version on each day: $0.10 per cluster per hour in standard support, $0.60 in extended. Node groups, Fargate and add-ons are billed as before. Creating a new cluster on a version already in extended support pays the higher rate from the first hour.</p>
+<p>A Text Completions request is one string plus a few parameters. The model was trained on conversations written as <code>\n\nHuman:</code> and <code>\n\nAssistant:</code> turns, so the prompt had to be in that form, and callers added <code>\n\nHuman:</code> as a stop sequence so the model would not write the user's next line as well. A Messages request separates those things:</p>
 <!-- /wp:paragraph -->
 
-<!-- wp:paragraph -->
-<p>AWS's own example averages the two: a cluster that stays on one version for its whole 26 months pays an average of $0.33 an hour. At the end of extended support EKS upgrades the control plane to the next version automatically. A cluster that is simply left alone therefore moves from one extended-support version to the next and keeps paying $0.60.</p>
-<!-- /wp:paragraph -->
+<!-- wp:list -->
+<ul class="wp-block-list">
+<!-- wp:list-item -->
+<li><code>system</code> is a top-level field. In Claude 2, a system prompt was whatever text came before the first Human turn.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li><code>messages</code> is a list of turns with a <code>role</code> of <code>user</code> or <code>assistant</code>, starting with <code>user</code> and alternating.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li>Each turn's <code>content</code> is a string or a list of blocks. Text blocks and, for Claude 3, base64 image blocks.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li><code>max_tokens</code> replaces <code>max_tokens_to_sample</code> and is required. <code>anthropic_version</code> must be <code>bedrock-2023-05-31</code>.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li><code>temperature</code>, <code>top_p</code>, <code>top_k</code> and <code>stop_sequences</code> keep their meaning.</li>
+<!-- /wp:list-item -->
+</ul>
+<!-- /wp:list -->
 
 <!-- wp:image {"sizeSlug":"large","linkDestination":"none"} -->
-<figure class="wp-block-image size-large"><img src="{{IMG1_URL}}" alt="Gantt chart of EKS versions 1.23 to 1.29 showing standard support in green and extended support in orange, with lines at 24 February 2024 and 1 April 2024 when the $0.60 rate starts"/><figcaption class="wp-element-caption">Where every version stood in February 2024.</figcaption></figure>
+<figure class="wp-block-image size-large"><img src="{{IMG1_URL}}" alt="Table mapping Text Completions fields to Messages API fields for Claude 3 on Bedrock: prompt to system and messages, max_tokens_to_sample to max_tokens, completion to content text, and usage token counts"/><figcaption class="wp-element-caption">The whole migration on one page.</figcaption></figure>
 <!-- /wp:image -->
 
+<!-- wp:paragraph -->
+<p>The response changes too. <code>completion</code> becomes <code>content</code>, a list of blocks, so code that read one string has to join the text blocks. <code>stop_reason</code> gains <code>end_turn</code> for a normal finish. And every response now carries <code>usage</code> with input and output token counts, which Text Completions never returned in the body.</p>
+<!-- /wp:paragraph -->
+
 <!-- wp:heading {"level":2} -->
-<h2 class="wp-block-heading">What the EKS API tells you</h2>
+<h2 class="wp-block-heading">Converting existing prompts</h2>
 <!-- /wp:heading -->
 
 <!-- wp:paragraph -->
-<p>The obvious first step is to ask EKS which clusters are in extended support. In February 2024 it cannot tell you. This is what the SDK's service model offered, printed by the sample's <code>tools/api_check.py</code> with botocore 1.34.49:</p>
+<p>Most teams have prompts in code, templates or a database, written for Claude 2. Rewriting them by hand is a risk of its own, because a prompt that has been tuned over months is easy to change by accident. A mechanical conversion keeps the wording identical and moves only the structure:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:code {"language":"python"} -->
+<pre class="wp-block-code"><code lang="python" class="language-python">def parse_prompt(prompt: str) -&gt; tuple[str | None, list[dict]]:
+    """Return (system, messages). Consecutive turns from the same role are merged."""
+    parts = _TURN.split(prompt)
+    system = parts[0].strip() or None
+    if len(parts) &lt; 3:
+        raise PromptFormatError("no '\\n\\nHuman:' turn found")
+    messages: list[dict] = []
+    for marker, text in zip(parts[1::2], parts[2::2]):
+        role = "user" if marker == HUMAN else "assistant"
+        text = text.strip()
+        if messages and messages[-1]["role"] == role:
+            messages[-1]["content"] += "\n\n" + text
+        else:
+            messages.append({"role": role, "content": text})
+    if messages[0]["role"] != "user":
+        raise PromptFormatError("the first turn must be Human")
+    if parts[-2] != ASSISTANT:
+        raise PromptFormatError("the prompt must end with '\\n\\nAssistant:'")
+    # An empty final "Assistant:" just asks for the answer; text there is a prefill and stays.
+    if messages[-1]["role"] == "assistant" and not messages[-1]["content"]:
+        messages.pop()
+    for m in messages:
+        if not m["content"]:
+            raise PromptFormatError(f"empty {m['role']} turn")
+    return system, messages</code></pre>
+<!-- /wp:code -->
+
+<!-- wp:paragraph -->
+<p>Three details matter. Text before the first Human turn is the system prompt, which is how Claude 2 treated it. Two Human turns in a row, which Claude 2 tolerated, become one user message, because the Messages API requires alternating roles. And text after the final <code>\n\nAssistant:</code> is a prefill, the opening of the answer the caller wants continued, so it stays as a final assistant message instead of being dropped.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>The request body around it is a direct mapping, with one deliberate omission:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:code {"language":"python"} -->
+<pre class="wp-block-code"><code lang="python" class="language-python">def convert_body(old: dict) -&gt; dict:
+    """Map a Text Completions request body to a Messages request body."""
+    system, messages = parse_prompt(old["prompt"])
+    new: dict = {"anthropic_version": ANTHROPIC_VERSION, "max_tokens": old["max_tokens_to_sample"],
+                 "messages": [{"role": m["role"], "content": [{"type": "text", "text": m["content"]}]} for m in messages]}
+    if system:
+        new["system"] = system
+    # "\n\nHuman:" was a stop sequence because the model wrote both sides; the Messages API ends turns itself.
+    stops = [s for s in old.get("stop_sequences", []) if s.strip() != "Human:"]
+    if stops:
+        new["stop_sequences"] = stops
+    for key in ("temperature", "top_p", "top_k"):
+        if key in old:
+            new[key] = old[key]
+    return new</code></pre>
+<!-- /wp:code -->
+
+<!-- wp:paragraph -->
+<p><code>\n\nHuman:</code> was a stop sequence only because the model wrote both sides of the conversation. The Messages API ends the assistant's turn itself, so keeping it would do nothing useful; the converter drops it and keeps any other stop sequences. This is what the demo prints for a summary prompt with a system instruction:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:code {"language":"text"} -->
+<pre class="wp-block-code"><code lang="text" class="language-text">== summary with a system prompt
+Text Completions body:
+{
+  "prompt": "You summarise clinical notes in one sentence. Never add facts.\n\nHuman: &lt;note&gt;Admitted with chest pain. Troponin negative twice. Discharged day 3 on aspirin.&lt;/note&gt;\n\nAssistant:",
+  "max_tokens_to_sample": 200,
+  "stop_sequences": [
+    "\n\nHuman:"
+  ],
+  "temperature": 0.0
+}
+Messages body:
+{
+  "anthropic_version": "bedrock-2023-05-31",
+  "max_tokens": 200,
+  "messages": [
+    {
+      "role": "user",
+      "content": [
+        {
+          "type": "text",
+          "text": "&lt;note&gt;Admitted with chest pain. Troponin negative twice. Discharged day 3 on aspirin.&lt;/note&gt;"
+        }
+      ]
+    }
+  ],
+  "system": "You summarise clinical notes in one sentence. Never add facts.",
+  "temperature": 0.0
+}</code></pre>
+<!-- /wp:code -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">Prefill still works, with one change</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Prefill is the most useful trick from Claude 2 prompts: end the prompt with the start of the answer, such as an opening brace, and the model continues from there. The Messages API keeps it as a final assistant message. This is the converted body for a JSON extraction prompt:</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:code {"language":"json"} -->
 <pre class="wp-block-code"><code lang="json" class="language-json">{
-  "botocore": "1.34.49",
-  "Cluster fields mentioning support or upgrade": [],
-  "operations with Version or Insight in the name": [
-    "DescribeAddonVersions",
-    "DescribeInsight",
-    "ListInsights",
-    "UpdateClusterVersion",
-    "UpdateNodegroupVersion"
+  "anthropic_version": "bedrock-2023-05-31",
+  "max_tokens": 100,
+  "messages": [
+    {
+      "role": "user",
+      "content": [
+        {
+          "type": "text",
+          "text": "Extract the medication names from: aspirin 75 mg, atorvastatin 40 mg."
+        }
+      ]
+    },
+    {
+      "role": "assistant",
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"medications\": ["
+        }
+      ]
+    }
   ],
-  "InsightCategory": [
-    "UPGRADE_READINESS"
+  "stop_sequences": [
+    "]}"
   ]
 }</code></pre>
 <!-- /wp:code -->
 
 <!-- wp:paragraph -->
-<p><code>DescribeCluster</code> returns the version, the platform version, creation time and tags, but no support status and no end-of-support date. So an audit has to carry the calendar itself. The sample encodes it as AWS published it, with exact days for 1.23 and 1.24 and months only for the later versions:</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:code {"language":"python"} -->
-<pre class="wp-block-code"><code lang="python" class="language-python">CALENDAR = {v.version: v for v in (
-    VersionDates("1.23", date(2022, 8, 11), date(2023, 10, 11), date(2024, 10, 11)),
-    VersionDates("1.24", date(2022, 11, 15), date(2024, 1, 31), date(2025, 1, 31)),
-    VersionDates("1.25", date(2023, 2, 21), date(2024, 5, 1), date(2025, 5, 1), month_only=True),
-    VersionDates("1.26", date(2023, 4, 11), date(2024, 6, 1), date(2025, 6, 1), month_only=True),
-    VersionDates("1.27", date(2023, 5, 24), date(2024, 7, 1), date(2025, 7, 1), month_only=True),
-    VersionDates("1.28", date(2023, 9, 26), date(2024, 11, 1), date(2025, 11, 1), month_only=True),
-    VersionDates("1.29", date(2024, 1, 23), date(2025, 3, 1), date(2026, 3, 1), month_only=True),
-)}</code></pre>
-<!-- /wp:code -->
-
-<!-- wp:paragraph -->
-<p>For 1.25 to 1.29 AWS gave months, not days, so the table uses the first of the month and marks those rows. Treat them as "no later than" and check the calendar again before you plan an upgrade weekend around one.</p>
+<p>The change is in the response. The model returns only the continuation, not the prefill, so code that parses the reply as JSON must put the prefill back in front first. The sample's response parser takes the prefill as an argument and does that, for whole and streamed responses alike. Forgetting it is the most likely bug in a migrated JSON pipeline: every reply fails to parse, and the cause is not obvious from the model's output.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
-<p>What the API does have is upgrade insights, generally available since 20 December 2023. Once a day EKS reads the cluster's audit logs and reports deprecated API calls that would break the next upgrade. The audit keeps only the checks that are not passing:</p>
+<p>Prompts that were never in the right form get refused rather than guessed at:</p>
 <!-- /wp:paragraph -->
 
-<!-- wp:code {"language":"python"} -->
-<pre class="wp-block-code"><code lang="python" class="language-python">def upgrade_insights(eks, name: str) -&gt; list[dict]:
-    """Upgrade-readiness insights that are not passing (EKS upgrade insights, GA 20 December 2023)."""
-    found = []
-    try:
-        pages = eks.get_paginator("list_insights").paginate(
-            clusterName=name, filter={"categories": ["UPGRADE_READINESS"]})
-        for page in pages:
-            for item in page.get("insights", []):
-                status = (item.get("insightStatus") or {}).get("status")
-                if status != "PASSING":
-                    found.append({"name": item.get("name"), "kubernetesVersion": item.get("kubernetesVersion"),
-                                  "status": status})
-    except (ClientError, NotImplementedError) as err:  # older SDK mocks, missing permission
-        found.append({"name": "insights unavailable", "status": str(err).split(":")[-1].strip()[:80]})
-    return found</code></pre>
+<!-- wp:code {"language":"text"} -->
+<pre class="wp-block-code"><code lang="text" class="language-text">== prompt with no Human turn
+Text Completions body:
+{
+  "prompt": "Summarise this: aspirin 75 mg daily.",
+  "max_tokens_to_sample": 100
+}
+Messages body:
+  refused: no '\n\nHuman:' turn found</code></pre>
 <!-- /wp:code -->
-
-<!-- wp:merpress/mermaidjs -->
-<div class="wp-block-merpress-mermaidjs diagram-source-mermaid"><pre class="mermaid">%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#FFF3E0', 'primaryTextColor': '#232F3E', 'primaryBorderColor': '#FF9900', 'lineColor': '#232F3E', 'clusterBkg': '#F8FAFC', 'clusterBorder': '#CBD5E1', 'edgeLabelBackground': '#FFFFFF', 'nodeTextColor': '#232F3E'}}}%%
-flowchart TD
-    A["Every Region&lt;br/&gt;eks:ListClusters, DescribeCluster"] --&gt; B["Version from the API&lt;br/&gt;no support status field"]
-    B --&gt; C["Support calendar&lt;br/&gt;as AWS published it"]
-    C --&gt; D["Rate per day&lt;br/&gt;$0.10 or $0.60 from 1 April 2024"]
-    D --&gt; E["12-month outlook per cluster&lt;br/&gt;auto-upgrade at end of extended"]
-    B --&gt; F["Upgrade insights&lt;br/&gt;eks:ListInsights, not passing"]
-    E --&gt; G["Fleet plans priced"]
-    F --&gt; G
-    classDef compute fill:#FFF3E0,stroke:#FF9900,stroke-width:2px,color:#232F3E
-    classDef data fill:#EBF8FF,stroke:#0073BB,stroke-width:2px,color:#004C74
-    classDef store fill:#F0FFF4,stroke:#1D8102,stroke-width:2px,color:#145202
-    classDef alert fill:#FEF2F2,stroke:#D13212,stroke-width:2px,color:#991B1B
-    class A,B,C data
-    class D,E,F compute
-    class G store</pre></div>
-<!-- /wp:merpress/mermaidjs -->
 
 <!-- wp:heading {"level":2} -->
-<h2 class="wp-block-heading">Pricing a cluster day by day</h2>
+<h2 class="wp-block-heading">Streaming</h2>
 <!-- /wp:heading -->
 
 <!-- wp:paragraph -->
-<p>A monthly estimate needs two details that are easy to get wrong. A version can leave standard support in the middle of a month, so the rate is worked out per day. And a cluster at the end of extended support does not stop costing money; it is upgraded to the next version, which may itself be in extended support:</p>
+<p>Streaming changes more than the request does. A Claude 2 stream sent chunks containing a <code>completion</code> fragment and finally a <code>stop_reason</code>. A Claude 3 stream sends typed events, and the text is only in some of them:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:merpress/mermaidjs -->
+<div class="wp-block-merpress-mermaidjs diagram-source-mermaid"><pre class="mermaid">%%{init: {'theme': 'base', 'themeVariables': {'signalColor': '#0073BB', 'signalTextColor': '#0F172A', 'actorBkg': '#FFF3E0', 'actorBorder': '#FF9900', 'actorTextColor': '#232F3E', 'noteBkgColor': '#FFF8E7', 'noteBorderColor': '#FF9900', 'noteTextColor': '#232F3E'}}}%%
+sequenceDiagram
+    participant App as Your code
+    participant BR as Bedrock Runtime
+    participant C as Claude 3
+    App-&gt;&gt;BR: InvokeModelWithResponseStream (Messages body)
+    BR-&gt;&gt;C: generate
+    C--&gt;&gt;App: message_start (input tokens)
+    C--&gt;&gt;App: content_block_delta (text) ... repeated
+    C--&gt;&gt;App: message_delta (stop_reason, output tokens)
+    C--&gt;&gt;App: message_stop (Bedrock invocation metrics)</pre></div>
+<!-- /wp:merpress/mermaidjs -->
+
+<!-- wp:paragraph -->
+<p><code>message_start</code> carries the input token count, <code>content_block_delta</code> events carry the text, <code>message_delta</code> carries the stop reason and output token count, and Bedrock adds its own invocation metrics to <code>message_stop</code>. Code that concatenated every chunk's <code>completion</code> field now gets nothing back. The sample folds the events into one result:</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:code {"language":"python"} -->
-<pre class="wp-block-code"><code lang="python" class="language-python">def effective_version(version: str, on: date) -&gt; str:
-    """At the end of extended support EKS upgrades the control plane to the next version.
-
-    Follow that chain, so a cluster left alone is priced on the version it will actually run.
-    """
-    while support_status(version, on) == "ended":
-        nxt = f"1.{int(version.split('.')[1]) + 1}"
-        if nxt not in CALENDAR:
-            break
-        version = nxt
-    return version
-
-
-def hourly_rate(version: str, on: date) -&gt; Decimal:
-    version = effective_version(version, on)
-    if support_status(version, on) == "extended" and on &gt;= EXTENDED_PRICE_FROM:
-        return EXTENDED
-    return STANDARD</code></pre>
+<pre class="wp-block-code"><code lang="python" class="language-python">def from_stream(events, prefill: str = "") -&gt; Result:
+    """Fold the decoded stream events (message_start ... message_stop) into one Result."""
+    pieces, stop_reason, stop_sequence, input_tokens, output_tokens, extra = [prefill], None, None, 0, 0, {}
+    for event in events:
+        kind = event.get("type")
+        if kind == "message_start":
+            input_tokens = event["message"]["usage"].get("input_tokens", 0)
+        elif kind == "content_block_delta" and event["delta"].get("type") == "text_delta":
+            pieces.append(event["delta"]["text"])
+        elif kind == "message_delta":
+            stop_reason = event["delta"].get("stop_reason")
+            stop_sequence = event["delta"].get("stop_sequence")
+            output_tokens = event.get("usage", {}).get("output_tokens", output_tokens)
+        elif kind == "message_stop" and "amazon-bedrock-invocationMetrics" in event:
+            extra = event["amazon-bedrock-invocationMetrics"]
+    return Result("".join(pieces), stop_reason, stop_sequence, input_tokens, output_tokens, extra)</code></pre>
 <!-- /wp:code -->
 
 <!-- wp:paragraph -->
-<p>The tests pin the arithmetic: 744 hours of 1.24 in March 2024 cost $74.40 because the new price has not started; April costs $432.00. A 1.23 cluster in October 2024 spends ten days on 1.23 and the rest on 1.24 after the automatic upgrade, and pays $446.40 for the month either way. Over the twelve months from February 2024 a 1.29 cluster costs $878.40, not $876, because 2024 is a leap year.</p>
+<p>The client around it is small. It uses Bedrock Runtime's two operations, the only ones it had in March 2024, and lets botocore's adaptive retry mode handle throttling, which is the usual first error on a newly launched model:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:code {"language":"python"} -->
+<pre class="wp-block-code"><code lang="python" class="language-python"># Throttling is the usual failure on a new model; let botocore back off and retry.
+RETRY = Config(retries={"max_attempts": 8, "mode": "adaptive"}, read_timeout=120)
+
+
+class ClaudeOnBedrock:
+    def __init__(self, model_id: str = SONNET, client=None, region: str = "us-east-1"):
+        self.model_id = model_id
+        self.client = client or boto3.client("bedrock-runtime", region_name=region, config=RETRY)
+
+    def invoke(self, body: dict) -&gt; Result:
+        response = self.client.invoke_model(modelId=self.model_id, body=json.dumps(body),
+                                            contentType="application/json", accept="application/json")
+        result = from_message(json.loads(response["body"].read()), prefill_of(body))
+        log.info("model=%s in=%d out=%d stop=%s", self.model_id, result.input_tokens, result.output_tokens,
+                 result.stop_reason)
+        return result
+
+    def stream(self, body: dict) -&gt; Result:
+        response = self.client.invoke_model_with_response_stream(
+            modelId=self.model_id, body=json.dumps(body), contentType="application/json", accept="application/json")
+        events = (json.loads(part["chunk"]["bytes"]) for part in response["body"] if "chunk" in part)
+        return from_stream(events, prefill_of(body))</code></pre>
+<!-- /wp:code -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">Images in the request</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Claude 3 accepts images, which Claude 2 never did, and the Messages API is the only way to send them. An image is a content block inside a user message, next to the text blocks. On Bedrock it has to be in the request body as base64; there is no option to pass a URL or an S3 location, so the application reads the bytes and encodes them itself:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:code {"language":"python"} -->
+<pre class="wp-block-code"><code lang="python" class="language-python">def image_block(data: bytes, media_type: str) -&gt; dict:
+    """An image as Claude 3 takes it on Bedrock: base64 in the request body, no URLs."""
+    if media_type not in IMAGE_TYPES:
+        raise ValueError(f"unsupported media type {media_type}")
+    return {"type": "image", "source": {"type": "base64", "media_type": media_type,
+                                        "data": base64.b64encode(data).decode("ascii")}}
+
+
+def user_message</code></pre>
+<!-- /wp:code -->
+
+<!-- wp:paragraph -->
+<p>JPEG, PNG, GIF and WebP are accepted. Base64 adds about a third to the size, and the whole request body has a size limit, so large photos should be resized before encoding; this also reduces input tokens, because an image is charged by its pixel dimensions. The sample's test builds a message with a 1x1 PNG and a question, sends it through Anthropic's Bedrock client and checks that the body is identical to the one built by hand. It also checks that an unsupported type such as TIFF is refused before any request is made.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Image input changes more than the request shape. A prompt that used to describe a document in words can now include the page itself, and that is a product decision, not part of the migration. Treat it as a separate change after the API move is done and tested.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">Errors to expect</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>The API change does not change how Bedrock reports failures, but a migration exercises the error paths more than usual: new model IDs, new account permissions and new quotas all arrive at once. The service model in botocore 1.34.64 lists these errors for <code>InvokeModel</code>, as printed in the CI run below. Three of them matter most during a move:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list -->
+<ul class="wp-block-list">
+<!-- wp:list-item -->
+<li><strong>ValidationException</strong> is the error for a Text Completions body sent to Claude 3, and for a Messages body that breaks a rule, such as two user messages in a row, an empty content block or a missing <code>max_tokens</code>. Treat it as a bug, never retry it.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li><strong>AccessDeniedException</strong> usually means model access has not been granted for this model in this account and Region. It is fixed in the console, not in code.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li><strong>ThrottlingException</strong> is normal on a new model with default quotas. Retry with backoff, which is what the adaptive retry mode does, and request a quota increase before moving production traffic.</li>
+<!-- /wp:list-item -->
+</ul>
+<!-- /wp:list -->
+
+<!-- wp:paragraph -->
+<p><code>ModelTimeoutException</code> and <code>ModelErrorException</code> are rarer and worth a single retry. Log the request ID from every failure; it is what AWS Support asks for first.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:heading {"level":2} -->
@@ -146,161 +329,121 @@ def hourly_rate(version: str, on: date) -&gt; Decimal:
 <!-- /wp:heading -->
 
 <!-- wp:paragraph -->
-<p>The demo is a made-up fleet of eight clusters in two Regions, created in moto 5.0.2 and audited with boto3 1.34.49, the versions available on 23 February 2024. moto does not implement <code>ListInsights</code>, so the insights code is tested with botocore's Stubber against the real response shape, and the audit records "insights unavailable" rather than failing when a Region or a mock cannot answer. All 14 tests passed in GitHub Actions on Python 3.12.</p>
+<p>These tests do not call Bedrock, so they say nothing about what Claude 3 writes. They check the part a migration can get wrong: the shape of every request and response. The reference is Anthropic's own Python SDK, version 0.20.0, the release available on 15 March 2024, which has an <code>AnthropicBedrock</code> client that signs requests for Bedrock. The tests replace its network layer with a stub that records what it would send. This is what the installed SDKs offered:</p>
 <!-- /wp:paragraph -->
 
-<!-- wp:heading {"level":2} -->
-<h2 class="wp-block-heading">Test results</h2>
-<!-- /wp:heading -->
-
-<!-- wp:paragraph -->
-<p>The audit on 24 February 2024. The last column is each cluster's control-plane cost from April 2024 to March 2025 if nobody upgrades it:</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:code {"language":"text"} -->
-<pre class="wp-block-code"><code lang="text" class="language-text">Audit on 2024-02-24
-cluster            region     ver   status    extended from  steps  Apr 24-Mar 25
-sandbox            us-east-1  1.23  extended  2024-02-24         6        5256.00
-payments-prod      eu-west-1  1.24  extended  2024-02-24         5        5256.00
-payments-staging   eu-west-1  1.24  extended  2024-02-24         5        5256.00
-data-prod          eu-west-1  1.25  standard  2024-05-01         4        4896.00
-platform-tools     eu-west-1  1.26  standard  2024-06-01         3        4524.00
-web-prod           us-east-1  1.27  standard  2024-07-01         2        4164.00
-web-dev            us-east-1  1.28  standard  2024-11-01         1        2688.00
-new-svc            us-east-1  1.29  standard  2025-03-01         0        1248.00</code></pre>
+<!-- wp:code {"language":"json"} -->
+<pre class="wp-block-code"><code lang="json" class="language-json">{
+  "botocore": "1.34.64",
+  "bedrock-runtime operations": [
+    "InvokeModel",
+    "InvokeModelWithResponseStream"
+  ],
+  "anthropic": "0.20.0",
+  "InvokeModel errors": [
+    "AccessDeniedException",
+    "InternalServerException",
+    "ModelErrorException",
+    "ModelNotReadyException",
+    "ModelTimeoutException",
+    "ResourceNotFoundException",
+    "ServiceQuotaExceededException",
+    "ThrottlingException",
+    "ValidationException"
+  ],
+  "AnthropicBedrock resources": [
+    "completions",
+    "messages"
+  ]
+}</code></pre>
 <!-- /wp:code -->
 
 <!-- wp:paragraph -->
-<p>Three clusters are already in extended support and will pay $0.60 from 1 April. Four more cross over during the year. Only the 1.29 cluster stays in standard support for most of it. Three plans for the fleet:</p>
+<p>The central test builds the same request two ways, with the converter and with Anthropic's client, and requires the two JSON bodies to be identical:</p>
 <!-- /wp:paragraph -->
 
-<!-- wp:code {"language":"text"} -->
-<pre class="wp-block-code"><code lang="text" class="language-text">Plans, control plane only, April 2024 to March 2025
-  Leave every cluster where it is                $ 33288.00
-  Upgrade 1.23 and 1.24 to 1.25 by 31 March      $ 32208.00
-  Every cluster on 1.29 by 31 March              $  9984.00</code></pre>
+<!-- wp:code {"language":"python"} -->
+<pre class="wp-block-code"><code lang="python" class="language-python">def test_converted_body_is_exactly_what_the_sdk_sends_for_messages():
+    new = convert_body(OLD)
+    seen = {}
+    sdk(capture(seen)).messages.create(model=SONNET, max_tokens=new["max_tokens"], system=new["system"],
+                                       messages=new["messages"], temperature=new["temperature"])
+    assert seen["path"] == f"/model/{SONNET}/invoke"
+    assert seen["body"] == new</code></pre>
 <!-- /wp:code -->
 
 <!-- wp:paragraph -->
-<p>Leaving everything alone costs $33,288 for the year. Moving the 1.23 and 1.24 clusters up to 1.25, the smallest step that gets them out of extended support today, saves only $1,080. Moving everything to 1.29 by the end of March costs $9,984, a saving of $23,304. The reason is in the next table.</p>
+<p>Other tests feed a documented response through the SDK and through the sample's parser and compare the results, and run the request through botocore's Stubber, which validates the operation's parameters against the Bedrock Runtime service model. For streaming, the tests encode a real AWS event stream, the binary framing with CRC checksums that Bedrock uses, and give the same bytes to botocore's decoder and to the Anthropic SDK's. Both produce the same event sequence and the same text. All 16 tests passed in GitHub Actions on Python 3.12 with boto3 1.34.64.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:heading {"level":2} -->
-<h2 class="wp-block-heading">Why one step up is not enough</h2>
+<h2 class="wp-block-heading">What it costs</h2>
 <!-- /wp:heading -->
 
 <!-- wp:paragraph -->
-<p>This is one cluster's cost over the same twelve months, by the version it runs from 1 April 2024:</p>
+<p>The price case is clear even before any quality comparison. The demo prices one month of 50 million input and 10 million output tokens on each model at Bedrock's on-demand rates in US East (N. Virginia):</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:code {"language":"text"} -->
-<pre class="wp-block-code"><code lang="text" class="language-text">One cluster, April 2024 to March 2025, by the version it runs from 1 April
-  1.24  $ 5256.00   months with extended support charges: 12
-  1.25  $ 4896.00   months with extended support charges: 11
-  1.26  $ 4524.00   months with extended support charges: 10
-  1.27  $ 4164.00   months with extended support charges: 9
-  1.28  $ 2688.00   months with extended support charges: 5
-  1.29  $ 1248.00   months with extended support charges: 1</code></pre>
+<pre class="wp-block-code"><code lang="text" class="language-text">== One month: 50,000,000 input and 10,000,000 output tokens, on-demand, US East (N. Virginia)
+  Claude Instant 1.2   $     64.00
+  Claude 2.0 / 2.1     $    640.00
+  Claude 3 Sonnet      $    300.00
+  Claude 3 Haiku       $     25.00</code></pre>
 <!-- /wp:code -->
 
 <!-- wp:image {"sizeSlug":"large","linkDestination":"none"} -->
-<figure class="wp-block-image size-large"><img src="{{IMG2_URL}}" alt="Bar chart of one EKS cluster&#x27;s control-plane cost from April 2024 to March 2025 by version: 1.24 $5,256, 1.25 $4,896, 1.26 $4,524, 1.27 $4,164, 1.28 $2,688, 1.29 $1,248"/><figcaption class="wp-element-caption">The saving only arrives from 1.28 upwards.</figcaption></figure>
+<figure class="wp-block-image size-large"><img src="{{IMG2_URL}}" alt="Bar chart of one month on Bedrock with 50 million input and 10 million output tokens: Claude Instant $64, Claude 2.x $640, Claude 3 Sonnet $300, Claude 3 Haiku $25"/><figcaption class="wp-element-caption">Same tokens, four models.</figcaption></figure>
 <!-- /wp:image -->
 
 <!-- wp:paragraph -->
-<p>Moving a 1.24 cluster to 1.25 saves $360 a year, because 1.25 leaves standard support in May 2024 and the cluster is paying $0.60 again a month later. Every version up to 1.27 is in extended support for most of the year. The saving starts at 1.28 and is close to complete at 1.29, which is still billed at the higher rate in its last month, March 2025. A full year in standard support would be $876.</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:paragraph -->
-<p>The 1 April date is not a cliff either. A 1.24 cluster that reaches 1.29 at the end of May instead of the end of March pays the higher rate for those two extra months only: $360 more for April and $372 for May, the gap between $0.60 and $0.10 an hour. Finishing the programme properly in June costs a few hundred dollars per cluster; stopping at 1.25 in March costs most of the year's saving. When a deadline and a sound upgrade conflict, the arithmetic favours the sound upgrade.</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:paragraph -->
-<p>Budget conversations tend to treat an upgrade as one piece of work with one saving. Here the saving depends on how far the cluster goes. Teams that upgrade one version at a time, a quarter apart, will pay extended support on almost every cluster almost all the time.</p>
+<p>Claude 3 Sonnet costs less than half of Claude 2.1 for the same tokens, and Claude 3 Haiku costs less than Claude Instant. Both also have a 200,000-token context window. A real workload's token counts will move a little between models, because the tokenizers and the length of answers differ, so measure on your own traffic. This calculation only shows that the price is not the obstacle.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:heading {"level":2} -->
-<h2 class="wp-block-heading">How the cost scales</h2>
-<!-- /wp:heading -->
-
-<!-- wp:paragraph -->
-<p>One cluster in extended support for a whole year costs $5,256 against $876 in standard support, a difference of $4,380: 8,760 hours at the $0.50 difference in rate. That is small next to the nodes behind a production cluster, which is why it is easy to wave through. It grows with the habits most organisations have. A service with development, staging and production clusters pays it three times. An organisation that gives each team its own account, and each account its own cluster per Region, pays it per team and per Region. Twenty forgotten 1.24 clusters cost $105,120 over the year, where the same twenty on a version in standard support would cost $17,520.</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:paragraph -->
-<p>Those forgotten clusters matter more than the busy ones. A busy production cluster will be upgraded because someone owns it. The proof of concept from 2022, the load-test cluster nobody deleted, and the copy of production made for an audit are the clusters still on 1.23 and 1.24, and nobody is watching their bill.</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:heading {"level":2} -->
-<h2 class="wp-block-heading">Running the audit across an organisation</h2>
-<!-- /wp:heading -->
-
-<!-- wp:paragraph -->
-<p>The audit is read-only and needs three permissions: <code>eks:ListClusters</code>, <code>eks:DescribeCluster</code> and <code>eks:ListInsights</code>. In an AWS Organization, put them in a role that every member account trusts from a central audit account, assume it per account, and run the audit for each Region you use. A Region where the role is denied or EKS is not available is logged and skipped rather than ending the run, so check the log for gaps before trusting the totals. The JSON output has one record per cluster with its version, support status, the date it enters extended support, the number of upgrade steps to 1.29, and twelve months of cost, ready to join to your account and tag data so each team sees its own clusters.</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:heading {"level":2} -->
-<h2 class="wp-block-heading">The upgrade path</h2>
-<!-- /wp:heading -->
-
-<!-- wp:paragraph -->
-<p>EKS upgrades a control plane one minor version per update, so 1.24 to 1.29 is five upgrades, each followed by node groups and add-ons. These are the API versions Kubernetes stopped serving along the way, from the Kubernetes deprecation guide, as the sample prints them:</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:code {"language":"text"} -->
-<pre class="wp-block-code"><code lang="text" class="language-text">Upgrade steps from 1.24 to 1.29
-  -&gt; 1.25: policy/v1beta1 PodSecurityPolicy (no replacement API; use Pod Security Admission); batch/v1beta1 CronJob; discovery.k8s.io/v1beta1 EndpointSlice; events.k8s.io/v1beta1 Event; autoscaling/v2beta1 HorizontalPodAutoscaler; policy/v1beta1 PodDisruptionBudget; node.k8s.io/v1beta1 RuntimeClass
-  -&gt; 1.26: flowcontrol.apiserver.k8s.io/v1beta1 FlowSchema and PriorityLevelConfiguration; autoscaling/v2beta2 HorizontalPodAutoscaler
-  -&gt; 1.27: storage.k8s.io/v1beta1 CSIStorageCapacity
-  -&gt; 1.28: no API removals
-  -&gt; 1.29: flowcontrol.apiserver.k8s.io/v1beta2 FlowSchema and PriorityLevelConfiguration</code></pre>
-<!-- /wp:code -->
-
-<!-- wp:paragraph -->
-<p>The 1.25 step is the hard one. PodSecurityPolicy has no replacement API, so clusters that still rely on it need Pod Security Admission or a policy engine in place first, and several beta APIs that older Helm charts still use disappear at once. After that, 1.26 to 1.29 remove only flow control and storage capacity versions that few applications call directly. Upgrade insights will show which of these a cluster still uses, from its last 30 days of audit logs.</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:html -->
-<div class="callout callout-warning" style="background: #fff3e0; border-left: 4px solid #ff9800; padding: 16px 20px; margin: 20px 0; border-radius: 4px;"><div style="display: flex; align-items: start;"><span style="font-size: 24px; margin-right: 12px;">⚠️</span><div><strong style="color: #f57c00; display: block; margin-bottom: 8px;">THE APRIL DEADLINE IS ABOUT BILLING, NOT SAFETY</strong><p style="margin: 0; color: #333;">Nothing breaks on 1 April. Clusters in extended support keep receiving security patches for the control plane. The date only changes the price. Do not rush a 1.24 to 1.25 upgrade past a PodSecurityPolicy dependency to save $30 a month; plan the jump to 1.28 or 1.29 properly instead.</p></div></div></div>
-<!-- /wp:html -->
-
-<!-- wp:heading {"level":2} -->
-<h2 class="wp-block-heading">What to do before 1 April</h2>
+<h2 class="wp-block-heading">Planning the migration</h2>
 <!-- /wp:heading -->
 
 <!-- wp:list -->
 <ul class="wp-block-list">
 <!-- wp:list-item -->
-<li><strong>List every cluster and its version in every Region.</strong> The sample's <code>tools/audit_account.py</code> needs only <code>eks:ListClusters</code>, <code>eks:DescribeCluster</code> and <code>eks:ListInsights</code>.</li>
+<li><strong>Find every Text Completions call.</strong> Search for <code>max_tokens_to_sample</code> and <code>\n\nHuman:</code>; together they find almost every call site and prompt template.</li>
 <!-- /wp:list-item -->
 <!-- wp:list-item -->
-<li><strong>Look for clusters nobody owns.</strong> Sandboxes and proofs of concept on old versions are the easiest saving: delete them.</li>
+<li><strong>Convert prompts mechanically first.</strong> Keep the wording; change only the structure. Tune prompts for Claude 3 later, as a separate change you can measure.</li>
 <!-- /wp:list-item -->
 <!-- wp:list-item -->
-<li><strong>Plan to 1.28 or 1.29, not to the next version.</strong> Each step is a change window; a plan that ends on 1.25 pays for most of them and saves little.</li>
+<li><strong>Fix response handling.</strong> Join text blocks, re-attach prefills, and map stop reasons where downstream code checks them. The sample's <code>Result.legacy()</code> returns the old shape for callers you cannot change yet.</li>
 <!-- /wp:list-item -->
 <!-- wp:list-item -->
-<li><strong>Read upgrade insights first.</strong> Fix deprecated API use before the 1.25 step, and remember the insight reads 30 days of audit logs, so a fixed client can still show as an error for a while.</li>
+<li><strong>Rewrite stream consumers.</strong> Read text from <code>content_block_delta</code> events only.</li>
 <!-- /wp:list-item -->
 <!-- wp:list-item -->
-<li><strong>Upgrade node groups and add-ons after each control-plane step.</strong> The control plane decides the price, but CoreDNS, kube-proxy and the VPC CNI each have version requirements.</li>
+<li><strong>Request model access.</strong> Each Claude 3 model needs access granted in the Bedrock console, per account and Region, before the first call.</li>
 <!-- /wp:list-item -->
 <!-- wp:list-item -->
-<li><strong>Tag and report the cost.</strong> From April, extended support will appear as its own usage type on the bill; put the per-cluster number in front of the team that owns the cluster.</li>
+<li><strong>Compare outputs before switching traffic.</strong> Run the same inputs through Claude 2.1 and Claude 3 and review the differences; a cheaper model that answers differently is still a change to your product.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li><strong>Use the token counts.</strong> <code>usage</code> in every response makes per-request cost tracking possible without estimating.</li>
 <!-- /wp:list-item -->
 </ul>
 <!-- /wp:list -->
+
+<!-- wp:html -->
+<div class="callout callout-warning" style="background: #fff3e0; border-left: 4px solid #ff9800; padding: 16px 20px; margin: 20px 0; border-radius: 4px;"><div style="display: flex; align-items: start;"><span style="font-size: 24px; margin-right: 12px;">⚠️</span><div><strong style="color: #f57c00; display: block; margin-bottom: 8px;">CLAUDE 2 STILL WORKS</strong><p style="margin: 0; color: #333;">Nothing here forces a migration today: Claude Instant, Claude 2.0 and Claude 2.1 keep working with Text Completions, and they also accept the Messages API. Moving Claude 2 callers to the Messages API first, without changing the model, separates the API change from the model change and makes each one easier to test.</p></div></div></div>
+<!-- /wp:html -->
 
 <!-- wp:heading {"level":2} -->
 <h2 class="wp-block-heading">Decision framework</h2>
 <!-- /wp:heading -->
 
 <!-- wp:table {"className":"is-style-stripes"} -->
-<figure class="wp-block-table is-style-stripes"><table><thead><tr><th>Cluster</th><th>Recommendation</th></tr></thead><tbody><tr><td>1.23 or 1.24 in production</td><td>Plan the path to 1.28 or 1.29; start with PodSecurityPolicy and the 1.25 API removals</td></tr><tr><td>1.23 or 1.24 sandbox or unused</td><td>Delete it before April</td></tr><tr><td>1.25 to 1.27</td><td>Already due to reach extended support this year; upgrade in the same programme</td></tr><tr><td>1.28</td><td>Standard support until November 2024; upgrade to 1.29 when convenient</td></tr><tr><td>New cluster</td><td>Create it on 1.29; a new cluster on an old version pays extended support from day one</td></tr><tr><td>Cannot upgrade in time</td><td>Budget $0.60 an hour; the cluster stays patched and supported</td></tr></tbody></table></figure>
+<figure class="wp-block-table is-style-stripes"><table><thead><tr><th>Situation</th><th>Recommendation</th></tr></thead><tbody><tr><td>New feature on Bedrock</td><td>Start with the Messages API and Claude 3 Sonnet or Haiku</td></tr><tr><td>Existing Claude 2.1 feature, cost matters</td><td>Move to the Messages API, then compare Claude 3 Sonnet on your own inputs</td></tr><tr><td>High-volume classification or extraction on Claude Instant</td><td>Try Claude 3 Haiku: cheaper per token and a much larger context</td></tr><tr><td>Prompts that end with a prefill</td><td>Keep the prefill as an assistant message and add it back to the reply</td></tr><tr><td>Streaming user interface</td><td>Rewrite the stream reader for typed events before switching models</td></tr><tr><td>Needs the most capable model</td><td>Wait for Claude 3 Opus on Bedrock; it was announced but not yet available</td></tr></tbody></table></figure>
 <!-- /wp:table -->
 
 <!-- wp:html -->
-<div class="callout callout-note" style="background: #f5f5f5; border-left: 4px solid #607d8b; padding: 16px 20px; margin: 20px 0; border-radius: 4px;"><div style="display: flex; align-items: start;"><span style="font-size: 24px; margin-right: 12px;">📝</span><div><strong style="color: #455a64; display: block; margin-bottom: 8px;">HOW THIS WAS CHECKED</strong><p style="margin: 0; color: #333;">The sample ran in GitHub Actions (<a href="https://github.com/nithinmohantk/blog-samples-working-repo/actions/runs/44367317082" target="_blank" rel="noopener">run</a>) on Python 3.12 with boto3 and botocore 1.34.49, moto 5.0.2 and pytest 8.0.1, the versions available on 23 February 2024. All 14 tests passed, and the audit, plan, per-version and upgrade-step outputs above are copied from that run. The fleet is made up and no real account was used. Prices, dates and the calendar come from the AWS pricing post of 16 January 2024 and the EKS release calendar; dates given only as months are drawn from the first of the month. Control-plane cost only: nodes, Fargate and data transfer are not included.</p></div></div></div>
+<div class="callout callout-note" style="background: #f5f5f5; border-left: 4px solid #607d8b; padding: 16px 20px; margin: 20px 0; border-radius: 4px;"><div style="display: flex; align-items: start;"><span style="font-size: 24px; margin-right: 12px;">📝</span><div><strong style="color: #455a64; display: block; margin-bottom: 8px;">HOW THIS WAS CHECKED</strong><p style="margin: 0; color: #333;">The sample ran in GitHub Actions (<a href="https://github.com/nithinmohantk/blog-samples-working-repo/actions/runs/44386686277" target="_blank" rel="noopener">run</a>) on Python 3.12 with boto3 and botocore 1.34.64, Anthropic SDK 0.20.0, httpx 0.27.0 and pytest 8.1.1, the versions available on 15 March 2024. All 16 tests passed; the demo output and SDK listing above are copied from that run. No request reached Bedrock: request and response shapes were checked against Anthropic's SDK and botocore, and response contents are synthetic. Prices are Bedrock's on-demand rates for US East (N. Virginia) as published in March 2024.</p></div></div></div>
 <!-- /wp:html -->
 
 <!-- wp:heading {"level":2} -->
@@ -310,29 +453,29 @@ new-svc            us-east-1  1.29  standard  2025-03-01         0        1248.0
 <!-- wp:list -->
 <ul class="wp-block-list">
 <!-- wp:list-item -->
-<li>From the April 2024 billing cycle an EKS cluster on a version in extended support pays $0.60 per hour for its control plane, six times the standard $0.10.</li>
+<li>Claude 3 on Bedrock accepts only the Messages API; a Claude 2 Text Completions body is rejected with a ValidationException.</li>
 <!-- /wp:list-item -->
 <!-- wp:list-item -->
-<li>In February 2024 the EKS API does not say whether a cluster is in extended support; an audit needs its own copy of the calendar.</li>
+<li>Converting prompts is mechanical: text before the first Human turn becomes system, turns become messages, and a trailing Assistant text stays as a prefill.</li>
 <!-- /wp:list-item -->
 <!-- wp:list-item -->
-<li>Upgrading a 1.24 cluster to 1.25 saves only $360 over the next twelve months, because 1.25 reaches extended support in May.</li>
+<li>The reply does not repeat a prefill; put it back before parsing.</li>
 <!-- /wp:list-item -->
 <!-- wp:list-item -->
-<li>The real saving starts at 1.28 and is nearly complete at 1.29; plan the whole path, not the next step.</li>
+<li>Streams now arrive as typed events, and text is only in content_block_delta.</li>
 <!-- /wp:list-item -->
 <!-- wp:list-item -->
-<li>Nothing stops working on 1 April; extended support is still supported, it just costs more.</li>
+<li>For the same tokens, Claude 3 Sonnet costs less than half of Claude 2.1, and Haiku less than Claude Instant.</li>
 <!-- /wp:list-item -->
 </ul>
 <!-- /wp:list -->
 
 <!-- wp:paragraph -->
-<p>If your fleet looks different, run the audit against it and let me know in the comments below what it found.</p>
+<p>If your migration turned up a prompt pattern the converter does not handle, let me know in the comments below.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:html -->
-<div class="callout callout-tip sample-code-link" style="background: #e8f5e9; border-left: 4px solid #4caf50; padding: 16px 20px; margin: 20px 0; border-radius: 4px;"><div style="display: flex; align-items: start;"><span style="font-size: 24px; margin-right: 12px;">💡</span><div><strong style="color: #388e3c; display: block; margin-bottom: 8px;">GET THE CODE</strong><p style="margin: 0; color: #333;">The complete sample for this article is on GitHub: <a href="https://github.com/nithinmohantk/blog-samples-working-repo/tree/main/eks-extended-support-cost" target="_blank" rel="noopener">nithinmohantk/blog-samples-working-repo/eks-extended-support-cost</a>. Clone it with <code>git clone https://github.com/nithinmohantk/blog-samples-working-repo.git</code> and open the <code>eks-extended-support-cost</code> folder. Its README says how to run it and what has been verified.</p></div></div></div>
+<div class="callout callout-tip sample-code-link" style="background: #e8f5e9; border-left: 4px solid #4caf50; padding: 16px 20px; margin: 20px 0; border-radius: 4px;"><div style="display: flex; align-items: start;"><span style="font-size: 24px; margin-right: 12px;">💡</span><div><strong style="color: #388e3c; display: block; margin-bottom: 8px;">GET THE CODE</strong><p style="margin: 0; color: #333;">The complete sample for this article is on GitHub: <a href="https://github.com/nithinmohantk/blog-samples-working-repo/tree/main/claude3-bedrock-messages-migration" target="_blank" rel="noopener">nithinmohantk/blog-samples-working-repo/claude3-bedrock-messages-migration</a>. Clone it with <code>git clone https://github.com/nithinmohantk/blog-samples-working-repo.git</code> and open the <code>claude3-bedrock-messages-migration</code> folder. Its README says how to run it and what has been verified.</p></div></div></div>
 <!-- /wp:html -->
 
 <!-- wp:heading {"level":2} -->
@@ -341,26 +484,28 @@ new-svc            us-east-1  1.29  standard  2025-03-01         0        1248.0
 
 <!-- wp:html -->
 <dl style="background:#F6F8FA;border:1px solid #D0D7DE;border-radius:8px;padding:20px 24px;margin:24px 0">
-  <dt style="font-weight:700;margin-top:12px;color:#24292F">Amazon EKS</dt>
-  <dd style="margin:4px 0 0 20px;color:#57606A">AWS's managed Kubernetes service; AWS runs the control plane and charges per cluster-hour for it.</dd>
-  <dt style="font-weight:700;margin-top:12px;color:#24292F">Control plane</dt>
-  <dd style="margin:4px 0 0 20px;color:#57606A">The Kubernetes API server, etcd and controllers; on EKS its version sets the hourly price.</dd>
-  <dt style="font-weight:700;margin-top:12px;color:#24292F">Standard support</dt>
-  <dd style="margin:4px 0 0 20px;color:#57606A">The first 14 months after EKS releases a Kubernetes minor version; $0.10 per cluster-hour.</dd>
-  <dt style="font-weight:700;margin-top:12px;color:#24292F">Extended support</dt>
-  <dd style="margin:4px 0 0 20px;color:#57606A">The 12 months after standard support ends; $0.60 per cluster-hour from April 2024.</dd>
-  <dt style="font-weight:700;margin-top:12px;color:#24292F">Minor version</dt>
-  <dd style="margin:4px 0 0 20px;color:#57606A">The second number in a Kubernetes version, such as 1.24; EKS upgrades one minor version at a time.</dd>
-  <dt style="font-weight:700;margin-top:12px;color:#24292F">Platform version</dt>
-  <dd style="margin:4px 0 0 20px;color:#57606A">EKS's own revision of a cluster's control plane within a Kubernetes minor version.</dd>
-  <dt style="font-weight:700;margin-top:12px;color:#24292F">Upgrade insights</dt>
-  <dd style="margin:4px 0 0 20px;color:#57606A">EKS checks, from the cluster's audit logs, for issues that would affect the next upgrade, such as deprecated API use.</dd>
-  <dt style="font-weight:700;margin-top:12px;color:#24292F">PodSecurityPolicy</dt>
-  <dd style="margin:4px 0 0 20px;color:#57606A">A Kubernetes admission API removed in 1.25; Pod Security Admission replaces its built-in use.</dd>
-  <dt style="font-weight:700;margin-top:12px;color:#24292F">Pod Security Admission</dt>
-  <dd style="margin:4px 0 0 20px;color:#57606A">The built-in admission controller that enforces Pod Security Standards from namespace labels.</dd>
-  <dt style="font-weight:700;margin-top:12px;color:#24292F">moto</dt>
-  <dd style="margin:4px 0 0 20px;color:#57606A">A Python library that mocks AWS APIs for tests.</dd>
+  <dt style="font-weight:700;margin-top:12px;color:#24292F">Amazon Bedrock</dt>
+  <dd style="margin:4px 0 0 20px;color:#57606A">AWS's managed service for foundation models, called through the Bedrock Runtime API.</dd>
+  <dt style="font-weight:700;margin-top:12px;color:#24292F">Text Completions API</dt>
+  <dd style="margin:4px 0 0 20px;color:#57606A">Anthropic's original API: one prompt string in Human and Assistant form, one completion string out.</dd>
+  <dt style="font-weight:700;margin-top:12px;color:#24292F">Messages API</dt>
+  <dd style="margin:4px 0 0 20px;color:#57606A">Anthropic's API with a system field and a list of user and assistant messages made of content blocks.</dd>
+  <dt style="font-weight:700;margin-top:12px;color:#24292F">anthropic_version</dt>
+  <dd style="margin:4px 0 0 20px;color:#57606A">Required request field on Bedrock; bedrock-2023-05-31 for the Messages API.</dd>
+  <dt style="font-weight:700;margin-top:12px;color:#24292F">System prompt</dt>
+  <dd style="margin:4px 0 0 20px;color:#57606A">Instructions that apply to the whole conversation; a top-level field in the Messages API.</dd>
+  <dt style="font-weight:700;margin-top:12px;color:#24292F">Prefill</dt>
+  <dd style="margin:4px 0 0 20px;color:#57606A">Text placed at the start of the assistant's turn so the model continues from it.</dd>
+  <dt style="font-weight:700;margin-top:12px;color:#24292F">Content block</dt>
+  <dd style="margin:4px 0 0 20px;color:#57606A">One part of a message, such as a text block or an image block.</dd>
+  <dt style="font-weight:700;margin-top:12px;color:#24292F">Stop sequence</dt>
+  <dd style="margin:4px 0 0 20px;color:#57606A">A string that ends generation when the model produces it.</dd>
+  <dt style="font-weight:700;margin-top:12px;color:#24292F">InvokeModelWithResponseStream</dt>
+  <dd style="margin:4px 0 0 20px;color:#57606A">The Bedrock Runtime operation that returns the response as an AWS event stream.</dd>
+  <dt style="font-weight:700;margin-top:12px;color:#24292F">AWS event stream</dt>
+  <dd style="margin:4px 0 0 20px;color:#57606A">AWS's binary framing for streamed responses, with headers and CRC checksums per message.</dd>
+  <dt style="font-weight:700;margin-top:12px;color:#24292F">Stubber</dt>
+  <dd style="margin:4px 0 0 20px;color:#57606A">A botocore utility that returns canned responses and checks request parameters against the service model.</dd>
 </dl>
 <!-- /wp:html -->
 
@@ -370,12 +515,13 @@ new-svc            us-east-1  1.29  standard  2025-03-01         0        1248.0
 
 <!-- wp:html -->
 <ul style="background:#F6F8FA;border:1px solid #D0D7DE;border-radius:8px;padding:20px 24px;margin:24px 0;list-style:none">
-  <li style="margin:10px 0"><a href="https://aws.amazon.com/blogs/containers/amazon-eks-extended-support-for-kubernetes-versions-pricing/" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; Amazon EKS extended support for Kubernetes versions pricing</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— AWS Containers blog, 16 January 2024: prices, scenarios and calendar</span></li>
-  <li style="margin:10px 0"><a href="https://docs.aws.amazon.com/eks/latest/userguide/kubernetes-versions.html" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; Amazon EKS Kubernetes versions</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— The release calendar and version lifecycle</span></li>
-  <li style="margin:10px 0"><a href="https://aws.amazon.com/blogs/containers/amazon-eks-now-supports-kubernetes-version-1-29/" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; Amazon EKS now supports Kubernetes version 1.29</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— AWS Containers blog, 23 January 2024</span></li>
-  <li style="margin:10px 0"><a href="https://aws.amazon.com/about-aws/whats-new/2023/12/amazon-eks-upgrade-insights/" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; Amazon EKS upgrade insights</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— What&#x27;s New, 20 December 2023</span></li>
-  <li style="margin:10px 0"><a href="https://aws.amazon.com/blogs/containers/accelerate-the-testing-and-verification-of-amazon-eks-upgrades-with-upgrade-insights/" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; Accelerate the testing and verification of Amazon EKS upgrades with upgrade insights</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— AWS Containers blog</span></li>
-  <li style="margin:10px 0"><a href="https://kubernetes.io/docs/reference/using-api/deprecation-guide/" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; Deprecated API Migration Guide</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— Kubernetes API versions removed in each release</span></li>
-  <li style="margin:10px 0"><a href="https://github.com/nithinmohantk/blog-samples-working-repo/tree/main/eks-extended-support-cost" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; Sample code for this article</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— Calendar, cost model, fleet audit, demo and tests</span></li>
+  <li style="margin:10px 0"><a href="https://aws.amazon.com/about-aws/whats-new/2024/03/anthropics-claude-3-sonnet-model-amazon-bedrock" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; Claude 3 Sonnet model now available on Amazon Bedrock</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— What&#x27;s New, 4 March 2024</span></li>
+  <li style="margin:10px 0"><a href="https://aws.amazon.com/about-aws/whats-new/2024/03/anthropics-claude-3-haiku-model-amazon-bedrock" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; Claude 3 Haiku model now available on Amazon Bedrock</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— What&#x27;s New, 13 March 2024</span></li>
+  <li style="margin:10px 0"><a href="https://docs.aws.amazon.com/bedrock/latest/userguide/model-parameters-anthropic-claude-messages.html" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; Anthropic Claude Messages API on Bedrock</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— Request and response fields, and migrating from Text Completions</span></li>
+  <li style="margin:10px 0"><a href="https://docs.aws.amazon.com/bedrock/latest/userguide/model-parameters-anthropic-claude-text-completion.html" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; Anthropic Claude Text Completions API on Bedrock</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— The Claude 2 request format</span></li>
+  <li style="margin:10px 0"><a href="https://docs.anthropic.com/claude/reference/migrating-from-text-completions-to-messages" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; Migrating from Text Completions</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— Anthropic&#x27;s migration guide</span></li>
+  <li style="margin:10px 0"><a href="https://github.com/anthropics/anthropic-sdk-python" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; Anthropic Python SDK</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— Includes the AnthropicBedrock client used as the reference</span></li>
+  <li style="margin:10px 0"><a href="https://aws.amazon.com/bedrock/pricing/" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; Amazon Bedrock pricing</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— On-demand prices per 1,000 tokens</span></li>
+  <li style="margin:10px 0"><a href="https://github.com/nithinmohantk/blog-samples-working-repo/tree/main/claude3-bedrock-messages-migration" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; Sample code for this article</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— Converter, client, stream parser, cost model and tests</span></li>
 </ul>
 <!-- /wp:html -->
