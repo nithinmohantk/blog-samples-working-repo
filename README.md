@@ -54,6 +54,7 @@ Each folder has its own README that says what the code does, how to run it, and 
 | `aws-public-ipv4-charge-audit` | [The AWS Public IPv4 Charge: Audit Every Address Before 1 February 2024](https://www.dataa.dev/2024/01/27/aws-public-ipv4-charge-audit-every-address/) | Python |
 | `pgvector-060-parallel-hnsw` | [pgvector 0.6.0 Parallel HNSW Builds: What Speeds Up, and the Docker /dev/shm Trap](https://www.dataa.dev/2024/02/03/pgvector-0-6-0-parallel-hnsw-builds-docker-shm/) | Python, SQL, Docker |
 | `k8s-129-native-sidecars` | [Kubernetes 1.29 Native Sidecars: Jobs That Finish, Ordered Shutdown and the 1.28 Trap](https://www.dataa.dev/2024/02/17/kubernetes-1-29-native-sidecars-jobs-shutdown-order/) | YAML, Python |
+| `eks-extended-support-cost` | [EKS Extended Support Pricing: What $0.60 an Hour Means for Your Fleet from 1 April](https://www.dataa.dev/2024/02/24/eks-extended-support-pricing-fleet-cost-from-1-april/) | Python |
 
 ## Verification status
 
