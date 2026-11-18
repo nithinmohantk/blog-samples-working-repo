@@ -45,8 +45,8 @@ grep -qE "Test Run Successful|Passed!" "$out/03-tests.txt" || status=1
 {
   echo "== 3n. the wire tests again, on the versions the framework package asks for"
   mkdir -p "$out/native"
-  DESK_OUT="$out/native" dotnet test tests/Desk.Tests -c Release --artifacts-path "$out/../native-build" -p:ExtensionsAIVersion=10.11.0 -p:AGUIVersion=1.0.0 -p:WithoutBlazor=true --filter "FullyQualifiedName~WireTests" --logger "console;verbosity=normal" 2>&1 | grep -E "^\s+(Passed|Failed|Skipped) |error|Error Message|Assert\.|Expected|Actual|Total tests|Passed:|Failed:|Test Run|Passed!|Failed!" | sort -u | head -n 80
-  find "$out/../native-build" -name "Desk.Tests.deps.json" | head -n 1 | xargs grep -oE '"(AGUI\.[A-Za-z]+|Microsoft\.Extensions\.AI|Microsoft\.Agents\.AI[A-Za-z.]*)/[^"]+"' | sort -u | tr '\n' ' '; echo
+  DESK_OUT="$out/native" dotnet test tests/Desk.Tests -c Release --artifacts-path "${RUNNER_TEMP:-/tmp}/desk-native-build" -p:ExtensionsAIVersion=10.11.0 -p:AGUIVersion=1.0.0 -p:WithoutBlazor=true --filter "FullyQualifiedName~WireTests" --logger "console;verbosity=normal" 2>&1 | grep -E "^\s+(Passed|Failed|Skipped) |error|Error Message|Assert\.|Expected|Actual|Total tests|Passed:|Failed:|Test Run|Passed!|Failed!" | sort -u | head -n 80
+  find "${RUNNER_TEMP:-/tmp}/desk-native-build" -name "Desk.Tests.deps.json" | head -n 1 | xargs grep -oE '"(AGUI\.[A-Za-z]+|Microsoft\.Extensions\.AI|Microsoft\.Agents\.AI[A-Za-z.]*)/[^"]+"' | sort -u | tr '\n' ' '; echo
   sort "$out/native/forged-approval.txt" 2>/dev/null
 } 2>&1 | tee "$out/03n-native.txt"
 
