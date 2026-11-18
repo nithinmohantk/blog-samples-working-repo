@@ -56,7 +56,7 @@ stop pg060
 
 echo "== 0.6.0, Docker's default /dev/shm (64 MB)"
 start bench-pgvector:0.6.0 pg060-default-shm || status=1
-run "0.6.0 shm-64m" parallel-1gb serial-1gb
+run "0.6.0 shm-64m" parallel-1gb default-workers-1gb serial-1gb
 stop pg060-default-shm
 
 python bench/report.py "$out/results.json" | tee "$out/table.txt" || status=1

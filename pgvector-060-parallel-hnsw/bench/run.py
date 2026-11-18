@@ -32,6 +32,7 @@ EXPERIMENTS = {
     "serial-1gb": ("1GB", 0),
     "parallel-1gb": ("1GB", 3),
     "parallel-1gb-unlogged": ("1GB", 3),  # same, with the table switched to UNLOGGED first
+    "default-workers-1gb": ("1GB", None),  # max_parallel_maintenance_workers left at the server default
 }
 
 
@@ -40,7 +41,7 @@ class Result:
     label: str
     experiment: str
     maintenance_work_mem: str
-    workers_requested: int
+    workers_requested: int | None
     pgvector: str = ""
     seconds: float | None = None
     max_parallel_workers_seen: int = 0
@@ -112,7 +113,10 @@ def build_and_measure(dsn: str, label: str, name: str, test: np.ndarray, truth: 
         conn.execute("ALTER TABLE items SET UNLOGGED" if unlogged else "ALTER TABLE items SET LOGGED")
         conn.execute("CHECKPOINT")
         conn.execute(f"SET maintenance_work_mem = '{mem}'")
-        conn.execute(f"SET max_parallel_maintenance_workers = {workers}")
+        if workers is not None:
+            conn.execute(f"SET max_parallel_maintenance_workers = {workers}")
+        else:
+            result.workers_requested = int(conn.execute("SHOW max_parallel_maintenance_workers").fetchone()[0])
         wal_before = conn.execute("SELECT pg_current_wal_lsn()").fetchone()[0]
         watcher = Watcher(dsn)
         watcher.start()
