@@ -53,5 +53,14 @@ def server_facts(r: redis.Redis) -> dict[str, object]:
                                       "valkey_version", "executable") if k in info}
     facts["HELLO server"] = hello.get("server")
     facts["HELLO version"] = hello.get("version")
-    facts["COMMAND COUNT"] = r.execute_command("COMMAND", "COUNT")
+    facts["COMMAND COUNT"] = r.command_count()
     return facts
+
+
+def library_names(r: redis.Redis) -> list[str]:
+    """FUNCTION LIST comes back as flat key/value lists over RESP2."""
+    names = []
+    for lib in r.function_list():
+        lib = lib if isinstance(lib, dict) else dict(zip(lib[::2], lib[1::2]))
+        names.append(lib["library_name"])
+    return names

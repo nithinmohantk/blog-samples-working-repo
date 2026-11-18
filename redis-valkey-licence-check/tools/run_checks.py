@@ -14,7 +14,7 @@ import redis
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from rvcheck.licence import classify  # noqa: E402
-from rvcheck.workload import run, server_facts  # noqa: E402
+from rvcheck.workload import library_names, run, server_facts  # noqa: E402
 
 REDIS_BIN, VALKEY_BIN, WORK, OUT = Path(sys.argv[1]), Path(sys.argv[2]), Path(sys.argv[3]), Path(sys.argv[4])
 OUT.mkdir(parents=True, exist_ok=True)
@@ -103,7 +103,7 @@ say(f"RDB header written by Redis 7.2.4: {h_redis}; by Valkey unstable: {h_valke
 v_from_r = start(VALKEY_BIN, 7003, "valkey-from-redis-rdb", WORK / "redis-724" / "dump.rdb")
 say(f"Redis 7.2.4 RDB -> Valkey: started={alive(v_from_r)}"
     + (f", keys={v_from_r.dbsize()}, same digest={v_from_r.execute_command('DEBUG', 'DIGEST') == src_redis.execute_command('DEBUG', 'DIGEST')}"
-       f", functions={[f['library_name'] for f in v_from_r.function_list()]}" if alive(v_from_r) else ""))
+       f", functions={library_names(v_from_r)}" if alive(v_from_r) else ""))
 r_from_v = start(REDIS_BIN, 7004, "redis-from-valkey-rdb", WORK / "valkey" / "dump.rdb")
 time.sleep(1)
 say(f"Valkey RDB -> Redis 7.2.4: started={alive(r_from_v)}")
