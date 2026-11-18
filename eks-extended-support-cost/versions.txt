@@ -1,0 +1,5 @@
+Python 3.12.16
+boto3 1.34.49
+botocore 1.34.49
+moto 5.0.2
+pytest 8.0.1

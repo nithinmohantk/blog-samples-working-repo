@@ -1,0 +1,14 @@
+{
+  "botocore": "1.34.49",
+  "Cluster fields mentioning support or upgrade": [],
+  "operations with Version or Insight in the name": [
+    "DescribeAddonVersions",
+    "DescribeInsight",
+    "ListInsights",
+    "UpdateClusterVersion",
+    "UpdateNodegroupVersion"
+  ],
+  "InsightCategory": [
+    "UPGRADE_READINESS"
+  ]
+}

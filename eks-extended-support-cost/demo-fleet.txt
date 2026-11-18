@@ -1,0 +1,30 @@
+Audit on 2024-02-24
+cluster            region     ver   status    extended from  steps  Apr 24-Mar 25
+sandbox            us-east-1  1.23  extended  2024-02-24         6        5256.00
+payments-prod      eu-west-1  1.24  extended  2024-02-24         5        5256.00
+payments-staging   eu-west-1  1.24  extended  2024-02-24         5        5256.00
+data-prod          eu-west-1  1.25  standard  2024-05-01         4        4896.00
+platform-tools     eu-west-1  1.26  standard  2024-06-01         3        4524.00
+web-prod           us-east-1  1.27  standard  2024-07-01         2        4164.00
+web-dev            us-east-1  1.28  standard  2024-11-01         1        2688.00
+new-svc            us-east-1  1.29  standard  2025-03-01         0        1248.00
+
+Plans, control plane only, April 2024 to March 2025
+  Leave every cluster where it is                $ 33288.00
+  Upgrade 1.23 and 1.24 to 1.25 by 31 March      $ 32208.00
+  Every cluster on 1.29 by 31 March              $  9984.00
+
+One cluster, April 2024 to March 2025, by the version it runs from 1 April
+  1.24  $ 5256.00   months with extended support charges: 12
+  1.25  $ 4896.00   months with extended support charges: 11
+  1.26  $ 4524.00   months with extended support charges: 10
+  1.27  $ 4164.00   months with extended support charges: 9
+  1.28  $ 2688.00   months with extended support charges: 5
+  1.29  $ 1248.00   months with extended support charges: 1
+
+Upgrade steps from 1.24 to 1.29
+  -> 1.25: policy/v1beta1 PodSecurityPolicy (no replacement API; use Pod Security Admission); batch/v1beta1 CronJob; discovery.k8s.io/v1beta1 EndpointSlice; events.k8s.io/v1beta1 Event; autoscaling/v2beta1 HorizontalPodAutoscaler; policy/v1beta1 PodDisruptionBudget; node.k8s.io/v1beta1 RuntimeClass
+  -> 1.26: flowcontrol.apiserver.k8s.io/v1beta1 FlowSchema and PriorityLevelConfiguration; autoscaling/v2beta2 HorizontalPodAutoscaler
+  -> 1.27: storage.k8s.io/v1beta1 CSIStorageCapacity
+  -> 1.28: no API removals
+  -> 1.29: flowcontrol.apiserver.k8s.io/v1beta2 FlowSchema and PriorityLevelConfiguration
