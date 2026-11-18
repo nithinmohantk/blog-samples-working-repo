@@ -11,6 +11,22 @@ status=0
   dotnet --version
   dotnet --list-runtimes | grep -E "AspNetCore.App 11|NETCore.App 11"
   uname -srm
+  dotnet restore tests/Desk.Tests -v q > /dev/null 2>&1
+  echo "-- target frameworks inside the packages, and the day each version was published"
+  python3 - <<'PY'
+import glob, gzip, json, os, urllib.request
+pins = {"microsoft.aspnetcore.components.ai": "0.1.0-preview.1.26466.103", "agui.client": "1.0.1", "agui.server": "1.0.1", "microsoft.extensions.ai": "11.0.0", "bunit": "2.15.2"}
+for name, version in pins.items():
+    frameworks = sorted(os.path.basename(p) for p in glob.glob(os.path.expanduser(f"~/.nuget/packages/{name}/{version}/lib/*")))
+    published = "unknown"
+    try:
+        raw = urllib.request.urlopen(f"https://api.nuget.org/v3/registration5-gz-semver2/{name}/{version}.json", timeout=30).read()
+        leaf = json.loads(gzip.decompress(raw) if raw[:2] == b"\x1f\x8b" else raw)
+        published = leaf.get("published", "unknown")[:10]
+    except Exception as error:
+        published = f"lookup failed: {error}"
+    print(f"{name} {version}: lib {frameworks}; published {published}")
+PY
 } 2>&1 | tee "$out/01-versions.txt"
 
 {
