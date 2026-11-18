@@ -28,17 +28,19 @@ IHostedAgentBuilder desk = builder.Services.AddAIAgent("desk", (services, name) 
     {
         Name = name,
         ChatOptions = new ChatOptions { Tools = new DeskTools(orders, services.GetRequiredService<Ledger>()).Create() },
+
+        // On by default: an approval is accepted only for a request the session holds. The lab turns
+        // it off to measure what it changes.
         DisableApprovalResponseBinding = !settings.GetValue("DESK_VERIFY_RESUME", true),
     };
+    // Outermost first: put the browser's state in front of the model, then keep only what is new.
     AIAgent agent = model.AsAIAgent(options);
-    if (settings.GetValue("DESK_DROP_ECHO", true))
-    {
-        agent = new DropEchoedRequestsAgent(agent);
-    }
-
-    return new CaseStateAgent(agent);
+    return new CaseStateAgent(settings.GetValue("DESK_NEW_MESSAGES_ONLY", true) ? new NewMessagesOnlyAgent(agent) : agent);
 });
 
+// The approval is checked against the session, so the session has to outlive the request. In memory:
+// with more than one instance this is a shared store. Isolation by caller needs an identity, which
+// this lab does not have.
 desk.WithSessionStore(
     (services, _) => services.GetRequiredService<IConfiguration>()["DESK_SESSIONS"] == "none" ? new NoopAgentSessionStore() : new InMemoryAgentSessionStore(),
     withIsolation: false);

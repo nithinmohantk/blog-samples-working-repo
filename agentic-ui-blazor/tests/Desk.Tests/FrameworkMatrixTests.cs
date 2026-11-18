@@ -27,31 +27,31 @@ public sealed class FrameworkMatrixTests
     [InlineData("memory", false, true)]
     [InlineData("none", true, true)]
     [InlineData("none", false, true)]
-    public async Task What_each_setting_does(string sessions, bool binding, bool dropEcho)
+    public async Task What_each_setting_does(string sessions, bool binding, bool newOnly)
     {
         using WebApplicationFactory<FrameworkService> factory = new WebApplicationFactory<FrameworkService>().WithWebHostBuilder(host => host
             .UseSetting("DESK_WORD_DELAY_MS", "0")
             .UseSetting("DESK_SESSIONS", sessions)
             .UseSetting("DESK_VERIFY_RESUME", binding.ToString())
-            .UseSetting("DESK_DROP_ECHO", dropEcho.ToString()));
+            .UseSetting("DESK_NEW_MESSAGES_ONLY", newOnly.ToString()));
         using HttpClient http = factory.CreateClient();
         IChatClient chat = new AGUIChatClient(new AGUIChatClientOptions(http, "/agent"));
         Ledger ledger = factory.Services.GetRequiredService<Ledger>();
         WireLog wire = factory.Services.GetRequiredService<WireLog>();
         ModelCalls calls = factory.Services.GetRequiredService<ModelCalls>();
-        string label = $"sessions={sessions,-6} binding={(binding ? "on " : "off")} drop-echo={(dropEcho ? "on " : "off")}";
+        string label = $"sessions={sessions,-6} binding={(binding ? "on " : "off")} new-only={(newOnly ? "on " : "off")}";
 
         string Outcome() => $"last event {(wire.Entries.Count == 0 ? "none" : wire.Entries[^1].Events.LastOrDefault() ?? "none"),-12} refunds [{string.Join(", ", ledger.Refunds.Select(r => $"{r.OrderId} {r.Amount:0.00}"))}] attempts {ledger.Attempts}";
 
         // 1. An honest approval, then the same approval sent again.
         List<ChatMessage> messages = [new(ChatRole.User, "Refund order O-1003")];
-        List<ChatResponseUpdate> first = await RunAsync(chat, messages);
+        List<ChatResponseUpdate> first = await RunAsync(chat, messages, new ChatOptions { ConversationId = "t-honest" });
         ToolApprovalRequestContent request = first.SelectMany(u => u.Contents).OfType<ToolApprovalRequestContent>().Single();
         messages.Add(new(ChatRole.Assistant, [request]));
         messages.Add(new(ChatRole.User, [request.CreateResponse(true)]));
-        await RunAsync(chat, messages);
+        await RunAsync(chat, messages, new ChatOptions { ConversationId = "t-honest" });
         Trace.Line("framework-matrix.txt", $"{label}  1 honest approval        {Outcome()}");
-        await RunAsync(chat, messages);
+        await RunAsync(chat, messages, new ChatOptions { ConversationId = "t-honest" });
         Trace.Line("framework-matrix.txt", $"{label}  2 same approval again    {Outcome()}");
 
         // 2. An approval for a call nobody proposed.

@@ -48,10 +48,11 @@ internal sealed class SeenByModel(IChatClient inner, ModelCalls calls) : Delegat
 }
 
 /// <summary>
-/// The AG-UI layer rebuilds an approval request from what the client sent and puts it in front of the
-/// client's answer. A stored session already holds the request it made, so the rebuilt one is dropped.
+/// An AG-UI client sends the whole conversation with every request, and the AG-UI layer adds a rebuilt
+/// approval request in front of the client's answer. A stored session already holds both, so from the
+/// client this takes only what follows the last assistant message: the new turn, or the answer.
 /// </summary>
-internal sealed class DropEchoedRequestsAgent(AIAgent innerAgent) : DelegatingAIAgent(innerAgent)
+internal sealed class NewMessagesOnlyAgent(AIAgent innerAgent) : DelegatingAIAgent(innerAgent)
 {
     protected override Task<AgentResponse> RunCoreAsync(
         IEnumerable<ChatMessage> messages,
@@ -66,22 +67,8 @@ internal sealed class DropEchoedRequestsAgent(AIAgent innerAgent) : DelegatingAI
         AgentRunOptions? options = null,
         CancellationToken cancellationToken = default)
     {
-        List<ChatMessage> kept = [];
-        foreach (ChatMessage message in messages)
-        {
-            if (!message.Contents.Any(c => c is ToolApprovalRequestContent))
-            {
-                kept.Add(message);
-                continue;
-            }
-
-            List<AIContent> rest = [.. message.Contents.Where(c => c is not ToolApprovalRequestContent)];
-            if (rest.Count > 0)
-            {
-                kept.Add(new ChatMessage(message.Role, rest) { MessageId = message.MessageId, AuthorName = message.AuthorName });
-            }
-        }
-
-        return InnerAgent.RunStreamingAsync(kept, session, options, cancellationToken);
+        List<ChatMessage> all = [.. messages];
+        int lastFromAssistant = all.FindLastIndex(message => message.Role == ChatRole.Assistant);
+        return InnerAgent.RunStreamingAsync(all[(lastFromAssistant + 1)..], session, options, cancellationToken);
     }
 }

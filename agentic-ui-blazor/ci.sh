@@ -30,14 +30,6 @@ PY
 } 2>&1 | tee "$out/01-versions.txt"
 
 {
-  echo "== 0. probe (temporary)"
-  dotnet build probe -c Release -v q 2>&1 | grep -E "error|Build succeeded" | sort -u | head -n 20
-  dotnet run --project probe -c Release --no-build > "$out/probe-af.txt" 2>&1
-  wc -l "$out/probe-af.txt"
-  dotnet list probe package --include-transitive 2>/dev/null | grep -E "Agents|AGUI|Extensions.AI" | sed 's/  */ /g' | sort -u
-} 2>&1 | tee "$out/00-probe.txt"
-
-{
   echo "== 2. build"
   dotnet build tests/Desk.Tests -c Release -v q 2>&1 | grep -E "error|warn|Build succeeded|Warning\(s\)|Error\(s\)" | sort -u | head -n 60
   dotnet list tests/Desk.Tests package --include-transitive 2>/dev/null | grep -E "Components.AI |AGUI\.|Agents\.|Extensions.AI |Extensions.AI.Abstractions|bunit |Mvc.Testing|xunit " | sed 's/  */ /g' | sort -u
@@ -54,7 +46,7 @@ grep -qE "Test Run Successful|Passed!" "$out/03-tests.txt" || status=1
   echo "== 3n. the wire tests again, on the versions the framework package asks for"
   mkdir -p "$out/native"
   DESK_OUT="$out/native" dotnet test tests/Desk.Tests -c Release --artifacts-path "$out/../native-build" -p:ExtensionsAIVersion=10.11.0 -p:AGUIVersion=1.0.0 -p:WithoutBlazor=true --filter "FullyQualifiedName~WireTests" --logger "console;verbosity=normal" 2>&1 | grep -E "^\s+(Passed|Failed|Skipped) |error|Error Message|Assert\.|Expected|Actual|Total tests|Passed:|Failed:|Test Run|Passed!|Failed!" | sort -u | head -n 80
-  dotnet list tests/Desk.Tests package --include-transitive --artifacts-path "$out/../native-build" 2>/dev/null | grep -E "AGUI\.|Agents\.|Extensions.AI |Extensions.AI.Abstractions" | sed 's/  */ /g' | sort -u
+  find "$out/../native-build" -name "Desk.Tests.deps.json" | head -n 1 | xargs grep -oE '"(AGUI\.[A-Za-z]+|Microsoft\.Extensions\.AI|Microsoft\.Agents\.AI[A-Za-z.]*)/[^"]+"' | sort -u | tr '\n' ' '; echo
   sort "$out/native/forged-approval.txt" 2>/dev/null
   grep -v "^   at\|^$" "$out/native/first-chance.txt" 2>/dev/null | sort | uniq -c | cut -c1-300
 } 2>&1 | tee "$out/03n-native.txt"
@@ -86,6 +78,26 @@ grep -qE "Test Run Successful|Passed!" "$out/03-tests.txt" || status=1
   kill $web $agent 2>/dev/null
   exit $browser
 } 2>&1 | tee "$out/04-browser.txt"
+[ "${PIPESTATUS[0]}" -eq 0 ] || status=1
+
+{
+  echo "== 5. browser again: the same web app, with the framework host behind it"
+  mkdir -p "$out/framework"
+  export ASPNETCORE_ENVIRONMENT=Development
+  DESK_WIRE_LOG="$out/framework/e2e-wire.jsonl" dotnet run --project src/Desk.AgentFramework -c Release --no-build --no-launch-profile --urls http://127.0.0.1:5103 > "$out/framework/agent.log" 2>&1 &
+  agent=$!
+  AGENT_URL=http://127.0.0.1:5103 dotnet run --project src/Desk.Web -c Release --no-build --no-launch-profile --urls http://127.0.0.1:5102 > "$out/framework/web.log" 2>&1 &
+  web=$!
+  for i in $(seq 1 60); do curl -fsS http://127.0.0.1:5103/ledger > /dev/null 2>&1 && curl -fsS http://127.0.0.1:5102/ > /dev/null 2>&1 && break; sleep 1; done
+  echo "-- one request with curl, as it arrives"
+  curl -sN -X POST http://127.0.0.1:5103/agent -H "Content-Type: application/json" \
+    -d '{"threadId":"t-curl","runId":"r-curl","messages":[{"id":"m1","role":"user","content":"Where is order O-1002?"}],"tools":[],"context":[]}' | tee "$out/framework/05-raw-sse.txt" | cut -c1-220 | head -n 40
+  echo "-- browser steps"
+  python e2e/run.py http://127.0.0.1:5102 http://127.0.0.1:5103 "$out/framework"
+  browser=$?
+  kill $web $agent 2>/dev/null
+  exit $browser
+} 2>&1 | tee "$out/06-browser-framework.txt"
 [ "${PIPESTATUS[0]}" -eq 0 ] || status=1
 
 exit $status

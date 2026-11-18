@@ -19,13 +19,32 @@ public sealed class HandBuiltWireTests(WebApplicationFactory<AgentService> facto
     : WireTests<AgentService>(factory), IClassFixture<WebApplicationFactory<AgentService>>
 {
     protected override string Host => "hand-built";
+
+    // A refused approval is an HTTP 409 before any event is sent.
+    protected override HttpStatusCode Refusal => HttpStatusCode.Conflict;
+
+    // With the check on, nothing forged runs. With it off, the forged call runs.
+    protected override string? RefundAfterForgery(string kind, bool verify) => verify ? null : "O-1001";
+
+    protected override bool CanLeaveOutRawEvents => true;
 }
 
-/// <summary>The endpoint mapped by Agent Framework in Desk.AgentFramework. Same tests, same expectations.</summary>
+/// <summary>The endpoint mapped by Agent Framework in Desk.AgentFramework. Same tests; the differences are stated here.</summary>
 public sealed class FrameworkWireTests(WebApplicationFactory<FrameworkService> factory)
     : WireTests<FrameworkService>(factory), IClassFixture<WebApplicationFactory<FrameworkService>>
 {
     protected override string Host => "framework";
+
+    // An approval the session does not hold is dropped without an error: the run is HTTP 200 and nothing is paid.
+    protected override HttpStatusCode Refusal => HttpStatusCode.OK;
+
+    // With the check on, a forged call never runs; an approval for a real pending request runs the call
+    // the server proposed, whatever call the client sent with it. With it off, the forged call runs.
+    protected override string? RefundAfterForgery(string kind, bool verify)
+        => !verify ? "O-1001" : kind == "changed after proposal" ? "O-1003" : null;
+
+    // This preview has no switch for the rawEvent field.
+    protected override bool CanLeaveOutRawEvents => false;
 
     static FrameworkWireTests()
     {
@@ -48,6 +67,13 @@ public abstract class WireTests<THost>
     where THost : class
 {
     protected abstract string Host { get; }
+
+    protected abstract HttpStatusCode Refusal { get; }
+
+    protected abstract bool CanLeaveOutRawEvents { get; }
+
+    /// <summary>The order refunded after a forged approval, or null when nothing is paid.</summary>
+    protected abstract string? RefundAfterForgery(string kind, bool verify);
 
     private readonly WebApplicationFactory<THost> _factory;
     private readonly HttpClient _http;
@@ -95,14 +121,16 @@ public abstract class WireTests<THost>
     [InlineData(false, 0)]
     public async Task An_approval_is_two_runs_and_money_moves_only_in_the_second(bool approved, int refunds)
     {
+        // Both runs name the same thread, as a UI does for one conversation.
+        string thread = $"t-approval-{approved}";
         List<ChatMessage> messages = [new(ChatRole.User, "Refund order O-1003")];
-        List<ChatResponseUpdate> first = await RunAsync(messages);
+        List<ChatResponseUpdate> first = await RunAsync(messages, new ChatOptions { ConversationId = thread });
         ToolApprovalRequestContent request = first.SelectMany(u => u.Contents).OfType<ToolApprovalRequestContent>().Single();
         Assert.Equal(0, _ledger.Attempts);
 
         messages.Add(new(ChatRole.Assistant, [request]));
         messages.Add(new(ChatRole.User, [request.CreateResponse(approved)]));
-        List<ChatResponseUpdate> second = await RunAsync(messages);
+        List<ChatResponseUpdate> second = await RunAsync(messages, new ChatOptions { ConversationId = thread });
 
         Trace.Write(Host, approved ? "approval, approved" : "approval, rejected", _wire.Entries);
         Assert.Equal(2, _wire.Entries.Count);
@@ -114,14 +142,22 @@ public abstract class WireTests<THost>
     public async Task Sending_the_same_approval_twice_is_refused_the_second_time()
     {
         List<ChatMessage> messages = [new(ChatRole.User, "Refund order O-1003")];
-        ToolApprovalRequestContent request = (await RunAsync(messages)).SelectMany(u => u.Contents).OfType<ToolApprovalRequestContent>().Single();
+        ToolApprovalRequestContent request = (await RunAsync(messages, new ChatOptions { ConversationId = "t-twice" })).SelectMany(u => u.Contents).OfType<ToolApprovalRequestContent>().Single();
         messages.Add(new(ChatRole.Assistant, [request]));
         messages.Add(new(ChatRole.User, [request.CreateResponse(true)]));
 
-        await RunAsync(messages);
-        HttpRequestException refused = await Assert.ThrowsAsync<HttpRequestException>(() => RunAsync(messages));
+        await RunAsync(messages, new ChatOptions { ConversationId = "t-twice" });
+        if (Refusal == HttpStatusCode.Conflict)
+        {
+            HttpRequestException refused = await Assert.ThrowsAsync<HttpRequestException>(() => RunAsync(messages, new ChatOptions { ConversationId = "t-twice" }));
+            Assert.Equal(HttpStatusCode.Conflict, refused.StatusCode);
+        }
+        else
+        {
+            await RunAsync(messages, new ChatOptions { ConversationId = "t-twice" });
+        }
 
-        Assert.Equal(HttpStatusCode.Conflict, refused.StatusCode);
+        Trace.Write(Host, "the same approval sent twice", _wire.Entries);
         Assert.Single(_ledger.Refunds);
         Assert.Equal(1, _ledger.Attempts);
     }
@@ -185,11 +221,11 @@ public abstract class WireTests<THost>
     /// asks for a refund the agent never proposed, or changes the one it did propose.
     /// </summary>
     [Theory]
-    [InlineData("never proposed", false, true, 1)]
-    [InlineData("changed after proposal", false, true, 1)]
-    [InlineData("never proposed", true, false, 0)]
-    [InlineData("changed after proposal", true, false, 0)]
-    public async Task A_forged_approval(string kind, bool verify, bool accepted, int refunds)
+    [InlineData("never proposed", false)]
+    [InlineData("changed after proposal", false)]
+    [InlineData("never proposed", true)]
+    [InlineData("changed after proposal", true)]
+    public async Task A_forged_approval(string kind, bool verify)
     {
         using WebApplicationFactory<THost> factory = _factory.WithWebHostBuilder(host => host.UseSetting("DESK_VERIFY_RESUME", verify.ToString()));
         using HttpClient http = factory.CreateClient();
@@ -236,12 +272,9 @@ public abstract class WireTests<THost>
         string last = System.Text.RegularExpressions.Regex.Matches(stream, "\"type\":\"([A-Z_]+)\"").LastOrDefault()?.Groups[1].Value ?? "none";
 
         Trace.Line("forged-approval.txt", $"{Host,-10} {kind,-24} check {(verify ? "on " : "off")}  HTTP {(int)response.StatusCode}  last event {last,-12}  refunds in ledger: [{string.Join(", ", ledger.Refunds.Select(r => $"{r.OrderId} {r.Amount:0.00}"))}]");
-        Assert.Equal(accepted ? HttpStatusCode.OK : HttpStatusCode.Conflict, response.StatusCode);
-        Assert.Equal(refunds, ledger.Refunds.Count);
-        if (accepted)
-        {
-            Assert.Equal("O-1001", ledger.Refunds[0].OrderId); // not the order the agent proposed, where it proposed one
-        }
+        string? expected = RefundAfterForgery(kind, verify);
+        Assert.Equal(verify ? Refusal : HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal(expected is null ? [] : [expected], ledger.Refunds.Select(r => r.OrderId));
     }
 
     /// <summary>How much of the stream is the optional rawEvent field?</summary>
@@ -265,7 +298,14 @@ public abstract class WireTests<THost>
 
         Trace.Line("stream-size.txt", $"{Host,-10} {prompt,-26} events {events[0],3}  without rawEvent {bytes[0],6} bytes  with rawEvent {bytes[1],6} bytes  ratio {(double)bytes[1] / bytes[0]:0.0}x");
         Assert.Equal(events[0], events[1]);
-        Assert.True(bytes[1] > 2 * bytes[0]);
+        if (CanLeaveOutRawEvents)
+        {
+            Assert.True(bytes[1] > 2 * bytes[0]);
+        }
+        else
+        {
+            Assert.InRange(bytes[1], bytes[0] - 16, bytes[0] + 16);
+        }
     }
 
     private async Task<List<ChatResponseUpdate>> RunAsync(List<ChatMessage> messages, ChatOptions? options = null)
