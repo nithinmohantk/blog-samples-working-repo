@@ -156,8 +156,9 @@ def audit_account(session, regions: list[str] | None = None) -> list[PublicIp]:
 def auto_assign_subnets(ec2) -> list[dict]:
     """Subnets that hand a public IPv4 address to everything launched in them.
 
-    Default VPC subnets have this on. Turning it off changes only new launches;
-    running instances keep their address until they stop.
+    Default VPC subnets have this on. Turning it off changes only new launches.
+    Existing instances made their choice at launch: they get a new address
+    every time they start, so they have to be replaced to lose it.
     """
     return [
         {"subnet": s["SubnetId"], "vpc": s["VpcId"], "az": s["AvailabilityZone"],
