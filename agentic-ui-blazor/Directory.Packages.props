@@ -1,0 +1,15 @@
+<Project>
+  <!-- Exact versions, as resolved on 18 November 2026. The Blazor AI components are a preview:
+       a floating version picks the older 11.0.0-preview.7 build, which sorts above 0.1.0. -->
+  <ItemGroup>
+    <PackageVersion Include="Microsoft.AspNetCore.Components.AI" Version="0.1.0-preview.1.26466.103" />
+    <PackageVersion Include="AGUI.Client" Version="1.0.1" />
+    <PackageVersion Include="AGUI.Server" Version="1.0.1" />
+    <PackageVersion Include="Microsoft.Extensions.AI" Version="11.0.0" />
+    <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="11.0.0" />
+    <PackageVersion Include="bunit" Version="2.15.2" />
+    <PackageVersion Include="xunit" Version="2.9.3" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.5" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.6.0" />
+  </ItemGroup>
+</Project>

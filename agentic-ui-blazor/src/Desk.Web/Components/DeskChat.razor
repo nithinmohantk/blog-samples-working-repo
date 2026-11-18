@@ -1,0 +1,70 @@
+@implements IDisposable
+@inject IChatClient ChatClient
+@inject ILoggerFactory LoggerFactory
+
+<div class="desk">
+    <AgentBoundary Agent="_agent">
+        <section class="sc-ai-root sc-ai-chat-page desk__chat">
+            <header class="desk__header">
+                <h1>Order desk</h1>
+                <StopButton />
+            </header>
+            <div class="sc-ai-chat-page__body">
+                <MessageList>
+                    <EmptyContent>
+                        <p class="desk__welcome">Ask about an order, for example: Where is order O-1001?</p>
+                    </EmptyContent>
+                    <ChildContent>
+                        @* A get_order call is drawn as a card. Everything else keeps the default rendering,
+                           including the Approve and Reject buttons for a tool that needs approval. *@
+                        <BlockRenderer TBlock="OrderToolBlock" Context="order">
+                            <OrderCard Block="order" />
+                        </BlockRenderer>
+                    </ChildContent>
+                </MessageList>
+            </div>
+            <div class="sc-ai-chat-page__footer">
+                <div class="sc-ai-chat-page__input-container">
+                    <MessageInput Placeholder="Ask about an order..." />
+                </div>
+            </div>
+        </section>
+    </AgentBoundary>
+    <ReplyPanel State="_agent.State" />
+</div>
+
+@code {
+    private static readonly JsonSerializerOptions s_json = new(JsonSerializerDefaults.Web);
+    private readonly string _threadId = Guid.NewGuid().ToString("N");
+    private UIAgent<CaseState> _agent = default!;
+
+    protected override void OnInitialized()
+    {
+        _agent = new UIAgent<CaseState>(ChatClient, options =>
+        {
+            options.AddGeneratedToolBlocks();
+
+            // Outbound: every request carries the current state, including the user's edits.
+            options.ChatOptions = new ChatOptions
+            {
+                RawRepresentationFactory = _ => new RunAgentInput
+                {
+                    ThreadId = _threadId,
+                    State = JsonSerializer.SerializeToElement(options.State.Value, s_json),
+                },
+            };
+
+            // Inbound: a STATE_SNAPSHOT event from the agent replaces the state.
+            options.StateMapper = context =>
+            {
+                if (context.Update.RawRepresentation is StateSnapshotEvent snapshot
+                    && snapshot.Snapshot.Deserialize<CaseState>(s_json) is { } state)
+                {
+                    context.SetState(state);
+                }
+            };
+        }, LoggerFactory, new CaseState());
+    }
+
+    public void Dispose() => _agent.Dispose();
+}
