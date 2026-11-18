@@ -1,0 +1,11 @@
+region,ip,kind,owner,eni,billing_operation,newly_charged
+eu-west-1,54.214.143.125,ec2-auto,ec2 i-675460c13d0d73512,eni-ab5db826,RunInstances,True
+eu-west-1,54.214.69.25,ec2-auto,ec2 i-8f9dc1e6307f08743,eni-276e466a,RunInstances,True
+eu-west-1,54.214.163.221,ec2-auto,ec2 i-b0cb1917dd6d92b63,eni-63176140,RunInstances,True
+eu-west-1,54.214.248.192,ec2-auto,ec2 i-f097ad69eba2025c2,eni-4a8cec20,RunInstances,True
+eu-west-1,127.188.164.121,eip-idle,none (idle),,AllocateAddressVPC,False
+eu-west-1,127.218.90.238,eip-idle,none (idle),,AllocateAddressVPC,False
+eu-west-1,127.28.210.127,eip-in-use,ec2 i-d5901cbb587a4b8a8,eni-81a08bab,AssociateAddressVPC,True
+eu-west-1,127.63.254.97,eip-in-use,nat nat-b58d60371c8b745ad,eni-de9dd53e,AssociateAddressVPC,True
+eu-west-1,127.252.145.49,eip-in-use,nat nat-f0f6ab5397c8cd671,eni-48f7d9b6,AssociateAddressVPC,True
+us-east-1,54.214.254.91,ec2-auto,ec2 i-ffba175cc546f099b,eni-71014cfb,RunInstances,True

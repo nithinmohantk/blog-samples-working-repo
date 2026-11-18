@@ -1,0 +1,20 @@
+INFO ipv4_audit region=eu-west-1 public_ipv4=9
+INFO ipv4_audit region=us-east-1 public_ipv4=1
+{
+  "addresses": 10,
+  "by_kind": {
+    "ec2-auto": 5,
+    "eip-idle": 2,
+    "eip-in-use": 3
+  },
+  "by_owner_type": {
+    "ec2": 6,
+    "nat": 2,
+    "none": 2
+  },
+  "newly_charged": 8,
+  "month": "2024-02",
+  "hours": 696,
+  "cost_all": "34.80",
+  "cost_new_from_feb_2024": "27.84"
+}

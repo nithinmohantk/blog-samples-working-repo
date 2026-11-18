@@ -1,0 +1,7 @@
+2024-03: 744 hours at $0.005 per address-hour
+step                                                                                 addresses  USD/month
+As found                                                                                    10      37.20
+Release the 2 idle Elastic IPs                                                               8      29.76
+Stop or terminate the forgotten us-east-1 instance                                           7      26.04
+Replace the bastion's Elastic IP with an EC2 Instance Connect Endpoint                       6      22.32
+Move the 4 web instances to private subnets behind an internet-facing ALB in 2 AZs           4      14.88

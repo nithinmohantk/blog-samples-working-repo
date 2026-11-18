@@ -1,0 +1,15 @@
+{
+  "botocore": "1.34.29",
+  "elbv2 IpAddressType": [
+    "ipv4",
+    "dualstack"
+  ],
+  "ec2 NetworkInterfaceType has nat_gateway": false,
+  "ec2 NetworkInterfaceType has natGateway": true,
+  "ec2 ModifySubnetAttribute has EnableDns64": true,
+  "lambda VpcConfig has Ipv6AllowedForDualStack": true,
+  "ecs AssignPublicIp": [
+    "ENABLED",
+    "DISABLED"
+  ]
+}
