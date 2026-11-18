@@ -1,0 +1,6 @@
+{
+  "title": "pgvector 0.6.0 Parallel HNSW Builds: What Speeds Up, and the Docker /dev/shm Trap",
+  "slug": "pgvector-0-6-0-parallel-hnsw-builds-docker-shm",
+  "date": "2024-02-03T09:00:00",
+  "excerpt": "pgvector 0.6.0 builds HNSW indexes in parallel. On a 4 vCPU runner it built a 200,000-row index 4.0 times faster than 0.5.1, but in Docker's default 64 MB /dev/shm a parallel build with a larger maintenance_work_mem fails with error 53100."
+}
