@@ -57,6 +57,7 @@ Each folder has its own README that says what the code does, how to run it, and 
 | `eks-extended-support-cost` | [EKS Extended Support Pricing: What $0.60 an Hour Means for Your Fleet from 1 April](https://www.dataa.dev/2024/02/24/eks-extended-support-pricing-fleet-cost-from-1-april/) | Python |
 | `claude3-bedrock-messages-migration` | [Claude 3 on Amazon Bedrock: Moving from Text Completions to the Messages API](https://www.dataa.dev/2024/03/16/claude-3-bedrock-text-completions-to-messages-api/) | Python |
 | `ehds-access-logging` | [EHDS Provisional Agreement: What EHR Systems Must Build Into the Access Path](https://www.dataa.dev/2024/03/23/ehds-provisional-agreement-what-ehr-systems-must-build/) | Python, FHIR |
+| `redis-valkey-licence-check` | [Redis Changes Its Licence, Valkey Forks: What It Means for Your Deployments, and a One-Way Data Trap](https://www.dataa.dev/2024/03/30/redis-licence-change-valkey-fork-deployments-rdb-rollback/) | Python, Bash |
 | `xz-cve-2024-3094-sbom-triage` | [The xz Backdoor (CVE-2024-3094): SBOM Triage for Images and Lambda Layers, and Where SBOMs Go Blind](https://www.dataa.dev/2024/03/31/xz-backdoor-cve-2024-3094-sbom-triage-images-lambda-layers/) | Python, Bash |
 
 ## Verification status
