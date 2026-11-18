@@ -1,340 +1,271 @@
-# EHDS Provisional Agreement: What EHR Systems Must Build Into the Access Path
+# The xz Backdoor (CVE-2024-3094): SBOM Triage for Images and Lambda Layers, and Where SBOMs Go Blind
 
-*Saturday 23 March 2024. Slug `ehds-provisional-agreement-what-ehr-systems-must-build`*
+*Sunday 31 March 2024. Slug `xz-backdoor-cve-2024-3094-sbom-triage-images-lambda-layers`*
 
-**Excerpt:** The March 2024 EHDS deal makes EHR systems a regulated product with a logging component. Access logs per Annex II, restrictions that leave no trace, emergency access and the patient's access report, built on FHIR R4 and tested on HAPI FHIR.
+**Excerpt:** Which xz versions count, a version check that does not flag Debian's fix, and why a Pillow Lambda layer carries a liblzma no SBOM lists. Tested with Syft 1.1.0 on March 2024 images, without downloading a backdoored binary.
 
-In the early hours of Friday 15 March 2024, the Council and the European Parliament reached a provisional agreement on the regulation for a European Health Data Space. The Council published the compromise text on 18 March as document 7553/24. It still needs formal adoption by both institutions, and some passages carry drafting marks, but the obligations for anyone who builds or buys an electronic health record system are now clear enough to plan against.
+On Friday 29 March 2024, Andres Freund reported on the oss-security list that the upstream xz repository and release tarballs had been backdoored. By the evening CVE-2024-3094 had a CVSS score of 10.0, CISA had told everyone to go back to an uncompromised version such as 5.4.6, and Red Hat had told Fedora Rawhide users to stop using those machines. Since then, most security teams have been answering one question for every image, host and artefact they own: do we have it?
 
-Most of the coverage has been about secondary use: research access, health data access bodies and the new opt-out. This article is about primary use, the care side, and in particular the access path of an EHR system: who may see which data, how a patient's restrictions are applied, what is logged, and what the patient is told. These are the parts a vendor will build first, because they touch every screen and every API call. The sample code implements them on FHIR R4 and runs against a HAPI FHIR server.
+This article is about answering that question properly, from SBOMs, for container images and Lambda layers. It covers which versions count, a version check that does not flag the fix, why a package-level SBOM can miss a copy of liblzma entirely, and how to read a library's version without running the code you are worried about. The sample code was run against real images from March 2024 and a Lambda layer, and it does not download any compromised binary.
 
-## What the agreement asks of an EHR system
+## What is affected, as of 31 March
 
-Chapter III treats an EHR system as a regulated product. It must meet the essential requirements in Annex II, carry an EU declaration of conformity and a CE marking, and be registered in a public EU database before it is placed on the market. Two software parts are defined in Article 2: a European interoperability component that provides and receives personal electronic health data, and a European logging component that provides logging information on health professionals' access to that data. Together they are the harmonised components that the conformity rules apply to.
+The malicious code is in xz 5.6.0, released on 24 February, and 5.6.1, released on 9 March. The payload sat in obfuscated test files committed to the repository, but the trigger was only in the release tarballs: an extra build script that, during configure, decides whether to inject that object code into the library. Freund's report lists the conditions it checks: an x86-64 Linux target with glibc, built with gcc and the GNU linker, as part of a Debian or RPM package build. The injected code then targets sshd, which does not use liblzma directly but loads it through libsystemd on distributions that patch OpenSSH for systemd notification.
 
-| Provision | What it means for the product |
+| Source | What it says |
 | :--- | :--- |
-| Article 5(1) | Six priority categories: patient summaries, ePrescriptions, eDispensations, imaging studies and reports, test results and reports, discharge reports |
-| Annex II, section 2 | Make data available in the European health record exchange format, capture it at a granularity that allows that export, and do not obstruct export when a customer replaces the system |
-| Annex II, point 3.2 | Reliable identification and authentication of health professionals |
-| Annex II, point 3.4 | Log every access: provider, individual, data categories, date and time, origin of the data |
-| Annex II, point 3.6 | Tools to review and analyse the logs, or a connection to external software that does |
-| Article 17 | Technical documentation, EU declaration of conformity and CE marking; keep both documents for 10 years |
-| Article 26a | Test in the European or national digital testing environment before release; positive results presume conformity for what was tested |
-| Article 32 | Register in the EU database for EHR systems, including the test results |
+| Upstream | xz 5.6.0 and 5.6.1 are compromised; go back to 5.4.x (CISA suggests 5.4.6) |
+| Debian (DSA-5649-1) | No stable release affected; testing, unstable and experimental from 5.5.1alpha-0.1 to 5.6.1-1 are; fixed as 5.6.1+really5.4.5-1 |
+| Red Hat / Fedora | No RHEL release affected; Fedora 41 and Rawhide received 5.6.x; Fedora 40 beta shipped xz-libs 5.6.0-1.fc40 and 5.6.0-2.fc40, where the injection is not believed to have worked, but users should still revert to 5.4.x |
+| Kali | Affected if updated between 26 and 29 March |
+| openSUSE | Tumbleweed and MicroOS updated between 7 and 28 March |
+| Arch Linux | Installation medium, VM images and container images built between 24 February and 28 March carried 5.6.x |
+| AWS | Amazon Linux and Bottlerocket not affected; AWS services do not use the affected software |
 
-The Council's note on the deal describes this as a self-certification scheme supported by a digital testing environment. That is lighter than medical device certification, but it moves the evidence burden onto the vendor: the technical documentation has to show how each Annex II requirement is met, and Article 16 forbids claims about interoperability or security that the product does not support.
+For most production fleets the answer is therefore no: stable Debian, released Ubuntu LTS versions, RHEL and Amazon Linux never shipped 5.6.x. The exposure is in places that follow fast-moving distributions: developer laptops, CI runners and build images on Debian testing or Fedora Rawhide, Arch-based containers, and anything a team built from those. That is exactly what an SBOM inventory should find quickly, if it is read correctly.
 
-![Diagram of an EHR access path under the EHDS provisional agreement: a health professional's request passes an access gateway that applies Article 8e restrictions and Article 7a(3) emergency access, reads the FHIR record, and writes an AuditEvent to a logging component that feeds the patient's Article 8f access report](img1.jpg)
-*The access path the sample implements, with the article behind each step.*
+## A version check that does not flag the fix
 
-## Mapping data to the priority categories
+The first scripts written on Friday searched for the strings 5.6.0 and 5.6.1. That fails in both directions. Debian's fixed package is versioned 5.6.1+really5.4.5-1, because a package version may not go backwards, so a substring search flags the fix. An unrelated package that happens to be at 5.6.1 is flagged too. And it misses 5.5.1alpha, the development release that Debian also lists as compromised. These are the results on a synthetic SBOM holding the versions from the advisories:
 
-Restrictions, logs and the patient's report all speak in terms of the Article 5 categories, so the system needs a reliable way to place each record in one. The provisional agreement does not define that mapping. It will come with the exchange format in implementing acts, due within two years of entry into force. Until then a working mapping, kept in one function so it can change, is the practical choice:
+```text
+liblzma5  5.6.1-1                naive: FLAG  rules: affected
+liblzma5  5.6.0-0.2              naive: FLAG  rules: affected
+liblzma5  5.5.1alpha-0.1         naive: ok    rules: suspect
+liblzma5  5.6.1+really5.4.5-1    naive: FLAG  rules: not affected
+liblzma5  5.4.1-0.2              naive: ok    rules: not affected
+xz-libs   5.6.0-2.fc40           naive: FLAG  rules: affected
+xz-libs   1:5.4.6-1              naive: ok    rules: not affected
+xz-libs   5.2.5-9.amzn2023.0.2   naive: ok    rules: not affected
+xz-libs   5.4.5-r0               naive: ok    rules: not affected
+libfoo    5.6.1                  naive: FLAG  rules: not an xz package
+```
+
+The fix is to work out the real upstream version first, then compare that. The rules are small but distribution-specific:
 
 ```python
-def category_of(resource: dict) -> str | None:
-    """The Article 5 category of one FHIR R4 resource, or None if it is outside the priority categories."""
-    rtype = resource.get("resourceType")
-    if rtype == "MedicationRequest":
-        return EPRESCRIPTION
-    if rtype == "MedicationDispense":
-        return EDISPENSATION
-    if rtype == "ImagingStudy":
-        return IMAGING
-    if rtype in ("Composition", "DocumentReference"):
-        for code in _codes(resource.get("type"), LOINC):
-            if code in DOC_TYPES:
-                return DOC_TYPES[code]
+def upstream_version(version: str) -> str:
+    """The upstream xz version inside a distribution package version.
+
+    1:5.6.0-1.fc40        -> 5.6.0        (epoch and RPM release removed)
+    5.6.1+really5.4.5-1   -> 5.4.5        (Debian's revert: the real code is what follows +really)
+    5.4.5-r0              -> 5.4.5        (Alpine)
+    """
+    v = version.split(":", 1)[-1]
+    if "+really" in v:
+        v = v.split("+really", 1)[1]
+    m = re.match(r"(\d+\.\d+\.\d+(?:alpha|beta)?)", v)
+    return m.group(1) if m else v
+```
+
+```python
+def classify(name: str, version: str) -> Verdict | None:
+    """None if the package is not part of xz; otherwise a verdict on its version."""
+    if name.lower() not in PACKAGE_NAMES:
         return None
-    if rtype == "DiagnosticReport":
-        cats = _codes(resource.get("category"), V2_0074)
-        return IMAGING if cats & RADIOLOGY else TEST_RESULTS
-    if rtype == "Observation":
-        cats = _codes(resource.get("category"), OBS_CATEGORY)
-        if "imaging" in cats:
-            return IMAGING
-        return TEST_RESULTS if cats & {"laboratory", "procedure"} else None
-    return None
+    up = upstream_version(version)
+    if up in AFFECTED_UPSTREAM:
+        return Verdict("affected", up, "upstream 5.6.0/5.6.1: replace with 5.4.x")
+    if re.fullmatch(r"5\.5\.\d+(alpha|beta)", up):
+        return Verdict("suspect", up, "5.5.x development release by the same maintainer; Debian lists 5.5.1alpha-0.1 as compromised")
+    return Verdict("not affected", up, "")
 ```
 
-Two cases need care. A DiagnosticReport is a test result or an imaging report depending on its category, so the radiology codes decide. And documents are classified by their LOINC type, which works for structured patient summaries and discharge summaries but not for a scanned letter filed with a generic type. Anything the function cannot place is logged as `other`, which is visible in the patient's report rather than silently dropped.
+Two choices here are judgement, not fact. The 5.5.x development releases are marked suspect rather than affected, because they came from the same maintainer and Debian includes them in its compromised range, but they were not named in the upstream advisory. And Fedora 40 beta's 5.6.0 builds count as affected, because Red Hat asks users to revert them even though the injection is not believed to have worked there. In both cases the action is the same: replace with 5.4.x.
 
-## The log record
+## Reading the SBOMs
 
-Annex II point 3.4 lists five things to log for each access or group of accesses. FHIR R4 already has a resource for this, AuditEvent, and every item has a natural home in it: the organisation and the individual are agents, the categories and the origin are details on each data entity, and the time is `recorded`.
+Syft writes CycloneDX and SPDX JSON, and teams usually keep whichever their tooling settled on. The triage code reads both and the tests require identical verdicts from each, which catches the common mistake of reading one format's nested components but not the other's:
 
 ```python
-def access_event(requester: Requester, patient: str, returned: list[dict], *, interaction: str,
-                 emergency: bool = False, observer: str = "Device/ehr-system",
-                 when: datetime | None = None) -> dict:
-    """The AuditEvent for one request. `returned` is what the user actually saw, after any restriction."""
-    recorded = (when or datetime.now(timezone.utc)).isoformat(timespec="milliseconds")
-    entities = [{"what": {"reference": patient},
-                 "type": {"system": ENTITY_TYPE, "code": "1", "display": "Person"},
-                 "role": {"system": OBJECT_ROLE, "code": "1", "display": "Patient"}}]
-    for resource in returned:
-        category = category_of(resource)
-        entities.append({
-            "what": {"reference": f"{resource['resourceType']}/{resource['id']}"},
-            "type": {"system": ENTITY_TYPE, "code": "2", "display": "System Object"},
-            "role": {"system": OBJECT_ROLE, "code": "4", "display": "Domain Resource"},
-            "detail": [{"type": CATEGORY_DETAIL, "valueString": category or "other"},
-                       {"type": ORIGIN_DETAIL, "valueString": origin_of(resource)}],
-        })
-    reason = ("ETREAT", "Emergency Treatment") if emergency else ("TREAT", "treatment")
-    return {
-        "resourceType": "AuditEvent",
-        "type": {"system": DCM, "code": "110110", "display": "Patient Record"},
-        "subtype": [{"system": RESTFUL, "code": interaction}],
-        "action": "R" if interaction == "read" else "E",
-        "recorded": recorded,
-        "outcome": "0",
-        "purposeOfEvent": [{"coding": [{"system": ACT_REASON, "code": reason[0], "display": reason[1]}]}],
-        "agent": [
-            {"who": {"reference": requester.practitioner, "display": requester.practitioner_name},
-             "requestor": True},
-            {"who": {"reference": requester.organization, "display": requester.organization_name},
-             "requestor": False},
-        ],
-        "source": {"observer": {"reference": observer}},
-        "entity": entities,
-    }
+def packages(doc: dict):
+    """(name, version, purl) for every package, whichever of the two formats the document is."""
+    if doc.get("bomFormat") == "CycloneDX":
+        def walk(components):
+            for c in components or []:
+                yield c.get("name", ""), c.get("version", ""), c.get("purl", "")
+                yield from walk(c.get("components"))
+        yield from walk(doc.get("components"))
+    elif "spdxVersion" in doc:
+        for p in doc.get("packages", []):
+            purl = next((r["referenceLocator"] for r in p.get("externalRefs", [])
+                         if r.get("referenceType") == "purl"), "")
+            yield p.get("name", ""), p.get("versionInfo", ""), purl
+    else:
+        raise ValueError("neither CycloneDX nor SPDX JSON")
 ```
 
-Two design choices matter more than the field mapping. The event lists what the user actually saw after restrictions were applied, not what the query matched; a log that records hidden data as accessed would show the patient accesses that never happened. And the origin is recorded per item, because a patient summary held by a GP may contain results from a laboratory and a hospital, and Annex II asks for the origin of the data, not the location of the copy. This is part of the event that the CI run stored on the HAPI server for an emergency access:
+The CI job installs Syft v1.1.0, the release of 25 March 2024, and verifies its checksum before use. A supply-chain incident is a poor time to pipe an installer script into a shell:
 
-```json
-  "purposeOfEvent": [
-    {
-      "coding": [
-        {
-          "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
-          "code": "ETREAT",
-          "display": "Emergency Treatment"
-        }
-      ]
-    }
-  ],
-  "agent": [
-    {
-      "who": {
-        "reference": "Practitioner/dr-ed-a",
-        "display": "Dr Emergency-A"
-      },
-      "requestor": true
-    },
-    {
-      "who": {
-        "reference": "Organization/hospital-a",
-        "display": "Hospital A"
-      },
-      "requestor": false
-    }
-  ]
+```bash
+          base=https://github.com/anchore/syft/releases/download/v1.1.0
+          curl -sSfLO "$base/syft_1.1.0_linux_amd64.tar.gz"
+          curl -sSfLO "$base/syft_1.1.0_checksums.txt"
+          grep " syft_1.1.0_linux_amd64.tar.gz$" syft_1.1.0_checksums.txt | sha256sum -c -
+          tar -xzf syft_1.1.0_linux_amd64.tar.gz -C "$HOME/bin" syft
 ```
 
-Each data item carries its category and origin as details:
+These are the results for five public images as they were published in March 2024, comparing the SBOM's package entry with a scan of every liblzma file in the image's exported filesystem:
 
-```json
-    {
-      "what": {
-        "reference": "Observation/hba1c-1"
-      },
-      "type": {
-        "system": "http://terminology.hl7.org/CodeSystem/audit-entity-type",
-        "code": "2",
-        "display": "System Object"
-      },
-      "role": {
-        "system": "http://terminology.hl7.org/CodeSystem/object-role",
-        "code": "4",
-        "display": "Domain Resource"
-      },
-      "detail": [
-        {
-          "type": "ehds-category",
-          "valueString": "test-results"
-        },
-        {
-          "type": "ehds-origin",
-          "valueString": "Organization/lab-d"
-        }
-      ]
-    }
+```text
+debian:bookworm-20240311-slim
+  SBOM:  liblzma5 5.4.1-0.2 (not affected)
+  bytes: liblzma.so.5.4.1 = 5.4.1
+ubuntu:jammy-20240227
+  SBOM:  liblzma5 5.2.5-2ubuntu1 (not affected)
+  bytes: liblzma.so.5.2.5 = 5.2.5
+alpine:3.19.1
+  SBOM:  no xz package
+  bytes: no liblzma file
+amazonlinux:2023.3.20240312.0
+  SBOM:  xz-libs 5.2.5-9.amzn2023.0.2 (not affected)
+  bytes: liblzma.so.5.2.5 = 5.2.5
+python:3.12.2-slim-bookworm
+  SBOM:  liblzma5 5.4.1-0.2 (not affected)
+  bytes: liblzma.so.5.4.1 = 5.4.1
 ```
 
-The first CI run found a useful property of HAPI here. The server enforces referential integrity, so an AuditEvent whose `source.observer` points at a Device that does not exist is rejected with HTTP 400. Because the gateway writes the log before it returns data, the request failed rather than returning data without a log. That is the behaviour to want, and it is worth testing deliberately: one of the unit tests makes the log store fail and checks that nothing is returned.
+None of them is affected, which matches the advisories. Two details are worth noting. Alpine's base image has no xz package at all, because BusyBox provides the command. And in every image the package database and the file agree, which is what makes the package-level SBOM trustworthy for these images. That agreement does not hold everywhere.
 
-## Restrictions that leave no trace
+![Table comparing Syft SBOM entries with a byte scan of liblzma files for five March 2024 container images and a Lambda layer with Pillow 10.2.0; the layer's SBOM lists only Pillow while the byte scan finds a vendored liblzma 5.4.5](img1.jpg)
+*The SBOM and the bytes agree for every image, but not for the layer.*
 
-Article 8e gives a person the right to restrict health professionals' and providers' access to all or part of their data, after being told that this may affect their care. It also says the fact that a restriction exists shall not be visible to healthcare providers, and Article 7a(3) adds that providers are not informed of the restricted content. Filtering records is easy. Filtering them without leaving a trace takes more thought:
+## Where an SBOM goes blind
+
+Python wheels built for manylinux bundle the C libraries they need, renamed with a hash so they cannot clash with the system's copies. A Lambda layer built from such wheels carries those libraries, and no package database records them. Pillow is a common example. The sample builds a layer the way most teams do:
 
 ```python
-def visible(resources: list[dict], restriction: Restriction | None, organization: str,
-            *, emergency: bool = False) -> list[dict]:
-    if restriction is None or emergency or organization in restriction.except_providers:
-        return list(resources)
-    return [r for r in resources if category_of(r) not in restriction.categories]
-
-
-def searchset(resources: list[dict]) -> dict:
-    """A Bundle built from the filtered list only. Passing on the server's total would count hidden items."""
-    return {"resourceType": "Bundle", "type": "searchset", "total": len(resources),
-            "entry": [{"fullUrl": f"{r['resourceType']}/{r['id']}", "resource": r,
-                       "search": {"mode": "match"}} for r in resources]}
+layer_dir = work / "layer"
+run(sys.executable, "-m", "pip", "install", "-q", "--target", str(layer_dir / "python"), "--only-binary=:all:",
+    "--platform", "manylinux2014_x86_64", "--python-version", "3.12", "--implementation", "cp", "pillow==10.2.0")
+layer_zip = work / "pillow-layer.zip"
+run("bash", "-c", f"cd {layer_dir} && zip -qr {layer_zip} python")
+cdx, _ = syft(
 ```
 
-The CI scenario shows why `searchset` builds its own Bundle. The patient restricts test results for everyone except their GP, and a hospital doctor searches for observations:
+And this is what each method sees:
 
 ```text
-== 2. The patient restricts test results for everyone except their GP (Article 8e)
-Hospital A, Observation: ['bp-1'] total 1   (the server's own total: 3)
-Hospital A, DiagnosticReport: ['xray-report-1'] total 1
-GP Practice B, Observation: ['hba1c-1', 'creat-1', 'bp-1'] total 3
+Syft packages in the layer: pillow
+xz packages in the layer SBOM: 0
+liblzma file: python/pillow.libs/liblzma-d1e41b3a.so.5.4.5 (270,265 bytes), embedded version 5.4.5
 ```
 
-The server counted three matching observations. A gateway that filtered the entries but passed on the server's total would tell the hospital that two results exist and are being withheld, which is exactly what Article 8e forbids. The count is the obvious leak; there are others that a test suite should cover:
+Syft records Pillow as a Python package, which is correct, but the liblzma inside it is invisible: it is not a package, it is a file inside one. Pillow 10.2.0 carries liblzma 5.4.5, so this layer is safe, but the method that confirmed it was reading the file, not the SBOM. The same applies to anything that vendors compression libraries: other Python wheels, statically linked Go and Rust binaries, Java native bundles and appliance images.
 
-- **References from visible records.** A DiagnosticReport that is shown may reference Observations that are hidden. Following the reference returns nothing, which is itself a signal. Either hide the referring record too or strip the references.
-- **Data embedded in documents.** A patient summary can contain recent results in its narrative. Category filtering at resource level does not remove them; that needs section-level handling or a regenerated summary.
-- **Includes and paging.** `_include`, `_revinclude` and page sizes computed before filtering all reveal hidden items. The sample avoids them by reading every page and building the result itself.
-- **Error messages.** A read of a hidden record by ID must look the same as a read of a record that does not exist.
+## Reading a version without loading the library
 
-The gateway puts the steps together and keeps the order that matters: filter, log what is shown, then return.
+The obvious way to ask a shared library for its version is to load it and call `lzma_version_string()`, through ctypes, a short C program, or the `xz` binary next to it. For this incident that is the wrong move. The injected code runs while the library is being loaded and its symbols are resolved, before any function is called, so loading a suspect copy executes the backdoor's setup code on the machine doing the triage. Reading the file is safe:
 
 ```python
-    def search(self, requester: Requester, patient: str, rtype: str, params: dict | None = None,
-               *, emergency: bool = False) -> dict:
-        query = {"patient": patient, "_count": 100, **(params or {})}
-        found, _server_total = self.fhir.search_all(rtype, query)
-        shown = visible(found, self.restrictions.get(patient), requester.organization, emergency=emergency)
-        # Log before returning: an access that cannot be logged is not served.
-        self.fhir.create(access_event(requester, patient, shown, interaction="search-type",
-                                      emergency=emergency, when=self.clock()))
-        return searchset(shown)
+NAME = re.compile(r"(^|/)liblzma[^/]*\.so(\.[0-9.]+)?$")
+# LZMA_VERSION_STRING is stored as a NUL-terminated string, e.g. b"\x005.4.5\x00".
+VERSION = re.compile(rb"\x00(5\.\d+\.\d+(?:alpha|beta)?)\x00")
+ELF = b"\x7fELF"
+
+
+@dataclass(frozen=True)
+class LibraryCopy:
+    container: str
+    path: str
+    size: int
+    versions: tuple[str, ...]      # every candidate string found; exactly one is the normal case
+
+
+def versions_in(data: bytes) -> tuple[str, ...]:
+    if not data.startswith(ELF):
+        return ()
+    return tuple(sorted({m.group(1).decode() for m in VERSION.finditer(data)}))
+
+
+def _from_zip
 ```
 
-## Emergency access
+liblzma keeps its version as a NUL-terminated string in read-only data. Across the five images and the Pillow layer, the pattern found exactly one candidate in each library and it matched the package version every time, as the table above shows. The file name is a hint but not evidence: the soname link is just `liblzma.so.5`, and vendored copies carry a hash in the name. The unit tests check that a misleadingly named file is still reported with the version in its bytes.
 
-Article 7a(3) lets a provider reach restricted data where access is necessary to protect the vital interests of the person, and requires that access to be logged in a clear format the person can easily read. In the sample this is an explicit flag on the request, recorded as `purposeOfEvent` ETREAT:
+This is a version check, not a malware detector. A compromised 5.6.1 build reports 5.6.1 like a clean one. The detection scripts published since Friday look for the injected function's byte pattern; they answer a different question, whether this particular build had the injection applied, which matters for forensics on a host that was running sshd but not for deciding what to remove.
 
-```text
-== 3. Emergency access to restricted data (Article 7a(3))
-Hospital A emergency department, Observation: ['hba1c-1', 'creat-1', 'bp-1'] total 3
-```
+## Triage, step by step
 
-The flag should not be a checkbox anyone can tick. In production it belongs behind a separate permission, a reason the clinician enters, and a review of every use, the usual break-glass controls. There is also a FHIR R4 gap to plan for. The server's CapabilityStatement lists the AuditEvent search parameters it supports, and none of them covers `purposeOfEvent`:
+![Flow from SBOM and byte scan to an upstream version, then to a verdict: affected for 5.6.0 and 5.6.1, suspect for 5.5.x development releases, not affected for 5.4.x and the +really5.4.5 revert, with the action for each](img2.jpg)
+*One set of rules for every copy, wherever it was found.*
 
-```text
-AuditEvent search parameters in the CapabilityStatement: _content, _filter, _has, _id, _lastUpdated, _profile, _security, _source, _tag, _text, action, address, agent, agent-name, agent-role, altid, date, entity, entity-name, entity-role, entity-type, outcome, patient, policy, site, source, subtype, type
-```
+- **Inventory.** Generate or collect an SBOM for every image in your registries, every Lambda layer and every function package. Keep both the SBOM and the scan output; the next advisory will ask the same question.
+- **Scan the bytes as well.** Run the liblzma file scan over the same artefacts. Anything it finds that the SBOM does not list is vendored and needs its own owner.
+- **Classify on the upstream version.** Use rules like the ones above, not a substring search.
+- **Act on affected copies.** Rebuild on a base with 5.4.x and redeploy. Do not patch running containers.
+- **Escalate hosts, not images.** A host that ran sshd with an affected x86-64 glibc build is a security incident: isolate, investigate and rotate credentials, as CISA asks. A container image that was never started with sshd is a rebuild.
+- **Check the build estate.** CI runners and developer images on rolling distributions are the likeliest place to find 5.6.x, and they hold signing keys and deployment credentials.
 
-The CI run confirmed that a search on `purpose` is rejected as an unknown parameter. A system that needs to list emergency accesses, for a privacy officer's review or for notifications, must either read every event for the patient and filter, as the sample's report does, or define a custom SearchParameter. The `entity`, `patient`, `agent` and `date` searches all worked as expected and returned the six events the scenario wrote.
+> **DO NOT PULL AFFECTED IMAGES TO TEST**  
+> Testing a scanner against a real compromised image means downloading and unpacking the backdoored library. The sample covers affected versions with synthetic SBOMs and fake ELF stubs instead. If you need a positive control for binary detection, use a detection script's published byte pattern in an isolated environment, not a production runner.
 
-## The patient's access report
+## Lambda specifically
 
-Article 8f gives the person the right to see who accessed their data, including through automatic notifications. The information is provided without delay and free of charge, through the electronic health data access services that Article 8g requires Member States to set up, and stays available for at least three years after each access. It must cover at least the healthcare provider or other individuals who accessed the data, the date and time, and the data accessed. This is the report the sample builds from the events on the server:
+AWS has said that Amazon Linux is not affected, and AWS-provided Lambda runtimes are built on it, so a function using a managed runtime with no layers needs no action for its base. What remains is what you add: layers, function packages and container images built on other distributions. Lambda functions do not run sshd, so the published exploit path does not apply inside them. The compromised library is still malicious code from an untrusted source, and the only sensible response is to replace it. Container-image functions built on Debian testing or an Arch base from the affected window are the most likely positives.
 
-```text
-When (UTC)               Provider                   Who                Data
-2024-03-21 02:15:07      Hospital A                 Dr Emergency-A     other, test-results  EMERGENCY ACCESS
-2024-03-20 18:40:21      GP Practice B              Dr GP-B            other, test-results
-2024-03-20 18:40:14      Hospital A                 Dr Hospital-A      imaging
-2024-03-20 18:40:07      Hospital A                 Dr Hospital-A      other
-2024-03-20 09:10:14      Hospital A                 Dr Hospital-A      other, test-results
-2024-03-20 09:10:07      GP Practice B              Dr GP-B            patient-summary
-```
+## Making the next answer quicker
 
-Two details from the text are configuration, not code. Member States may restrict the right in exceptional circumstances, for example where naming a professional would endanger them, so whether the individual's name appears is a setting; the sample renders the same report with the column withheld. And the three years are a minimum. National retention rules for clinical records and logs are often longer, so the deletion check only says when deletion becomes permissible under this rule:
+Most of the time spent on Friday and Saturday was not analysis. It was finding out what existed: which images were still deployed, which base each was built on, which layers each function used. The incident is a useful prompt to make that inventory permanent rather than rebuilding it under pressure for the next advisory.
 
-```python
-def keep_until(recorded: datetime, years: int = 3) -> datetime:
-    """'At least three years after each data access'. An access on 29 February is kept until 1 March."""
-    try:
-        return recorded.replace(year=recorded.year + years)
-    except ValueError:
-        return recorded.replace(year=recorded.year + years, month=3, day=1)
-```
-
-The report also exposes the quality of the category mapping. In the run above, the hospital's first search shows `other` next to test results: that is the blood pressure reading, a vital sign outside the priority categories. A patient will ask what `other` means, so the final product needs readable names and probably the item names as well.
-
-## Opt-out and access services
-
-Article 8h lets Member States give people a full, reversible opt-out from access to their data through the EHDS infrastructure, with access still possible to protect vital interests. It is optional, so an EHR system sold in several countries will meet both regimes. The same mechanism as restrictions handles it: an opt-out is a restriction of every category for every provider outside the person's own care setting, with the emergency path unchanged. Building restrictions as data rather than as code, as the sample does, keeps national variants to configuration.
-
-Article 8g also covers proxies, people authorised to act for someone else, such as a parent or carer. Restrictions and access reports therefore need to know who set them and on whose behalf, which is another reason to store them as durable records, for example as FHIR Consent resources, rather than as flags on the patient.
-
-## When it applies
-
-Article 72 counts everything from entry into force, which is 20 days after publication in the Official Journal. On 23 March 2024 that date is not known, but the sequence is:
-
-![Timeline of EHDS application periods counted from entry into force: general application after 2 years, implementing acts within 2 years, patient summaries, ePrescriptions and dispensations after 4 years, secondary use after 4 years, imaging, test results and discharge reports after 6 years](img2.jpg)
-*Application periods from Article 72 of the provisional agreement.*
-
-The four-year group, patient summaries, ePrescriptions and dispensations, is where cross-border exchange already runs through MyHealth@EU, so the categories with existing national services come first. Imaging, test results and discharge reports follow two years later. The Chapter II provisions, which include the restriction, logging and access-report rights in this article, are tied to these category dates rather than to the two-year general date, so the access path has to be ready for the first three categories at four years.
-
-## What to do now
-
-- **Map your data to the six categories.** Find out how much of the record a function like `category_of` can place today, and what is left as `other`.
-- **Put one access path in front of the record.** Restrictions and logging only work if every screen, API and export goes through them, including batch interfaces and support tools.
-- **Log what was shown, with its origin.** Check the existing audit trail against the five items in Annex II point 3.4; origin of the data is the one most systems lack.
-- **Test for traces of restrictions.** Counts, references, includes, documents and error messages.
-- **Design break-glass access.** Separate permission, recorded reason, review, and a log entry the patient can read.
-- **Plan the technical documentation.** Each Annex II requirement will need evidence, and the testing environment results go into the EU database.
-- **Watch the implementing acts.** The exchange format, the logging format in Annex II and the testing specifications all arrive within two years.
-
-> **PROVISIONAL TEXT**  
-> Article numbers and wording here are from the provisional agreement text of 18 March 2024. The text still has to be formally adopted, and numbering usually changes in the final version. Check the adopted regulation before quoting articles in contracts or tenders.
+- **Generate the SBOM at build time and keep it with the digest.** An SBOM produced in the pipeline describes exactly what was shipped. Store it next to the image digest or layer version, not in a spreadsheet keyed by tag, because tags move.
+- **Index by package URL.** A query such as every artefact with `pkg:deb/debian/liblzma5` should return in seconds. A table of digest, purl and version in any database is enough to start.
+- **Record what is deployed, not only what is built.** Registries keep years of images. The useful answer is which affected digests are running now, in which accounts and Regions, and who owns them.
+- **Add a byte scan for native libraries.** Run it on layers, function packages and images, and store its output beside the SBOM, so vendored copies are part of the same query.
+- **Track base-image lineage.** Knowing that forty images derive from one internal base turns forty investigations into one rebuild.
+- **Measure the time to answer.** How long it takes to say whether you have a given package, at a given version, in production is a better indicator of supply-chain readiness than the number of SBOMs generated.
 
 ## Decision framework
 
-| Situation | Recommendation |
+| Finding | Action |
 | :--- | :--- |
-| EHR product sold in the EU | Plan for Chapter III conformity: Annex II evidence, declaration, CE marking and registration |
-| Existing audit trail logs requests, not data shown | Change it to log the filtered result, with categories and origin per item |
-| Restrictions implemented as UI hiding | Move them into the data access path so APIs and exports apply them too |
-| FHIR R4 server as the audit store | Use AuditEvent, write it before returning data, and add a custom SearchParameter for purposeOfEvent if you need to search it |
-| Selling in several Member States | Treat opt-out, proxy rules and name disclosure in access reports as configuration |
-| In-house system at a hospital | Check whether it falls under Article 13b(2), which has the longer six-year period |
+| Package xz 5.6.0 or 5.6.1 in an image | Rebuild on a 5.4.x base and redeploy; quarantine the old image |
+| Same, on a host that ran sshd | Incident: isolate, investigate, rotate credentials, rebuild |
+| Debian 5.5.x alpha or beta | Replace with 5.4.x; treat as affected for reporting |
+| Debian 5.6.1+really5.4.5-1 | Fixed; no action |
+| Fedora 40 beta xz-libs 5.6.0 | Revert to 5.4.x as Red Hat advises |
+| liblzma found by byte scan but not in the SBOM | Find the package that vendors it, check its version, and add byte scanning to the pipeline |
+| Amazon Linux base, managed Lambda runtime | No action for the base; scan layers and packages |
 
 > **HOW THIS WAS CHECKED**  
-> The sample ran in GitHub Actions ([run](https://github.com/nithinmohantk/blog-samples-working-repo/actions/runs/44390722475)) on Python 3.12 with pytest 8.1.1 (packages as of 22 March 2024) against the `hapiproject/hapi:v7.0.3` image, tagged on 7 March 2024, which reports HAPI FHIR Server 7.0.2. The patient, organisations and clinicians are synthetic. The 14 unit tests passed, and the scenario output above is copied from that run. Article numbers and quotations come from the Council's provisional agreement text, document 7553/24 of 18 March 2024. The category mapping is an assumption, because the exchange format had not been defined. No legal advice is implied.
+> The sample ran in GitHub Actions ([run](https://github.com/nithinmohantk/blog-samples-working-repo/actions/runs/44400012484)) with Syft v1.1.0 (checksum verified), Python 3.12 and pytest 8.1.1 (packages as of 30 March 2024). The images are the dated Docker Hub tags shown above and the layer uses Pillow 10.2.0, the release current on 31 March 2024. All 12 unit tests passed and the output above is copied from that run. No image or package containing xz 5.6.x was downloaded; affected versions were tested with synthetic SBOMs and stub ELF files. Advisory details are as published by Debian, Red Hat, CISA and AWS on 29 and 30 March 2024.
 
 ## Key takeaways
 
-- The provisional agreement of 15 March 2024 makes EHR systems a regulated product with two harmonised components: interoperability and logging.
-- Annex II point 3.4 asks for five items per access; the origin of the data is the one most audit trails lack.
-- Article 8e restrictions must leave no trace, so totals, references and errors have to be rebuilt after filtering.
-- Emergency access to restricted data is allowed and must be logged in a form the patient can read; FHIR R4 cannot search AuditEvent by purpose without a custom parameter.
-- Obligations apply by category, four years after entry into force for summaries and prescriptions and six years for the rest.
+- CVE-2024-3094 affects xz 5.6.0 and 5.6.1; stable Debian, released Ubuntu LTS versions, RHEL and Amazon Linux never shipped them.
+- Compare upstream versions, not substrings: Debian's fix is 5.6.1+really5.4.5-1, and 5.5.1alpha is in Debian's compromised range.
+- Package-level SBOMs miss libraries vendored inside wheels and binaries; a Pillow layer carries its own liblzma that no package database lists.
+- Read a suspect library's version from its bytes; loading it runs the injected code.
+- Images get rebuilt; hosts that ran sshd with an affected build get treated as incidents.
 
-If you are working through the Annex II requirements for your own product, let me know in the comments below which ones are proving hardest.
+If your own inventory turned up liblzma in a place no SBOM listed, let me know in the comments below where it was.
 
 > **GET THE CODE**  
-> [https://github.com/nithinmohantk/blog-samples-working-repo/tree/main/ehds-access-logging](https://github.com/nithinmohantk/blog-samples-working-repo/tree/main/ehds-access-logging)
+> [https://github.com/nithinmohantk/blog-samples-working-repo/tree/main/xz-cve-2024-3094-sbom-triage](https://github.com/nithinmohantk/blog-samples-working-repo/tree/main/xz-cve-2024-3094-sbom-triage)
 
 ## Glossary
 
-- **EHDS**: European Health Data Space: the EU regulation on primary and secondary use of electronic health data.
-- **Provisional agreement**: The text agreed by Council and Parliament negotiators, before formal adoption by both.
-- **Primary use**: Use of health data for the care of the person it describes.
-- **Secondary use**: Use of health data for research, policy, statistics and similar purposes.
-- **EHR system**: A system for storing and sharing electronic health records; Article 2 gives the full definition.
-- **Harmonised components**: The European interoperability component and the European logging component of an EHR system.
-- **Priority categories**: The six data categories in Article 5(1) that must be exchangeable first.
-- **European health record exchange format**: The common format for the priority categories, to be specified in implementing acts.
-- **AuditEvent**: The FHIR resource for recording security and access events.
-- **ETREAT**: HL7 v3 ActReason code for emergency treatment, used here to mark vital-interest access.
-- **Break-glass access**: An emergency override of normal access controls, with extra logging and review.
-- **CapabilityStatement**: A FHIR server's description of what it supports, including search parameters.
+- **CVE-2024-3094**: The identifier for the malicious code in xz 5.6.0 and 5.6.1.
+- **xz / liblzma**: The XZ Utils compression tools and the shared library they provide.
+- **SBOM**: Software bill of materials: a machine-readable list of the components in an artefact.
+- **CycloneDX**: An SBOM format from OWASP, commonly written as JSON.
+- **SPDX**: An SBOM format from the Linux Foundation, also an ISO standard.
+- **Syft**: Anchore's open-source tool for generating SBOMs from images, directories and archives.
+- **purl**: Package URL: a standard identifier such as pkg:deb/debian/liblzma5@5.4.1-0.2.
+- **Vendored library**: A copy of a library bundled inside another package instead of installed by the system.
+- **manylinux wheel**: A Python binary package built to run on most Linux distributions, with its C libraries bundled.
+- **IFUNC**: A glibc mechanism that picks a function implementation when a library is loaded.
+- **Epoch**: A prefix such as 1: in a package version that overrides normal version ordering.
+- **+really**: Debian's convention for reverting to an older upstream version under a higher package version.
 
 ## References & Further Reading
 
-- [European Health Data Space: Council and Parliament strike deal](https://www.consilium.europa.eu/en/press/press-releases/2024/03/15/european-health-data-space-council-and-parliament-strike-provisional-deal/): Council press release, 15 March 2024
-- [Provisional agreement text](https://www.consilium.europa.eu/media/70909/st07553-en24.pdf): Council document 7553/24, 18 March 2024
-- [EU Health Data Space to support patients and research](https://www.europarl.europa.eu/news/en/press-room/20240304IPR18765/eu-health-data-space-to-support-patients-and-research): European Parliament press release
-- [European Health Data Space](https://health.ec.europa.eu/ehealth-digital-health-and-care/european-health-data-space_en): European Commission overview
-- [FHIR R4 AuditEvent](https://hl7.org/fhir/R4/auditevent.html): Resource definition and search parameters
-- [HAPI FHIR JPA Server Starter](https://github.com/hapifhir/hapi-fhir-jpaserver-starter): The server image used in the tests
-- [Sample code for this article](https://github.com/nithinmohantk/blog-samples-working-repo/tree/main/ehds-access-logging): Categories, AuditEvent builder, restriction filter, gateway, patient report and tests
+- [backdoor in upstream xz/liblzma leading to ssh server compromise](https://www.openwall.com/lists/oss-security/2024/03/29/4): Andres Freund, oss-security, 29 March 2024
+- [Reported Supply Chain Compromise Affecting XZ Utils](https://www.cisa.gov/news-events/alerts/2024/03/29/reported-supply-chain-compromise-affecting-xz-utils-data-compression-library-cve-2024-3094): CISA alert, 29 March 2024
+- [DSA-5649-1 xz-utils security update](https://www.debian.org/security/dsa-5649): Debian, 29 March 2024
+- [Urgent security alert for Fedora 41 and Rawhide users](https://www.redhat.com/en/blog/urgent-security-alert-fedora-41-and-rawhide-users): Red Hat, updated 30 March 2024
+- [AWS security bulletin for CVE-2024-3094](https://aws.amazon.com/security/security-bulletins/AWS-2024-002): Amazon Linux and Bottlerocket not affected
+- [Syft v1.1.0](https://github.com/anchore/syft/releases/tag/v1.1.0): The SBOM generator used here
+- [CycloneDX specification](https://cyclonedx.org/specification/overview/): SBOM format
+- [SPDX](https://spdx.dev/): SBOM format
+- [Sample code for this article](https://github.com/nithinmohantk/blog-samples-working-repo/tree/main/xz-cve-2024-3094-sbom-triage): Advisory rules, SBOM readers, byte-level liblzma scan and tests

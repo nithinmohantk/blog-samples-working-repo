@@ -1,6 +1,6 @@
 {
-  "title": "EHDS Provisional Agreement: What EHR Systems Must Build Into the Access Path",
-  "slug": "ehds-provisional-agreement-what-ehr-systems-must-build",
-  "date": "2024-03-23T09:00:00",
-  "excerpt": "The March 2024 EHDS deal makes EHR systems a regulated product with a logging component. Access logs per Annex II, restrictions that leave no trace, emergency access and the patient's access report, built on FHIR R4 and tested on HAPI FHIR."
+  "title": "The xz Backdoor (CVE-2024-3094): SBOM Triage for Images and Lambda Layers, and Where SBOMs Go Blind",
+  "slug": "xz-backdoor-cve-2024-3094-sbom-triage-images-lambda-layers",
+  "date": "2024-03-31T09:00:00",
+  "excerpt": "Which xz versions count, a version check that does not flag Debian's fix, and why a Pillow Lambda layer carries a liblzma no SBOM lists. Tested with Syft 1.1.0 on March 2024 images, without downloading a backdoored binary."
 }
