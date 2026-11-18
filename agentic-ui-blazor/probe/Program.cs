@@ -18,6 +18,7 @@ foreach (string name in wanted)
         foreach (MemberInfo member in type.GetMembers(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly).OrderBy(m => m.Name))
         {
             if (member is MethodInfo { IsSpecialName: true }) continue;
+            if (member is MethodBase mb && (type.Namespace?.Contains("Hosting") == true || type.Name.Contains("Session") || type.Name.Contains("ChatClientAgent"))) { Console.WriteLine($"    {mb.Name}({string.Join(", ", mb.GetParameters().Select(p => $"{p.ParameterType.Name} {p.Name}{(p.HasDefaultValue ? " = " + (p.DefaultValue ?? "null") : "")}"))})"); continue; }
             string attributes = string.Join(" ", member.CustomAttributes.Select(a => a.AttributeType.Name.Replace("Attribute", "")).Where(a => a is "Parameter" or "CascadingParameter" or "EditorRequired" or "Experimental").Select(a => $"[{a}]"));
             Console.WriteLine($"    {attributes} {member}".TrimEnd().Replace("    ", "    "));
         }

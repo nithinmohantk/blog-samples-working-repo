@@ -26,6 +26,18 @@ public sealed class FrameworkWireTests(WebApplicationFactory<FrameworkService> f
     : WireTests<FrameworkService>(factory), IClassFixture<WebApplicationFactory<FrameworkService>>
 {
     protected override string Host => "framework";
+
+    static FrameworkWireTests()
+    {
+        // Temporary: the endpoint reports a generic RUN_ERROR, so note what was thrown underneath.
+        AppDomain.CurrentDomain.FirstChanceException += (_, e) =>
+        {
+            if (e.Exception is not OperationCanceledException && e.Exception.StackTrace?.Contains("Agents") == true)
+            {
+                Trace.Line("first-chance.txt", $"{e.Exception.GetType().FullName}: {e.Exception.Message}\n{string.Join("\n", (e.Exception.StackTrace ?? "").Split('\n').Take(8))}\n");
+            }
+        };
+    }
 }
 
 /// <summary>
