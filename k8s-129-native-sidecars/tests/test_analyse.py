@@ -40,6 +40,11 @@ def test_parse_stream_splits_concatenated_objects():
     assert parse_stream(text) == [{"a": 1}, {"a": 2}]
 
 
+def test_parse_stream_drops_a_truncated_tail():
+    text = json.dumps({"a": 1}) + "\n" + json.dumps({"a": 2, "b": [1, 2]})[:-6]
+    assert parse_stream(text) == [{"a": 1}]
+
+
 def test_last_terminated_keeps_the_latest_state():
     running = json.loads(json.dumps(POD))
     running["status"]["containerStatuses"][0]["state"] = {"running": {"startedAt": "2024-02-17T09:00:09Z"}}

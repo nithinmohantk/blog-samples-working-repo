@@ -6,14 +6,20 @@ from datetime import datetime
 
 
 def parse_stream(text: str) -> list[dict]:
-    """Split the concatenated JSON objects that `kubectl get -o json --watch` prints."""
+    """Split the concatenated JSON objects that `kubectl get -o json --watch` prints.
+
+    Stopping the watch can cut the last object short, so a truncated tail is dropped.
+    """
     decoder, objects, i = json.JSONDecoder(), [], 0
     while i < len(text):
         while i < len(text) and text[i].isspace():
             i += 1
         if i >= len(text):
             break
-        obj, i = decoder.raw_decode(text, i)
+        try:
+            obj, i = decoder.raw_decode(text, i)
+        except json.JSONDecodeError:
+            break  # the watch was stopped mid-object; keep what was complete
         objects.append(obj)
     return objects
 
