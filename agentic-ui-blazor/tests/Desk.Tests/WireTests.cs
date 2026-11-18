@@ -45,18 +45,6 @@ public sealed class FrameworkWireTests(WebApplicationFactory<FrameworkService> f
 
     // This preview has no switch for the rawEvent field.
     protected override bool CanLeaveOutRawEvents => false;
-
-    static FrameworkWireTests()
-    {
-        // Temporary: the endpoint reports a generic RUN_ERROR, so note what was thrown underneath.
-        AppDomain.CurrentDomain.FirstChanceException += (_, e) =>
-        {
-            if (e.Exception is not OperationCanceledException && e.Exception.StackTrace?.Contains("Agents") == true)
-            {
-                Trace.Line("first-chance.txt", $"{e.Exception.GetType().FullName}: {e.Exception.Message}\n{string.Join("\n", (e.Exception.StackTrace ?? "").Split('\n').Take(14))}\n");
-            }
-        };
-    }
 }
 
 /// <summary>

@@ -38,7 +38,7 @@ grep -q "Build succeeded" "$out/02-build.txt" || status=1
 
 {
   echo "== 3. tests: the agent alone, the agent over AG-UI, the component in bUnit"
-  rm -f "$out/wire-traces.txt" "$out/forged-approval.txt" "$out/stream-size.txt" "$out/framework-matrix.txt" "$out/first-chance.txt"
+  rm -f "$out/wire-traces.txt" "$out/forged-approval.txt" "$out/stream-size.txt" "$out/framework-matrix.txt"
   DESK_OUT="$out" dotnet test tests/Desk.Tests -c Release --no-build --logger "console;verbosity=normal" 2>&1 | grep -E "^\s+(Passed|Failed|Skipped) |Error Message|Assert\.|Expected|Actual|Exception|   at Desk|Total tests|Passed:|Failed:|Test Run|Passed!|Failed!" | head -n 150
 } 2>&1 | tee "$out/03-tests.txt"
 grep -qE "Test Run Successful|Passed!" "$out/03-tests.txt" || status=1
@@ -48,7 +48,6 @@ grep -qE "Test Run Successful|Passed!" "$out/03-tests.txt" || status=1
   DESK_OUT="$out/native" dotnet test tests/Desk.Tests -c Release --artifacts-path "$out/../native-build" -p:ExtensionsAIVersion=10.11.0 -p:AGUIVersion=1.0.0 -p:WithoutBlazor=true --filter "FullyQualifiedName~WireTests" --logger "console;verbosity=normal" 2>&1 | grep -E "^\s+(Passed|Failed|Skipped) |error|Error Message|Assert\.|Expected|Actual|Total tests|Passed:|Failed:|Test Run|Passed!|Failed!" | sort -u | head -n 80
   find "$out/../native-build" -name "Desk.Tests.deps.json" | head -n 1 | xargs grep -oE '"(AGUI\.[A-Za-z]+|Microsoft\.Extensions\.AI|Microsoft\.Agents\.AI[A-Za-z.]*)/[^"]+"' | sort -u | tr '\n' ' '; echo
   sort "$out/native/forged-approval.txt" 2>/dev/null
-  grep -v "^   at\|^$" "$out/native/first-chance.txt" 2>/dev/null | sort | uniq -c | cut -c1-300
 } 2>&1 | tee "$out/03n-native.txt"
 
 {

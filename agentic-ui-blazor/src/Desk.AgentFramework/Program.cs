@@ -33,9 +33,9 @@ IHostedAgentBuilder desk = builder.Services.AddAIAgent("desk", (services, name) 
         // it off to measure what it changes.
         DisableApprovalResponseBinding = !settings.GetValue("DESK_VERIFY_RESUME", true),
     };
-    // Outermost first: put the browser's state in front of the model, then keep only what is new.
-    AIAgent agent = model.AsAIAgent(options);
-    return new CaseStateAgent(settings.GetValue("DESK_NEW_MESSAGES_ONLY", true) ? new NewMessagesOnlyAgent(agent) : agent);
+    // Outermost first: keep only what is new from the client, then put the browser's state in front of it.
+    AIAgent agent = new CaseStateAgent(model.AsAIAgent(options));
+    return settings.GetValue("DESK_NEW_MESSAGES_ONLY", true) ? new NewMessagesOnlyAgent(agent) : agent;
 });
 
 // The approval is checked against the session, so the session has to outlive the request. In memory:
