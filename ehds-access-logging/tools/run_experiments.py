@@ -6,6 +6,7 @@ import json
 import sys
 import time
 import urllib.request
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -50,7 +51,26 @@ loaded = fhir.transaction(bundle())
 say(f"loaded {len(loaded['entry'])} resources for {P}")
 
 ids = lambda b: [e["resource"]["id"] for e in b["entry"]]  # noqa: E731
-gw = AccessGateway(fhir)
+audit_params = sorted(p["name"] for r in meta["rest"][0]["resource"] if r["type"] == "AuditEvent"
+                      for p in r.get("searchParam", []))
+say(f"AuditEvent search parameters in the CapabilityStatement: {', '.join(audit_params)}")
+
+
+class Clock:
+    """The scenario runs on 20 and 21 March 2024, the week the provisional agreement text was published."""
+    def __init__(self, start):
+        self.now = start
+
+    def at(self, when):
+        self.now = when
+
+    def __call__(self):
+        self.now += timedelta(seconds=7)
+        return self.now
+
+
+clock = Clock(datetime(2024, 3, 20, 9, 10, tzinfo=timezone.utc))
+gw = AccessGateway(fhir, clock=clock)
 
 say("\n== 1. Before any restriction")
 b = gw.search(GP, P, "Composition")
@@ -58,6 +78,7 @@ say(f"GP Practice B, Composition: {ids(b)}")
 b = gw.search(HOSPITAL, P, "Observation")
 say(f"Hospital A, Observation: {ids(b)} total {b['total']}")
 
+clock.at(datetime(2024, 3, 20, 18, 40, tzinfo=timezone.utc))
 say("\n== 2. The patient restricts test results for everyone except their GP (Article 8e)")
 gw.restrictions[P] = Restriction(P, frozenset({C.TEST_RESULTS}), frozenset({"Organization/gp-b"}))
 _, server_total = fhir.search_all("Observation", {"patient": P, "_count": 100, "_total": "accurate"})
@@ -68,6 +89,7 @@ say(f"Hospital A, DiagnosticReport: {ids(b)} total {b['total']}")
 b = gw.search(GP, P, "Observation")
 say(f"GP Practice B, Observation: {ids(b)} total {b['total']}")
 
+clock.at(datetime(2024, 3, 21, 2, 15, tzinfo=timezone.utc))
 say("\n== 3. Emergency access to restricted data (Article 7a(3))")
 b = gw.search(ED, P, "Observation", emergency=True)
 say(f"Hospital A emergency department, Observation: {ids(b)} total {b['total']}")
@@ -97,4 +119,5 @@ sample = next(e for e in events if any(c["code"] == "ETREAT" for p in e["purpose
 (out / "audit-event-emergency.json").write_text(json.dumps(sample, indent=2))
 (out / "experiments.txt").write_text("\n".join(log) + "\n")
 (out / "results.json").write_text(json.dumps({"server": meta["software"], "auditevent_search": counts,
+                                              "auditevent_search_params": audit_params,
                                               "events": len(events)}, indent=2))

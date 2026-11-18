@@ -22,7 +22,7 @@ NO_LABS = Restriction(P, frozenset({C.TEST_RESULTS}), frozenset({"Organization/g
 
 
 def test_every_seed_resource_maps_to_the_expected_category():
-    got = {r["id"]: C.category_of(r) for r in RESOURCES if r["resourceType"] not in ("Patient", "Organization", "Practitioner")}
+    got = {r["id"]: C.category_of(r) for r in RESOURCES if r["resourceType"] not in ("Patient", "Organization", "Practitioner", "Device")}
     assert got == {"summary-1": C.PATIENT_SUMMARY, "rx-1": C.EPRESCRIPTION, "dispense-1": C.EDISPENSATION,
                    "hba1c-1": C.TEST_RESULTS, "creat-1": C.TEST_RESULTS, "bp-1": None,
                    "lab-report-1": C.TEST_RESULTS, "xray-report-1": C.IMAGING, "discharge-1": C.DISCHARGE_REPORT}
