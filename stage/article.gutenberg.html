@@ -1,280 +1,332 @@
 <!-- wp:paragraph -->
-<p>pgvector 0.6.0 came out on Monday 29 January 2024, and its headline change is that HNSW indexes can now be built by several processes at once. Until 0.5.1 an HNSW build used one core however many the server had, which is why building an index over a few million embeddings could take hours. Supabase's release-day post reported builds up to 30 times faster on unlogged tables and seven to nine times faster on a one-million-row, 1536-dimension OpenAI embedding set.</p>
+<p>Kubernetes 1.29, released on 13 December 2023, turned on native sidecar containers by default. The feature arrived as alpha in 1.28 behind the <code>SidecarContainers</code> feature gate and is beta in 1.29. Amazon EKS added 1.29 on 23 January 2024, and AKS has had 1.29.0 in preview since its 7 February release, so many teams can now use it in a managed cluster for the first time.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
-<p>Those numbers come from large machines. This article measures what changes on a small one: a four-vCPU GitHub Actions runner, Postgres 16.1, and 200,000 vectors of 256 dimensions. It separates the three things that make a build fast, which are memory, the 0.6.0 code itself, and parallel workers, and it covers one setting that makes the parallel build fail outright in Docker's default configuration.</p>
+<p>The change is small in YAML and large in behaviour. A sidecar is now an init container with <code>restartPolicy: Always</code>. Kubernetes starts it before the main containers, keeps it running, stops it after them, and no longer lets it hold a Job open. This article runs seven scenarios on kind clusters and reports what actually happened, including two cases where the new behaviour can still lose data, and one where the same manifest on a 1.28 cluster leaves the Pod stuck forever.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:heading {"level":2} -->
-<h2 class="wp-block-heading">What changed in 0.6.0</h2>
+<h2 class="wp-block-heading">The problem sidecars had before 1.29</h2>
 <!-- /wp:heading -->
 
 <!-- wp:paragraph -->
-<p>The changelog lists parallel HNSW builds, faster HNSW in general, less memory and less WAL during HNSW builds, and a fix for an <code>invalid memory alloc request size</code> error in large builds. It also changes the storage setting of the <code>vector</code> type from <code>extended</code> to <code>external</code>, drops Postgres 11, and moves the Docker image from <code>ankane/pgvector</code> to the <code>pgvector/pgvector</code> organisation with one tag per Postgres major version, such as <code>pgvector/pgvector:0.6.0-pg16</code>. There is no <code>latest</code> tag any more, so a Compose file or Helm chart that pulled <code>ankane/pgvector</code> will not pick up 0.6.0 without an edit.</p>
+<p>A sidecar used to be an ordinary second container in the Pod: a log shipper, a service mesh proxy, a Cloud SQL or database proxy, a secrets agent. Kubernetes treated it as an equal of the application container, which caused three long-standing problems:</p>
 <!-- /wp:paragraph -->
+
+<!-- wp:list -->
+<ul class="wp-block-list">
+<!-- wp:list-item -->
+<li><strong>Jobs never finished.</strong> A Job's Pod completes only when all its containers have exited. The main container finishes; the log shipper does not; the Job hangs. Teams worked around it with shared files, <code>curl</code> calls to a proxy's quit endpoint, or wrapper scripts.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li><strong>No start order.</strong> The application could start before its proxy was ready and fail its first outbound calls.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li><strong>No stop order.</strong> On deletion every container got SIGTERM at once, so a proxy could exit while the application was still draining requests through it.</li>
+<!-- /wp:list-item -->
+</ul>
+<!-- /wp:list -->
 
 <!-- wp:paragraph -->
-<p>The parallel build is controlled by the standard Postgres setting <code>max_parallel_maintenance_workers</code>, which is 2 by default. Postgres also caps workers by table size and by <code>max_parallel_workers</code> (8 by default) and <code>max_worker_processes</code>. The leader process takes part in the build too, so two workers means three processes inserting.</p>
+<p>The first problem is easy to reproduce. This Job runs a five-second task next to a log shipper written as a normal container:</p>
 <!-- /wp:paragraph -->
 
-<!-- wp:heading {"level":2} -->
-<h2 class="wp-block-heading">How the parallel build uses memory</h2>
-<!-- /wp:heading -->
-
-<!-- wp:paragraph -->
-<p>An HNSW build has two phases. While the graph fits in <code>maintenance_work_mem</code>, pgvector builds it in memory and writes it out once at the end. When it no longer fits, pgvector writes what it has and inserts the remaining rows into the on-disk index one at a time, which is much slower. It warns when that happens with a notice: <code>hnsw graph no longer fits into maintenance_work_mem after N tuples</code>. The default <code>maintenance_work_mem</code> is 64 MB, which holds only a few tens of thousands of 256-dimension vectors.</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:paragraph -->
-<p>In a serial build the graph lives in the backend's private memory. In a parallel build it has to be visible to every worker, so pgvector puts it in one Postgres dynamic shared memory segment sized from <code>maintenance_work_mem</code>. This is the sizing code from <code>src/hnswbuild.c</code> at the v0.6.0 tag:</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:code {"language":"c"} -->
-<pre class="wp-block-code"><code lang="c" class="language-c">	/* Leave space for other objects in shared memory */
-	/* Docker has a default limit of 64 MB for shm_size */
-	/* which happens to be the default value of maintenance_work_mem */
-	esthnswarea = maintenance_work_mem * 1024L;
-	estother = 3 * 1024 * 1024;
-	if (esthnswarea &gt; estother)
-		esthnswarea -= estother;</code></pre>
+<!-- wp:code {"language":"yaml"} -->
+<pre class="wp-block-code"><code lang="yaml" class="language-yaml"># The pre-1.29 pattern: the log shipper is just another container.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: classic-sidecar
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: main
+          image: busybox:1.36.1
+          command: ["sh", "-c", "echo working; sleep 5; echo done"]
+        - name: log-shipper
+          image: busybox:1.36.1
+          command: ["sh", "-c", "while true; do sleep 1; done"]</code></pre>
 <!-- /wp:code -->
 
 <!-- wp:paragraph -->
-<p>On Linux, Postgres creates dynamic shared memory segments as files in <code>/dev/shm</code> by default. Docker gives every container a 64 MB <code>/dev/shm</code> unless told otherwise. The comment in the source shows the authors knew: the default <code>maintenance_work_mem</code> fits. Raise <code>maintenance_work_mem</code> to keep a larger graph in memory, which is the README's first piece of advice for build speed, and the segment no longer fits.</p>
+<p>After 60 seconds the Job had no condition at all. The main container had completed, but the Pod was still Running because the log shipper was:</p>
 <!-- /wp:paragraph -->
 
+<!-- wp:code {"language":"text"} -->
+<pre class="wp-block-code"><code lang="text" class="language-text">[v1.29/job-classic] server v1.29.2
+  job_condition: none after 60 s
+  seconds_to_condition: None
+  pod_phase: Running
+  log-shipper     main reason=None exit=None restarts=0
+  main            main reason=Completed exit=0 restarts=0</code></pre>
+<!-- /wp:code -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">The 1.29 model</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>A native sidecar is declared in <code>initContainers</code>, with one new field. Init containers normally run one after another and must exit before the next starts. With <code>restartPolicy: Always</code>, the kubelet starts the container, considers it done as soon as it has started (or, if it has a startup probe, once the probe passes) and moves on, but keeps it running and restarts it if it exits:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:code {"language":"yaml"} -->
+<pre class="wp-block-code"><code lang="yaml" class="language-yaml"># Kubernetes 1.29: the log shipper is an init container with restartPolicy: Always.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: native-sidecar
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      restartPolicy: Never
+      initContainers:
+        - name: log-shipper
+          image: busybox:1.36.1
+          restartPolicy: Always
+          command: ["sh", "-c", "while true; do sleep 1; done"]
+      containers:
+        - name: main
+          image: busybox:1.36.1
+          command: ["sh", "-c", "echo working; sleep 5; echo done"]</code></pre>
+<!-- /wp:code -->
+
 <!-- wp:merpress/mermaidjs -->
-<div class="wp-block-merpress-mermaidjs diagram-source-mermaid"><pre class="mermaid">%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#FFF3E0', 'primaryTextColor': '#232F3E', 'primaryBorderColor': '#FF9900', 'lineColor': '#232F3E', 'clusterBkg': '#F8FAFC', 'clusterBorder': '#CBD5E1', 'edgeLabelBackground': '#FFFFFF', 'nodeTextColor': '#232F3E'}}}%%
-flowchart TD
-    C["CREATE INDEX ... USING hnsw"] --&gt; W{"Parallel workers planned?&lt;br/&gt;max_parallel_maintenance_workers, table size"}
-    W -- "no" --&gt; S["Serial build&lt;br/&gt;graph in backend memory"]
-    W -- "yes" --&gt; D["Shared memory segment&lt;br/&gt;about maintenance_work_mem, in /dev/shm"]
-    D -- "segment cannot be sized" --&gt; E["ERROR 53100&lt;br/&gt;could not resize shared memory segment"]
-    D -- "segment created" --&gt; P["Leader and workers insert&lt;br/&gt;into one shared graph"]
-    S --&gt; F{"Graph still fits&lt;br/&gt;maintenance_work_mem?"}
-    P --&gt; F
-    F -- "yes" --&gt; M["In-memory phase to the end&lt;br/&gt;graph written once"]
-    F -- "no" --&gt; N["NOTICE: graph no longer fits&lt;br/&gt;on-disk inserts, much slower"]
-    classDef compute fill:#FFF3E0,stroke:#FF9900,stroke-width:2px,color:#232F3E
-    classDef data fill:#EBF8FF,stroke:#0073BB,stroke-width:2px,color:#004C74
-    classDef store fill:#F0FFF4,stroke:#1D8102,stroke-width:2px,color:#145202
-    classDef alert fill:#FEF2F2,stroke:#D13212,stroke-width:2px,color:#991B1B
-    class C,W,F data
-    class S,P,D compute
-    class M store
-    class E,N alert</pre></div>
+<div class="wp-block-merpress-mermaidjs diagram-source-mermaid"><pre class="mermaid">%%{init: {'theme': 'base', 'themeVariables': {'signalColor': '#0073BB', 'signalTextColor': '#0F172A', 'actorBkg': '#FFF3E0', 'actorBorder': '#FF9900', 'actorTextColor': '#232F3E', 'noteBkgColor': '#FFF8E7', 'noteBorderColor': '#FF9900', 'noteTextColor': '#232F3E'}}}%%
+sequenceDiagram
+    participant K as kubelet
+    participant S as Sidecar (init, restartPolicy Always)
+    participant M as Main container
+    K-&gt;&gt;S: start
+    Note over K,S: wait for the startup probe, if any
+    K-&gt;&gt;M: start
+    M--&gt;&gt;K: exits (Job finished)
+    K-&gt;&gt;S: SIGTERM
+    S--&gt;&gt;K: exits, or SIGKILL when the grace period runs out
+    Note over K: Pod Succeeded, Job Complete</pre></div>
 <!-- /wp:merpress/mermaidjs -->
+
+<!-- wp:paragraph -->
+<p>You can check whether the gate is on from the API server's metrics, with <code>kubectl get --raw /metrics</code>. The 1.28.7 test cluster reported the alpha gate off:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:code {"language":"text"} -->
+<pre class="wp-block-code"><code lang="text" class="language-text">kubernetes_feature_enabled{name="SidecarContainers",stage="ALPHA"} 0</code></pre>
+<!-- /wp:code -->
+
+<!-- wp:paragraph -->
+<p>and the 1.29.2 cluster reported the beta gate on:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:code {"language":"text"} -->
+<pre class="wp-block-code"><code lang="text" class="language-text">kubernetes_feature_enabled{name="SidecarContainers",stage="BETA"} 1</code></pre>
+<!-- /wp:code -->
 
 <!-- wp:heading {"level":2} -->
 <h2 class="wp-block-heading">Test setup</h2>
 <!-- /wp:heading -->
 
 <!-- wp:paragraph -->
-<p>Both versions were compiled from their git tags on the same base image, the way pgvector's own Dockerfile does it, so the only difference between the two containers is the extension:</p>
+<p>Every scenario ran on kind v0.22.0, released on 14 February 2024, with its default node image <code>kindest/node:v1.29.2</code> pinned by digest. The 1.28 scenario used <code>kindest/node:v1.28.7</code>. kubectl was v1.29.2 and every container used <code>busybox:1.36.1</code>, loaded into the cluster before the tests so image pulls did not affect timings. A Python harness applied each manifest, waited, read container states from the API and deleted what it created.</p>
 <!-- /wp:paragraph -->
-
-<!-- wp:code {"language":"dockerfile"} -->
-<pre class="wp-block-code"><code lang="dockerfile" class="language-dockerfile"># pgvector built from a git tag on a fixed Postgres image, the same way
-# pgvector's own Dockerfile does it (make OPTFLAGS=""), so 0.5.1 and 0.6.0
-# differ only in the extension.
-ARG PG_IMAGE=postgres:16.1-bookworm
-FROM ${PG_IMAGE}
-ARG PGVECTOR_TAG
-
-RUN apt-get update &amp;&amp; \
-    apt-mark hold locales &amp;&amp; \
-    apt-get install -y --no-install-recommends build-essential ca-certificates git postgresql-server-dev-16 &amp;&amp; \
-    git clone --branch "${PGVECTOR_TAG}" --depth 1 https://github.com/pgvector/pgvector.git /tmp/pgvector &amp;&amp; \
-    cd /tmp/pgvector &amp;&amp; \
-    make clean &amp;&amp; \
-    make OPTFLAGS="" &amp;&amp; \
-    make install &amp;&amp; \
-    rm -rf /tmp/pgvector &amp;&amp; \
-    apt-get remove -y build-essential git postgresql-server-dev-16 &amp;&amp; \
-    apt-get autoremove -y &amp;&amp; \
-    apt-mark unhold locales &amp;&amp; \
-    rm -rf /var/lib/apt/lists/*</code></pre>
-<!-- /wp:code -->
 
 <!-- wp:paragraph -->
-<p>The data is synthetic: a seeded Gaussian mixture of 200,000 vectors in 256 dimensions, with 1,000 query vectors drawn from the same mixture but not stored in the table. The plan was to use the ann-benchmarks NYTimes set, but the download was refused from the CI runner, so the benchmark generates its data instead. Anyone can regenerate it from the seed. Recall on synthetic data says nothing about recall on real embeddings; here it is used only to compare builds with each other.</p>
+<p>Status timestamps from the API have one-second resolution, which is too coarse to see a shutdown order. So in the two shutdown scenarios each container appends a line to a file on the node when it gets SIGTERM and when it exits. The timestamp is the node's <code>/proc/uptime</code>, one clock for every container on the node. This is the second sidecar's definition; the others differ only in name and in how long they take to stop:</p>
 <!-- /wp:paragraph -->
 
-<!-- wp:code {"language":"python"} -->
-<pre class="wp-block-code"><code lang="python" class="language-python">def generate(rows: int, queries: int, dim: int = 256, clusters: int = 100,
-             noise: float = 0.8, seed: int = 20240203) -&gt; tuple[np.ndarray, np.ndarray]:
-    rng = np.random.default_rng(seed)
-    centres = rng.normal(size=(clusters, dim)).astype(np.float32)
-
-    def draw(n: int) -&gt; np.ndarray:
-        which = rng.integers(0, clusters, size=n)
-        return (centres[which] + noise * rng.normal(size=(n, dim))).astype(np.float32)
-
-    return draw(rows), draw(queries)</code></pre>
+<!-- wp:code {"language":"yaml"} -->
+<pre class="wp-block-code"><code lang="yaml" class="language-yaml">    - name: second-sidecar
+      image: busybox:1.36.1
+      restartPolicy: Always
+      volumeMounts: [{name: events, mountPath: /events}]
+      command: ["sh", "-c", "log() { echo \"$(cut -d' ' -f1 /proc/uptime) second-sidecar $1\" &gt;&gt; /events/log; }; trap 'log TERM; sleep 1; log exit; exit 0' TERM; log start; while true; do sleep 0.2; done"]</code></pre>
 <!-- /wp:code -->
-
-<!-- wp:paragraph -->
-<p>Every index uses cosine distance with <code>m = 16</code> and <code>ef_construction = 64</code>, pgvector's defaults. Each experiment sets two parameters before <code>CREATE INDEX</code>:</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:code {"language":"python"} -->
-<pre class="wp-block-code"><code lang="python" class="language-python">EXPERIMENTS = {
-    # name: (maintenance_work_mem, max_parallel_maintenance_workers)
-    "default-mem": ("64MB", 3),
-    "serial-1gb": ("1GB", 0),
-    "parallel-1gb": ("1GB", 3),
-    "parallel-1gb-unlogged": ("1GB", 3),  # same, with the table switched to UNLOGGED first
-    "default-workers-1gb": ("1GB", None),  # max_parallel_maintenance_workers left at the server default
-}</code></pre>
-<!-- /wp:code -->
-
-<!-- wp:paragraph -->
-<p>While the index builds, a second connection polls <code>pg_stat_activity</code> five times a second to count parallel workers, so the results show what Postgres actually launched rather than what was requested:</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:code {"language":"python"} -->
-<pre class="wp-block-code"><code lang="python" class="language-python">            while not self.stop.is_set():
-                workers = conn.execute(
-                    "SELECT count(*) FROM pg_stat_activity WHERE backend_type = 'parallel worker'").fetchone()[0]
-                self.max_workers = max(self.max_workers, workers)
-                for (phase,) in conn.execute("SELECT phase FROM pg_stat_progress_create_index").fetchall():
-                    if not self.phases or self.phases[-1] != phase:
-                        self.phases.append(phase)
-                time.sleep(0.2)</code></pre>
-<!-- /wp:code -->
-
-<!-- wp:paragraph -->
-<p>The runner had 4 vCPU and 15 GiB of RAM. Three containers ran one after another: 0.5.1 with a 2 GB <code>/dev/shm</code>, 0.6.0 with a 2 GB <code>/dev/shm</code>, and 0.6.0 with Docker's default. Each build was followed by 1,000 queries at <code>ef_search</code> 40 and 100, and recall@10 was measured against exact neighbours computed with numpy. The packages were the versions available on 2 February 2024: psycopg 3.1.17, numpy 1.26.3 and pytest 8.0.0.</p>
-<!-- /wp:paragraph -->
 
 <!-- wp:heading {"level":2} -->
 <h2 class="wp-block-heading">Test results</h2>
 <!-- /wp:heading -->
 
-<!-- wp:paragraph -->
-<p>The full table as the CI run printed it. <code>seen</code> is the most parallel workers observed during the build:</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:code {"language":"text"} -->
-<pre class="wp-block-code"><code lang="text" class="language-text">container      experiment             mem   workers  seen  build s  WAL MB  index MB  recall ef40  recall ef100  outcome
-0.5.1 shm-2g   default-mem            64MB  3        0     406.0    649     260       0.829        0.931         graph spilled to disk
-0.5.1 shm-2g   serial-1gb             1GB   0        0     123.2    304     260       0.836        0.944         in memory
-0.5.1 shm-2g   parallel-1gb           1GB   3        0     120.1    304     260       0.843        0.942         in memory
-0.6.0 shm-2g   default-mem            64MB  3        3     139.1    254     260       0.836        0.931         graph spilled to disk
-0.6.0 shm-2g   serial-1gb             1GB   0        0     85.0     254     260       0.837        0.936         in memory
-0.6.0 shm-2g   parallel-1gb           1GB   3        3     30.5     254     260       0.840        0.939         in memory
-0.6.0 shm-2g   parallel-1gb           1GB   3        3     31.1     254     260       0.844        0.943         in memory
-0.6.0 shm-2g   serial-1gb             1GB   0        0     85.1     254     260       0.832        0.925         in memory
-0.6.0 shm-2g   parallel-1gb-unlogged  1GB   3        3     30.2     0       260       0.818        0.920         in memory
-0.6.0 shm-64m  parallel-1gb           1GB   3        0     -        -       -         -            -             53100: could not resize shared memory segment "/PostgreSQL.2470067724" to 1070648768 bytes: No space left on device
-0.6.0 shm-64m  default-workers-1gb    1GB   2        0     -        -       -         -            -             53100: could not resize shared memory segment "/PostgreSQL.3254711394" to 1070632320 bytes: No space left on device
-0.6.0 shm-64m  serial-1gb             1GB   0        0     83.1     254     260       0.839        0.940         in memory</code></pre>
-<!-- /wp:code -->
-
 <!-- wp:image {"sizeSlug":"large","linkDestination":"none"} -->
-<figure class="wp-block-image size-large"><img src="{{IMG1_URL}}" alt="Bar chart of HNSW build times: pgvector 0.5.1 with 64 MB maintenance_work_mem 406 seconds, 0.5.1 with 1 GB 123 seconds, 0.6.0 serial 85 seconds, 0.6.0 with 64 MB and three workers 139 seconds, 0.6.0 with 1 GB and three workers 30 seconds"/><figcaption class="wp-element-caption">Memory first, then the 0.6.0 code, then workers.</figcaption></figure>
+<figure class="wp-block-image size-large"><img src="{{IMG2_URL}}" alt="Table of seven native sidecar scenarios and their outcomes on Kubernetes 1.29 and 1.28"/><figcaption class="wp-element-caption">Seven scenarios, one cluster per version.</figcaption></figure>
 <!-- /wp:image -->
 
 <!-- wp:paragraph -->
-<p>Five things stand out.</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:paragraph -->
-<p><strong>Memory matters before workers do.</strong> On 0.5.1, raising <code>maintenance_work_mem</code> from 64 MB to 1 GB took the build from 406 to 123 seconds, 3.3 times faster, with no other change. The 64 MB build spilled after 39,898 tuples. If you are on 0.5.1 and cannot upgrade yet, this is the change to make.</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:paragraph -->
-<p><strong>0.6.0 is faster on one core too.</strong> With workers set to zero, 0.6.0 built the same index in 85 and 85 seconds across two runs, against 123 for 0.5.1: about 1.4 times faster before any parallelism. That is the changelog's "improved performance of HNSW".</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:paragraph -->
-<p><strong>Three workers and the leader gave about 2.8 times on four vCPUs.</strong> The parallel builds took 30.5 and 31.1 seconds. Compared with 0.5.1 at the same memory that is 4.0 times faster, and against 0.5.1 at the default 64 MB it is 13.2 times. The parallel build also helps after the graph spills: 0.6.0 with 64 MB and three workers took 139 seconds against 0.5.1's 406. 0.5.1 launched no workers for HNSW whatever <code>max_parallel_maintenance_workers</code> said.</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:paragraph -->
-<p><strong>Less WAL, and unlogged made no difference here.</strong> An in-memory build wrote 304 MB of WAL on 0.5.1 and 254 MB on 0.6.0, and the spilled 0.5.1 build wrote 649 MB. Switching the table to <code>UNLOGGED</code> cut WAL to zero but the build took 30.2 seconds against 30.5, so on this runner WAL was not the bottleneck. Supabase's 30-times figure for unlogged tables was measured on a much larger machine; whether WAL matters depends on the hardware, so measure before relying on it.</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:paragraph -->
-<p><strong>Recall did not change in any way that matters.</strong> Recall@10 ranged from 0.818 to 0.844 at <code>ef_search</code> 40 and from 0.920 to 0.944 at 100, and the spread between two runs of the same serial build (0.837 and 0.832) was as large as the spread between serial and parallel. HNSW assigns each element a random level, so no two builds are identical. Index size was 260 MB for every build and query latency was the same, about 1.9 ms at <code>ef_search</code> 40 including the round trip from Python.</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:heading {"level":2} -->
-<h2 class="wp-block-heading">Sizing maintenance_work_mem</h2>
-<!-- /wp:heading -->
-
-<!-- wp:paragraph -->
-<p>The spill notices give a way to estimate how much memory a graph needs. The 0.5.1 build held 39,898 vectors in 64 MB before it spilled, about 1,682 bytes per element. A 256-dimension vector takes 1,032 bytes, so with <code>m = 16</code> the graph's own bookkeeping, the neighbour lists and per-element headers, adds roughly 650 bytes. The parallel 0.6.0 build spilled earlier, after 36,876 vectors, because its shared segment is <code>maintenance_work_mem</code> minus a few megabytes for other shared state.</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:paragraph -->
-<p>That gives a rough rule: rows times (4 x dimensions + about 650 bytes) for <code>m = 16</code>, and more for a larger <code>m</code>. For this article's table it is about 0.31 GB, which is why 1 GB was enough. For a million 1536-dimension embeddings it is about 6.3 GB, and a parallel build in a container needs a <code>/dev/shm</code> that large as well. Treat the figure as an estimate from one dataset and watch for the notice: if it appears, the build is in the slow phase, and raising memory will help more than adding workers.</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:paragraph -->
-<p>To watch a long build from another session, <code>pg_stat_progress_create_index</code> works for HNSW. The README lists two HNSW phases, <code>initializing</code> and <code>loading tuples</code>; the view reported the second as <code>building index: loading tuples</code>, and the harness never caught the first, which is too short to see at five polls a second. The parallel workers appear in <code>pg_stat_activity</code> with <code>backend_type = 'parallel worker'</code>, which is the quickest way to confirm a build really is parallel.</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:heading {"level":2} -->
-<h2 class="wp-block-heading">The Docker /dev/shm trap</h2>
-<!-- /wp:heading -->
-
-<!-- wp:paragraph -->
-<p>The third container used Docker's default <code>/dev/shm</code>. Inside it, <code>df</code> reported <code>shm              64M  1.1M   63M   2% /dev/shm</code>. A parallel build with <code>maintenance_work_mem</code> at 1 GB failed at once. This is the error from the server log, without its timestamp:</p>
+<p><strong>Jobs complete, after the sidecar stops.</strong> With the log shipper as a native sidecar the Job reached Complete. It took 40 seconds for a five-second task, and the sidecar's exit code shows why:</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:code {"language":"text"} -->
-<pre class="wp-block-code"><code lang="text" class="language-text">ERROR:  could not resize shared memory segment "/PostgreSQL.2470067724" to 1070648768 bytes: No space left on device</code></pre>
+<pre class="wp-block-code"><code lang="text" class="language-text">[v1.29/job-native] server v1.29.2
+  job_condition: Complete
+  seconds_to_condition: 40.3
+  pod_phase: Succeeded
+  log-shipper     init reason=Error exit=137 restarts=0
+  main            main reason=Completed exit=0 restarts=0</code></pre>
 <!-- /wp:code -->
 
 <!-- wp:paragraph -->
-<p>The build does not fall back to serial. pgvector backs out to a serial build only when Postgres cannot create a segment at all; a segment that is created but cannot be sized raises an error and the <code>CREATE INDEX</code> fails. The same happened with <code>max_parallel_maintenance_workers</code> left at its default of 2, so this is not something only people who ask for workers will see: raise <code>maintenance_work_mem</code> much beyond its 64 MB default inside a default Docker container and the next HNSW build on 0.6.0 fails, where on 0.5.1 it simply ran on one core. A serial build in the same container, with workers set to zero, succeeded in 83 seconds.</p>
+<p>When the main container finished, the kubelet sent the sidecar SIGTERM. The sidecar was a shell loop running as process 1 with no SIGTERM handler, and Linux does not deliver default-action signals to process 1 in a container, so it ignored the signal. The kubelet waited out the 30-second default grace period and then killed it, exit code 137. The Job still counted as Complete; only the main container's result matters. But every run of that Job now takes 30 seconds longer than it should. Real log shippers and proxies handle SIGTERM; check yours does, or set a shorter <code>terminationGracePeriodSeconds</code> on Jobs.</p>
 <!-- /wp:paragraph -->
 
+<!-- wp:paragraph -->
+<p><strong>Start order works, with a startup probe.</strong> The proxy in this scenario creates a ready file after eight seconds, and its startup probe checks for it every second:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:code {"language":"yaml"} -->
+<pre class="wp-block-code"><code lang="yaml" class="language-yaml"># The proxy takes 8 seconds to become ready. Does main wait for it?
+apiVersion: v1
+kind: Pod
+metadata:
+  name: startup-order
+spec:
+  restartPolicy: Never
+  initContainers:
+    - name: proxy
+      image: busybox:1.36.1
+      restartPolicy: Always
+      command: ["sh", "-c", "sleep 8; touch /tmp/ready; while true; do sleep 1; done"]
+      startupProbe:
+        exec:
+          command: ["test", "-f", "/tmp/ready"]
+        periodSeconds: 1
+        failureThreshold: 30
+  containers:
+    - name: main
+      image: busybox:1.36.1
+      command: ["sh", "-c", "sleep 3600"]</code></pre>
+<!-- /wp:code -->
+
+<!-- wp:paragraph -->
+<p>The main container started 9 seconds after the proxy, so the kubelet waited for the probe. Without a startup probe the kubelet moves on as soon as the sidecar's process has started, which is not the same as ready to serve.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p><strong>Shutdown is ordered.</strong> When the Pod was deleted, the main container got SIGTERM first. Only after it had exited did the second sidecar get SIGTERM, and only after that one had exited did the first sidecar get it:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:code {"language":"text"} -->
+<pre class="wp-block-code"><code lang="text" class="language-text">[v1.29/termination-order] server v1.29.2
+  delete_returned_after_s: 6.0
+    0.00s  main            TERM
+    3.01s  main            exit
+    3.05s  second-sidecar  TERM
+    4.05s  second-sidecar  exit
+    4.09s  first-sidecar   TERM
+    5.09s  first-sidecar   exit
+  final first-sidecar   exit=0 reason=Completed
+  final second-sidecar  exit=0 reason=Completed
+  final main            exit=0 reason=Completed</code></pre>
+<!-- /wp:code -->
+
 <!-- wp:image {"sizeSlug":"large","linkDestination":"none"} -->
-<figure class="wp-block-image size-large"><img src="{{IMG2_URL}}" alt="Two panels: in a container with Docker&#x27;s default 64 MB /dev/shm a parallel pgvector 0.6.0 build with 1 GB maintenance_work_mem fails with error 53100; with --shm-size=2g the same build finishes in about 30 seconds"/><figcaption class="wp-element-caption">Same build, two /dev/shm sizes.</figcaption></figure>
+<figure class="wp-block-image size-large"><img src="{{IMG1_URL}}" alt="Timeline of Pod deletion: main gets SIGTERM at 0 seconds and exits at 3.01, the second sidecar gets SIGTERM at 3.05, the first sidecar at 4.09; below, a sidecar killed before it can flush when main uses the whole grace period"/><figcaption class="wp-element-caption">Reverse order of declaration, one at a time.</figcaption></figure>
 <!-- /wp:image -->
 
 <!-- wp:paragraph -->
-<p>There are three ways out, in order of preference:</p>
+<p>The order is the reverse of declaration, so declare sidecars in dependency order: something every other container needs, such as a network proxy, goes first; a log shipper that should outlive the proxy's own logs goes after it.</p>
 <!-- /wp:paragraph -->
 
-<!-- wp:list -->
-<ul class="wp-block-list">
-<!-- wp:list-item -->
-<li><strong>Give the container more shared memory.</strong> <code>docker run --shm-size=2g</code>, <code>shm_size: 2gb</code> in Compose, or in Kubernetes a memory-backed <code>emptyDir</code> volume mounted at <code>/dev/shm</code> with a <code>sizeLimit</code>. Size it at <code>maintenance_work_mem</code> plus headroom for the rest of Postgres's parallel queries. Shared memory counts against the container's memory limit, so raise that too.</li>
-<!-- /wp:list-item -->
-<!-- wp:list-item -->
-<li><strong>Build serially.</strong> <code>SET max_parallel_maintenance_workers = 0</code> in the session that runs <code>CREATE INDEX</code>. You keep 0.6.0's faster serial build and lose only the parallel speed-up.</li>
-<!-- /wp:list-item -->
-<!-- wp:list-item -->
-<li><strong>Keep <code>maintenance_work_mem</code> small.</strong> It avoids the error but brings back the slow on-disk phase, which was the largest cost in every test.</li>
-<!-- /wp:list-item -->
-</ul>
-<!-- /wp:list -->
+<!-- wp:paragraph -->
+<p><strong>The grace period is shared, and sidecars come last.</strong> In the fifth scenario the main container ignores SIGTERM, the grace period is 10 seconds, and the log shipper needs five seconds to flush:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:code {"language":"text"} -->
+<pre class="wp-block-code"><code lang="text" class="language-text">[v1.29/grace-squeeze] server v1.29.2
+  delete_returned_after_s: 13.0
+    0.00s  main            TERM-ignored
+   10.00s  log-shipper     TERM
+  final log-shipper     exit=137 reason=Error
+  final main            exit=137 reason=Error</code></pre>
+<!-- /wp:code -->
+
+<!-- wp:paragraph -->
+<p>The sidecar received SIGTERM only at 10 seconds, when the kubelet killed the main container at the end of the grace period. It never logged "flushed" and ended with exit code 137. The grace period covers the whole Pod, not each container, and sidecars get whatever is left. A main container that drains slowly can use up the time a log shipper needs to send the last lines, which are usually the ones that explain why the Pod was being stopped.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Size the grace period as a sum, not a maximum. Take the main container's drain time, including any <code>preStop</code> hook, because hooks run inside the same grace period. Then add each sidecar's own shutdown time, because the sidecars stop one after another. A web container that drains for 20 seconds, a proxy that needs 2 and a log shipper that needs 5 want at least 27 seconds, so the 30-second default leaves only three to spare. Keeping the main container's drain short is usually cheaper than raising the grace period for every Pod.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p><strong>Sidecars restart even when the Pod does not.</strong> The sixth scenario's sidecar exits with code 1 after three seconds, in a Job whose Pod has <code>restartPolicy: Never</code>. The kubelet restarted it 2 times while the main container ran, and the Job completed:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:code {"language":"text"} -->
+<pre class="wp-block-code"><code lang="text" class="language-text">[v1.29/sidecar-crash] server v1.29.2
+  job_condition: Complete
+  seconds_to_condition: 29.7
+  pod_phase: Succeeded
+  log-shipper     init reason=Error exit=1 restarts=2
+  main            main reason=Completed exit=0 restarts=0</code></pre>
+<!-- /wp:code -->
+
+<!-- wp:paragraph -->
+<p>That is the point of <code>restartPolicy: Always</code> on the container, and it is better behaviour than before, when a crashed log shipper stayed dead for the rest of the Job. It also means a broken sidecar does not fail the Job, so alert on sidecar restart counts.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">The 1.28 trap</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>The last scenario applied the native sidecar Job to a 1.28.7 cluster, where the <code>SidecarContainers</code> gate is off by default. The API server accepted the manifest without an error or a warning, dropped the <code>restartPolicy</code> field, and stored an ordinary init container:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:code {"language":"text"} -->
+<pre class="wp-block-code"><code lang="text" class="language-text">[v1.28/native-on-old] server v1.28.7
+  pod_phase: Pending
+  stored_restartPolicy: (field dropped)
+  job_condition_after_45s: None
+  log-shipper     init reason=None exit=None restarts=0
+  main            main reason=PodInitializing exit=None restarts=0</code></pre>
+<!-- /wp:code -->
+
+<!-- wp:paragraph -->
+<p>An ordinary init container must exit before the main containers start. A log shipper never exits, so the Pod stayed Pending with the main container waiting in PodInitializing. A Job like this sits there until someone notices. This is the standard Kubernetes rule for fields behind a disabled feature gate: they are dropped, not rejected. In practice it means a Helm chart or manifest that uses native sidecars must not reach a cluster older than 1.29, or a 1.28 cluster without the gate. Pin the chart's <code>kubeVersion</code> to <code>&gt;=1.29.0-0</code>, or check <code>kubectl version</code> in the pipeline, so the deploy fails loudly instead of hanging.</p>
+<!-- /wp:paragraph -->
 
 <!-- wp:html -->
-<div class="callout callout-warning" style="background: #fff3e0; border-left: 4px solid #ff9800; padding: 16px 20px; margin: 20px 0; border-radius: 4px;"><div style="display: flex; align-items: start;"><span style="font-size: 24px; margin-right: 12px;">⚠️</span><div><strong style="color: #f57c00; display: block; margin-bottom: 8px;">CHECK BEFORE YOU UPGRADE</strong><p style="margin: 0; color: #333;">If your migration scripts raise <code>maintenance_work_mem</code> before creating HNSW indexes and Postgres runs in a container, upgrading the image to 0.6.0 can turn a slow index build into a failed one. Check the container's <code>/dev/shm</code> size with <code>df -h /dev/shm</code> before the upgrade, not after the first failed migration.</p></div></div></div>
+<div class="callout callout-warning" style="background: #fff3e0; border-left: 4px solid #ff9800; padding: 16px 20px; margin: 20px 0; border-radius: 4px;"><div style="display: flex; align-items: start;"><span style="font-size: 24px; margin-right: 12px;">⚠️</span><div><strong style="color: #f57c00; display: block; margin-bottom: 8px;">CHECK EVERY CLUSTER, NOT JUST ONE</strong><p style="margin: 0; color: #333;">The gate has to be on in the API server and in the kubelet on the node that runs the Pod. During an upgrade, the control plane is usually upgraded before the nodes. Until every node pool is on 1.29, schedule sidecar workloads only onto upgraded nodes, or wait for the upgrade to finish.</p></div></div></div>
 <!-- /wp:html -->
 
 <!-- wp:heading {"level":2} -->
-<h2 class="wp-block-heading">Upgrading an existing database</h2>
+<h2 class="wp-block-heading">Resource requests and service meshes</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Native sidecars also change how the scheduler counts a Pod's resources. An ordinary init container's request only matters during initialisation, so the Pod's effective request is the larger of the biggest init container and the sum of the app containers. A native sidecar runs alongside the app containers, so its request is added to that sum. During initialisation, each later init container's request is counted together with the sidecars declared before it. In practice: a proxy that requested 100m CPU as an ordinary container still costs 100m as a native sidecar, but an init container placed after it now needs room for both.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Most sidecars in production are not written by hand; a service mesh or an agent's mutating webhook injects them. Those keep the old behaviour until the injector puts the container in <code>initContainers</code>. Istio has had experimental support since the 1.19 release in 2023, behind the <code>ENABLE_NATIVE_SIDECARS</code> setting on istiod, which is off by default. Check what your mesh and agents do before expecting the start and stop order described here; a Pod can mix both kinds, and only the native ones get the new lifecycle.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">Migrating an existing sidecar</h2>
 <!-- /wp:heading -->
 
 <!-- wp:list -->
 <ul class="wp-block-list">
 <!-- wp:list-item -->
-<li>Install the 0.6.0 binaries and run <code>ALTER EXTENSION vector UPDATE;</code> in each database. The 0.6.0 upgrade notes list nothing else apart from the Postgres 12 and Docker items below.</li>
+<li>Move the container from <code>containers</code> to <code>initContainers</code> and add <code>restartPolicy: Always</code>. Put it after any ordinary init containers that it depends on, and before any it serves.</li>
 <!-- /wp:list-item -->
 <!-- wp:list-item -->
-<li>On Postgres 12, remove the <code>ALTER TYPE vector SET (STORAGE = external)</code> line from <code>sql/vector--0.5.1--0.6.0.sql</code> before <code>make install</code>, as the README's upgrade notes say.</li>
+<li>Add a startup probe if the main container must not start before the sidecar is ready, such as a proxy that must accept connections first.</li>
 <!-- /wp:list-item -->
 <!-- wp:list-item -->
-<li>Docker users: change the image to <code>pgvector/pgvector:0.6.0-pg16</code> (or your Postgres major) and set the shared memory size at the same time.</li>
+<li>Delete the workarounds: shared-file signals, quit endpoints called from the main container, wrapper scripts that kill the sidecar.</li>
 <!-- /wp:list-item -->
 <!-- wp:list-item -->
-<li>Managed Postgres services ship new pgvector versions on their own schedule; check the version with <code>SELECT extversion FROM pg_extension WHERE extname = 'vector';</code> before planning on parallel builds.</li>
+<li>Check the sidecar handles SIGTERM and exits promptly. If it runs as process 1 through a shell, use <code>exec</code> or an init such as tini so the signal reaches it.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li>Review <code>terminationGracePeriodSeconds</code>: it must cover the main container's drain time plus every sidecar's shutdown time, one after another.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li>Sidecar injectors from service meshes and agents decide where the container goes. Until yours supports native sidecars, injected sidecars keep the old behaviour.</li>
 <!-- /wp:list-item -->
 </ul>
 <!-- /wp:list -->
@@ -284,11 +336,11 @@ RUN apt-get update &amp;&amp; \
 <!-- /wp:heading -->
 
 <!-- wp:table {"className":"is-style-stripes"} -->
-<figure class="wp-block-table is-style-stripes"><table><thead><tr><th>Situation</th><th>What to do</th></tr></thead><tbody><tr><td>Still on 0.5.1</td><td>Raise <code>maintenance_work_mem</code> until the build shows no "no longer fits" notice; that alone was 3 times faster here</td></tr><tr><td>On 0.6.0, bare metal or a VM</td><td>Raise <code>maintenance_work_mem</code> and <code>max_parallel_maintenance_workers</code> towards the core count, minus one for the leader</td></tr><tr><td>On 0.6.0 in Docker or Kubernetes</td><td>Size <code>/dev/shm</code> to at least <code>maintenance_work_mem</code> first, then raise both</td></tr><tr><td>Cannot change /dev/shm</td><td>Build with <code>max_parallel_maintenance_workers = 0</code>; 0.6.0's serial build is still faster than 0.5.1's</td></tr><tr><td>Bulk load with no need for crash safety</td><td>An unlogged table removes WAL, but measure; it did not speed up this build</td></tr><tr><td>Worried about recall</td><td>Measure it on your own data; parallel builds were within run-to-run variation here</td></tr></tbody></table></figure>
+<figure class="wp-block-table is-style-stripes"><table><thead><tr><th>Situation</th><th>Recommendation</th></tr></thead><tbody><tr><td>Jobs or CronJobs with a log shipper or proxy</td><td>Move to native sidecars on 1.29; this is the clearest win</td></tr><tr><td>Long-running Deployments with a mesh proxy</td><td>Worth it for start and stop order; wait for your mesh's support if it injects the proxy</td></tr><tr><td>Clusters still on 1.28</td><td>Do not ship native sidecar manifests there; the Pod hangs in Init</td></tr><tr><td>Sidecar that needs time to flush on shutdown</td><td>Raise terminationGracePeriodSeconds to cover main plus sidecars, and keep main's drain short</td></tr><tr><td>Sidecar that must be ready before the app starts</td><td>Give it a startup probe</td></tr><tr><td>Sidecar that crashes now and then</td><td>Native sidecars restart it; alert on its restart count, because the Job will not fail</td></tr></tbody></table></figure>
 <!-- /wp:table -->
 
 <!-- wp:html -->
-<div class="callout callout-note" style="background: #f5f5f5; border-left: 4px solid #607d8b; padding: 16px 20px; margin: 20px 0; border-radius: 4px;"><div style="display: flex; align-items: start;"><span style="font-size: 24px; margin-right: 12px;">📝</span><div><strong style="color: #455a64; display: block; margin-bottom: 8px;">HOW THIS WAS CHECKED</strong><p style="margin: 0; color: #333;">Everything above comes from one GitHub Actions run (<a href="https://github.com/nithinmohantk/blog-samples-working-repo/actions/runs/44351361185" target="_blank" rel="noopener">run</a>) on a 4 vCPU runner: pgvector 0.5.1 and 0.6.0 built from their git tags on <code>postgres:16.1-bookworm</code>, Python 3.12 with packages available on 2 February 2024. The table, the error line and the <code>df</code> output are copied from that run's files. The data is synthetic, so recall is only compared between builds. The source excerpt is from <code>src/hnswbuild.c</code> at the v0.6.0 tag. Release dates come from the pgvector repository's tags and changelog.</p></div></div></div>
+<div class="callout callout-note" style="background: #f5f5f5; border-left: 4px solid #607d8b; padding: 16px 20px; margin: 20px 0; border-radius: 4px;"><div style="display: flex; align-items: start;"><span style="font-size: 24px; margin-right: 12px;">📝</span><div><strong style="color: #455a64; display: block; margin-bottom: 8px;">HOW THIS WAS CHECKED</strong><p style="margin: 0; color: #333;">All seven scenarios ran in one GitHub Actions run (<a href="https://github.com/nithinmohantk/blog-samples-working-repo/actions/runs/44361720285" target="_blank" rel="noopener">run</a>) on kind v0.22.0 with node images v1.29.2 and v1.28.7, kubectl v1.29.2 and busybox 1.36.1. The outputs above are copied from that run's summary file and metric files. kind only, one node: no managed service, no service mesh, and no cluster with mixed control-plane and node versions was tested. Release dates come from the Kubernetes, AWS and AKS announcements.</p></div></div></div>
 <!-- /wp:html -->
 
 <!-- wp:heading {"level":2} -->
@@ -298,29 +350,29 @@ RUN apt-get update &amp;&amp; \
 <!-- wp:list -->
 <ul class="wp-block-list">
 <!-- wp:list-item -->
-<li>On a 4 vCPU runner, pgvector 0.6.0 with three workers and enough memory built a 200,000-row HNSW index 4.0 times faster than 0.5.1 with the same memory.</li>
+<li>In Kubernetes 1.29 a sidecar is an init container with restartPolicy: Always; the feature is beta and on by default.</li>
 <!-- /wp:list-item -->
 <!-- wp:list-item -->
-<li>Memory comes first: a build that spills out of maintenance_work_mem is slow in every version, parallel or not.</li>
+<li>Jobs with native sidecars complete, but only after the sidecar exits, so a sidecar that ignores SIGTERM adds the full grace period to every run.</li>
 <!-- /wp:list-item -->
 <!-- wp:list-item -->
-<li>0.6.0's serial build is faster than 0.5.1's too, so upgrading helps even where parallel builds are not possible.</li>
+<li>Start order needs a startup probe; stop order is automatic, main containers first and then sidecars in reverse order of declaration.</li>
 <!-- /wp:list-item -->
 <!-- wp:list-item -->
-<li>In Docker, a parallel build needs /dev/shm at least as large as maintenance_work_mem; with the 64 MB default it fails with error 53100 instead of falling back.</li>
+<li>The grace period is shared and sidecars come last; a slow main container can leave a log shipper no time to flush.</li>
 <!-- /wp:list-item -->
 <!-- wp:list-item -->
-<li>Recall, index size and query latency were the same for serial and parallel builds, within the variation between two runs of the same build.</li>
+<li>On 1.28 with the gate off, the API silently drops restartPolicy and the Pod waits in Init forever.</li>
 <!-- /wp:list-item -->
 </ul>
 <!-- /wp:list -->
 
 <!-- wp:paragraph -->
-<p>If you have run parallel builds on bigger machines and seen something different, let me know in the comments below.</p>
+<p>If you have moved a mesh proxy or log shipper to a native sidecar and hit something not covered here, let me know in the comments below.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:html -->
-<div class="callout callout-tip sample-code-link" style="background: #e8f5e9; border-left: 4px solid #4caf50; padding: 16px 20px; margin: 20px 0; border-radius: 4px;"><div style="display: flex; align-items: start;"><span style="font-size: 24px; margin-right: 12px;">💡</span><div><strong style="color: #388e3c; display: block; margin-bottom: 8px;">GET THE CODE</strong><p style="margin: 0; color: #333;">The complete sample for this article is on GitHub: <a href="https://github.com/nithinmohantk/blog-samples-working-repo/tree/main/pgvector-060-parallel-hnsw" target="_blank" rel="noopener">nithinmohantk/blog-samples-working-repo/pgvector-060-parallel-hnsw</a>. Clone it with <code>git clone https://github.com/nithinmohantk/blog-samples-working-repo.git</code> and open the <code>pgvector-060-parallel-hnsw</code> folder. Its README says how to run it and what has been verified.</p></div></div></div>
+<div class="callout callout-tip sample-code-link" style="background: #e8f5e9; border-left: 4px solid #4caf50; padding: 16px 20px; margin: 20px 0; border-radius: 4px;"><div style="display: flex; align-items: start;"><span style="font-size: 24px; margin-right: 12px;">💡</span><div><strong style="color: #388e3c; display: block; margin-bottom: 8px;">GET THE CODE</strong><p style="margin: 0; color: #333;">The complete sample for this article is on GitHub: <a href="https://github.com/nithinmohantk/blog-samples-working-repo/tree/main/k8s-129-native-sidecars" target="_blank" rel="noopener">nithinmohantk/blog-samples-working-repo/k8s-129-native-sidecars</a>. Clone it with <code>git clone https://github.com/nithinmohantk/blog-samples-working-repo.git</code> and open the <code>k8s-129-native-sidecars</code> folder. Its README says how to run it and what has been verified.</p></div></div></div>
 <!-- /wp:html -->
 
 <!-- wp:heading {"level":2} -->
@@ -329,30 +381,28 @@ RUN apt-get update &amp;&amp; \
 
 <!-- wp:html -->
 <dl style="background:#F6F8FA;border:1px solid #D0D7DE;border-radius:8px;padding:20px 24px;margin:24px 0">
-  <dt style="font-weight:700;margin-top:12px;color:#24292F">HNSW</dt>
-  <dd style="margin:4px 0 0 20px;color:#57606A">Hierarchical Navigable Small World, a graph-based approximate nearest neighbour index.</dd>
-  <dt style="font-weight:700;margin-top:12px;color:#24292F">pgvector</dt>
-  <dd style="margin:4px 0 0 20px;color:#57606A">Postgres extension that adds a vector type, distance operators and IVFFlat and HNSW indexes.</dd>
-  <dt style="font-weight:700;margin-top:12px;color:#24292F">maintenance_work_mem</dt>
-  <dd style="margin:4px 0 0 20px;color:#57606A">Postgres setting for memory used by maintenance operations such as CREATE INDEX; 64 MB by default.</dd>
-  <dt style="font-weight:700;margin-top:12px;color:#24292F">max_parallel_maintenance_workers</dt>
-  <dd style="margin:4px 0 0 20px;color:#57606A">Postgres setting for how many parallel workers a utility command such as CREATE INDEX may use; 2 by default.</dd>
-  <dt style="font-weight:700;margin-top:12px;color:#24292F">Leader</dt>
-  <dd style="margin:4px 0 0 20px;color:#57606A">The backend running the command; in a parallel build it inserts rows alongside the workers.</dd>
-  <dt style="font-weight:700;margin-top:12px;color:#24292F">Dynamic shared memory (DSM)</dt>
-  <dd style="margin:4px 0 0 20px;color:#57606A">Shared memory segments Postgres creates on demand, on Linux as files in /dev/shm by default.</dd>
-  <dt style="font-weight:700;margin-top:12px;color:#24292F">/dev/shm</dt>
-  <dd style="margin:4px 0 0 20px;color:#57606A">Memory-backed filesystem for shared memory; 64 MB by default in a Docker container.</dd>
-  <dt style="font-weight:700;margin-top:12px;color:#24292F">m</dt>
-  <dd style="margin:4px 0 0 20px;color:#57606A">HNSW parameter: the number of connections per element per layer; 16 by default in pgvector.</dd>
-  <dt style="font-weight:700;margin-top:12px;color:#24292F">ef_construction</dt>
-  <dd style="margin:4px 0 0 20px;color:#57606A">HNSW parameter: candidate list size while building; 64 by default in pgvector.</dd>
-  <dt style="font-weight:700;margin-top:12px;color:#24292F">ef_search</dt>
-  <dd style="margin:4px 0 0 20px;color:#57606A">HNSW query setting: candidate list size while searching; 40 by default in pgvector.</dd>
-  <dt style="font-weight:700;margin-top:12px;color:#24292F">Recall@10</dt>
-  <dd style="margin:4px 0 0 20px;color:#57606A">Share of the true ten nearest neighbours that the index returns among its top ten.</dd>
-  <dt style="font-weight:700;margin-top:12px;color:#24292F">WAL</dt>
-  <dd style="margin:4px 0 0 20px;color:#57606A">Postgres write-ahead log; an unlogged table writes none, and is emptied after a crash.</dd>
+  <dt style="font-weight:700;margin-top:12px;color:#24292F">Sidecar container</dt>
+  <dd style="margin:4px 0 0 20px;color:#57606A">A helper container that runs alongside the application container in the same Pod, such as a log shipper or proxy.</dd>
+  <dt style="font-weight:700;margin-top:12px;color:#24292F">Native sidecar</dt>
+  <dd style="margin:4px 0 0 20px;color:#57606A">An init container with restartPolicy: Always, supported from Kubernetes 1.28 (alpha) and on by default from 1.29 (beta).</dd>
+  <dt style="font-weight:700;margin-top:12px;color:#24292F">Init container</dt>
+  <dd style="margin:4px 0 0 20px;color:#57606A">A container that runs before the Pod's main containers; ordinary init containers must exit successfully first.</dd>
+  <dt style="font-weight:700;margin-top:12px;color:#24292F">SidecarContainers</dt>
+  <dd style="margin:4px 0 0 20px;color:#57606A">The feature gate that controls native sidecars; it must be on in the API server and the kubelet.</dd>
+  <dt style="font-weight:700;margin-top:12px;color:#24292F">Feature gate</dt>
+  <dd style="margin:4px 0 0 20px;color:#57606A">A named switch that turns a Kubernetes feature on or off; alpha gates are off by default, beta gates usually on.</dd>
+  <dt style="font-weight:700;margin-top:12px;color:#24292F">Startup probe</dt>
+  <dd style="margin:4px 0 0 20px;color:#57606A">A check the kubelet runs until it passes; for a native sidecar it decides when the next container may start.</dd>
+  <dt style="font-weight:700;margin-top:12px;color:#24292F">terminationGracePeriodSeconds</dt>
+  <dd style="margin:4px 0 0 20px;color:#57606A">How long the kubelet waits after SIGTERM before killing the Pod's containers; 30 seconds by default.</dd>
+  <dt style="font-weight:700;margin-top:12px;color:#24292F">SIGTERM</dt>
+  <dd style="margin:4px 0 0 20px;color:#57606A">The signal asking a process to stop; SIGKILL follows if it has not stopped when the grace period ends.</dd>
+  <dt style="font-weight:700;margin-top:12px;color:#24292F">Exit code 137</dt>
+  <dd style="margin:4px 0 0 20px;color:#57606A">128 plus 9: the process was killed with SIGKILL.</dd>
+  <dt style="font-weight:700;margin-top:12px;color:#24292F">kind</dt>
+  <dd style="margin:4px 0 0 20px;color:#57606A">Kubernetes in Docker, a tool that runs a cluster's nodes as Docker containers.</dd>
+  <dt style="font-weight:700;margin-top:12px;color:#24292F">Job</dt>
+  <dd style="margin:4px 0 0 20px;color:#57606A">A Kubernetes workload that runs Pods to completion and records whether they succeeded.</dd>
 </dl>
 <!-- /wp:html -->
 
@@ -362,13 +412,12 @@ RUN apt-get update &amp;&amp; \
 
 <!-- wp:html -->
 <ul style="background:#F6F8FA;border:1px solid #D0D7DE;border-radius:8px;padding:20px 24px;margin:24px 0;list-style:none">
-  <li style="margin:10px 0"><a href="https://github.com/pgvector/pgvector/blob/v0.6.0/CHANGELOG.md" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; pgvector CHANGELOG at v0.6.0</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— Release date 29 January 2024 and the list of changes</span></li>
-  <li style="margin:10px 0"><a href="https://github.com/pgvector/pgvector/blob/v0.6.0/README.md" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; pgvector README at v0.6.0</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— Index build time, parallel workers and the 0.6.0 upgrade notes</span></li>
-  <li style="margin:10px 0"><a href="https://github.com/pgvector/pgvector/blob/v0.6.0/src/hnswbuild.c" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; src/hnswbuild.c at v0.6.0</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— How the parallel build sizes its shared memory segment</span></li>
-  <li style="margin:10px 0"><a href="https://supabase.com/blog/pgvector-fast-builds" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; pgvector 0.6.0: 30x faster with parallel index builds</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— Supabase&#x27;s release-day benchmarks</span></li>
-  <li style="margin:10px 0"><a href="https://www.postgresql.org/about/news/pgvector-060-released-2799/" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; pgvector 0.6.0 Released</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— PostgreSQL news announcement, 30 January 2024</span></li>
-  <li style="margin:10px 0"><a href="https://www.postgresql.org/docs/16/runtime-config-resource.html" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; PostgreSQL 16: Resource Consumption</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— maintenance_work_mem, max_parallel_maintenance_workers and dynamic_shared_memory_type</span></li>
-  <li style="margin:10px 0"><a href="https://docs.docker.com/engine/reference/run/" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; Docker run reference</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— The --shm-size option</span></li>
-  <li style="margin:10px 0"><a href="https://github.com/nithinmohantk/blog-samples-working-repo/tree/main/pgvector-060-parallel-hnsw" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; Sample code for this article</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— Dockerfile, benchmark harness, results and tests</span></li>
+  <li style="margin:10px 0"><a href="https://kubernetes.io/blog/2023/12/13/kubernetes-v1-29-release/" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; Kubernetes v1.29: Mandala</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— Release announcement, 13 December 2023</span></li>
+  <li style="margin:10px 0"><a href="https://v1-29.docs.kubernetes.io/docs/concepts/workloads/pods/sidecar-containers/" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; Sidecar Containers (v1.29 documentation)</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— The feature gate, start order and termination order</span></li>
+  <li style="margin:10px 0"><a href="https://github.com/kubernetes/enhancements/tree/master/keps/sig-node/753-sidecar-containers" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; KEP-753: Sidecar Containers</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— Design and graduation history</span></li>
+  <li style="margin:10px 0"><a href="https://aws.amazon.com/about-aws/whats-new/2024/01/amazon-eks-eks-distro-kubernetes-version-1-29" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; Amazon EKS and Amazon EKS Distro now support Kubernetes version 1.29</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— What&#x27;s New, 23 January 2024</span></li>
+  <li style="margin:10px 0"><a href="https://github.com/Azure/AKS/releases/tag/2024-02-07" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; AKS release 2024-02-07</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— AKS 1.29.0 in preview</span></li>
+  <li style="margin:10px 0"><a href="https://github.com/kubernetes-sigs/kind/releases/tag/v0.22.0" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; kind v0.22.0</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— Release of 14 February 2024 used for the tests</span></li>
+  <li style="margin:10px 0"><a href="https://github.com/nithinmohantk/blog-samples-working-repo/tree/main/k8s-129-native-sidecars" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; Sample code for this article</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— Manifests, harness, results and tests</span></li>
 </ul>
 <!-- /wp:html -->

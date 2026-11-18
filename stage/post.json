@@ -1,6 +1,6 @@
 {
-  "title": "pgvector 0.6.0 Parallel HNSW Builds: What Speeds Up, and the Docker /dev/shm Trap",
-  "slug": "pgvector-0-6-0-parallel-hnsw-builds-docker-shm",
-  "date": "2024-02-03T09:00:00",
-  "excerpt": "pgvector 0.6.0 builds HNSW indexes in parallel. On a 4 vCPU runner it built a 200,000-row index 4.0 times faster than 0.5.1, but in Docker's default 64 MB /dev/shm a parallel build with a larger maintenance_work_mem fails with error 53100."
+  "title": "Kubernetes 1.29 Native Sidecars: Jobs That Finish, Ordered Shutdown and the 1.28 Trap",
+  "slug": "kubernetes-1-29-native-sidecars-jobs-shutdown-order",
+  "date": "2024-02-17T09:00:00",
+  "excerpt": "Kubernetes 1.29 turns on native sidecars. Seven scenarios on kind: Jobs now complete, shutdown runs main first and then sidecars in reverse, a slow main container can starve a log shipper of its grace period, and on 1.28 the same manifest hangs in Init."
 }
