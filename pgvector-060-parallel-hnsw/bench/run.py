@@ -21,7 +21,7 @@ import numpy as np
 import psycopg
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from dataset import download, exact_neighbours, load, recall_at_k, sha256  # noqa: E402
+from dataset import exact_neighbours, fingerprint, generate, recall_at_k  # noqa: E402
 
 M, EF_CONSTRUCTION = 16, 64
 EF_SEARCH = (40, 100)
@@ -31,6 +31,7 @@ EXPERIMENTS = {
     "default-mem": ("64MB", 3),
     "serial-1gb": ("1GB", 0),
     "parallel-1gb": ("1GB", 3),
+    "parallel-1gb-unlogged": ("1GB", 3),  # same, with the table switched to UNLOGGED first
 }
 
 
@@ -107,6 +108,8 @@ def build_and_measure(dsn: str, label: str, name: str, test: np.ndarray, truth: 
         result.pgvector = conn.execute("SELECT extversion FROM pg_extension WHERE extname = 'vector'").fetchone()[0]
         conn.add_notice_handler(lambda d: result.notices.append(f"{d.severity}: {d.message_primary}"))
         conn.execute("DROP INDEX IF EXISTS items_embedding_hnsw")
+        unlogged = name.endswith("-unlogged")
+        conn.execute("ALTER TABLE items SET UNLOGGED" if unlogged else "ALTER TABLE items SET LOGGED")
         conn.execute("CHECKPOINT")
         conn.execute(f"SET maintenance_work_mem = '{mem}'")
         conn.execute(f"SET max_parallel_maintenance_workers = {workers}")
@@ -148,14 +151,12 @@ def main(argv: list[str] | None = None) -> list[dict]:
     parser.add_argument("--dsn", required=True)
     parser.add_argument("--label", required=True)
     parser.add_argument("--experiments", nargs="+", choices=list(EXPERIMENTS), required=True)
-    parser.add_argument("--data", type=Path, default=Path("data/nytimes-256-angular.hdf5"))
     parser.add_argument("--rows", type=int, default=200_000)
     parser.add_argument("--queries", type=int, default=1_000)
     parser.add_argument("--out", type=Path, required=True)
     args = parser.parse_args(argv)
 
-    path = download(args.data)
-    train, test = load(path, args.rows, args.queries)
+    train, test = generate(args.rows, args.queries)
     truth = exact_neighbours(train, test)
     with psycopg.connect(args.dsn, autocommit=True) as conn:
         ensure_table(conn, train)
@@ -165,8 +166,9 @@ def main(argv: list[str] | None = None) -> list[dict]:
         print(json.dumps(asdict(result)), flush=True)
         results.append(asdict(result))
     existing = json.loads(args.out.read_text()) if args.out.exists() else {"runs": []}
-    existing["dataset"] = {"file": path.name, "sha256": sha256(path), "rows": args.rows, "queries": args.queries,
-                           "dimensions": int(train.shape[1]), "m": M, "ef_construction": EF_CONSTRUCTION}
+    existing["dataset"] = {"kind": "synthetic Gaussian mixture, see bench/dataset.py", "sha256": fingerprint(train, test),
+                           "rows": args.rows, "queries": args.queries, "dimensions": int(train.shape[1]),
+                           "m": M, "ef_construction": EF_CONSTRUCTION}
     existing["runs"].extend(results)
     args.out.write_text(json.dumps(existing, indent=2))
     return results

@@ -7,7 +7,7 @@ import numpy as np
 import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "bench"))
-from dataset import exact_neighbours, recall_at_k  # noqa: E402
+from dataset import exact_neighbours, fingerprint, generate, recall_at_k  # noqa: E402
 from run import binary_copy  # noqa: E402
 
 
@@ -62,3 +62,16 @@ def test_binary_copy_round_trips_through_pgvector():
     assert [r[0] for r in rows] == list(range(50))
     loaded = np.array([[float(x) for x in r[1].strip("[]").split(",")] for r in rows], dtype=np.float32)
     assert (loaded == vectors).all()
+
+
+def test_generated_data_is_reproducible_and_clustered():
+    a_train, a_test = generate(2_000, 50, dim=32, clusters=10)
+    b_train, b_test = generate(2_000, 50, dim=32, clusters=10)
+    assert fingerprint(a_train, a_test) == fingerprint(b_train, b_test)
+    truth = exact_neighbours(a_train, a_test, k=10)
+    # Nearest neighbours should be much closer than a random row.
+    unit = a_train / np.linalg.norm(a_train, axis=1, keepdims=True)
+    q = a_test / np.linalg.norm(a_test, axis=1, keepdims=True)
+    near = np.mean([q[i] @ unit[truth[i, 0]] for i in range(len(q))])
+    rand = np.mean(q @ unit[:50].T)
+    assert near > rand + 0.3

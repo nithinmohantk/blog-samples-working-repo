@@ -51,7 +51,7 @@ stop pg051
 echo "== 0.6.0, /dev/shm 2 GB"
 start bench-pgvector:0.6.0 pg060 --shm-size=2g || status=1
 PGVECTOR_DSN="$dsn" python -m pytest -q tests -k round_trips 2>&1 | tee "$out/copy-round-trip.txt"
-run "0.6.0 shm-2g" default-mem serial-1gb parallel-1gb parallel-1gb serial-1gb
+run "0.6.0 shm-2g" default-mem serial-1gb parallel-1gb parallel-1gb serial-1gb parallel-1gb-unlogged
 stop pg060
 
 echo "== 0.6.0, Docker's default /dev/shm (64 MB)"

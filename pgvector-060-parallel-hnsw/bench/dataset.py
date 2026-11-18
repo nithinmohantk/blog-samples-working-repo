@@ -1,44 +1,39 @@
-"""Vectors and exact ground truth for the benchmark.
+"""Synthetic vectors and exact ground truth for the benchmark.
 
-Uses the ann-benchmarks nytimes-256-angular file (256-dimension, cosine).
-The first `rows` training vectors are the table; the first `queries` test
-vectors are the queries. Ground truth is recomputed exactly for that subset,
-because the file's own neighbours refer to the full training set.
+The vectors are a seeded Gaussian mixture: cluster centres drawn at random,
+points scattered around them with noise about as large as the spread between
+centres, so neighbours are neither trivial nor random. Queries come from the
+same mixture but are not in the table. Anyone can regenerate the exact same
+data from the seed; no download is needed.
+
+Recall measured on this data is for comparing builds with each other (0.5.1
+against 0.6.0, serial against parallel). It is not a claim about recall on
+real embeddings.
 """
 from __future__ import annotations
 
 import hashlib
-import urllib.request
-from pathlib import Path
 
-import h5py
 import numpy as np
 
-URL = "http://ann-benchmarks.com/nytimes-256-angular.hdf5"
+
+def generate(rows: int, queries: int, dim: int = 256, clusters: int = 100,
+             noise: float = 0.8, seed: int = 20240203) -> tuple[np.ndarray, np.ndarray]:
+    rng = np.random.default_rng(seed)
+    centres = rng.normal(size=(clusters, dim)).astype(np.float32)
+
+    def draw(n: int) -> np.ndarray:
+        which = rng.integers(0, clusters, size=n)
+        return (centres[which] + noise * rng.normal(size=(n, dim))).astype(np.float32)
+
+    return draw(rows), draw(queries)
 
 
-def download(dest: Path, url: str = URL) -> Path:
-    if not dest.exists():
-        dest.parent.mkdir(parents=True, exist_ok=True)
-        tmp = dest.with_suffix(".part")
-        urllib.request.urlretrieve(url, tmp)
-        tmp.rename(dest)
-    return dest
-
-
-def sha256(path: Path) -> str:
+def fingerprint(*arrays: np.ndarray) -> str:
     digest = hashlib.sha256()
-    with path.open("rb") as handle:
-        for chunk in iter(lambda: handle.read(1 << 20), b""):
-            digest.update(chunk)
+    for array in arrays:
+        digest.update(np.ascontiguousarray(array).tobytes())
     return digest.hexdigest()
-
-
-def load(path: Path, rows: int, queries: int) -> tuple[np.ndarray, np.ndarray]:
-    with h5py.File(path, "r") as f:
-        train = np.asarray(f["train"][:rows], dtype=np.float32)
-        test = np.asarray(f["test"][:queries], dtype=np.float32)
-    return train, test
 
 
 def exact_neighbours(train: np.ndarray, test: np.ndarray, k: int = 10, batch: int = 100) -> np.ndarray:
