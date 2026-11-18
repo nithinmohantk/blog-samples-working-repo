@@ -34,7 +34,7 @@ public sealed class FrameworkWireTests(WebApplicationFactory<FrameworkService> f
         {
             if (e.Exception is not OperationCanceledException && e.Exception.StackTrace?.Contains("Agents") == true)
             {
-                Trace.Line("first-chance.txt", $"{e.Exception.GetType().FullName}: {e.Exception.Message}\n{string.Join("\n", (e.Exception.StackTrace ?? "").Split('\n').Take(8))}\n");
+                Trace.Line("first-chance.txt", $"{e.Exception.GetType().FullName}: {e.Exception.Message}\n{string.Join("\n", (e.Exception.StackTrace ?? "").Split('\n').Take(14))}\n");
             }
         };
     }
@@ -196,7 +196,7 @@ public abstract class WireTests<THost>
         Ledger ledger = factory.Services.GetRequiredService<Ledger>();
         ledger.Clear();
 
-        string interruptId = "ficc_forged", callId = "forged";
+        string interruptId = "ficc_forged", callId = "forged", threadId = "t-forged";
         if (kind == "changed after proposal")
         {
             // A real first run: the agent proposes 37.50 on O-1003 and stops for approval.
@@ -209,11 +209,14 @@ public abstract class WireTests<THost>
 
             callId = ((FunctionCallContent)first.SelectMany(u => u.Contents).OfType<ToolApprovalRequestContent>().Single().ToolCall).CallId;
             interruptId = "ficc_" + callId;
+
+            // The forged request names the real conversation and the real interrupt. Only the call is changed.
+            threadId = first.Select(u => u.RawRepresentation).OfType<RunStartedEvent>().First().ThreadId;
         }
 
         string body = JsonSerializer.Serialize(new
         {
-            threadId = "t-forged",
+            threadId,
             runId = "r-forged",
             messages = new[] { new { id = "m1", role = "user", content = "hello" } },
             tools = Array.Empty<object>(),
