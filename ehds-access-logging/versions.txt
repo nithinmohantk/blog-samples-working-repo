@@ -1,0 +1,4 @@
+image hapiproject/hapi:v7.0.3
+hapiproject/hapi@sha256:73ff82fec42e5cbb7e66338d47af09ba91c140e98beeaee41a5459572d5ae1ce
+Python 3.12.16
+pytest 8.1.1

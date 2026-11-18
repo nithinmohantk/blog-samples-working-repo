@@ -1,0 +1,44 @@
+{
+  "server": {
+    "name": "HAPI FHIR Server",
+    "version": "7.0.2"
+  },
+  "auditevent_search": {
+    "entity": 6,
+    "patient": 6,
+    "agent (hospital doctor)": 3,
+    "date ge 2024-01-01": 6,
+    "purpose ETREAT": "error: HTTP 400: {\n  \"resourceType\": \"OperationOutcome\",\n  \"issue\": [ {\n    \"severity\": \"error\",\n    \"code\": \"processing\",\n    \"diagnostics\": \"HAPI-0524: Unknow"
+  },
+  "auditevent_search_params": [
+    "_content",
+    "_filter",
+    "_has",
+    "_id",
+    "_lastUpdated",
+    "_profile",
+    "_security",
+    "_source",
+    "_tag",
+    "_text",
+    "action",
+    "address",
+    "agent",
+    "agent-name",
+    "agent-role",
+    "altid",
+    "date",
+    "entity",
+    "entity-name",
+    "entity-role",
+    "entity-type",
+    "outcome",
+    "patient",
+    "policy",
+    "site",
+    "source",
+    "subtype",
+    "type"
+  ],
+  "events": 6
+}

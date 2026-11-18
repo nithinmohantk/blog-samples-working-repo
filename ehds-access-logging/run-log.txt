@@ -1,0 +1,45 @@
+server: HAPI FHIR Server 7.0.2, FHIR 4.0.1
+loaded 18 resources for Patient/ehds-p1
+AuditEvent search parameters in the CapabilityStatement: _content, _filter, _has, _id, _lastUpdated, _profile, _security, _source, _tag, _text, action, address, agent, agent-name, agent-role, altid, date, entity, entity-name, entity-role, entity-type, outcome, patient, policy, site, source, subtype, type
+
+== 1. Before any restriction
+GP Practice B, Composition: ['summary-1']
+Hospital A, Observation: ['hba1c-1', 'creat-1', 'bp-1'] total 3
+
+== 2. The patient restricts test results for everyone except their GP (Article 8e)
+Hospital A, Observation: ['bp-1'] total 1   (the server's own total: 3)
+Hospital A, DiagnosticReport: ['xray-report-1'] total 1
+GP Practice B, Observation: ['hba1c-1', 'creat-1', 'bp-1'] total 3
+
+== 3. Emergency access to restricted data (Article 7a(3))
+Hospital A emergency department, Observation: ['hba1c-1', 'creat-1', 'bp-1'] total 3
+
+== 4. Finding the patient's access log on the server
+AuditEvent?entity: 6
+AuditEvent?patient: 6
+AuditEvent?agent (hospital doctor): 3
+AuditEvent?date ge 2024-01-01: 6
+AuditEvent?purpose ETREAT: error: HTTP 400: {
+  "resourceType": "OperationOutcome",
+  "issue": [ {
+    "severity": "error",
+    "code": "processing",
+    "diagnostics": "HAPI-0524: Unknow
+
+== 5. Article 8f report for the patient
+When (UTC)               Provider                   Who                Data
+2024-03-21 02:15:07      Hospital A                 Dr Emergency-A     other, test-results  EMERGENCY ACCESS
+2024-03-20 18:40:21      GP Practice B              Dr GP-B            other, test-results
+2024-03-20 18:40:14      Hospital A                 Dr Hospital-A      imaging
+2024-03-20 18:40:07      Hospital A                 Dr Hospital-A      other
+2024-03-20 09:10:14      Hospital A                 Dr Hospital-A      other, test-results
+2024-03-20 09:10:07      GP Practice B              Dr GP-B            patient-summary
+
+With the individual withheld (a Member State restriction under Article 8f):
+When (UTC)               Provider                   Who                Data
+2024-03-21 02:15:07      Hospital A                 -                  other, test-results  EMERGENCY ACCESS
+2024-03-20 18:40:21      GP Practice B              -                  other, test-results
+2024-03-20 18:40:14      Hospital A                 -                  imaging
+2024-03-20 18:40:07      Hospital A                 -                  other
+2024-03-20 09:10:14      Hospital A                 -                  other, test-results
+2024-03-20 09:10:07      GP Practice B              -                  patient-summary
