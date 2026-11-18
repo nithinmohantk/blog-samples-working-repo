@@ -21,7 +21,7 @@ builder.Services.Configure<JsonOptions>(options =>
 
 builder.Services.AddSingleton<OrderBook>();
 builder.Services.AddSingleton<Ledger>();
-builder.Services.AddSingleton<WireLog>();
+builder.Services.AddSingleton(new WireLog(builder.Configuration["DESK_WIRE_LOG"]));
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddSingleton<PendingApprovals>();
 builder.Services.AddSingleton<IChatClient>(services => DeskAgent.Create(

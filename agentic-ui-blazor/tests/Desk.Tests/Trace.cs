@@ -1,7 +1,7 @@
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using Desk.Agent;
+using Desk.Core;
 
 namespace Desk.Tests;
 
@@ -11,14 +11,14 @@ internal static class Trace
     private static readonly Lock s_gate = new();
     private static readonly JsonSerializerOptions s_indented = new() { WriteIndented = true };
 
-    public static void Write(string scenario, IReadOnlyList<WireEntry> entries)
+    public static void Write(string host, string scenario, IReadOnlyList<WireEntry> entries)
     {
         if (Environment.GetEnvironmentVariable("DESK_OUT") is not { Length: > 0 } folder)
         {
             return;
         }
 
-        StringBuilder text = new($"## {scenario}\n");
+        StringBuilder text = new($"## {host}: {scenario}\n");
         for (int i = 0; i < entries.Count; i++)
         {
             WireEntry entry = entries[i];

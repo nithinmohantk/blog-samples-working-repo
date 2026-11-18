@@ -4,6 +4,7 @@ using System.Text.Json;
 using AGUI.Abstractions;
 using AGUI.Client;
 using Desk.Agent;
+using Desk.AgentFramework;
 using Desk.Core;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -13,19 +14,36 @@ using Xunit;
 
 namespace Desk.Tests;
 
+/// <summary>The endpoint written by hand in Desk.Agent.</summary>
+public sealed class HandBuiltWireTests(WebApplicationFactory<AgentService> factory)
+    : WireTests<AgentService>(factory), IClassFixture<WebApplicationFactory<AgentService>>
+{
+    protected override string Host => "hand-built";
+}
+
+/// <summary>The endpoint mapped by Agent Framework in Desk.AgentFramework. Same tests, same expectations.</summary>
+public sealed class FrameworkWireTests(WebApplicationFactory<FrameworkService> factory)
+    : WireTests<FrameworkService>(factory), IClassFixture<WebApplicationFactory<FrameworkService>>
+{
+    protected override string Host => "framework";
+}
+
 /// <summary>
 /// Layer 2: the agent service over AG-UI. A real client talks to the real endpoint on an in-memory
 /// server, and the tests read what crossed the wire. Each trace is also written out for the article.
 /// </summary>
-public sealed class WireTests : IClassFixture<WebApplicationFactory<WireLog>>
+public abstract class WireTests<THost>
+    where THost : class
 {
-    private readonly WebApplicationFactory<WireLog> _factory;
+    protected abstract string Host { get; }
+
+    private readonly WebApplicationFactory<THost> _factory;
     private readonly HttpClient _http;
     private readonly IChatClient _chat;
     private readonly WireLog _wire;
     private readonly Ledger _ledger;
 
-    public WireTests(WebApplicationFactory<WireLog> factory)
+    protected WireTests(WebApplicationFactory<THost> factory)
     {
         _factory = factory.WithWebHostBuilder(host => host.UseSetting("DESK_WORD_DELAY_MS", "0"));
         _http = _factory.CreateClient();
@@ -42,7 +60,7 @@ public sealed class WireTests : IClassFixture<WebApplicationFactory<WireLog>>
         await RunAsync([new(ChatRole.User, "hello")]);
 
         WireEntry entry = Assert.Single(_wire.Entries);
-        Trace.Write("text", _wire.Entries);
+        Trace.Write(Host, "text", _wire.Entries);
         Assert.Equal("RUN_STARTED", entry.Events[0]);
         Assert.Equal("RUN_FINISHED", entry.Events[^1]);
         Assert.Contains("TEXT_MESSAGE_CONTENT", entry.Events);
@@ -53,7 +71,7 @@ public sealed class WireTests : IClassFixture<WebApplicationFactory<WireLog>>
     {
         List<ChatResponseUpdate> updates = await RunAsync([new(ChatRole.User, "Where is order O-1001?")]);
 
-        Trace.Write("backend tool", _wire.Entries);
+        Trace.Write(Host, "backend tool", _wire.Entries);
         WireEntry entry = Assert.Single(_wire.Entries);
         Assert.Contains("TOOL_CALL_START", entry.Events);
         Assert.Contains("TOOL_CALL_RESULT", entry.Events);
@@ -74,7 +92,7 @@ public sealed class WireTests : IClassFixture<WebApplicationFactory<WireLog>>
         messages.Add(new(ChatRole.User, [request.CreateResponse(approved)]));
         List<ChatResponseUpdate> second = await RunAsync(messages);
 
-        Trace.Write(approved ? "approval, approved" : "approval, rejected", _wire.Entries);
+        Trace.Write(Host, approved ? "approval, approved" : "approval, rejected", _wire.Entries);
         Assert.Equal(2, _wire.Entries.Count);
         Assert.Equal(refunds, _ledger.Refunds.Count);
         Assert.Contains(approved ? "recorded" : "No refund was made", string.Concat(second.Select(u => u.Text)));
@@ -108,7 +126,7 @@ public sealed class WireTests : IClassFixture<WebApplicationFactory<WireLog>>
         };
         List<ChatResponseUpdate> second = await RunAsync([new(ChatRole.User, "Draft a formal reply for order O-1001")], withState);
 
-        Trace.Write("shared state", _wire.Entries);
+        Trace.Write(Host, "shared state", _wire.Entries);
         StateSnapshotEvent snapshot = second.Select(u => u.RawRepresentation).OfType<StateSnapshotEvent>().Single();
         Assert.EndsWith("Regards, Sam, Order Desk", snapshot.Snapshot.GetProperty("reply").GetString());
         Assert.Equal("formal", snapshot.Snapshot.GetProperty("tone").GetString());
@@ -136,7 +154,7 @@ public sealed class WireTests : IClassFixture<WebApplicationFactory<WireLog>>
             await Task.Delay(50);
         }
 
-        Trace.Write("cancelled", _wire.Entries);
+        Trace.Write(Host, "cancelled", _wire.Entries);
         WireEntry entry = Assert.Single(_wire.Entries);
         Assert.False(entry.Completed);
         Assert.DoesNotContain("RUN_FINISHED", entry.Events);
@@ -161,7 +179,7 @@ public sealed class WireTests : IClassFixture<WebApplicationFactory<WireLog>>
     [InlineData("changed after proposal", true, false, 0)]
     public async Task A_forged_approval(string kind, bool verify, bool accepted, int refunds)
     {
-        using WebApplicationFactory<WireLog> factory = _factory.WithWebHostBuilder(host => host.UseSetting("DESK_VERIFY_RESUME", verify.ToString()));
+        using WebApplicationFactory<THost> factory = _factory.WithWebHostBuilder(host => host.UseSetting("DESK_VERIFY_RESUME", verify.ToString()));
         using HttpClient http = factory.CreateClient();
         Ledger ledger = factory.Services.GetRequiredService<Ledger>();
         ledger.Clear();
@@ -199,9 +217,10 @@ public sealed class WireTests : IClassFixture<WebApplicationFactory<WireLog>>
             },
         });
         using HttpResponseMessage response = await http.PostAsync("/agent", new StringContent(body, Encoding.UTF8, "application/json"));
-        await response.Content.ReadAsStringAsync();
+        string stream = await response.Content.ReadAsStringAsync();
+        string last = System.Text.RegularExpressions.Regex.Matches(stream, "\"type\":\"([A-Z_]+)\"").LastOrDefault()?.Groups[1].Value ?? "none";
 
-        Trace.Line("forged-approval.txt", $"{kind,-24} check {(verify ? "on " : "off")}  HTTP {(int)response.StatusCode}  refunds in ledger: [{string.Join(", ", ledger.Refunds.Select(r => $"{r.OrderId} {r.Amount:0.00}"))}]");
+        Trace.Line("forged-approval.txt", $"{Host,-10} {kind,-24} check {(verify ? "on " : "off")}  HTTP {(int)response.StatusCode}  last event {last,-12}  refunds in ledger: [{string.Join(", ", ledger.Refunds.Select(r => $"{r.OrderId} {r.Amount:0.00}"))}]");
         Assert.Equal(accepted ? HttpStatusCode.OK : HttpStatusCode.Conflict, response.StatusCode);
         Assert.Equal(refunds, ledger.Refunds.Count);
         if (accepted)
@@ -220,7 +239,7 @@ public sealed class WireTests : IClassFixture<WebApplicationFactory<WireLog>>
         int[] events = new int[2];
         for (int i = 0; i < 2; i++)
         {
-            using WebApplicationFactory<WireLog> factory = _factory.WithWebHostBuilder(host => host.UseSetting("DESK_RAW_EVENTS", (i == 1).ToString()));
+            using WebApplicationFactory<THost> factory = _factory.WithWebHostBuilder(host => host.UseSetting("DESK_RAW_EVENTS", (i == 1).ToString()));
             using HttpClient http = factory.CreateClient();
             string body = JsonSerializer.Serialize(new { threadId = "t", runId = "r", messages = new[] { new { id = "m1", role = "user", content = prompt } }, tools = Array.Empty<object>(), context = Array.Empty<object>() });
             using HttpResponseMessage response = await http.PostAsync("/agent", new StringContent(body, Encoding.UTF8, "application/json"));
@@ -229,7 +248,7 @@ public sealed class WireTests : IClassFixture<WebApplicationFactory<WireLog>>
             events[i] = stream.Split("data: ").Length - 1;
         }
 
-        Trace.Line("stream-size.txt", $"{prompt,-26} events {events[0],3}  without rawEvent {bytes[0],6} bytes  with rawEvent {bytes[1],6} bytes  ratio {(double)bytes[1] / bytes[0]:0.0}x");
+        Trace.Line("stream-size.txt", $"{Host,-10} {prompt,-26} events {events[0],3}  without rawEvent {bytes[0],6} bytes  with rawEvent {bytes[1],6} bytes  ratio {(double)bytes[1] / bytes[0]:0.0}x");
         Assert.Equal(events[0], events[1]);
         Assert.True(bytes[1] > 2 * bytes[0]);
     }

@@ -15,7 +15,7 @@ status=0
   echo "-- target frameworks inside the packages, and the day each version was published"
   python3 - <<'PY'
 import glob, gzip, json, os, urllib.request
-pins = {"microsoft.aspnetcore.components.ai": "0.1.0-preview.1.26466.103", "agui.client": "1.0.1", "agui.server": "1.0.1", "microsoft.extensions.ai": "11.0.0", "bunit": "2.15.2"}
+pins = {"microsoft.aspnetcore.components.ai": "0.1.0-preview.1.26466.103", "agui.client": "1.0.1", "agui.server": "1.0.1", "microsoft.extensions.ai": "11.0.0", "bunit": "2.15.2", "microsoft.agents.ai.hosting.agui.aspnetcore": "1.28.0-preview.261106.1"}
 for name, version in pins.items():
     frameworks = sorted(os.path.basename(p) for p in glob.glob(os.path.expanduser(f"~/.nuget/packages/{name}/{version}/lib/*")))
     published = "unknown"
@@ -30,9 +30,17 @@ PY
 } 2>&1 | tee "$out/01-versions.txt"
 
 {
+  echo "== 0. probe (temporary)"
+  dotnet build probe -c Release -v q 2>&1 | grep -E "error|Build succeeded" | sort -u | head -n 20
+  dotnet run --project probe -c Release --no-build > "$out/probe-af.txt" 2>&1
+  wc -l "$out/probe-af.txt"
+  dotnet list probe package --include-transitive 2>/dev/null | grep -E "Agents|AGUI|Extensions.AI" | sed 's/  */ /g' | sort -u
+} 2>&1 | tee "$out/00-probe.txt"
+
+{
   echo "== 2. build"
   dotnet build tests/Desk.Tests -c Release -v q 2>&1 | grep -E "error|warn|Build succeeded|Warning\(s\)|Error\(s\)" | sort -u | head -n 60
-  dotnet list tests/Desk.Tests package --include-transitive 2>/dev/null | grep -E "Components.AI |AGUI\.|Extensions.AI |Extensions.AI.Abstractions|bunit |Mvc.Testing|xunit " | sed 's/  */ /g' | sort -u
+  dotnet list tests/Desk.Tests package --include-transitive 2>/dev/null | grep -E "Components.AI |AGUI\.|Agents\.|Extensions.AI |Extensions.AI.Abstractions|bunit |Mvc.Testing|xunit " | sed 's/  */ /g' | sort -u
 } 2>&1 | tee "$out/02-build.txt"
 grep -q "Build succeeded" "$out/02-build.txt" || status=1
 

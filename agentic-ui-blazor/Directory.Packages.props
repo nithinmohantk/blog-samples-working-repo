@@ -6,6 +6,7 @@
     <PackageVersion Include="AGUI.Client" Version="1.0.1" />
     <PackageVersion Include="AGUI.Server" Version="1.0.1" />
     <PackageVersion Include="AGUI.Formatting" Version="1.0.1" />
+    <PackageVersion Include="Microsoft.Agents.AI.Hosting.AGUI.AspNetCore" Version="1.28.0-preview.261106.1" />
     <PackageVersion Include="Microsoft.Extensions.AI" Version="11.0.0" />
     <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="11.0.0" />
     <PackageVersion Include="bunit" Version="2.15.2" />

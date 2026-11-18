@@ -3,6 +3,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
 using AGUI.Abstractions;
+using Desk.Core;
 
 namespace Desk.Agent;
 
@@ -37,7 +38,7 @@ public sealed class PendingApprovals(TimeProvider clock)
                         if (interrupt.ToolCallId is { } id && calls.TryGetValue(id, out var proposed))
                         {
                             using JsonDocument parsed = JsonDocument.Parse(proposed.Arguments.Length == 0 ? "{}" : proposed.Arguments.ToString());
-                            _pending[interrupt.Id] = (Fingerprint(proposed.Name, parsed.RootElement), clock.GetUtcNow() + s_lifetime);
+                            _pending[interrupt.Id] = (ToolCallFingerprint.Of(proposed.Name, parsed.RootElement), clock.GetUtcNow() + s_lifetime);
                         }
                     }
 
@@ -69,7 +70,7 @@ public sealed class PendingApprovals(TimeProvider clock)
             if (entry.Payload is not { ValueKind: JsonValueKind.Object } payload
                 || !payload.TryGetProperty("toolCall", out JsonElement call)
                 || !call.TryGetProperty("name", out JsonElement name)
-                || Fingerprint(name.GetString() ?? "", call.TryGetProperty("arguments", out JsonElement arguments) ? arguments : default) != pending.Fingerprint)
+                || ToolCallFingerprint.Of(name.GetString() ?? "", call.TryGetProperty("arguments", out JsonElement arguments) ? arguments : default) != pending.Fingerprint)
             {
                 problem = "The tool call in the approval is not the one that was proposed.";
                 return false;
@@ -77,51 +78,5 @@ public sealed class PendingApprovals(TimeProvider clock)
         }
 
         return true;
-    }
-
-    /// <summary>Tool name plus arguments in one canonical form: keys sorted, numbers by value.</summary>
-    private static string Fingerprint(string name, JsonElement arguments)
-    {
-        StringBuilder text = new(name);
-        text.Append('|');
-        Canonical(arguments, text);
-        return text.ToString();
-    }
-
-    private static void Canonical(JsonElement element, StringBuilder text)
-    {
-        switch (element.ValueKind)
-        {
-            case JsonValueKind.Object:
-                text.Append('{');
-                foreach (JsonProperty property in element.EnumerateObject().OrderBy(p => p.Name, StringComparer.Ordinal))
-                {
-                    text.Append(JsonEncodedText.Encode(property.Name)).Append(':');
-                    Canonical(property.Value, text);
-                    text.Append(',');
-                }
-
-                text.Append('}');
-                break;
-            case JsonValueKind.Array:
-                text.Append('[');
-                foreach (JsonElement item in element.EnumerateArray())
-                {
-                    Canonical(item, text);
-                    text.Append(',');
-                }
-
-                text.Append(']');
-                break;
-            case JsonValueKind.Number when element.TryGetDecimal(out decimal number):
-                text.Append(number.ToString("G29", System.Globalization.CultureInfo.InvariantCulture));
-                break;
-            case JsonValueKind.Undefined:
-                text.Append("{}");
-                break;
-            default:
-                text.Append(element.GetRawText());
-                break;
-        }
     }
 }

@@ -11,6 +11,7 @@
     <PackageReference Include="xunit.runner.visualstudio" />
     <ProjectReference Include="..\..\src\Desk.Core\Desk.Core.csproj" />
     <ProjectReference Include="..\..\src\Desk.Agent\Desk.Agent.csproj" />
+    <ProjectReference Include="..\..\src\Desk.AgentFramework\Desk.AgentFramework.csproj" />
     <ProjectReference Include="..\..\src\Desk.Web\Desk.Web.csproj" />
   </ItemGroup>
 </Project>
