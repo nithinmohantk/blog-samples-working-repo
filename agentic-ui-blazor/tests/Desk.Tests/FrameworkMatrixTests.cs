@@ -18,6 +18,20 @@ namespace Desk.Tests;
 /// </summary>
 public sealed class FrameworkMatrixTests
 {
+    private static volatile string s_thrown = "";
+
+    static FrameworkMatrixTests()
+    {
+        // The endpoint tells the client only that streaming failed. This notes what was thrown underneath.
+        AppDomain.CurrentDomain.FirstChanceException += (_, e) =>
+        {
+            if (e.Exception is InvalidOperationException or ArgumentException && e.Exception.StackTrace?.Contains("FunctionInvokingChatClient") == true)
+            {
+                s_thrown = e.Exception.Message;
+            }
+        };
+    }
+
     [Theory]
     [InlineData("none", true, false)]
     [InlineData("none", false, false)]
@@ -41,7 +55,20 @@ public sealed class FrameworkMatrixTests
         ModelCalls calls = factory.Services.GetRequiredService<ModelCalls>();
         string label = $"sessions={sessions,-6} binding={(binding ? "on " : "off")} new-only={(newOnly ? "on " : "off")}";
 
-        string Outcome() => $"last event {(wire.Entries.Count == 0 ? "none" : wire.Entries[^1].Events.LastOrDefault() ?? "none"),-12} refunds [{string.Join(", ", ledger.Refunds.Select(r => $"{r.OrderId} {r.Amount:0.00}"))}] attempts {ledger.Attempts}";
+        string Outcome()
+        {
+            WireEntry? last = wire.Entries.LastOrDefault();
+            string ended = last?.Events.LastOrDefault() ?? "none";
+            string line = $"last event {ended,-12} refunds [{string.Join(", ", ledger.Refunds.Select(r => $"{r.OrderId} {r.Amount:0.00}"))}] attempts {ledger.Attempts}";
+            if (ended == "RUN_ERROR")
+            {
+                // Call ids differ on every run; leave them out so the file reads the same each time.
+                string thrown = System.Text.RegularExpressions.Regex.Replace(s_thrown, "call-[0-9a-f]+", "call-…");
+                line += $"  client is told: \"{last!.Payloads.LastOrDefault()?["message"]}\"  thrown: {thrown}";
+            }
+
+            return line;
+        }
 
         // 1. An honest approval, then the same approval sent again.
         List<ChatMessage> messages = [new(ChatRole.User, "Refund order O-1003")];
