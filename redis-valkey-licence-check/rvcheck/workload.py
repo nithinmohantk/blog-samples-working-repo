@@ -47,10 +47,11 @@ def run(r: redis.Redis) -> dict[str, object]:
 
 def server_facts(r: redis.Redis) -> dict[str, object]:
     info = r.info("server")
-    hello = r.execute_command("HELLO", 3)
+    reply = r.execute_command("HELLO", 2)          # HELLO 3 would switch this connection to RESP3
+    hello = dict(zip(reply[::2], reply[1::2]))
     facts = {k: info.get(k) for k in ("redis_version", "redis_git_sha1", "redis_mode", "server_name",
                                       "valkey_version", "executable") if k in info}
-    facts["HELLO server"] = hello.get(b"server", hello.get("server"))
-    facts["HELLO version"] = hello.get(b"version", hello.get("version"))
+    facts["HELLO server"] = hello.get("server")
+    facts["HELLO version"] = hello.get("version")
     facts["COMMAND COUNT"] = r.execute_command("COMMAND", "COUNT")
     return facts
