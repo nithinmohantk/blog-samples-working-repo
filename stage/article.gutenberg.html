@@ -1,332 +1,292 @@
 <!-- wp:paragraph -->
-<p>Kubernetes 1.29, released on 13 December 2023, turned on native sidecar containers by default. The feature arrived as alpha in 1.28 behind the <code>SidecarContainers</code> feature gate and is beta in 1.29. Amazon EKS added 1.29 on 23 January 2024, and AKS has had 1.29.0 in preview since its 7 February release, so many teams can now use it in a managed cluster for the first time.</p>
+<p>On 16 January 2024 AWS published the price of Amazon EKS extended support. From the April 2024 billing cycle, a cluster whose Kubernetes version has left standard support costs $0.60 per hour for its control plane instead of $0.10. That is $446.40 in a 31-day month instead of $74.40, for every cluster, before a single node.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
-<p>The change is small in YAML and large in behaviour. A sidecar is now an init container with <code>restartPolicy: Always</code>. Kubernetes starts it before the main containers, keeps it running, stops it after them, and no longer lets it hold a Job open. This article runs seven scenarios on kind clusters and reports what actually happened, including two cases where the new behaviour can still lose data, and one where the same manifest on a 1.28 cluster leaves the Pod stuck forever.</p>
+<p>Extended support itself is not new. EKS opened a public preview on 4 October 2023 that keeps versions 1.23 and later supported for twelve months after standard support ends, and during the preview it cost nothing extra. Version 1.23 has been in extended support since 11 October 2023, and 1.24 joined it at the end of January. Five weeks from now those clusters start paying six times as much. This article works out what that means for a fleet, and why upgrading one version is a much smaller saving than it looks.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:heading {"level":2} -->
-<h2 class="wp-block-heading">The problem sidecars had before 1.29</h2>
+<h2 class="wp-block-heading">How the price works</h2>
 <!-- /wp:heading -->
 
 <!-- wp:paragraph -->
-<p>A sidecar used to be an ordinary second container in the Pod: a log shipper, a service mesh proxy, a Cloud SQL or database proxy, a secrets agent. Kubernetes treated it as an equal of the application container, which caused three long-standing problems:</p>
+<p>Each Kubernetes minor version gets 14 months of standard support from the day EKS releases it, then 12 months of extended support, 26 months in all. The price depends only on the control plane's version on each day: $0.10 per cluster per hour in standard support, $0.60 in extended. Node groups, Fargate and add-ons are billed as before. Creating a new cluster on a version already in extended support pays the higher rate from the first hour.</p>
 <!-- /wp:paragraph -->
-
-<!-- wp:list -->
-<ul class="wp-block-list">
-<!-- wp:list-item -->
-<li><strong>Jobs never finished.</strong> A Job's Pod completes only when all its containers have exited. The main container finishes; the log shipper does not; the Job hangs. Teams worked around it with shared files, <code>curl</code> calls to a proxy's quit endpoint, or wrapper scripts.</li>
-<!-- /wp:list-item -->
-<!-- wp:list-item -->
-<li><strong>No start order.</strong> The application could start before its proxy was ready and fail its first outbound calls.</li>
-<!-- /wp:list-item -->
-<!-- wp:list-item -->
-<li><strong>No stop order.</strong> On deletion every container got SIGTERM at once, so a proxy could exit while the application was still draining requests through it.</li>
-<!-- /wp:list-item -->
-</ul>
-<!-- /wp:list -->
 
 <!-- wp:paragraph -->
-<p>The first problem is easy to reproduce. This Job runs a five-second task next to a log shipper written as a normal container:</p>
+<p>AWS's own example averages the two: a cluster that stays on one version for its whole 26 months pays an average of $0.33 an hour. At the end of extended support EKS upgrades the control plane to the next version automatically. A cluster that is simply left alone therefore moves from one extended-support version to the next and keeps paying $0.60.</p>
 <!-- /wp:paragraph -->
 
-<!-- wp:code {"language":"yaml"} -->
-<pre class="wp-block-code"><code lang="yaml" class="language-yaml"># The pre-1.29 pattern: the log shipper is just another container.
-apiVersion: batch/v1
-kind: Job
-metadata:
-  name: classic-sidecar
-spec:
-  backoffLimit: 0
-  template:
-    spec:
-      restartPolicy: Never
-      containers:
-        - name: main
-          image: busybox:1.36.1
-          command: ["sh", "-c", "echo working; sleep 5; echo done"]
-        - name: log-shipper
-          image: busybox:1.36.1
-          command: ["sh", "-c", "while true; do sleep 1; done"]</code></pre>
-<!-- /wp:code -->
-
-<!-- wp:paragraph -->
-<p>After 60 seconds the Job had no condition at all. The main container had completed, but the Pod was still Running because the log shipper was:</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:code {"language":"text"} -->
-<pre class="wp-block-code"><code lang="text" class="language-text">[v1.29/job-classic] server v1.29.2
-  job_condition: none after 60 s
-  seconds_to_condition: None
-  pod_phase: Running
-  log-shipper     main reason=None exit=None restarts=0
-  main            main reason=Completed exit=0 restarts=0</code></pre>
-<!-- /wp:code -->
+<!-- wp:image {"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="{{IMG1_URL}}" alt="Gantt chart of EKS versions 1.23 to 1.29 showing standard support in green and extended support in orange, with lines at 24 February 2024 and 1 April 2024 when the $0.60 rate starts"/><figcaption class="wp-element-caption">Where every version stood in February 2024.</figcaption></figure>
+<!-- /wp:image -->
 
 <!-- wp:heading {"level":2} -->
-<h2 class="wp-block-heading">The 1.29 model</h2>
+<h2 class="wp-block-heading">What the EKS API tells you</h2>
 <!-- /wp:heading -->
 
 <!-- wp:paragraph -->
-<p>A native sidecar is declared in <code>initContainers</code>, with one new field. Init containers normally run one after another and must exit before the next starts. With <code>restartPolicy: Always</code>, the kubelet starts the container, considers it done as soon as it has started (or, if it has a startup probe, once the probe passes) and moves on, but keeps it running and restarts it if it exits:</p>
+<p>The obvious first step is to ask EKS which clusters are in extended support. In February 2024 it cannot tell you. This is what the SDK's service model offered, printed by the sample's <code>tools/api_check.py</code> with botocore 1.34.49:</p>
 <!-- /wp:paragraph -->
 
-<!-- wp:code {"language":"yaml"} -->
-<pre class="wp-block-code"><code lang="yaml" class="language-yaml"># Kubernetes 1.29: the log shipper is an init container with restartPolicy: Always.
-apiVersion: batch/v1
-kind: Job
-metadata:
-  name: native-sidecar
-spec:
-  backoffLimit: 0
-  template:
-    spec:
-      restartPolicy: Never
-      initContainers:
-        - name: log-shipper
-          image: busybox:1.36.1
-          restartPolicy: Always
-          command: ["sh", "-c", "while true; do sleep 1; done"]
-      containers:
-        - name: main
-          image: busybox:1.36.1
-          command: ["sh", "-c", "echo working; sleep 5; echo done"]</code></pre>
+<!-- wp:code {"language":"json"} -->
+<pre class="wp-block-code"><code lang="json" class="language-json">{
+  "botocore": "1.34.49",
+  "Cluster fields mentioning support or upgrade": [],
+  "operations with Version or Insight in the name": [
+    "DescribeAddonVersions",
+    "DescribeInsight",
+    "ListInsights",
+    "UpdateClusterVersion",
+    "UpdateNodegroupVersion"
+  ],
+  "InsightCategory": [
+    "UPGRADE_READINESS"
+  ]
+}</code></pre>
+<!-- /wp:code -->
+
+<!-- wp:paragraph -->
+<p><code>DescribeCluster</code> returns the version, the platform version, creation time and tags, but no support status and no end-of-support date. So an audit has to carry the calendar itself. The sample encodes it as AWS published it, with exact days for 1.23 and 1.24 and months only for the later versions:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:code {"language":"python"} -->
+<pre class="wp-block-code"><code lang="python" class="language-python">CALENDAR = {v.version: v for v in (
+    VersionDates("1.23", date(2022, 8, 11), date(2023, 10, 11), date(2024, 10, 11)),
+    VersionDates("1.24", date(2022, 11, 15), date(2024, 1, 31), date(2025, 1, 31)),
+    VersionDates("1.25", date(2023, 2, 21), date(2024, 5, 1), date(2025, 5, 1), month_only=True),
+    VersionDates("1.26", date(2023, 4, 11), date(2024, 6, 1), date(2025, 6, 1), month_only=True),
+    VersionDates("1.27", date(2023, 5, 24), date(2024, 7, 1), date(2025, 7, 1), month_only=True),
+    VersionDates("1.28", date(2023, 9, 26), date(2024, 11, 1), date(2025, 11, 1), month_only=True),
+    VersionDates("1.29", date(2024, 1, 23), date(2025, 3, 1), date(2026, 3, 1), month_only=True),
+)}</code></pre>
+<!-- /wp:code -->
+
+<!-- wp:paragraph -->
+<p>For 1.25 to 1.29 AWS gave months, not days, so the table uses the first of the month and marks those rows. Treat them as "no later than" and check the calendar again before you plan an upgrade weekend around one.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>What the API does have is upgrade insights, generally available since 20 December 2023. Once a day EKS reads the cluster's audit logs and reports deprecated API calls that would break the next upgrade. The audit keeps only the checks that are not passing:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:code {"language":"python"} -->
+<pre class="wp-block-code"><code lang="python" class="language-python">def upgrade_insights(eks, name: str) -&gt; list[dict]:
+    """Upgrade-readiness insights that are not passing (EKS upgrade insights, GA 20 December 2023)."""
+    found = []
+    try:
+        pages = eks.get_paginator("list_insights").paginate(
+            clusterName=name, filter={"categories": ["UPGRADE_READINESS"]})
+        for page in pages:
+            for item in page.get("insights", []):
+                status = (item.get("insightStatus") or {}).get("status")
+                if status != "PASSING":
+                    found.append({"name": item.get("name"), "kubernetesVersion": item.get("kubernetesVersion"),
+                                  "status": status})
+    except (ClientError, NotImplementedError) as err:  # older SDK mocks, missing permission
+        found.append({"name": "insights unavailable", "status": str(err).split(":")[-1].strip()[:80]})
+    return found</code></pre>
 <!-- /wp:code -->
 
 <!-- wp:merpress/mermaidjs -->
-<div class="wp-block-merpress-mermaidjs diagram-source-mermaid"><pre class="mermaid">%%{init: {'theme': 'base', 'themeVariables': {'signalColor': '#0073BB', 'signalTextColor': '#0F172A', 'actorBkg': '#FFF3E0', 'actorBorder': '#FF9900', 'actorTextColor': '#232F3E', 'noteBkgColor': '#FFF8E7', 'noteBorderColor': '#FF9900', 'noteTextColor': '#232F3E'}}}%%
-sequenceDiagram
-    participant K as kubelet
-    participant S as Sidecar (init, restartPolicy Always)
-    participant M as Main container
-    K-&gt;&gt;S: start
-    Note over K,S: wait for the startup probe, if any
-    K-&gt;&gt;M: start
-    M--&gt;&gt;K: exits (Job finished)
-    K-&gt;&gt;S: SIGTERM
-    S--&gt;&gt;K: exits, or SIGKILL when the grace period runs out
-    Note over K: Pod Succeeded, Job Complete</pre></div>
+<div class="wp-block-merpress-mermaidjs diagram-source-mermaid"><pre class="mermaid">%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#FFF3E0', 'primaryTextColor': '#232F3E', 'primaryBorderColor': '#FF9900', 'lineColor': '#232F3E', 'clusterBkg': '#F8FAFC', 'clusterBorder': '#CBD5E1', 'edgeLabelBackground': '#FFFFFF', 'nodeTextColor': '#232F3E'}}}%%
+flowchart TD
+    A["Every Region&lt;br/&gt;eks:ListClusters, DescribeCluster"] --&gt; B["Version from the API&lt;br/&gt;no support status field"]
+    B --&gt; C["Support calendar&lt;br/&gt;as AWS published it"]
+    C --&gt; D["Rate per day&lt;br/&gt;$0.10 or $0.60 from 1 April 2024"]
+    D --&gt; E["12-month outlook per cluster&lt;br/&gt;auto-upgrade at end of extended"]
+    B --&gt; F["Upgrade insights&lt;br/&gt;eks:ListInsights, not passing"]
+    E --&gt; G["Fleet plans priced"]
+    F --&gt; G
+    classDef compute fill:#FFF3E0,stroke:#FF9900,stroke-width:2px,color:#232F3E
+    classDef data fill:#EBF8FF,stroke:#0073BB,stroke-width:2px,color:#004C74
+    classDef store fill:#F0FFF4,stroke:#1D8102,stroke-width:2px,color:#145202
+    classDef alert fill:#FEF2F2,stroke:#D13212,stroke-width:2px,color:#991B1B
+    class A,B,C data
+    class D,E,F compute
+    class G store</pre></div>
 <!-- /wp:merpress/mermaidjs -->
 
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">Pricing a cluster day by day</h2>
+<!-- /wp:heading -->
+
 <!-- wp:paragraph -->
-<p>You can check whether the gate is on from the API server's metrics, with <code>kubectl get --raw /metrics</code>. The 1.28.7 test cluster reported the alpha gate off:</p>
+<p>A monthly estimate needs two details that are easy to get wrong. A version can leave standard support in the middle of a month, so the rate is worked out per day. And a cluster at the end of extended support does not stop costing money; it is upgraded to the next version, which may itself be in extended support:</p>
 <!-- /wp:paragraph -->
 
-<!-- wp:code {"language":"text"} -->
-<pre class="wp-block-code"><code lang="text" class="language-text">kubernetes_feature_enabled{name="SidecarContainers",stage="ALPHA"} 0</code></pre>
+<!-- wp:code {"language":"python"} -->
+<pre class="wp-block-code"><code lang="python" class="language-python">def effective_version(version: str, on: date) -&gt; str:
+    """At the end of extended support EKS upgrades the control plane to the next version.
+
+    Follow that chain, so a cluster left alone is priced on the version it will actually run.
+    """
+    while support_status(version, on) == "ended":
+        nxt = f"1.{int(version.split('.')[1]) + 1}"
+        if nxt not in CALENDAR:
+            break
+        version = nxt
+    return version
+
+
+def hourly_rate(version: str, on: date) -&gt; Decimal:
+    version = effective_version(version, on)
+    if support_status(version, on) == "extended" and on &gt;= EXTENDED_PRICE_FROM:
+        return EXTENDED
+    return STANDARD</code></pre>
 <!-- /wp:code -->
 
 <!-- wp:paragraph -->
-<p>and the 1.29.2 cluster reported the beta gate on:</p>
+<p>The tests pin the arithmetic: 744 hours of 1.24 in March 2024 cost $74.40 because the new price has not started; April costs $432.00. A 1.23 cluster in October 2024 spends ten days on 1.23 and the rest on 1.24 after the automatic upgrade, and pays $446.40 for the month either way. Over the twelve months from February 2024 a 1.29 cluster costs $878.40, not $876, because 2024 is a leap year.</p>
 <!-- /wp:paragraph -->
-
-<!-- wp:code {"language":"text"} -->
-<pre class="wp-block-code"><code lang="text" class="language-text">kubernetes_feature_enabled{name="SidecarContainers",stage="BETA"} 1</code></pre>
-<!-- /wp:code -->
 
 <!-- wp:heading {"level":2} -->
 <h2 class="wp-block-heading">Test setup</h2>
 <!-- /wp:heading -->
 
 <!-- wp:paragraph -->
-<p>Every scenario ran on kind v0.22.0, released on 14 February 2024, with its default node image <code>kindest/node:v1.29.2</code> pinned by digest. The 1.28 scenario used <code>kindest/node:v1.28.7</code>. kubectl was v1.29.2 and every container used <code>busybox:1.36.1</code>, loaded into the cluster before the tests so image pulls did not affect timings. A Python harness applied each manifest, waited, read container states from the API and deleted what it created.</p>
+<p>The demo is a made-up fleet of eight clusters in two Regions, created in moto 5.0.2 and audited with boto3 1.34.49, the versions available on 23 February 2024. moto does not implement <code>ListInsights</code>, so the insights code is tested with botocore's Stubber against the real response shape, and the audit records "insights unavailable" rather than failing when a Region or a mock cannot answer. All 14 tests passed in GitHub Actions on Python 3.12.</p>
 <!-- /wp:paragraph -->
-
-<!-- wp:paragraph -->
-<p>Status timestamps from the API have one-second resolution, which is too coarse to see a shutdown order. So in the two shutdown scenarios each container appends a line to a file on the node when it gets SIGTERM and when it exits. The timestamp is the node's <code>/proc/uptime</code>, one clock for every container on the node. This is the second sidecar's definition; the others differ only in name and in how long they take to stop:</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:code {"language":"yaml"} -->
-<pre class="wp-block-code"><code lang="yaml" class="language-yaml">    - name: second-sidecar
-      image: busybox:1.36.1
-      restartPolicy: Always
-      volumeMounts: [{name: events, mountPath: /events}]
-      command: ["sh", "-c", "log() { echo \"$(cut -d' ' -f1 /proc/uptime) second-sidecar $1\" &gt;&gt; /events/log; }; trap 'log TERM; sleep 1; log exit; exit 0' TERM; log start; while true; do sleep 0.2; done"]</code></pre>
-<!-- /wp:code -->
 
 <!-- wp:heading {"level":2} -->
 <h2 class="wp-block-heading">Test results</h2>
 <!-- /wp:heading -->
 
-<!-- wp:image {"sizeSlug":"large","linkDestination":"none"} -->
-<figure class="wp-block-image size-large"><img src="{{IMG2_URL}}" alt="Table of seven native sidecar scenarios and their outcomes on Kubernetes 1.29 and 1.28"/><figcaption class="wp-element-caption">Seven scenarios, one cluster per version.</figcaption></figure>
-<!-- /wp:image -->
-
 <!-- wp:paragraph -->
-<p><strong>Jobs complete, after the sidecar stops.</strong> With the log shipper as a native sidecar the Job reached Complete. It took 40 seconds for a five-second task, and the sidecar's exit code shows why:</p>
+<p>The audit on 24 February 2024. The last column is each cluster's control-plane cost from April 2024 to March 2025 if nobody upgrades it:</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:code {"language":"text"} -->
-<pre class="wp-block-code"><code lang="text" class="language-text">[v1.29/job-native] server v1.29.2
-  job_condition: Complete
-  seconds_to_condition: 40.3
-  pod_phase: Succeeded
-  log-shipper     init reason=Error exit=137 restarts=0
-  main            main reason=Completed exit=0 restarts=0</code></pre>
+<pre class="wp-block-code"><code lang="text" class="language-text">Audit on 2024-02-24
+cluster            region     ver   status    extended from  steps  Apr 24-Mar 25
+sandbox            us-east-1  1.23  extended  2024-02-24         6        5256.00
+payments-prod      eu-west-1  1.24  extended  2024-02-24         5        5256.00
+payments-staging   eu-west-1  1.24  extended  2024-02-24         5        5256.00
+data-prod          eu-west-1  1.25  standard  2024-05-01         4        4896.00
+platform-tools     eu-west-1  1.26  standard  2024-06-01         3        4524.00
+web-prod           us-east-1  1.27  standard  2024-07-01         2        4164.00
+web-dev            us-east-1  1.28  standard  2024-11-01         1        2688.00
+new-svc            us-east-1  1.29  standard  2025-03-01         0        1248.00</code></pre>
 <!-- /wp:code -->
 
 <!-- wp:paragraph -->
-<p>When the main container finished, the kubelet sent the sidecar SIGTERM. The sidecar was a shell loop running as process 1 with no SIGTERM handler, and Linux does not deliver default-action signals to process 1 in a container, so it ignored the signal. The kubelet waited out the 30-second default grace period and then killed it, exit code 137. The Job still counted as Complete; only the main container's result matters. But every run of that Job now takes 30 seconds longer than it should. Real log shippers and proxies handle SIGTERM; check yours does, or set a shorter <code>terminationGracePeriodSeconds</code> on Jobs.</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:paragraph -->
-<p><strong>Start order works, with a startup probe.</strong> The proxy in this scenario creates a ready file after eight seconds, and its startup probe checks for it every second:</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:code {"language":"yaml"} -->
-<pre class="wp-block-code"><code lang="yaml" class="language-yaml"># The proxy takes 8 seconds to become ready. Does main wait for it?
-apiVersion: v1
-kind: Pod
-metadata:
-  name: startup-order
-spec:
-  restartPolicy: Never
-  initContainers:
-    - name: proxy
-      image: busybox:1.36.1
-      restartPolicy: Always
-      command: ["sh", "-c", "sleep 8; touch /tmp/ready; while true; do sleep 1; done"]
-      startupProbe:
-        exec:
-          command: ["test", "-f", "/tmp/ready"]
-        periodSeconds: 1
-        failureThreshold: 30
-  containers:
-    - name: main
-      image: busybox:1.36.1
-      command: ["sh", "-c", "sleep 3600"]</code></pre>
-<!-- /wp:code -->
-
-<!-- wp:paragraph -->
-<p>The main container started 9 seconds after the proxy, so the kubelet waited for the probe. Without a startup probe the kubelet moves on as soon as the sidecar's process has started, which is not the same as ready to serve.</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:paragraph -->
-<p><strong>Shutdown is ordered.</strong> When the Pod was deleted, the main container got SIGTERM first. Only after it had exited did the second sidecar get SIGTERM, and only after that one had exited did the first sidecar get it:</p>
+<p>Three clusters are already in extended support and will pay $0.60 from 1 April. Four more cross over during the year. Only the 1.29 cluster stays in standard support for most of it. Three plans for the fleet:</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:code {"language":"text"} -->
-<pre class="wp-block-code"><code lang="text" class="language-text">[v1.29/termination-order] server v1.29.2
-  delete_returned_after_s: 6.0
-    0.00s  main            TERM
-    3.01s  main            exit
-    3.05s  second-sidecar  TERM
-    4.05s  second-sidecar  exit
-    4.09s  first-sidecar   TERM
-    5.09s  first-sidecar   exit
-  final first-sidecar   exit=0 reason=Completed
-  final second-sidecar  exit=0 reason=Completed
-  final main            exit=0 reason=Completed</code></pre>
-<!-- /wp:code -->
-
-<!-- wp:image {"sizeSlug":"large","linkDestination":"none"} -->
-<figure class="wp-block-image size-large"><img src="{{IMG1_URL}}" alt="Timeline of Pod deletion: main gets SIGTERM at 0 seconds and exits at 3.01, the second sidecar gets SIGTERM at 3.05, the first sidecar at 4.09; below, a sidecar killed before it can flush when main uses the whole grace period"/><figcaption class="wp-element-caption">Reverse order of declaration, one at a time.</figcaption></figure>
-<!-- /wp:image -->
-
-<!-- wp:paragraph -->
-<p>The order is the reverse of declaration, so declare sidecars in dependency order: something every other container needs, such as a network proxy, goes first; a log shipper that should outlive the proxy's own logs goes after it.</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:paragraph -->
-<p><strong>The grace period is shared, and sidecars come last.</strong> In the fifth scenario the main container ignores SIGTERM, the grace period is 10 seconds, and the log shipper needs five seconds to flush:</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:code {"language":"text"} -->
-<pre class="wp-block-code"><code lang="text" class="language-text">[v1.29/grace-squeeze] server v1.29.2
-  delete_returned_after_s: 13.0
-    0.00s  main            TERM-ignored
-   10.00s  log-shipper     TERM
-  final log-shipper     exit=137 reason=Error
-  final main            exit=137 reason=Error</code></pre>
+<pre class="wp-block-code"><code lang="text" class="language-text">Plans, control plane only, April 2024 to March 2025
+  Leave every cluster where it is                $ 33288.00
+  Upgrade 1.23 and 1.24 to 1.25 by 31 March      $ 32208.00
+  Every cluster on 1.29 by 31 March              $  9984.00</code></pre>
 <!-- /wp:code -->
 
 <!-- wp:paragraph -->
-<p>The sidecar received SIGTERM only at 10 seconds, when the kubelet killed the main container at the end of the grace period. It never logged "flushed" and ended with exit code 137. The grace period covers the whole Pod, not each container, and sidecars get whatever is left. A main container that drains slowly can use up the time a log shipper needs to send the last lines, which are usually the ones that explain why the Pod was being stopped.</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:paragraph -->
-<p>Size the grace period as a sum, not a maximum. Take the main container's drain time, including any <code>preStop</code> hook, because hooks run inside the same grace period. Then add each sidecar's own shutdown time, because the sidecars stop one after another. A web container that drains for 20 seconds, a proxy that needs 2 and a log shipper that needs 5 want at least 27 seconds, so the 30-second default leaves only three to spare. Keeping the main container's drain short is usually cheaper than raising the grace period for every Pod.</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:paragraph -->
-<p><strong>Sidecars restart even when the Pod does not.</strong> The sixth scenario's sidecar exits with code 1 after three seconds, in a Job whose Pod has <code>restartPolicy: Never</code>. The kubelet restarted it 2 times while the main container ran, and the Job completed:</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:code {"language":"text"} -->
-<pre class="wp-block-code"><code lang="text" class="language-text">[v1.29/sidecar-crash] server v1.29.2
-  job_condition: Complete
-  seconds_to_condition: 29.7
-  pod_phase: Succeeded
-  log-shipper     init reason=Error exit=1 restarts=2
-  main            main reason=Completed exit=0 restarts=0</code></pre>
-<!-- /wp:code -->
-
-<!-- wp:paragraph -->
-<p>That is the point of <code>restartPolicy: Always</code> on the container, and it is better behaviour than before, when a crashed log shipper stayed dead for the rest of the Job. It also means a broken sidecar does not fail the Job, so alert on sidecar restart counts.</p>
+<p>Leaving everything alone costs $33,288 for the year. Moving the 1.23 and 1.24 clusters up to 1.25, the smallest step that gets them out of extended support today, saves only $1,080. Moving everything to 1.29 by the end of March costs $9,984, a saving of $23,304. The reason is in the next table.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:heading {"level":2} -->
-<h2 class="wp-block-heading">The 1.28 trap</h2>
+<h2 class="wp-block-heading">Why one step up is not enough</h2>
 <!-- /wp:heading -->
 
 <!-- wp:paragraph -->
-<p>The last scenario applied the native sidecar Job to a 1.28.7 cluster, where the <code>SidecarContainers</code> gate is off by default. The API server accepted the manifest without an error or a warning, dropped the <code>restartPolicy</code> field, and stored an ordinary init container:</p>
+<p>This is one cluster's cost over the same twelve months, by the version it runs from 1 April 2024:</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:code {"language":"text"} -->
-<pre class="wp-block-code"><code lang="text" class="language-text">[v1.28/native-on-old] server v1.28.7
-  pod_phase: Pending
-  stored_restartPolicy: (field dropped)
-  job_condition_after_45s: None
-  log-shipper     init reason=None exit=None restarts=0
-  main            main reason=PodInitializing exit=None restarts=0</code></pre>
+<pre class="wp-block-code"><code lang="text" class="language-text">One cluster, April 2024 to March 2025, by the version it runs from 1 April
+  1.24  $ 5256.00   months with extended support charges: 12
+  1.25  $ 4896.00   months with extended support charges: 11
+  1.26  $ 4524.00   months with extended support charges: 10
+  1.27  $ 4164.00   months with extended support charges: 9
+  1.28  $ 2688.00   months with extended support charges: 5
+  1.29  $ 1248.00   months with extended support charges: 1</code></pre>
+<!-- /wp:code -->
+
+<!-- wp:image {"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="{{IMG2_URL}}" alt="Bar chart of one EKS cluster&#x27;s control-plane cost from April 2024 to March 2025 by version: 1.24 $5,256, 1.25 $4,896, 1.26 $4,524, 1.27 $4,164, 1.28 $2,688, 1.29 $1,248"/><figcaption class="wp-element-caption">The saving only arrives from 1.28 upwards.</figcaption></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>Moving a 1.24 cluster to 1.25 saves $360 a year, because 1.25 leaves standard support in May 2024 and the cluster is paying $0.60 again a month later. Every version up to 1.27 is in extended support for most of the year. The saving starts at 1.28 and is close to complete at 1.29, which is still billed at the higher rate in its last month, March 2025. A full year in standard support would be $876.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>The 1 April date is not a cliff either. A 1.24 cluster that reaches 1.29 at the end of May instead of the end of March pays the higher rate for those two extra months only: $360 more for April and $372 for May, the gap between $0.60 and $0.10 an hour. Finishing the programme properly in June costs a few hundred dollars per cluster; stopping at 1.25 in March costs most of the year's saving. When a deadline and a sound upgrade conflict, the arithmetic favours the sound upgrade.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Budget conversations tend to treat an upgrade as one piece of work with one saving. Here the saving depends on how far the cluster goes. Teams that upgrade one version at a time, a quarter apart, will pay extended support on almost every cluster almost all the time.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">How the cost scales</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>One cluster in extended support for a whole year costs $5,256 against $876 in standard support, a difference of $4,380: 8,760 hours at the $0.50 difference in rate. That is small next to the nodes behind a production cluster, which is why it is easy to wave through. It grows with the habits most organisations have. A service with development, staging and production clusters pays it three times. An organisation that gives each team its own account, and each account its own cluster per Region, pays it per team and per Region. Twenty forgotten 1.24 clusters cost $105,120 over the year, where the same twenty on a version in standard support would cost $17,520.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Those forgotten clusters matter more than the busy ones. A busy production cluster will be upgraded because someone owns it. The proof of concept from 2022, the load-test cluster nobody deleted, and the copy of production made for an audit are the clusters still on 1.23 and 1.24, and nobody is watching their bill.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">Running the audit across an organisation</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>The audit is read-only and needs three permissions: <code>eks:ListClusters</code>, <code>eks:DescribeCluster</code> and <code>eks:ListInsights</code>. In an AWS Organization, put them in a role that every member account trusts from a central audit account, assume it per account, and run the audit for each Region you use. A Region where the role is denied or EKS is not available is logged and skipped rather than ending the run, so check the log for gaps before trusting the totals. The JSON output has one record per cluster with its version, support status, the date it enters extended support, the number of upgrade steps to 1.29, and twelve months of cost, ready to join to your account and tag data so each team sees its own clusters.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">The upgrade path</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>EKS upgrades a control plane one minor version per update, so 1.24 to 1.29 is five upgrades, each followed by node groups and add-ons. These are the API versions Kubernetes stopped serving along the way, from the Kubernetes deprecation guide, as the sample prints them:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:code {"language":"text"} -->
+<pre class="wp-block-code"><code lang="text" class="language-text">Upgrade steps from 1.24 to 1.29
+  -&gt; 1.25: policy/v1beta1 PodSecurityPolicy (no replacement API; use Pod Security Admission); batch/v1beta1 CronJob; discovery.k8s.io/v1beta1 EndpointSlice; events.k8s.io/v1beta1 Event; autoscaling/v2beta1 HorizontalPodAutoscaler; policy/v1beta1 PodDisruptionBudget; node.k8s.io/v1beta1 RuntimeClass
+  -&gt; 1.26: flowcontrol.apiserver.k8s.io/v1beta1 FlowSchema and PriorityLevelConfiguration; autoscaling/v2beta2 HorizontalPodAutoscaler
+  -&gt; 1.27: storage.k8s.io/v1beta1 CSIStorageCapacity
+  -&gt; 1.28: no API removals
+  -&gt; 1.29: flowcontrol.apiserver.k8s.io/v1beta2 FlowSchema and PriorityLevelConfiguration</code></pre>
 <!-- /wp:code -->
 
 <!-- wp:paragraph -->
-<p>An ordinary init container must exit before the main containers start. A log shipper never exits, so the Pod stayed Pending with the main container waiting in PodInitializing. A Job like this sits there until someone notices. This is the standard Kubernetes rule for fields behind a disabled feature gate: they are dropped, not rejected. In practice it means a Helm chart or manifest that uses native sidecars must not reach a cluster older than 1.29, or a 1.28 cluster without the gate. Pin the chart's <code>kubeVersion</code> to <code>&gt;=1.29.0-0</code>, or check <code>kubectl version</code> in the pipeline, so the deploy fails loudly instead of hanging.</p>
+<p>The 1.25 step is the hard one. PodSecurityPolicy has no replacement API, so clusters that still rely on it need Pod Security Admission or a policy engine in place first, and several beta APIs that older Helm charts still use disappear at once. After that, 1.26 to 1.29 remove only flow control and storage capacity versions that few applications call directly. Upgrade insights will show which of these a cluster still uses, from its last 30 days of audit logs.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:html -->
-<div class="callout callout-warning" style="background: #fff3e0; border-left: 4px solid #ff9800; padding: 16px 20px; margin: 20px 0; border-radius: 4px;"><div style="display: flex; align-items: start;"><span style="font-size: 24px; margin-right: 12px;">⚠️</span><div><strong style="color: #f57c00; display: block; margin-bottom: 8px;">CHECK EVERY CLUSTER, NOT JUST ONE</strong><p style="margin: 0; color: #333;">The gate has to be on in the API server and in the kubelet on the node that runs the Pod. During an upgrade, the control plane is usually upgraded before the nodes. Until every node pool is on 1.29, schedule sidecar workloads only onto upgraded nodes, or wait for the upgrade to finish.</p></div></div></div>
+<div class="callout callout-warning" style="background: #fff3e0; border-left: 4px solid #ff9800; padding: 16px 20px; margin: 20px 0; border-radius: 4px;"><div style="display: flex; align-items: start;"><span style="font-size: 24px; margin-right: 12px;">⚠️</span><div><strong style="color: #f57c00; display: block; margin-bottom: 8px;">THE APRIL DEADLINE IS ABOUT BILLING, NOT SAFETY</strong><p style="margin: 0; color: #333;">Nothing breaks on 1 April. Clusters in extended support keep receiving security patches for the control plane. The date only changes the price. Do not rush a 1.24 to 1.25 upgrade past a PodSecurityPolicy dependency to save $30 a month; plan the jump to 1.28 or 1.29 properly instead.</p></div></div></div>
 <!-- /wp:html -->
 
 <!-- wp:heading {"level":2} -->
-<h2 class="wp-block-heading">Resource requests and service meshes</h2>
-<!-- /wp:heading -->
-
-<!-- wp:paragraph -->
-<p>Native sidecars also change how the scheduler counts a Pod's resources. An ordinary init container's request only matters during initialisation, so the Pod's effective request is the larger of the biggest init container and the sum of the app containers. A native sidecar runs alongside the app containers, so its request is added to that sum. During initialisation, each later init container's request is counted together with the sidecars declared before it. In practice: a proxy that requested 100m CPU as an ordinary container still costs 100m as a native sidecar, but an init container placed after it now needs room for both.</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:paragraph -->
-<p>Most sidecars in production are not written by hand; a service mesh or an agent's mutating webhook injects them. Those keep the old behaviour until the injector puts the container in <code>initContainers</code>. Istio has had experimental support since the 1.19 release in 2023, behind the <code>ENABLE_NATIVE_SIDECARS</code> setting on istiod, which is off by default. Check what your mesh and agents do before expecting the start and stop order described here; a Pod can mix both kinds, and only the native ones get the new lifecycle.</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:heading {"level":2} -->
-<h2 class="wp-block-heading">Migrating an existing sidecar</h2>
+<h2 class="wp-block-heading">What to do before 1 April</h2>
 <!-- /wp:heading -->
 
 <!-- wp:list -->
 <ul class="wp-block-list">
 <!-- wp:list-item -->
-<li>Move the container from <code>containers</code> to <code>initContainers</code> and add <code>restartPolicy: Always</code>. Put it after any ordinary init containers that it depends on, and before any it serves.</li>
+<li><strong>List every cluster and its version in every Region.</strong> The sample's <code>tools/audit_account.py</code> needs only <code>eks:ListClusters</code>, <code>eks:DescribeCluster</code> and <code>eks:ListInsights</code>.</li>
 <!-- /wp:list-item -->
 <!-- wp:list-item -->
-<li>Add a startup probe if the main container must not start before the sidecar is ready, such as a proxy that must accept connections first.</li>
+<li><strong>Look for clusters nobody owns.</strong> Sandboxes and proofs of concept on old versions are the easiest saving: delete them.</li>
 <!-- /wp:list-item -->
 <!-- wp:list-item -->
-<li>Delete the workarounds: shared-file signals, quit endpoints called from the main container, wrapper scripts that kill the sidecar.</li>
+<li><strong>Plan to 1.28 or 1.29, not to the next version.</strong> Each step is a change window; a plan that ends on 1.25 pays for most of them and saves little.</li>
 <!-- /wp:list-item -->
 <!-- wp:list-item -->
-<li>Check the sidecar handles SIGTERM and exits promptly. If it runs as process 1 through a shell, use <code>exec</code> or an init such as tini so the signal reaches it.</li>
+<li><strong>Read upgrade insights first.</strong> Fix deprecated API use before the 1.25 step, and remember the insight reads 30 days of audit logs, so a fixed client can still show as an error for a while.</li>
 <!-- /wp:list-item -->
 <!-- wp:list-item -->
-<li>Review <code>terminationGracePeriodSeconds</code>: it must cover the main container's drain time plus every sidecar's shutdown time, one after another.</li>
+<li><strong>Upgrade node groups and add-ons after each control-plane step.</strong> The control plane decides the price, but CoreDNS, kube-proxy and the VPC CNI each have version requirements.</li>
 <!-- /wp:list-item -->
 <!-- wp:list-item -->
-<li>Sidecar injectors from service meshes and agents decide where the container goes. Until yours supports native sidecars, injected sidecars keep the old behaviour.</li>
+<li><strong>Tag and report the cost.</strong> From April, extended support will appear as its own usage type on the bill; put the per-cluster number in front of the team that owns the cluster.</li>
 <!-- /wp:list-item -->
 </ul>
 <!-- /wp:list -->
@@ -336,11 +296,11 @@ spec:
 <!-- /wp:heading -->
 
 <!-- wp:table {"className":"is-style-stripes"} -->
-<figure class="wp-block-table is-style-stripes"><table><thead><tr><th>Situation</th><th>Recommendation</th></tr></thead><tbody><tr><td>Jobs or CronJobs with a log shipper or proxy</td><td>Move to native sidecars on 1.29; this is the clearest win</td></tr><tr><td>Long-running Deployments with a mesh proxy</td><td>Worth it for start and stop order; wait for your mesh's support if it injects the proxy</td></tr><tr><td>Clusters still on 1.28</td><td>Do not ship native sidecar manifests there; the Pod hangs in Init</td></tr><tr><td>Sidecar that needs time to flush on shutdown</td><td>Raise terminationGracePeriodSeconds to cover main plus sidecars, and keep main's drain short</td></tr><tr><td>Sidecar that must be ready before the app starts</td><td>Give it a startup probe</td></tr><tr><td>Sidecar that crashes now and then</td><td>Native sidecars restart it; alert on its restart count, because the Job will not fail</td></tr></tbody></table></figure>
+<figure class="wp-block-table is-style-stripes"><table><thead><tr><th>Cluster</th><th>Recommendation</th></tr></thead><tbody><tr><td>1.23 or 1.24 in production</td><td>Plan the path to 1.28 or 1.29; start with PodSecurityPolicy and the 1.25 API removals</td></tr><tr><td>1.23 or 1.24 sandbox or unused</td><td>Delete it before April</td></tr><tr><td>1.25 to 1.27</td><td>Already due to reach extended support this year; upgrade in the same programme</td></tr><tr><td>1.28</td><td>Standard support until November 2024; upgrade to 1.29 when convenient</td></tr><tr><td>New cluster</td><td>Create it on 1.29; a new cluster on an old version pays extended support from day one</td></tr><tr><td>Cannot upgrade in time</td><td>Budget $0.60 an hour; the cluster stays patched and supported</td></tr></tbody></table></figure>
 <!-- /wp:table -->
 
 <!-- wp:html -->
-<div class="callout callout-note" style="background: #f5f5f5; border-left: 4px solid #607d8b; padding: 16px 20px; margin: 20px 0; border-radius: 4px;"><div style="display: flex; align-items: start;"><span style="font-size: 24px; margin-right: 12px;">📝</span><div><strong style="color: #455a64; display: block; margin-bottom: 8px;">HOW THIS WAS CHECKED</strong><p style="margin: 0; color: #333;">All seven scenarios ran in one GitHub Actions run (<a href="https://github.com/nithinmohantk/blog-samples-working-repo/actions/runs/44361720285" target="_blank" rel="noopener">run</a>) on kind v0.22.0 with node images v1.29.2 and v1.28.7, kubectl v1.29.2 and busybox 1.36.1. The outputs above are copied from that run's summary file and metric files. kind only, one node: no managed service, no service mesh, and no cluster with mixed control-plane and node versions was tested. Release dates come from the Kubernetes, AWS and AKS announcements.</p></div></div></div>
+<div class="callout callout-note" style="background: #f5f5f5; border-left: 4px solid #607d8b; padding: 16px 20px; margin: 20px 0; border-radius: 4px;"><div style="display: flex; align-items: start;"><span style="font-size: 24px; margin-right: 12px;">📝</span><div><strong style="color: #455a64; display: block; margin-bottom: 8px;">HOW THIS WAS CHECKED</strong><p style="margin: 0; color: #333;">The sample ran in GitHub Actions (<a href="https://github.com/nithinmohantk/blog-samples-working-repo/actions/runs/44367317082" target="_blank" rel="noopener">run</a>) on Python 3.12 with boto3 and botocore 1.34.49, moto 5.0.2 and pytest 8.0.1, the versions available on 23 February 2024. All 14 tests passed, and the audit, plan, per-version and upgrade-step outputs above are copied from that run. The fleet is made up and no real account was used. Prices, dates and the calendar come from the AWS pricing post of 16 January 2024 and the EKS release calendar; dates given only as months are drawn from the first of the month. Control-plane cost only: nodes, Fargate and data transfer are not included.</p></div></div></div>
 <!-- /wp:html -->
 
 <!-- wp:heading {"level":2} -->
@@ -350,29 +310,29 @@ spec:
 <!-- wp:list -->
 <ul class="wp-block-list">
 <!-- wp:list-item -->
-<li>In Kubernetes 1.29 a sidecar is an init container with restartPolicy: Always; the feature is beta and on by default.</li>
+<li>From the April 2024 billing cycle an EKS cluster on a version in extended support pays $0.60 per hour for its control plane, six times the standard $0.10.</li>
 <!-- /wp:list-item -->
 <!-- wp:list-item -->
-<li>Jobs with native sidecars complete, but only after the sidecar exits, so a sidecar that ignores SIGTERM adds the full grace period to every run.</li>
+<li>In February 2024 the EKS API does not say whether a cluster is in extended support; an audit needs its own copy of the calendar.</li>
 <!-- /wp:list-item -->
 <!-- wp:list-item -->
-<li>Start order needs a startup probe; stop order is automatic, main containers first and then sidecars in reverse order of declaration.</li>
+<li>Upgrading a 1.24 cluster to 1.25 saves only $360 over the next twelve months, because 1.25 reaches extended support in May.</li>
 <!-- /wp:list-item -->
 <!-- wp:list-item -->
-<li>The grace period is shared and sidecars come last; a slow main container can leave a log shipper no time to flush.</li>
+<li>The real saving starts at 1.28 and is nearly complete at 1.29; plan the whole path, not the next step.</li>
 <!-- /wp:list-item -->
 <!-- wp:list-item -->
-<li>On 1.28 with the gate off, the API silently drops restartPolicy and the Pod waits in Init forever.</li>
+<li>Nothing stops working on 1 April; extended support is still supported, it just costs more.</li>
 <!-- /wp:list-item -->
 </ul>
 <!-- /wp:list -->
 
 <!-- wp:paragraph -->
-<p>If you have moved a mesh proxy or log shipper to a native sidecar and hit something not covered here, let me know in the comments below.</p>
+<p>If your fleet looks different, run the audit against it and let me know in the comments below what it found.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:html -->
-<div class="callout callout-tip sample-code-link" style="background: #e8f5e9; border-left: 4px solid #4caf50; padding: 16px 20px; margin: 20px 0; border-radius: 4px;"><div style="display: flex; align-items: start;"><span style="font-size: 24px; margin-right: 12px;">💡</span><div><strong style="color: #388e3c; display: block; margin-bottom: 8px;">GET THE CODE</strong><p style="margin: 0; color: #333;">The complete sample for this article is on GitHub: <a href="https://github.com/nithinmohantk/blog-samples-working-repo/tree/main/k8s-129-native-sidecars" target="_blank" rel="noopener">nithinmohantk/blog-samples-working-repo/k8s-129-native-sidecars</a>. Clone it with <code>git clone https://github.com/nithinmohantk/blog-samples-working-repo.git</code> and open the <code>k8s-129-native-sidecars</code> folder. Its README says how to run it and what has been verified.</p></div></div></div>
+<div class="callout callout-tip sample-code-link" style="background: #e8f5e9; border-left: 4px solid #4caf50; padding: 16px 20px; margin: 20px 0; border-radius: 4px;"><div style="display: flex; align-items: start;"><span style="font-size: 24px; margin-right: 12px;">💡</span><div><strong style="color: #388e3c; display: block; margin-bottom: 8px;">GET THE CODE</strong><p style="margin: 0; color: #333;">The complete sample for this article is on GitHub: <a href="https://github.com/nithinmohantk/blog-samples-working-repo/tree/main/eks-extended-support-cost" target="_blank" rel="noopener">nithinmohantk/blog-samples-working-repo/eks-extended-support-cost</a>. Clone it with <code>git clone https://github.com/nithinmohantk/blog-samples-working-repo.git</code> and open the <code>eks-extended-support-cost</code> folder. Its README says how to run it and what has been verified.</p></div></div></div>
 <!-- /wp:html -->
 
 <!-- wp:heading {"level":2} -->
@@ -381,28 +341,26 @@ spec:
 
 <!-- wp:html -->
 <dl style="background:#F6F8FA;border:1px solid #D0D7DE;border-radius:8px;padding:20px 24px;margin:24px 0">
-  <dt style="font-weight:700;margin-top:12px;color:#24292F">Sidecar container</dt>
-  <dd style="margin:4px 0 0 20px;color:#57606A">A helper container that runs alongside the application container in the same Pod, such as a log shipper or proxy.</dd>
-  <dt style="font-weight:700;margin-top:12px;color:#24292F">Native sidecar</dt>
-  <dd style="margin:4px 0 0 20px;color:#57606A">An init container with restartPolicy: Always, supported from Kubernetes 1.28 (alpha) and on by default from 1.29 (beta).</dd>
-  <dt style="font-weight:700;margin-top:12px;color:#24292F">Init container</dt>
-  <dd style="margin:4px 0 0 20px;color:#57606A">A container that runs before the Pod's main containers; ordinary init containers must exit successfully first.</dd>
-  <dt style="font-weight:700;margin-top:12px;color:#24292F">SidecarContainers</dt>
-  <dd style="margin:4px 0 0 20px;color:#57606A">The feature gate that controls native sidecars; it must be on in the API server and the kubelet.</dd>
-  <dt style="font-weight:700;margin-top:12px;color:#24292F">Feature gate</dt>
-  <dd style="margin:4px 0 0 20px;color:#57606A">A named switch that turns a Kubernetes feature on or off; alpha gates are off by default, beta gates usually on.</dd>
-  <dt style="font-weight:700;margin-top:12px;color:#24292F">Startup probe</dt>
-  <dd style="margin:4px 0 0 20px;color:#57606A">A check the kubelet runs until it passes; for a native sidecar it decides when the next container may start.</dd>
-  <dt style="font-weight:700;margin-top:12px;color:#24292F">terminationGracePeriodSeconds</dt>
-  <dd style="margin:4px 0 0 20px;color:#57606A">How long the kubelet waits after SIGTERM before killing the Pod's containers; 30 seconds by default.</dd>
-  <dt style="font-weight:700;margin-top:12px;color:#24292F">SIGTERM</dt>
-  <dd style="margin:4px 0 0 20px;color:#57606A">The signal asking a process to stop; SIGKILL follows if it has not stopped when the grace period ends.</dd>
-  <dt style="font-weight:700;margin-top:12px;color:#24292F">Exit code 137</dt>
-  <dd style="margin:4px 0 0 20px;color:#57606A">128 plus 9: the process was killed with SIGKILL.</dd>
-  <dt style="font-weight:700;margin-top:12px;color:#24292F">kind</dt>
-  <dd style="margin:4px 0 0 20px;color:#57606A">Kubernetes in Docker, a tool that runs a cluster's nodes as Docker containers.</dd>
-  <dt style="font-weight:700;margin-top:12px;color:#24292F">Job</dt>
-  <dd style="margin:4px 0 0 20px;color:#57606A">A Kubernetes workload that runs Pods to completion and records whether they succeeded.</dd>
+  <dt style="font-weight:700;margin-top:12px;color:#24292F">Amazon EKS</dt>
+  <dd style="margin:4px 0 0 20px;color:#57606A">AWS's managed Kubernetes service; AWS runs the control plane and charges per cluster-hour for it.</dd>
+  <dt style="font-weight:700;margin-top:12px;color:#24292F">Control plane</dt>
+  <dd style="margin:4px 0 0 20px;color:#57606A">The Kubernetes API server, etcd and controllers; on EKS its version sets the hourly price.</dd>
+  <dt style="font-weight:700;margin-top:12px;color:#24292F">Standard support</dt>
+  <dd style="margin:4px 0 0 20px;color:#57606A">The first 14 months after EKS releases a Kubernetes minor version; $0.10 per cluster-hour.</dd>
+  <dt style="font-weight:700;margin-top:12px;color:#24292F">Extended support</dt>
+  <dd style="margin:4px 0 0 20px;color:#57606A">The 12 months after standard support ends; $0.60 per cluster-hour from April 2024.</dd>
+  <dt style="font-weight:700;margin-top:12px;color:#24292F">Minor version</dt>
+  <dd style="margin:4px 0 0 20px;color:#57606A">The second number in a Kubernetes version, such as 1.24; EKS upgrades one minor version at a time.</dd>
+  <dt style="font-weight:700;margin-top:12px;color:#24292F">Platform version</dt>
+  <dd style="margin:4px 0 0 20px;color:#57606A">EKS's own revision of a cluster's control plane within a Kubernetes minor version.</dd>
+  <dt style="font-weight:700;margin-top:12px;color:#24292F">Upgrade insights</dt>
+  <dd style="margin:4px 0 0 20px;color:#57606A">EKS checks, from the cluster's audit logs, for issues that would affect the next upgrade, such as deprecated API use.</dd>
+  <dt style="font-weight:700;margin-top:12px;color:#24292F">PodSecurityPolicy</dt>
+  <dd style="margin:4px 0 0 20px;color:#57606A">A Kubernetes admission API removed in 1.25; Pod Security Admission replaces its built-in use.</dd>
+  <dt style="font-weight:700;margin-top:12px;color:#24292F">Pod Security Admission</dt>
+  <dd style="margin:4px 0 0 20px;color:#57606A">The built-in admission controller that enforces Pod Security Standards from namespace labels.</dd>
+  <dt style="font-weight:700;margin-top:12px;color:#24292F">moto</dt>
+  <dd style="margin:4px 0 0 20px;color:#57606A">A Python library that mocks AWS APIs for tests.</dd>
 </dl>
 <!-- /wp:html -->
 
@@ -412,12 +370,12 @@ spec:
 
 <!-- wp:html -->
 <ul style="background:#F6F8FA;border:1px solid #D0D7DE;border-radius:8px;padding:20px 24px;margin:24px 0;list-style:none">
-  <li style="margin:10px 0"><a href="https://kubernetes.io/blog/2023/12/13/kubernetes-v1-29-release/" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; Kubernetes v1.29: Mandala</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— Release announcement, 13 December 2023</span></li>
-  <li style="margin:10px 0"><a href="https://v1-29.docs.kubernetes.io/docs/concepts/workloads/pods/sidecar-containers/" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; Sidecar Containers (v1.29 documentation)</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— The feature gate, start order and termination order</span></li>
-  <li style="margin:10px 0"><a href="https://github.com/kubernetes/enhancements/tree/master/keps/sig-node/753-sidecar-containers" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; KEP-753: Sidecar Containers</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— Design and graduation history</span></li>
-  <li style="margin:10px 0"><a href="https://aws.amazon.com/about-aws/whats-new/2024/01/amazon-eks-eks-distro-kubernetes-version-1-29" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; Amazon EKS and Amazon EKS Distro now support Kubernetes version 1.29</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— What&#x27;s New, 23 January 2024</span></li>
-  <li style="margin:10px 0"><a href="https://github.com/Azure/AKS/releases/tag/2024-02-07" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; AKS release 2024-02-07</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— AKS 1.29.0 in preview</span></li>
-  <li style="margin:10px 0"><a href="https://github.com/kubernetes-sigs/kind/releases/tag/v0.22.0" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; kind v0.22.0</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— Release of 14 February 2024 used for the tests</span></li>
-  <li style="margin:10px 0"><a href="https://github.com/nithinmohantk/blog-samples-working-repo/tree/main/k8s-129-native-sidecars" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; Sample code for this article</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— Manifests, harness, results and tests</span></li>
+  <li style="margin:10px 0"><a href="https://aws.amazon.com/blogs/containers/amazon-eks-extended-support-for-kubernetes-versions-pricing/" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; Amazon EKS extended support for Kubernetes versions pricing</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— AWS Containers blog, 16 January 2024: prices, scenarios and calendar</span></li>
+  <li style="margin:10px 0"><a href="https://docs.aws.amazon.com/eks/latest/userguide/kubernetes-versions.html" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; Amazon EKS Kubernetes versions</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— The release calendar and version lifecycle</span></li>
+  <li style="margin:10px 0"><a href="https://aws.amazon.com/blogs/containers/amazon-eks-now-supports-kubernetes-version-1-29/" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; Amazon EKS now supports Kubernetes version 1.29</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— AWS Containers blog, 23 January 2024</span></li>
+  <li style="margin:10px 0"><a href="https://aws.amazon.com/about-aws/whats-new/2023/12/amazon-eks-upgrade-insights/" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; Amazon EKS upgrade insights</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— What&#x27;s New, 20 December 2023</span></li>
+  <li style="margin:10px 0"><a href="https://aws.amazon.com/blogs/containers/accelerate-the-testing-and-verification-of-amazon-eks-upgrades-with-upgrade-insights/" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; Accelerate the testing and verification of Amazon EKS upgrades with upgrade insights</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— AWS Containers blog</span></li>
+  <li style="margin:10px 0"><a href="https://kubernetes.io/docs/reference/using-api/deprecation-guide/" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; Deprecated API Migration Guide</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— Kubernetes API versions removed in each release</span></li>
+  <li style="margin:10px 0"><a href="https://github.com/nithinmohantk/blog-samples-working-repo/tree/main/eks-extended-support-cost" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; Sample code for this article</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— Calendar, cost model, fleet audit, demo and tests</span></li>
 </ul>
 <!-- /wp:html -->

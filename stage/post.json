@@ -1,6 +1,6 @@
 {
-  "title": "Kubernetes 1.29 Native Sidecars: Jobs That Finish, Ordered Shutdown and the 1.28 Trap",
-  "slug": "kubernetes-1-29-native-sidecars-jobs-shutdown-order",
-  "date": "2024-02-17T09:00:00",
-  "excerpt": "Kubernetes 1.29 turns on native sidecars. Seven scenarios on kind: Jobs now complete, shutdown runs main first and then sidecars in reverse, a slow main container can starve a log shipper of its grace period, and on 1.28 the same manifest hangs in Init."
+  "title": "EKS Extended Support Pricing: What $0.60 an Hour Means for Your Fleet from 1 April",
+  "slug": "eks-extended-support-pricing-fleet-cost-from-1-april",
+  "date": "2024-02-24T09:00:00",
+  "excerpt": "From April 2024 an EKS cluster in extended support costs $0.60 an hour instead of $0.10. A fleet audit and day-by-day cost model show why upgrading 1.24 to 1.25 saves only $360 a year, and why the plan has to reach 1.28 or 1.29."
 }
