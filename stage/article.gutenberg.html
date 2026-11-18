@@ -1,0 +1,497 @@
+<!-- wp:paragraph -->
+<p>On Thursday 1 February 2024 every public IPv4 address in an AWS account starts costing $0.005 an hour. AWS announced the change on 28 July 2023, so it is not news, but six months is long enough for an announcement to slip off the list while the bill does not. Until now you paid only for idle Elastic IPs and for second and later Elastic IPs on a running instance. From Thursday you also pay for the address an instance gets from a subnet's auto-assign setting, for the first Elastic IP on an instance, and for the addresses AWS-managed services such as internet-facing load balancers hold in your VPC.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Half a cent an hour sounds like rounding. It is $3.72 for one address in a 31-day month and $3.48 in February, because 2024 is a leap year and February has 696 hours. An account built from the VPC wizard defaults a few years ago can hold dozens of addresses nobody chose deliberately. This article shows how to find every one of them through the EC2 API, say what holds each address, mark which ones become chargeable on Thursday, and price the clean-up. The sample code ran in GitHub Actions against moto and botocore as they stood on 26 January 2024.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">What changes on 1 February</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>The table below follows the pricing table in the AWS News Blog announcement. The charge applies in every commercial Region, in AWS China and in GovCloud, to every address type except addresses you bring yourself through BYOIP. EC2 Free Tier accounts get 750 hours of public IPv4 a month for their first 12 months, which covers one address running all month.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:table {"className":"is-style-stripes"} -->
+<figure class="wp-block-table is-style-stripes"><table><thead><tr><th>Address type</th><th>Before 1 February 2024</th><th>From 1 February 2024</th></tr></thead><tbody><tr><td>EC2 public IPv4 from a subnet's auto-assign setting</td><td>Free</td><td>$0.005 an hour</td></tr><tr><td>First Elastic IP on a running instance</td><td>Free</td><td>$0.005 an hour</td></tr><tr><td>Second and later Elastic IPs on a running instance</td><td>$0.005 an hour</td><td>$0.005 an hour</td></tr><tr><td>Idle Elastic IP (allocated, not associated)</td><td>$0.005 an hour</td><td>$0.005 an hour</td></tr><tr><td>Service-managed addresses in your VPC (load balancers, ECS tasks and others)</td><td>Free</td><td>$0.005 an hour</td></tr><tr><td>Site-to-Site VPN tunnels and Global Accelerator</td><td>Free</td><td>$0.005 an hour</td></tr><tr><td>BYOIP addresses</td><td>Free</td><td>Free</td></tr></tbody></table></figure>
+<!-- /wp:table -->
+
+<!-- wp:image {"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="{{IMG1_URL}}" alt="Table of public IPv4 address types on AWS with their price before and from 1 February 2024 and the CUR operation for each"/><figcaption class="wp-element-caption">Every public IPv4 address type except BYOIP costs $0.005 an hour from 1 February 2024.</figcaption></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>The rows that move from free to charged are the ones nobody tracks. An idle Elastic IP already showed up on the bill, so finance teams have been chasing those for years. An auto-assigned address on a web server, or the addresses behind an internet-facing load balancer, have never had a line item of their own.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">Three ways to see the addresses</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>AWS gave customers two views of this before the price changed, and both are worth using before you write any code.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>The first is the Cost and Usage Report. Since 28 July 2023 the CUR has carried two usage types, <code>PublicIPv4:InUseAddress</code> and <code>PublicIPv4:IdleAddress</code>, recorded at no cost until 1 February. That makes January's CUR the most accurate forecast of February's charge you can get: it is AWS's own count, hour by hour. The <code>lineItem/Operation</code> column says what kind of address each line is. The AWS Networking blog post from launch day lists the operations: <code>RunInstances</code> for EC2 addresses, <code>AssociateAddressVPC</code> and <code>AllocateAddressVPC</code> for Elastic IPs in use and idle, <code>DescribeNetworkInterfaces</code> for service-managed addresses, and <code>CreateVpnConnection</code> and <code>CreateAccelerator</code> for VPN and Global Accelerator.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>The second is Public IP Insights in Amazon VPC IP Address Manager. It launched with the price announcement as a free feature, and on 17 November 2023 AWS added an IPAM Free Tier and extended Public IP Insights to show addresses across accounts and Regions in one view. You need to create an IPAM to use it, and to see the whole organisation you first delegate an IPAM administrator account from the management account.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>The third is the EC2 API, which is what this article's code uses. The CUR tells you what you paid, after the fact. Public IP Insights is a console view. The API gives you the current state as data you can join to your own tagging, ownership and CMDB records, run on a schedule, and fail a pipeline on. Use the CUR to size the problem and the API to work through it.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">How the audit finds each address</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>No single EC2 call lists every public IPv4 address. Elastic IPs come from <code>DescribeAddresses</code>, which is the only place an idle one appears. Auto-assigned addresses appear on the instance and on its network interface. Service-managed addresses appear only on network interfaces, and those interfaces belong to a service, not to you. The audit reads four sources per Region and counts each address once:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:merpress/mermaidjs -->
+<div class="wp-block-merpress-mermaidjs diagram-source-mermaid"><pre class="mermaid">%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#FFF3E0', 'primaryTextColor': '#232F3E', 'primaryBorderColor': '#FF9900', 'lineColor': '#232F3E', 'clusterBkg': '#F8FAFC', 'clusterBorder': '#CBD5E1', 'edgeLabelBackground': '#FFFFFF', 'nodeTextColor': '#232F3E'}}}%%
+flowchart TD
+    R["Every enabled Region&lt;br/&gt;ec2:DescribeRegions"] --&gt; N["NAT gateways&lt;br/&gt;ENI to gateway map"]
+    N --&gt; I["Instances&lt;br/&gt;auto-assigned addresses, ENI to instance map"]
+    I --&gt; E["Elastic IPs&lt;br/&gt;idle, first on an instance, later ones"]
+    E --&gt; X["Every other ENI&lt;br/&gt;load balancers, ECS tasks, the rest"]
+    X --&gt; D["One row per address&lt;br/&gt;owner, CUR operation, newly charged"]
+    D --&gt; C["Monthly cost&lt;br/&gt;real hours in the month"]
+    D --&gt; S["Subnets that auto-assign&lt;br/&gt;the source of future addresses"]
+    classDef compute fill:#FFF3E0,stroke:#FF9900,stroke-width:2px,color:#232F3E
+    classDef data fill:#EBF8FF,stroke:#0073BB,stroke-width:2px,color:#004C74
+    classDef store fill:#F0FFF4,stroke:#1D8102,stroke-width:2px,color:#145202
+    classDef alert fill:#FEF2F2,stroke:#D13212,stroke-width:2px,color:#991B1B
+    class R,N,I,E,X data
+    class D compute
+    class C store
+    class S alert</pre></div>
+<!-- /wp:merpress/mermaidjs -->
+
+<!-- wp:paragraph -->
+<p>The order matters because the same address can show up in more than one source. An Elastic IP on an instance appears in <code>DescribeAddresses</code>, in the instance's network interfaces and in <code>DescribeNetworkInterfaces</code>. The audit lets Elastic IPs win, then auto-assigned instance addresses, then whatever is left on other interfaces. An address is auto-assigned when its association has no allocation ID, which is how the API tells an Elastic IP from an address borrowed from Amazon's pool:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:code {"language":"python"} -->
+<pre class="wp-block-code"><code lang="python" class="language-python">    # 1. Instances. Auto-assigned addresses live here (and on the ENI).
+    instance_by_eni: dict[str, str] = {}
+    auto_assigned: list[PublicIp] = []
+    for reservation in _pages(ec2, "describe_instances", "Reservations"):
+        for instance in reservation["Instances"]:
+            owner = f"ec2 {instance['InstanceId']}"
+            seen = set()
+            for eni in instance.get("NetworkInterfaces", []):
+                instance_by_eni[eni["NetworkInterfaceId"]] = instance["InstanceId"]
+                for private in eni.get("PrivateIpAddresses", []):
+                    association = private.get("Association") or {}
+                    if association.get("PublicIp") and not association.get("AllocationId"):
+                        seen.add(association["PublicIp"])
+                        auto_assigned.append(PublicIp(region, association["PublicIp"], "ec2-auto", owner,
+                                                      eni["NetworkInterfaceId"], OP_EC2, True))
+            ip = instance.get("PublicIpAddress")
+            if ip and ip not in seen:
+                auto_assigned.append(PublicIp(region, ip, "ec2-auto", owner, None, OP_EC2, True))</code></pre>
+<!-- /wp:code -->
+
+<!-- wp:paragraph -->
+<p>The instance pass also builds a map from network interface to instance. The Elastic IP pass needs it, because whether an Elastic IP becomes chargeable on Thursday depends on what it is attached to. Only the first Elastic IP on a running instance was free; the second and later ones, and idle ones, were already charged:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:code {"language":"python"} -->
+<pre class="wp-block-code"><code lang="python" class="language-python">    # 2. Elastic IPs. The only source for idle ones. They win over step 1 for the same address.
+    eips_per_instance: dict[str, int] = {}
+    for address in ec2.describe_addresses()["Addresses"]:
+        ip = address["PublicIp"]
+        if not address.get("AssociationId"):
+            found[ip] = PublicIp(region, ip, "eip-idle", "none (idle)", None, OP_EIP_IDLE, False)
+            continue
+        eni_id = address.get("NetworkInterfaceId") or None
+        # InstanceId can be empty when the EIP was associated through the ENI; map it back.
+        instance_id = address.get("InstanceId") or instance_by_eni.get(eni_id or "", "")
+        if instance_id:
+            owner = f"ec2 {instance_id}"
+            eips_per_instance[instance_id] = eips_per_instance.get(instance_id, 0) + 1
+            # Before February 2024 the first EIP on a running instance was free.
+            newly = eips_per_instance[instance_id] == 1
+        else:
+            owner = f"nat {nat_by_eni[eni_id]}" if eni_id in nat_by_eni else f"eni {eni_id}"
+            newly = True
+        found[ip] = PublicIp(region, ip, "eip-in-use", owner, eni_id, OP_EIP_IN_USE, newly)</code></pre>
+<!-- /wp:code -->
+
+<!-- wp:paragraph -->
+<p>The comment about <code>InstanceId</code> comes from the tests. moto 4.2.13 returns an empty <code>InstanceId</code> for an Elastic IP associated through its network interface rather than through the instance. Mapping the interface back to its instance costs nothing and means the audit does not depend on that field.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">Naming what holds each address</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>An address is only useful in a report if someone can act on it, which means naming the resource that holds it. For instances and NAT gateways the API says so directly: the interface's attachment carries an instance ID, and <code>DescribeNatGateways</code> lists each gateway's interfaces. Everything else needs the network interface's own fields:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:code {"language":"python"} -->
+<pre class="wp-block-code"><code lang="python" class="language-python">def describe_owner(eni: dict, nat_by_eni: dict[str, str]) -&gt; str:
+    """Name the resource that holds an ENI. Uses only documented fields."""
+    eni_id = eni["NetworkInterfaceId"]
+    instance_id = (eni.get("Attachment") or {}).get("InstanceId")
+    if instance_id:
+        return f"ec2 {instance_id}"
+    if eni_id in nat_by_eni:
+        return f"nat {nat_by_eni[eni_id]}"
+    description = eni.get("Description") or ""
+    if description.startswith(("ELB app/", "ELB net/")):
+        return "elb " + description[len("ELB "):]
+    if description.startswith("ELB "):
+        return "elb classic " + description[len("ELB "):]
+    interface_type = eni.get("InterfaceType") or "interface"
+    if interface_type in NAT_INTERFACE_TYPES:
+        return f"nat (from interface type) {eni_id}"
+    if interface_type != "interface":
+        return f"{interface_type} {eni_id}"
+    if eni.get("RequesterManaged"):
+        return f"requester-managed '{description}' {eni_id}"
+    return f"unknown {eni_id}"</code></pre>
+<!-- /wp:code -->
+
+<!-- wp:paragraph -->
+<p>Load balancer interfaces carry a description that starts <code>ELB app/</code> for an Application Load Balancer, <code>ELB net/</code> for a Network Load Balancer, and <code>ELB</code> followed by the name for a Classic Load Balancer. AWS documents the description field as the creating service's description of the interface, but not its exact format, so treat those prefixes as a convention that has held, not a contract. Anything the code cannot name falls back to the interface type or to the requester-managed flag with the raw description, so a person can still find the owner.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>One detail in the interface types is worth knowing if you write your own version. The botocore model of January 2024 and the EC2 API reference disagree on how to spell the NAT gateway interface type. This is what the sample's <code>tools/api_options.py</code> printed in CI:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:code {"language":"text"} -->
+<pre class="wp-block-code"><code lang="text" class="language-text">{
+  "botocore": "1.34.29",
+  "elbv2 IpAddressType": [
+    "ipv4",
+    "dualstack"
+  ],
+  "ec2 NetworkInterfaceType has nat_gateway": false,
+  "ec2 NetworkInterfaceType has natGateway": true,
+  "ec2 ModifySubnetAttribute has EnableDns64": true,
+  "lambda VpcConfig has Ipv6AllowedForDualStack": true,
+  "ecs AssignPublicIp": [
+    "ENABLED",
+    "DISABLED"
+  ]
+}</code></pre>
+<!-- /wp:code -->
+
+<!-- wp:paragraph -->
+<p>The model's enum says <code>natGateway</code>, while the API reference lists <code>nat_gateway</code> as the value and as the filter value. Code that compares against one spelling can miss NAT gateway interfaces. The audit accepts both, and it prefers the join from <code>DescribeNatGateways</code> anyway.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:html -->
+<div class="callout callout-warning" style="background: #fff3e0; border-left: 4px solid #ff9800; padding: 16px 20px; margin: 20px 0; border-radius: 4px;"><div style="display: flex; align-items: start;"><span style="font-size: 24px; margin-right: 12px;">⚠️</span><div><strong style="color: #f57c00; display: block; margin-bottom: 8px;">A MOCK THAT HIDES THE PROBLEM</strong><p style="margin: 0; color: #333;">moto 4.2.13 gives instances a <code>PublicIpAddress</code> but leaves the network interface's <code>Association</code> empty. An audit that read only <code>DescribeNetworkInterfaces</code> would find no EC2 addresses at all under moto, and its tests would still pass if they only checked load balancers. The sample reads instances directly and has a separate stubbed test, with the response shape real AWS returns, for an address that appears on both the instance and its interface.</p></div></div></div>
+<!-- /wp:html -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">Test setup</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>The sample has 16 tests in three groups. moto covers instances, Elastic IPs, NAT gateways and subnet settings, because moto can create those resources and change their state. moto cannot create a load balancer's interfaces or an ECS task's, so those cases use botocore's Stubber with synthetic responses that the Stubber checks against the EC2 service model. The CUR reader and the cost model have plain fixture tests. The CI job pins Python 3.12 and installs packages with <code>uv --exclude-newer 2024-01-26</code>, which gave boto3 and botocore 1.34.29, moto 4.2.13 and pytest 7.4.4.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>The demo account is made up and built in moto. It is the kind of estate the change hits hardest: a VPC with two public subnets where auto-assign is on, two web instances in each, a bastion with an Elastic IP, a NAT gateway per Availability Zone, two Elastic IPs left over from an old migration, and one instance someone launched into the default VPC in us-east-1 and forgot.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">Test results</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>The audit of the demo account, priced for February 2024:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:code {"language":"json"} -->
+<pre class="wp-block-code"><code lang="json" class="language-json">{
+  "addresses": 10,
+  "by_kind": {
+    "ec2-auto": 5,
+    "eip-idle": 2,
+    "eip-in-use": 3
+  },
+  "by_owner_type": {
+    "ec2": 6,
+    "nat": 2,
+    "none": 2
+  },
+  "newly_charged": 8,
+  "month": "2024-02",
+  "hours": 696,
+  "cost_all": "34.80",
+  "cost_new_from_feb_2024": "27.84"
+}</code></pre>
+<!-- /wp:code -->
+
+<!-- wp:paragraph -->
+<p>Ten addresses, of which eight were free before Thursday. The two idle Elastic IPs cost $6.96 in February under the old pricing and still do. Everything else is new: $27.84 for February, taking the total to $34.80. One row per address went to a CSV:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:code {"language":"text"} -->
+<pre class="wp-block-code"><code lang="text" class="language-text">region,ip,kind,owner,eni,billing_operation,newly_charged
+eu-west-1,54.214.143.125,ec2-auto,ec2 i-675460c13d0d73512,eni-ab5db826,RunInstances,True
+eu-west-1,54.214.69.25,ec2-auto,ec2 i-8f9dc1e6307f08743,eni-276e466a,RunInstances,True
+eu-west-1,54.214.163.221,ec2-auto,ec2 i-b0cb1917dd6d92b63,eni-63176140,RunInstances,True
+eu-west-1,54.214.248.192,ec2-auto,ec2 i-f097ad69eba2025c2,eni-4a8cec20,RunInstances,True
+eu-west-1,127.188.164.121,eip-idle,none (idle),,AllocateAddressVPC,False
+eu-west-1,127.218.90.238,eip-idle,none (idle),,AllocateAddressVPC,False
+eu-west-1,127.28.210.127,eip-in-use,ec2 i-d5901cbb587a4b8a8,eni-81a08bab,AssociateAddressVPC,True
+eu-west-1,127.63.254.97,eip-in-use,nat nat-b58d60371c8b745ad,eni-de9dd53e,AssociateAddressVPC,True
+eu-west-1,127.252.145.49,eip-in-use,nat nat-f0f6ab5397c8cd671,eni-48f7d9b6,AssociateAddressVPC,True
+us-east-1,54.214.254.91,ec2-auto,ec2 i-ffba175cc546f099b,eni-71014cfb,RunInstances,True</code></pre>
+<!-- /wp:code -->
+
+<!-- wp:paragraph -->
+<p>The Elastic IP addresses are in moto's 127.0.0.0/8 range and the instance addresses in its 54.214.0.0/16 range; in a real account both are Amazon public addresses. The CSV is the useful output: sort it by owner, send each team its rows.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">Pricing the addresses</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Monthly estimates usually multiply by 730 hours. That is fine for a budget and wrong for a specific month, and February 2024 is the month most people will compare against. The cost function uses the real number of hours and applies the Free Tier allowance when asked:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:code {"language":"python"} -->
+<pre class="wp-block-code"><code lang="python" class="language-python">def month_cost(address_count: int, year: int, month: int, free_tier: bool = False) -&gt; Decimal:
+    """Cost of address_count addresses held for the whole month."""
+    hours = address_count * hours_in_month(year, month)
+    if free_tier:
+        hours = max(0, hours - FREE_TIER_HOURS)
+    return (hours * RATE_PER_HOUR).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)</code></pre>
+<!-- /wp:code -->
+
+<!-- wp:paragraph -->
+<p>For the CUR, the sample reads a downloaded report file with the standard library rather than through Athena, since many teams have the CUR delivered to S3 but have not set up the Athena integration. It totals address-hours by usage type, by operation and by resource ID:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:code {"language":"python"} -->
+<pre class="wp-block-code"><code lang="python" class="language-python">    with _open(Path(path)) as handle:
+        for row in csv.DictReader(handle):
+            usage_type = row.get("lineItem/UsageType", "")
+            suffix = next((s for s in USAGE_SUFFIXES if usage_type.endswith(s)), None)
+            if not suffix:
+                continue
+            hours = Decimal(row.get("lineItem/UsageAmount") or "0")
+            by_usage[suffix] += hours
+            by_operation[row.get("lineItem/Operation", "")] += hours
+            by_resource[row.get("lineItem/ResourceId") or "(no resource id)"] += hours</code></pre>
+<!-- /wp:code -->
+
+<!-- wp:paragraph -->
+<p>Run it on January's files and multiply by the February rate, and you have AWS's own number to check the API audit against. If the two disagree by more than an address or two, something is holding addresses that the API audit does not cover. VPN tunnels and Global Accelerator are the usual suspects, and the operation column will say which. The resource ID column is only filled in if the report was set up with resource IDs included.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">Reducing the count</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Each address type has its own fix, and none of them is a billing setting. Most of them change architecture or access, so they need an owner and a change window. In rough order of effort:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:table {"className":"is-style-stripes"} -->
+<figure class="wp-block-table is-style-stripes"><table><thead><tr><th>Address type</th><th>Change</th><th>Watch out for</th></tr></thead><tbody><tr><td>Idle Elastic IP</td><td>Release it</td><td>A partner may have it on a firewall allow list; once released you cannot count on getting it back</td></tr><tr><td>Auto-assigned on new launches</td><td>Turn off <code>MapPublicIpOnLaunch</code> on the subnet</td><td>Only affects new launches; existing instances get a new address every time they start</td></tr><tr><td>Bastion or admin access</td><td>EC2 Instance Connect Endpoint (launched 13 June 2023)</td><td>SSH and RDP only; needs IAM permissions for the endpoint and for EC2 Instance Connect</td></tr><tr><td>Web instances with public addresses</td><td>Private subnets behind an internet-facing load balancer</td><td>The load balancer holds public addresses of its own, at least one per Availability Zone</td></tr><tr><td>ECS tasks with <code>assignPublicIp</code> ENABLED</td><td>Private subnets, with a NAT gateway or VPC endpoints for image pulls and logs</td><td>Interface endpoints and NAT gateways have their own hourly charges; compare them</td></tr><tr><td>NAT gateway per Availability Zone</td><td>Usually keep them</td><td>One shared NAT gateway saves addresses but adds cross-AZ traffic and a shared failure point</td></tr></tbody></table></figure>
+<!-- /wp:table -->
+
+<!-- wp:paragraph -->
+<p>The first two rows are the cheapest. Releasing idle Elastic IPs takes minutes once someone confirms nothing depends on them, and turning off auto-assign stops new addresses appearing. Default VPC subnets have it on, and so do public subnets created by many templates. The sample lists the subnets that have it on:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:code {"language":"python"} -->
+<pre class="wp-block-code"><code lang="python" class="language-python">def auto_assign_subnets(ec2) -&gt; list[dict]:
+    """Subnets that hand a public IPv4 address to everything launched in them.
+
+    Default VPC subnets have this on. Turning it off changes only new launches.
+    Existing instances made their choice at launch: they get a new address
+    every time they start, so they have to be replaced to lose it.
+    """
+    return [
+        {"subnet": s["SubnetId"], "vpc": s["VpcId"], "az": s["AvailabilityZone"],
+         "default_for_az": s.get("DefaultForAz", False)}
+        for s in _pages(ec2, "describe_subnets", "Subnets")
+        if s.get("MapPublicIpOnLaunch")
+    ]</code></pre>
+<!-- /wp:code -->
+
+<!-- wp:paragraph -->
+<p>A test turns the setting off in moto and then launches an instance into the subnet, which comes back without a public address. Existing instances are not affected. The choice was made at launch, so AWS releases the address when the instance stops and gives it a new one when it starts again. To lose the address, the instance has to be replaced, which is usually part of moving it into a private subnet anyway.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>The scenario script prices the demo account's clean-up step by step for March 2024, the first full month at the new rate:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:code {"language":"text"} -->
+<pre class="wp-block-code"><code lang="text" class="language-text">2024-03: 744 hours at $0.005 per address-hour
+step                                                                                 addresses  USD/month
+As found                                                                                    10      37.20
+Release the 2 idle Elastic IPs                                                               8      29.76
+Stop or terminate the forgotten us-east-1 instance                                           7      26.04
+Replace the bastion's Elastic IP with an EC2 Instance Connect Endpoint                       6      22.32
+Move the 4 web instances to private subnets behind an internet-facing ALB in 2 AZs           4      14.88</code></pre>
+<!-- /wp:code -->
+
+<!-- wp:image {"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="{{IMG2_URL}}" alt="Bar chart of the demo account going from 10 public IPv4 addresses at $37.20 a month to 4 at $14.88 in four clean-up steps, priced for March 2024"/><figcaption class="wp-element-caption">Four changes take the demo account from ten addresses to four.</figcaption></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>The last step is the one to think about. Moving four web instances into private subnets removes four addresses but adds the load balancer's, at least one per Availability Zone and more as it scales out. The saving is the difference, and it grows with the number of instances. The real reason to make that change is that web servers should not have public addresses, and the price change makes the argument easier to win.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">Where IPv6 helps, and where it does not yet</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>AWS's announcement pointed customers towards IPv6, and it does remove addresses in some places today. It does not remove them where most of the new charges come from.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>For inbound traffic, a dual-stack Application or Network Load Balancer accepts IPv6 clients, but in January 2024 it still holds public IPv4 addresses too. The botocore model above lists only <code>ipv4</code> and <code>dualstack</code> as load balancer address types, so there is no way to have an internet-facing load balancer without public IPv4. Dual-stack is worth turning on for clients who prefer IPv6, but it saves nothing on this charge.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>For outbound traffic there is more room. An instance in an IPv6-only or dual-stack subnet can reach IPv6 destinations through an egress-only internet gateway with no public IPv4 address, and since 12 October 2023 VPC-attached Lambda functions can send IPv6 traffic from dual-stack subnets. Many endpoints that builds and agents call still have no IPv6 address, so an IPv6-only subnet needs DNS64 on the subnet and NAT64 on a NAT gateway to reach them, and that NAT gateway holds an Elastic IP. The saving comes from many workloads sharing a few NAT gateways instead of each holding an address.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:html -->
+<div class="callout callout-tip" style="background: #e8f5e9; border-left: 4px solid #4caf50; padding: 16px 20px; margin: 20px 0; border-radius: 4px;"><div style="display: flex; align-items: start;"><span style="font-size: 24px; margin-right: 12px;">💡</span><div><strong style="color: #388e3c; display: block; margin-bottom: 8px;">START WITH THE CUR</strong><p style="margin: 0; color: #333;">Before changing any architecture, run <code>tools/cur_report.py</code> on January's Cost and Usage Report. If the total is a few dollars a month, release the idle Elastic IPs, turn off auto-assign on subnets, and move on. If it is hundreds, the CSV from the API audit tells you which teams own the addresses.</p></div></div></div>
+<!-- /wp:html -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">Production considerations</h2>
+<!-- /wp:heading -->
+
+<!-- wp:list -->
+<ul class="wp-block-list">
+<!-- wp:list-item -->
+<li><strong>Permissions.</strong> The audit needs only <code>ec2:Describe*</code> calls: <code>DescribeRegions</code>, <code>DescribeAddresses</code>, <code>DescribeInstances</code>, <code>DescribeNetworkInterfaces</code>, <code>DescribeNatGateways</code> and <code>DescribeSubnets</code>. Run it from a read-only role assumed into each account in the organisation.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li><strong>Regions.</strong> It audits every enabled Region by default and logs and skips a Region it cannot read, so a service control policy that blocks one Region does not lose the rest. Check the log for skipped Regions; they are not in the totals.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li><strong>Coverage.</strong> Site-to-Site VPN tunnel addresses and Global Accelerator addresses are charged but not counted. Compare the audit with the CUR or Public IP Insights to catch them.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li><strong>Schedule.</strong> Run it weekly and diff the CSV. A new idle Elastic IP or a new subnet with auto-assign on is worth an alert; the count creeping up by one a week is how the bill grew in the first place.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li><strong>Allow lists.</strong> In regulated environments, partners such as payment processors, clearing houses and health information exchanges often allow-list a sender's Elastic IP. Check before releasing one, and keep a register of addresses that external parties depend on.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li><strong>Owners.</strong> Join the CSV to your tags. An address owned by "unknown eni-..." is a finding in its own right.</li>
+<!-- /wp:list-item -->
+</ul>
+<!-- /wp:list -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">Decision framework</h2>
+<!-- /wp:heading -->
+
+<!-- wp:table {"className":"is-style-stripes"} -->
+<figure class="wp-block-table is-style-stripes"><table><thead><tr><th>Question</th><th>Recommendation</th></tr></thead><tbody><tr><td>How much will 1 February cost us?</td><td>January's CUR, <code>PublicIPv4</code> usage types, times $0.005 per hour</td></tr><tr><td>Which resources hold the addresses?</td><td>The API audit, one row per address with its owner</td></tr><tr><td>What to do first?</td><td>Release idle Elastic IPs and turn off auto-assign on subnets</td></tr><tr><td>Bastions with public addresses?</td><td>Replace with EC2 Instance Connect Endpoint where SSH or RDP is all that is needed</td></tr><tr><td>Will dual-stack load balancers save money?</td><td>Not in January 2024: they still hold public IPv4</td></tr><tr><td>One NAT gateway or one per AZ?</td><td>One per AZ unless the saving outweighs cross-AZ traffic and a shared failure point</td></tr></tbody></table></figure>
+<!-- /wp:table -->
+
+<!-- wp:html -->
+<div class="callout callout-note" style="background: #f5f5f5; border-left: 4px solid #607d8b; padding: 16px 20px; margin: 20px 0; border-radius: 4px;"><div style="display: flex; align-items: start;"><span style="font-size: 24px; margin-right: 12px;">📝</span><div><strong style="color: #455a64; display: block; margin-bottom: 8px;">HOW THIS WAS CHECKED</strong><p style="margin: 0; color: #333;">The sample ran in GitHub Actions (<a href="https://github.com/nithinmohantk/blog-samples-working-repo/actions/runs/44294456007" target="_blank" rel="noopener">run</a>) on Python 3.12 with boto3 and botocore 1.34.29, moto 4.2.13 and pytest 7.4.4, the versions available on 26 January 2024. All 16 tests passed. The demo account, the summary, the CSV, the scenario prices and the botocore model output above are copied from that run. No real AWS account was used: load balancer and ECS interfaces were tested with synthetic responses validated against the service model. Prices and dates come from the AWS News Blog and AWS Networking blog posts of 28 July 2023 and the What's New posts linked below.</p></div></div></div>
+<!-- /wp:html -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">Key takeaways</h2>
+<!-- /wp:heading -->
+
+<!-- wp:list -->
+<ul class="wp-block-list">
+<!-- wp:list-item -->
+<li>From 1 February 2024 every public IPv4 address costs $0.005 an hour, in use or idle; only BYOIP addresses are exempt.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li>The new charges are on addresses nobody tracked: auto-assigned instance addresses, the first Elastic IP on an instance, and service-managed addresses.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li>January's Cost and Usage Report already records the usage at no cost, so it is the best forecast of February's charge.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li>No single EC2 call lists every address; read instances, Elastic IPs, NAT gateways and network interfaces, and count each address once.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li>Release idle Elastic IPs and turn off auto-assign first; dual-stack load balancers do not remove public IPv4 in January 2024.</li>
+<!-- /wp:list-item -->
+</ul>
+<!-- /wp:list -->
+
+<!-- wp:paragraph -->
+<p>If your audit turned up something this one does not classify, let me know in the comments below.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:html -->
+<div class="callout callout-tip sample-code-link" style="background: #e8f5e9; border-left: 4px solid #4caf50; padding: 16px 20px; margin: 20px 0; border-radius: 4px;"><div style="display: flex; align-items: start;"><span style="font-size: 24px; margin-right: 12px;">💡</span><div><strong style="color: #388e3c; display: block; margin-bottom: 8px;">GET THE CODE</strong><p style="margin: 0; color: #333;">The complete sample for this article is on GitHub: <a href="https://github.com/nithinmohantk/blog-samples-working-repo/tree/main/aws-public-ipv4-charge-audit" target="_blank" rel="noopener">nithinmohantk/blog-samples-working-repo/aws-public-ipv4-charge-audit</a>. Clone it with <code>git clone https://github.com/nithinmohantk/blog-samples-working-repo.git</code> and open the <code>aws-public-ipv4-charge-audit</code> folder. Its README says how to run it and what has been verified.</p></div></div></div>
+<!-- /wp:html -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">Glossary</h2>
+<!-- /wp:heading -->
+
+<!-- wp:html -->
+<dl style="background:#F6F8FA;border:1px solid #D0D7DE;border-radius:8px;padding:20px 24px;margin:24px 0">
+  <dt style="font-weight:700;margin-top:12px;color:#24292F">Public IPv4 address</dt>
+  <dd style="margin:4px 0 0 20px;color:#57606A">An internet-routable IPv4 address; on AWS either from Amazon's pool, an Elastic IP, or your own through BYOIP.</dd>
+  <dt style="font-weight:700;margin-top:12px;color:#24292F">Auto-assigned public IPv4</dt>
+  <dd style="margin:4px 0 0 20px;color:#57606A">An address from Amazon's pool given to an instance at launch because the subnet's MapPublicIpOnLaunch setting is on; released when the instance stops.</dd>
+  <dt style="font-weight:700;margin-top:12px;color:#24292F">Elastic IP</dt>
+  <dd style="margin:4px 0 0 20px;color:#57606A">A public IPv4 address allocated to your account that you can move between resources.</dd>
+  <dt style="font-weight:700;margin-top:12px;color:#24292F">Idle Elastic IP</dt>
+  <dd style="margin:4px 0 0 20px;color:#57606A">An Elastic IP allocated to your account but not associated with anything.</dd>
+  <dt style="font-weight:700;margin-top:12px;color:#24292F">Service-managed address</dt>
+  <dd style="margin:4px 0 0 20px;color:#57606A">A public IPv4 address that an AWS service, such as a load balancer, holds on a network interface in your VPC.</dd>
+  <dt style="font-weight:700;margin-top:12px;color:#24292F">BYOIP</dt>
+  <dd style="margin:4px 0 0 20px;color:#57606A">Bring your own IP: public address ranges you own and advertise through AWS; not charged.</dd>
+  <dt style="font-weight:700;margin-top:12px;color:#24292F">ENI</dt>
+  <dd style="margin:4px 0 0 20px;color:#57606A">Elastic network interface, the virtual network card that carries private and public addresses in a VPC.</dd>
+  <dt style="font-weight:700;margin-top:12px;color:#24292F">Requester-managed interface</dt>
+  <dd style="margin:4px 0 0 20px;color:#57606A">A network interface an AWS service creates in your VPC; you can see and tag it but not change it.</dd>
+  <dt style="font-weight:700;margin-top:12px;color:#24292F">CUR</dt>
+  <dd style="margin:4px 0 0 20px;color:#57606A">AWS Cost and Usage Report, the hourly line-item record of usage and cost.</dd>
+  <dt style="font-weight:700;margin-top:12px;color:#24292F">Public IP Insights</dt>
+  <dd style="margin:4px 0 0 20px;color:#57606A">A free view in Amazon VPC IP Address Manager of public IPv4 addresses across accounts and Regions.</dd>
+  <dt style="font-weight:700;margin-top:12px;color:#24292F">EC2 Instance Connect Endpoint</dt>
+  <dd style="margin:4px 0 0 20px;color:#57606A">A VPC endpoint that gives SSH and RDP access to instances without public addresses.</dd>
+  <dt style="font-weight:700;margin-top:12px;color:#24292F">DNS64 and NAT64</dt>
+  <dd style="margin:4px 0 0 20px;color:#57606A">Subnet DNS and NAT gateway features that let IPv6-only workloads reach IPv4-only destinations.</dd>
+</dl>
+<!-- /wp:html -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">References &amp; Further Reading</h2>
+<!-- /wp:heading -->
+
+<!-- wp:html -->
+<ul style="background:#F6F8FA;border:1px solid #D0D7DE;border-radius:8px;padding:20px 24px;margin:24px 0;list-style:none">
+  <li style="margin:10px 0"><a href="https://aws.amazon.com/blogs/aws/new-aws-public-ipv4-address-charge-public-ip-insights/" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; New: AWS Public IPv4 Address Charge and Public IP Insights</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— AWS News Blog, 28 July 2023: the pricing table, Free Tier and BYOIP</span></li>
+  <li style="margin:10px 0"><a href="https://aws.amazon.com/blogs/networking-and-content-delivery/identify-and-optimize-public-ipv4-address-usage-on-aws/" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; Identify and optimize public IPv4 address usage on AWS</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— AWS Networking blog: address types, CUR usage types and operations</span></li>
+  <li style="margin:10px 0"><a href="https://aws.amazon.com/about-aws/whats-new/2023/07/aws-public-ip-insights-vpc-ip-address-manager" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; AWS announces Public IP Insights</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— What&#x27;s New, 28 July 2023</span></li>
+  <li style="margin:10px 0"><a href="https://aws.amazon.com/about-aws/whats-new/2023/11/amazon-vpc-address-manager-free-features-tier" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; VPC IPAM Free Tier and cross-Region Public IP Insights</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— What&#x27;s New, 17 November 2023</span></li>
+  <li style="margin:10px 0"><a href="https://aws.amazon.com/about-aws/whats-new/2023/06/amazon-ec2-instance-connect-ssh-rdp-public-ip-address" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; EC2 Instance Connect Endpoint</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— What&#x27;s New, 13 June 2023: SSH and RDP without public addresses</span></li>
+  <li style="margin:10px 0"><a href="https://aws.amazon.com/about-aws/whats-new/2023/10/aws-lambda-ipv6-outbound-connections-vpc" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; Lambda IPv6 outbound connections in VPC</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— What&#x27;s New, 12 October 2023</span></li>
+  <li style="margin:10px 0"><a href="https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_NetworkInterface.html" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; EC2 API reference: NetworkInterface</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— Interface types, requester-managed flag and association fields</span></li>
+  <li style="margin:10px 0"><a href="https://repost.aws/knowledge-center/elb-find-load-balancer-ip" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; Find the IP addresses of a load balancer</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— AWS re:Post Knowledge Center</span></li>
+  <li style="margin:10px 0"><a href="https://github.com/nithinmohantk/blog-samples-working-repo/tree/main/aws-public-ipv4-charge-audit" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; Sample code for this article</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— Audit, cost model, CUR reader, demo account and tests</span></li>
+</ul>
+<!-- /wp:html -->
