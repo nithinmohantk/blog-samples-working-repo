@@ -1,0 +1,168 @@
+{
+  "Comment": "Promote a candidate assistant configuration only if it passes the dataset, corpus and evaluation gates.",
+  "StartAt": "HasTrainingSet",
+  "States": {
+    "HasTrainingSet": {
+      "Type": "Choice",
+      "Choices": [
+        { "Variable": "$.training.source_s3_uri", "IsPresent": true, "Next": "RunDatasetGate" }
+      ],
+      "Default": "ValidateCorpus"
+    },
+    "RunDatasetGate": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": { "FunctionName": "${DatasetGateFunction}", "Payload.$": "$.training" },
+      "ResultSelector": { "passed.$": "$.Payload.passed", "certificate.$": "$.Payload.certificate", "submit_s3_uri.$": "$.Payload.submit_s3_uri" },
+      "ResultPath": "$.datasetGate",
+      "Retry": [{ "ErrorEquals": ["Lambda.TooManyRequestsException", "Lambda.ServiceException"], "IntervalSeconds": 5, "MaxAttempts": 3, "BackoffRate": 2, "JitterStrategy": "FULL" }],
+      "Next": "DatasetGatePassed"
+    },
+    "DatasetGatePassed": {
+      "Type": "Choice",
+      "Choices": [{ "Variable": "$.datasetGate.passed", "BooleanEquals": true, "Next": "StartCustomization" }],
+      "Default": "Reject"
+    },
+    "StartCustomization": {
+      "Type": "Task",
+      "Comment": "Lambda in the training Region; it re-checks the certificate hash before calling CreateModelCustomizationJob.",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": { "FunctionName": "${StartCustomizationFunction}", "Payload.$": "$.datasetGate" },
+      "ResultSelector": { "jobArn.$": "$.Payload.jobArn" },
+      "ResultPath": "$.customization",
+      "Next": "WaitForTraining"
+    },
+    "WaitForTraining": { "Type": "Wait", "Seconds": 900, "Next": "GetCustomizationJob" },
+    "GetCustomizationJob": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::aws-sdk:bedrock:getModelCustomizationJob",
+      "Parameters": { "JobIdentifier.$": "$.customization.jobArn" },
+      "ResultSelector": { "status.$": "$.Status", "outputModelArn.$": "$.OutputModelArn" },
+      "ResultPath": "$.customizationStatus",
+      "Retry": [{ "ErrorEquals": ["Bedrock.ThrottlingException"], "IntervalSeconds": 10, "MaxAttempts": 5, "BackoffRate": 2, "JitterStrategy": "FULL" }],
+      "Next": "TrainingDone"
+    },
+    "TrainingDone": {
+      "Type": "Choice",
+      "Choices": [
+        { "Variable": "$.customizationStatus.status", "StringEquals": "Completed", "Next": "RegisterCandidateModel" },
+        { "Variable": "$.customizationStatus.status", "StringEquals": "InProgress", "Next": "WaitForTraining" }
+      ],
+      "Default": "Reject"
+    },
+    "RegisterCandidateModel": {
+      "Type": "Task",
+      "Comment": "Records where the custom model will be served. Serving terms differ by Region; see the article.",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": { "FunctionName": "${RegisterCandidateFunction}", "Payload.$": "$" },
+      "ResultSelector": { "generationModelArn.$": "$.Payload.generationModelArn" },
+      "ResultPath": "$.candidate.model",
+      "Next": "ValidateCorpus"
+    },
+    "ValidateCorpus": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": { "FunctionName": "${CorpusCheckFunction}", "Payload.$": "$.corpus" },
+      "ResultSelector": { "problems.$": "$.Payload.problems", "count.$": "$.Payload.problem_count" },
+      "ResultPath": "$.corpusCheck",
+      "Next": "CorpusClean"
+    },
+    "CorpusClean": {
+      "Type": "Choice",
+      "Choices": [{ "Variable": "$.corpusCheck.count", "NumericEquals": 0, "Next": "StartIngestion" }],
+      "Default": "Reject"
+    },
+    "StartIngestion": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::aws-sdk:bedrockagent:startIngestionJob",
+      "Parameters": { "KnowledgeBaseId.$": "$.corpus.knowledge_base_id", "DataSourceId.$": "$.corpus.data_source_id" },
+      "ResultSelector": { "ingestionJobId.$": "$.IngestionJob.IngestionJobId" },
+      "ResultPath": "$.ingestion",
+      "Next": "WaitForIngestion"
+    },
+    "WaitForIngestion": { "Type": "Wait", "Seconds": 60, "Next": "GetIngestionJob" },
+    "GetIngestionJob": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::aws-sdk:bedrockagent:getIngestionJob",
+      "Parameters": {
+        "KnowledgeBaseId.$": "$.corpus.knowledge_base_id",
+        "DataSourceId.$": "$.corpus.data_source_id",
+        "IngestionJobId.$": "$.ingestion.ingestionJobId"
+      },
+      "ResultSelector": { "status.$": "$.IngestionJob.Status", "failed.$": "$.IngestionJob.Statistics.NumberOfDocumentsFailed" },
+      "ResultPath": "$.ingestionStatus",
+      "Next": "IngestionDone"
+    },
+    "IngestionDone": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "And": [
+            { "Variable": "$.ingestionStatus.status", "StringEquals": "COMPLETE" },
+            { "Variable": "$.ingestionStatus.failed", "NumericEquals": 0 }
+          ],
+          "Next": "RunGoldenSet"
+        },
+        { "Variable": "$.ingestionStatus.status", "StringEquals": "IN_PROGRESS", "Next": "WaitForIngestion" },
+        { "Variable": "$.ingestionStatus.status", "StringEquals": "STARTING", "Next": "WaitForIngestion" }
+      ],
+      "Default": "Reject"
+    },
+    "RunGoldenSet": {
+      "Type": "Task",
+      "Comment": "Asks every golden question through the candidate configuration in the data Region and writes answers to S3.",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": { "FunctionName": "${GoldenSetFunction}", "Payload.$": "$.candidate" },
+      "ResultSelector": { "answers_s3_uri.$": "$.Payload.answers_s3_uri" },
+      "ResultPath": "$.goldenRun",
+      "TimeoutSeconds": 900,
+      "Next": "ScoreAndDecide"
+    },
+    "ScoreAndDecide": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": { "FunctionName": "${EvalGateFunction}", "Payload.$": "$.goldenRun" },
+      "ResultSelector": { "promote.$": "$.Payload.promote", "reasons.$": "$.Payload.reasons" },
+      "ResultPath": "$.decision",
+      "Next": "PromoteOrReject"
+    },
+    "PromoteOrReject": {
+      "Type": "Choice",
+      "Choices": [{ "Variable": "$.decision.promote", "BooleanEquals": true, "Next": "AwaitClinicalSafetySignOff" }],
+      "Default": "Reject"
+    },
+    "AwaitClinicalSafetySignOff": {
+      "Type": "Task",
+      "Comment": "A named clinical safety officer approves the evaluation report before anything changes in production.",
+      "Resource": "arn:aws:states:::sns:publish.waitForTaskToken",
+      "Parameters": {
+        "TopicArn": "${SignOffTopic}",
+        "Message": { "taskToken.$": "$$.Task.Token", "candidate.$": "$.candidate", "decision.$": "$.decision" }
+      },
+      "ResultPath": "$.signOff",
+      "TimeoutSeconds": 604800,
+      "Catch": [{ "ErrorEquals": ["States.Timeout", "States.TaskFailed"], "ResultPath": "$.signOffError", "Next": "Reject" }],
+      "Next": "PromoteAlias"
+    },
+    "PromoteAlias": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::aws-sdk:ssm:putParameter",
+      "Parameters": {
+        "Name": "/assistant/active-config",
+        "Type": "String",
+        "Overwrite": true,
+        "Value.$": "States.JsonToString($.candidate)"
+      },
+      "ResultPath": null,
+      "End": true
+    },
+    "Reject": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::sns:publish",
+      "Parameters": { "TopicArn": "${RejectTopic}", "Message.$": "States.JsonToString($)" },
+      "ResultPath": null,
+      "Next": "Rejected"
+    },
+    "Rejected": { "Type": "Fail", "Error": "CandidateRejected", "Cause": "A gate failed; see the SNS message for the reasons." }
+  }
+}

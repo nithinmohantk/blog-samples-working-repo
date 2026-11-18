@@ -1,0 +1,16 @@
+{
+  "version": "2.0",
+  "routeKey": "$default",
+  "rawPath": "/quote",
+  "rawQueryString": "",
+  "headers": {
+    "content-type": "application/json"
+  },
+  "requestContext": {
+    "http": {
+      "method": "POST",
+      "path": "/quote"
+    }
+  },
+  "isBase64Encoded": false
+}

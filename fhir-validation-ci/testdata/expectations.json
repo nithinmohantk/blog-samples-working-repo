@@ -1,0 +1,64 @@
+{
+  "_comment": "What the gate must say about each test resource. 'fail' entries are deliberately broken: if one of them passes, the gate is not checking what you think it is. 'terminology' entries can only be judged with a terminology server.",
+  "profiles": {
+    "Patient": "http://hl7.org/fhir/uv/ips/StructureDefinition/Patient-uv-ips",
+    "AllergyIntolerance": "http://hl7.org/fhir/uv/ips/StructureDefinition/AllergyIntolerance-uv-ips"
+  },
+  "cases": [
+    {
+      "file": "valid/patient-ok.json",
+      "expect": "pass"
+    },
+    {
+      "file": "valid/allergy-ok.json",
+      "expect": "pass"
+    },
+    {
+      "file": "invalid/patient-no-birthdate.json",
+      "expect": "fail",
+      "because": "IPS requires birthDate"
+    },
+    {
+      "file": "invalid/patient-bad-gender.json",
+      "expect": "fail",
+      "because": "gender is bound to a required value set"
+    },
+    {
+      "file": "invalid/patient-empty-name.json",
+      "expect": "fail",
+      "because": "IPS requires a family name, given name or text"
+    },
+    {
+      "file": "invalid/patient-unknown-element.json",
+      "expect": "fail",
+      "because": "'birthday' is not an element of Patient"
+    },
+    {
+      "file": "invalid/patient-bad-date.json",
+      "expect": "fail",
+      "because": "birthDate is not a FHIR date"
+    },
+    {
+      "file": "invalid/allergy-no-patient.json",
+      "expect": "fail",
+      "because": "patient is mandatory"
+    },
+    {
+      "file": "invalid/allergy-bad-status.json",
+      "expect": "fail",
+      "because": "'ongoing' is not in the clinical status value set"
+    },
+    {
+      "file": "terminology/allergy-bogus-snomed.json",
+      "expect": "fail",
+      "needs": "terminology-server",
+      "because": "the SNOMED CT code does not exist"
+    },
+    {
+      "file": "terminology/allergy-wrong-display.json",
+      "expect": "fail",
+      "needs": "terminology-server",
+      "because": "the display does not belong to the code"
+    }
+  ]
+}

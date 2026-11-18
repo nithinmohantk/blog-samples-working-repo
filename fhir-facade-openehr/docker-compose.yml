@@ -1,0 +1,39 @@
+# Local run of the facade against the EHRbase started by ../clinical-queries/docker/docker-compose.yml.
+# Development only: tokens are signed with the shared secret below instead of coming from an identity provider.
+name: fhir-facade
+
+x-dev-auth: &dev-auth
+  DEV_ISSUER: https://dev-issuer.localhost/
+  DEV_AUDIENCE: api://fhir-facade
+  # A throwaway value for a loopback-only stack. Never reuse it, and never set it outside Development.
+  DEV_SIGNING_SECRET: local-development-only-signing-secret-0001
+
+services:
+  facade:
+    build: .
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_HTTP_PORTS: "8080"
+      OpenEhr__BaseUrl: http://host.docker.internal:8080/ehrbase/rest/openehr/v1/
+      OpenEhr__SubjectNamespace: dataa-demo
+      Fhir__PublicBaseUrl: http://localhost:5080/fhir
+      Auth__Audience: api://fhir-facade
+      Auth__DevelopmentIssuer: https://dev-issuer.localhost/
+      Auth__DevelopmentSigningSecret: local-development-only-signing-secret-0001
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "127.0.0.1:5080:8080"
+
+  # Runs once, writes client/report.json and exits.
+  testclient:
+    image: python:3.13-slim
+    working_dir: /client
+    volumes:
+      - ./client:/client
+    environment:
+      <<: *dev-auth
+      FACADE_URL: http://facade:8080/fhir
+    command: sh -c "pip install --quiet --disable-pip-version-check --root-user-action=ignore -r requirements.txt && python test_client.py --report report.json"
+    depends_on:
+      - facade

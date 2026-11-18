@@ -1,0 +1,26 @@
+{
+  "resourceType": "AllergyIntolerance",
+  "id": "ips-allergy-no-patient",
+  "meta": {
+    "profile": [
+      "http://hl7.org/fhir/uv/ips/StructureDefinition/AllergyIntolerance-uv-ips"
+    ]
+  },
+  "clinicalStatus": {
+    "coding": [
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical",
+        "code": "active"
+      }
+    ]
+  },
+  "code": {
+    "coding": [
+      {
+        "system": "http://snomed.info/sct",
+        "code": "91936005",
+        "display": "Allergy to penicillin"
+      }
+    ]
+  }
+}

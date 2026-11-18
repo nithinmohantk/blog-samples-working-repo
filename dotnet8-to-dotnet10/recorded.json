@@ -1,0 +1,157 @@
+{
+  "_runtime": {
+    "A": "8.0.23",
+    "B": "8.0.23",
+    "C": "10.0.2"
+  },
+  "_sdk": {
+    "A": "8.0.417",
+    "B": "10.0.102",
+    "C": "10.0.102"
+  },
+  "aspnet.cookie_auth_on_api_endpoint": {
+    "A": "302, Location /Account/Login",
+    "B": "302, Location /Account/Login",
+    "C": "401, Location /Account/Login"
+  },
+  "aspnet.handled_exception_is_logged": {
+    "A": "500, 1 error log entry from the middleware",
+    "B": "500, 1 error log entry from the middleware",
+    "C": "500, 0 error log entries from the middleware"
+  },
+  "aspnet.hostbuilder_validates_scopes_in_development": {
+    "A": "built without complaint",
+    "B": "built without complaint",
+    "C": "refused at build: AggregateException"
+  },
+  "compile.ArrayReverse": {
+    "A": "builds clean; prints 3,2,1 / 1,2,3",
+    "B": "builds clean; prints 3,2,1 / 1,2,3",
+    "C": "builds clean; prints 3,2,1 / 1,2,3"
+  },
+  "compile.AsyncLinqPackage": {
+    "A": "builds clean",
+    "B": "builds clean",
+    "C": "fails: error CS0121"
+  },
+  "compile.CertificateConstructor": {
+    "A": "builds clean",
+    "B": "builds clean",
+    "C": "builds: warning SYSLIB0057"
+  },
+  "compile.FieldIdentifier": {
+    "A": "builds clean",
+    "B": "builds clean",
+    "C": "builds: warning CS0169, warning CS9258"
+  },
+  "compile.ForwardedHeadersNetworks": {
+    "A": "builds clean",
+    "B": "builds clean",
+    "C": "builds: warning ASPDEPR005"
+  },
+  "compile.LegacyWebHost": {
+    "A": "builds clean",
+    "B": "builds clean",
+    "C": "builds: warning ASPDEPR008"
+  },
+  "compile.PasswordHashConstructor": {
+    "A": "builds clean",
+    "B": "builds clean",
+    "C": "builds: warning SYSLIB0060"
+  },
+  "compile.TransitiveAdvisory": {
+    "A": "builds clean",
+    "B": "builds clean",
+    "C": "builds: warning NU1903"
+  },
+  "compile.WithOpenApiCall": {
+    "A": "builds clean",
+    "B": "builds clean",
+    "C": "builds: warning ASPDEPR002"
+  },
+  "configuration.null_in_json": {
+    "A": "Name='', Retries=3, Hosts=['', '']",
+    "B": "Name='', Retries=3, Hosts=['', '']",
+    "C": "Name=null, Retries=null, Hosts=[null, null]"
+  },
+  "di.getkeyedservice_with_anykey": {
+    "A": "returned the AnyKey registration",
+    "B": "returned the AnyKey registration",
+    "C": "threw InvalidOperationException"
+  },
+  "diagnostics.default_propagator_fields": {
+    "A": "baggage, Correlation-Context, Request-Id, traceparent, tracestate",
+    "B": "baggage, Correlation-Context, Request-Id, traceparent, tracestate",
+    "C": "baggage, Correlation-Context, traceparent, tracestate"
+  },
+  "hosting.backgroundservice_sync_work_blocks_startup": {
+    "A": "yes: StartAsync waited for it",
+    "B": "yes: StartAsync waited for it",
+    "C": "no: StartAsync returned first"
+  },
+  "http.factory_logs_header_values": {
+    "A": "value written to the log",
+    "B": "value written to the log",
+    "C": "value redacted"
+  },
+  "http.factory_primary_handler": {
+    "A": "HttpClientHandler",
+    "B": "HttpClientHandler",
+    "C": "SocketsHttpHandler"
+  },
+  "json.nullable_jsondocument_property": {
+    "A": "null",
+    "B": "null",
+    "C": "a JsonDocument of kind Null"
+  },
+  "json.property_named_like_the_type_discriminator": {
+    "A": "serializes {\"Type\":\"dog\",\"Type\":\"Dog\"}",
+    "B": "serializes {\"Type\":\"dog\",\"Type\":\"Dog\"}",
+    "C": "throws InvalidOperationException"
+  },
+  "language.array_contains_in_expression_tree": {
+    "A": "binds to Enumerable.Contains, interprets",
+    "B": "binds to Enumerable.Contains, interprets",
+    "C": "binds to MemoryExtensions.Contains, interpreter throws ArgumentException"
+  },
+  "net.mailaddress_consecutive_dots": {
+    "A": "accepted first..last@example.org",
+    "B": "accepted first..last@example.org",
+    "C": "throws FormatException"
+  },
+  "net.uri_longer_than_65519": {
+    "A": "throws UriFormatException",
+    "B": "throws UriFormatException",
+    "C": "accepted, 70020 characters"
+  },
+  "runtime.empty_environment_variable": {
+    "A": "setting \"\" deletes the variable",
+    "B": "setting \"\" deletes the variable",
+    "C": "setting \"\" keeps an empty variable"
+  },
+  "runtime.float_to_int_out_of_range": {
+    "A": "(int)1e20=-2147483648, (int)NaN=-2147483648, (uint)-1.0=4294967295",
+    "B": "(int)1e20=-2147483648, (int)NaN=-2147483648, (uint)-1.0=4294967295",
+    "C": "(int)1e20=2147483647, (int)NaN=0, (uint)-1.0=0"
+  },
+  "runtime.server_gc_adaptation_mode": {
+    "A": "server GC on, GCDynamicAdaptationMode 0",
+    "B": "server GC on, GCDynamicAdaptationMode 0",
+    "C": "server GC on, GCDynamicAdaptationMode 1"
+  },
+  "sdk.dotnet_new_sln_creates": {
+    "A": "App.sln",
+    "B": "App.slnx",
+    "C": "App.slnx"
+  },
+  "serialization.binaryformatter_with_the_opt_in": {
+    "A": "serializes",
+    "B": "serializes",
+    "C": "throws PlatformNotSupportedException"
+  },
+  "xml.obsolete_property_is_serialized": {
+    "A": "no",
+    "B": "no",
+    "C": "yes"
+  }
+}

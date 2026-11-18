@@ -1,0 +1,3 @@
+# ~/.codex/bulk.config.toml: codex --profile bulk, for mechanical edits across many files.
+model = "gpt-6-luna"
+model_reasoning_effort = "medium"

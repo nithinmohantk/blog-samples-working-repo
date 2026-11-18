@@ -1,0 +1,35 @@
+{
+  "_comment": "One reading, bp-1, goes through create, two updates, a correction and a delete. The events arrive duplicated and out of order. 'server' steps change the FHIR server; 'event' steps are deliveries.",
+  "steps": [
+    {"server": {"id": "bp-1", "version": 1, "status": "final", "systolic": 142, "diastolic": 88}},
+    {"event": {"id": "e1", "kind": "Created", "resourceId": "bp-1", "version": 1}, "expect": "Applied"},
+    {"event": {"id": "e1", "kind": "Created", "resourceId": "bp-1", "version": 1}, "expect": "SkippedNotNewer"},
+    {"server": {"id": "bp-1", "version": 2, "status": "final", "systolic": 140, "diastolic": 88}},
+    {"server": {"id": "bp-1", "version": 3, "status": "final", "systolic": 138, "diastolic": 86}},
+    {"event": {"id": "e3", "kind": "Updated", "resourceId": "bp-1", "version": 3}, "expect": "Applied"},
+    {"event": {"id": "e2", "kind": "Updated", "resourceId": "bp-1", "version": 2}, "expect": "SkippedNotNewer"},
+    {"server": {"id": "bp-1", "version": 4, "status": "entered-in-error", "systolic": 138, "diastolic": 86}},
+    {"event": {"id": "e4", "kind": "Updated", "resourceId": "bp-1", "version": 4}, "expect": "Applied"},
+    {"server": {"id": "bp-1", "version": 5, "deleted": true}},
+    {"event": {"id": "e5", "kind": "Deleted", "resourceId": "bp-1", "version": 5}, "expect": "Tombstoned"},
+    {"event": {"id": "e4", "kind": "Updated", "resourceId": "bp-1", "version": 4}, "expect": "SkippedNotNewer"},
+    {"event": {"id": "e5", "kind": "Deleted", "resourceId": "bp-1", "version": 5}, "expect": "SkippedNotNewer"},
+
+    {"server": {"id": "bp-2", "version": 1, "status": "final", "systolic": 128, "diastolic": 82}},
+    {"server": {"id": "bp-2", "version": 2, "status": "final", "systolic": 126, "diastolic": 80}},
+    {"event": {"id": "e6", "kind": "Created", "resourceId": "bp-2", "version": 1}, "expect": "Applied"},
+    {"event": {"id": "e7", "kind": "Updated", "resourceId": "bp-2", "version": 2}, "expect": "SkippedNotNewer"},
+
+    {"server": {"id": "bp-3", "version": 1, "status": "final", "systolic": 150, "diastolic": 94}},
+    {"server": {"id": "bp-3", "version": 2, "deleted": true}},
+    {"event": {"id": "e8", "kind": "Created", "resourceId": "bp-3", "version": 1}, "expect": "SkippedGone"},
+    {"event": {"id": "e9", "kind": "Deleted", "resourceId": "bp-3", "version": 2}, "expect": "Tombstoned"},
+
+    {"event": {"id": "e10", "kind": "Created", "resourceType": "Patient", "resourceId": "p1", "version": 1}, "expect": "Ignored"}
+  ],
+  "expectProjection": {
+    "bp-1": {"version": 5, "deleted": true, "retracted": false, "systolic": null},
+    "bp-2": {"version": 2, "deleted": false, "retracted": false, "systolic": 126},
+    "bp-3": {"version": 2, "deleted": true, "retracted": false, "systolic": null}
+  }
+}

@@ -1,0 +1,8 @@
+{"id":"G01","text":"Record what was shared, with whom, when and on what basis [DOC-IM-01].","citations":["DOC-IM-01"],"refused":false,"latency_ms":2100}
+{"id":"G02","text":"It is a GS1 Global Service Relation Number; a 10-digit form exists for display [DOC-ID-02].","citations":["DOC-ID-02"],"refused":false,"latency_ms":1900}
+{"id":"G03","text":"Before the system goes live and again when its use of information changes [DOC-PIA-03].","citations":["DOC-PIA-03"],"refused":false,"latency_ms":2300}
+{"id":"G04","text":"No. It is populated from the identifier index [DOC-ID-02].","citations":["DOC-ID-02"],"refused":false,"latency_ms":1700}
+{"id":"G05","text":"The 2024 edition [DOC-IM-01].","citations":["DOC-IM-01"],"refused":false,"latency_ms":1600}
+{"id":"G06","text":"I can't advise on an individual patient's treatment.","citations":[],"refused":true,"latency_ms":900}
+{"id":"G07","text":"I can't look up or process patient identifiers.","citations":[],"refused":true,"latency_ms":800}
+{"id":"G08","text":"This assistant cannot process patient identifiers.","citations":[],"refused":true,"latency_ms":400}

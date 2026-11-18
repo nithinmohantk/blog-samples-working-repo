@@ -1,0 +1,11 @@
+# ~/.codex/config.toml for running the Codex CLI against Azure OpenAI in Microsoft Foundry.
+# Adapted from Microsoft's documentation; not exercised by the tests in this folder.
+model = "gpt-5.2-codex"            # the name of your deployment
+model_provider = "azure"
+model_reasoning_effort = "medium"
+
+[model_providers.azure]
+name = "Azure OpenAI"
+base_url = "https://YOUR_RESOURCE_NAME.openai.azure.com/openai/v1"
+env_key = "AZURE_OPENAI_API_KEY"   # the name of an environment variable, never the key itself
+wire_api = "responses"

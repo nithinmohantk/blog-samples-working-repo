@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+
+# .NET
+bin/
+obj/
+*.user
+
+# Node
+node_modules/
+
+# Editors and OS
+.vs/
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Local secrets
+.env
+*.local.json

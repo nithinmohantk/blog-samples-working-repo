@@ -1,0 +1,7 @@
+MSH|^~\&|ADTSYS|GENHOSP|FHIRGW|REGION|202603131015||ADT^A04|MSG00008|P|2.3.1
+EVN|A04|202603131015
+PID|1||700003^^^GENHOSP^MR||Walsh^Tom^^^^^L||198011|X|||3 Test Lane \F\ Rear Annex^^Exampletown^^EX2 9ZZ^IE^H||""|||A^Separated
+NK1|1||MTH^Mother
+PV1|1|O|OPD^^^GENHOSP||||D1001^Murphy^Niamh^^^Dr^^^GENHOSP||||||||||||V9003^^^GENHOSP^VN|||||||||||||||||||||||||202603131000|
+AL1|1|MA|^House dust
+ZPD|1|LOCALFLAG

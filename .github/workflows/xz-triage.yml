@@ -1,0 +1,71 @@
+name: xz CVE-2024-3094 SBOM triage
+
+on:
+  push:
+    paths:
+      - "xz-cve-2024-3094-sbom-triage/**"
+      - ".github/workflows/xz-triage.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write   # only to publish the result files to a results branch
+
+concurrency:
+  group: xz-triage-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Python packages as of 30 March 2024
+        run: |
+          pip install -q uv
+          uv pip install --system -q --exclude-newer 2024-03-30 pytest
+
+      - name: Syft v1.1.0 (25 March 2024), checksum verified
+        run: |
+          mkdir -p "$HOME/bin" && cd "$RUNNER_TEMP"
+          base=https://github.com/anchore/syft/releases/download/v1.1.0
+          curl -sSfLO "$base/syft_1.1.0_linux_amd64.tar.gz"
+          curl -sSfLO "$base/syft_1.1.0_checksums.txt"
+          grep " syft_1.1.0_linux_amd64.tar.gz$" syft_1.1.0_checksums.txt | sha256sum -c -
+          tar -xzf syft_1.1.0_linux_amd64.tar.gz -C "$HOME/bin" syft
+          echo "$HOME/bin" >> "$GITHUB_PATH"
+
+      - name: Run the sample
+        id: samples
+        continue-on-error: true
+        run: ./xz-cve-2024-3094-sbom-triage/ci.sh "$GITHUB_WORKSPACE/out/xz-cve-2024-3094-sbom-triage"
+
+      - name: Publish the results
+        if: always()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p out
+          {
+            echo "commit: $GITHUB_SHA"
+            echo "run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+            echo "date: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            echo "samples: ${{ steps.samples.outcome }}"
+          } > out/run.txt
+          publish="$RUNNER_TEMP/publish"
+          rm -rf "$publish" && mkdir -p "$publish" && cp -r out/. "$publish/"
+          cd "$publish"
+          git init -q -b ci-results-xz-triage
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -q -m "Results for $GITHUB_SHA"
+          git push -f "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" ci-results-xz-triage
+
+      - name: Fail the build if the sample failed
+        if: steps.samples.outcome != 'success'
+        run: exit 1

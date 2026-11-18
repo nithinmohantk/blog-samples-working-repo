@@ -1,0 +1,75 @@
+name: .NET 11 sample
+
+on:
+  push:
+    paths:
+      - "dotnet11-for-architects/**"
+      - "csharp15-unions/**"
+      - ".github/workflows/dotnet11.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write   # only to publish the result files to a results branch
+
+concurrency:
+  group: dotnet11-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            10.0.x
+            11.0.x
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Probe the API surface
+        id: probe
+        continue-on-error: true
+        working-directory: dotnet11-for-architects
+        run: |
+          set -o pipefail
+          mkdir -p "$GITHUB_WORKSPACE/out"
+          dotnet --list-sdks | tee "$GITHUB_WORKSPACE/out/sdks.txt"
+          dotnet run --project probe -c Release 2>&1 | tee "$GITHUB_WORKSPACE/out/probe.txt"
+
+      - name: Extra steps
+        id: extra
+        continue-on-error: true
+        run: |
+          if [ -x ./dotnet11-for-architects/ci.sh ]; then ./dotnet11-for-architects/ci.sh "$GITHUB_WORKSPACE/out"; fi
+          if [ -x ./csharp15-unions/ci.sh ]; then ./csharp15-unions/ci.sh "$GITHUB_WORKSPACE/out"; fi
+
+      - name: Publish the results
+        if: always()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          {
+            echo "commit: $GITHUB_SHA"
+            echo "run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+            echo "date: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            echo "probe: ${{ steps.probe.outcome }}"
+            echo "extra: ${{ steps.extra.outcome }}"
+            grep -m1 "model name" /proc/cpuinfo
+          } > out/run.txt
+          publish="$RUNNER_TEMP/publish"
+          rm -rf "$publish" && mkdir -p "$publish" && cp -r out/. "$publish/"
+          cd "$publish"
+          git init -q -b ci-results-dotnet11
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -q -m "Results for $GITHUB_SHA"
+          git push -f "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" ci-results-dotnet11
+
+      - name: Fail the build if a step failed
+        if: steps.probe.outcome != 'success' || steps.extra.outcome != 'success'
+        run: exit 1

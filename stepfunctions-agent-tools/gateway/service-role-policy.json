@@ -1,0 +1,17 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "StateMachineOperations",
+      "Effect": "Allow",
+      "Action": ["states:StartExecution", "states:ListExecutions"],
+      "Resource": "arn:aws:states:eu-west-1:123456789012:stateMachine:GoodwillCredit"
+    },
+    {
+      "Sid": "ExecutionOperations",
+      "Effect": "Allow",
+      "Action": ["states:DescribeExecution", "states:GetExecutionHistory"],
+      "Resource": "arn:aws:states:eu-west-1:123456789012:execution:GoodwillCredit:*"
+    }
+  ]
+}

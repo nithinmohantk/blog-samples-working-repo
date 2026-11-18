@@ -1,0 +1,102 @@
+{
+  "StateMachines": {
+    "GoodwillCredit": {
+      "TestCases": {
+        "HappyPath": {
+          "ValidateRequest": "Eligible",
+          "ApplyCredit": "Applied"
+        },
+        "Ineligible": {
+          "ValidateRequest": "Ineligible",
+          "ApplyCredit": "Applied"
+        },
+        "ApplyRecovers": {
+          "ValidateRequest": "Eligible",
+          "ApplyCredit": "FailsTwiceThenApplied"
+        },
+        "ApplyDown": {
+          "ValidateRequest": "Eligible",
+          "ApplyCredit": "AlwaysFails"
+        }
+      }
+    },
+    "GoodwillCreditShortApproval": {
+      "TestCases": {
+        "HappyPath": {
+          "ValidateRequest": "Eligible",
+          "ApplyCredit": "Applied"
+        },
+        "Ineligible": {
+          "ValidateRequest": "Ineligible",
+          "ApplyCredit": "Applied"
+        },
+        "ApplyRecovers": {
+          "ValidateRequest": "Eligible",
+          "ApplyCredit": "FailsTwiceThenApplied"
+        },
+        "ApplyDown": {
+          "ValidateRequest": "Eligible",
+          "ApplyCredit": "AlwaysFails"
+        }
+      }
+    }
+  },
+  "MockedResponses": {
+    "Eligible": {
+      "0": {
+        "Return": {
+          "StatusCode": 200,
+          "Payload": {
+            "eligible": true,
+            "reason": ""
+          }
+        }
+      }
+    },
+    "Ineligible": {
+      "0": {
+        "Return": {
+          "StatusCode": 200,
+          "Payload": {
+            "eligible": false,
+            "reason": "The case is closed."
+          }
+        }
+      }
+    },
+    "Applied": {
+      "0": {
+        "Return": {
+          "StatusCode": 200,
+          "Payload": {
+            "creditId": "cr-000001"
+          }
+        }
+      }
+    },
+    "FailsTwiceThenApplied": {
+      "0-1": {
+        "Throw": {
+          "Error": "Lambda.ServiceException",
+          "Cause": "The service is unavailable."
+        }
+      },
+      "2": {
+        "Return": {
+          "StatusCode": 200,
+          "Payload": {
+            "creditId": "cr-000001"
+          }
+        }
+      }
+    },
+    "AlwaysFails": {
+      "0-3": {
+        "Throw": {
+          "Error": "Lambda.ServiceException",
+          "Cause": "The service is unavailable."
+        }
+      }
+    }
+  }
+}

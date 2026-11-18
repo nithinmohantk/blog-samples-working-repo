@@ -1,0 +1,70 @@
+name: AWS samples
+
+on:
+  push:
+    paths:
+      - "lambda-web-functions/**"
+      - "stepfunctions-agent-tools/**"
+      - ".github/workflows/aws.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write   # only to publish the result files to a results branch
+
+concurrency:
+  group: aws-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Run each sample
+        id: samples
+        continue-on-error: true
+        run: |
+          status=0
+          for sample in lambda-web-functions stepfunctions-agent-tools; do
+            if [ -x "./$sample/ci.sh" ]; then
+              "./$sample/ci.sh" "$GITHUB_WORKSPACE/out/$sample" || status=1
+            fi
+          done
+          exit $status
+
+      - name: Publish the results
+        if: always()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p out
+          {
+            echo "commit: $GITHUB_SHA"
+            echo "run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+            echo "date: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            echo "samples: ${{ steps.samples.outcome }}"
+          } > out/run.txt
+          publish="$RUNNER_TEMP/publish"
+          rm -rf "$publish" && mkdir -p "$publish" && cp -r out/. "$publish/"
+          cd "$publish"
+          git init -q -b ci-results-aws
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -q -m "Results for $GITHUB_SHA"
+          git push -f "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" ci-results-aws
+
+      - name: Fail the build if a sample failed
+        if: steps.samples.outcome != 'success'
+        run: exit 1

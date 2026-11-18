@@ -1,0 +1,12 @@
+{
+  "model": "gpt-5.2-codex",
+  "currency": "USD",
+  "per_million_tokens": { "input": 1.75, "cached_input": 0.175, "output": 14.00 },
+  "context_window_tokens": 400000,
+  "max_output_tokens": 128000,
+  "sources": [
+    "https://platform.openai.com/docs/models/gpt-5.2-codex",
+    "https://techcommunity.microsoft.com/t5/microsoft-foundry-blog/announcing-gpt-5-2-codex-in-microsoft-foundry-enterprise-grade/ba-p/4485379"
+  ],
+  "note": "List prices as published by OpenAI and Microsoft for the global standard deployment. Check the pricing page before relying on them."
+}

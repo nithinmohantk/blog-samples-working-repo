@@ -1,0 +1,350 @@
+{
+ "comment": "Sixty-nine requests, each with the one tool that should answer it. Written by hand from the tool names and descriptions, phrased the way a person would ask, before the search was run against them and not adjusted afterwards. They show the kinds of miss a keyword index makes; they are not a benchmark.",
+ "tasks": [
+  {
+   "server": "filesystem",
+   "tool": "read_text_file",
+   "query": "open the README and show me what it says"
+  },
+  {
+   "server": "filesystem",
+   "tool": "write_file",
+   "query": "save this text into a new file called notes.txt"
+  },
+  {
+   "server": "filesystem",
+   "tool": "edit_file",
+   "query": "replace the old port number with 8080 in config.yaml"
+  },
+  {
+   "server": "filesystem",
+   "tool": "list_directory",
+   "query": "what files are in the src folder"
+  },
+  {
+   "server": "filesystem",
+   "tool": "directory_tree",
+   "query": "show the folder structure of the project as a tree"
+  },
+  {
+   "server": "filesystem",
+   "tool": "move_file",
+   "query": "rename report-draft.md to report-final.md"
+  },
+  {
+   "server": "filesystem",
+   "tool": "search_files",
+   "query": "find every file whose name ends in .test.ts"
+  },
+  {
+   "server": "filesystem",
+   "tool": "get_file_info",
+   "query": "when was package.json last modified and how big is it"
+  },
+  {
+   "server": "filesystem",
+   "tool": "create_directory",
+   "query": "make a new folder called build/output"
+  },
+  {
+   "server": "memory",
+   "tool": "create_entities",
+   "query": "remember that Alice is a person who works at Acme"
+  },
+  {
+   "server": "memory",
+   "tool": "create_relations",
+   "query": "record that Alice reports to Bob"
+  },
+  {
+   "server": "memory",
+   "tool": "search_nodes",
+   "query": "what do you know about Acme"
+  },
+  {
+   "server": "memory",
+   "tool": "read_graph",
+   "query": "show everything stored in the knowledge graph"
+  },
+  {
+   "server": "memory",
+   "tool": "delete_entities",
+   "query": "forget everything about Bob"
+  },
+  {
+   "server": "sequential-thinking",
+   "tool": "sequentialthinking",
+   "query": "think through this problem step by step and revise as you go"
+  },
+  {
+   "server": "everything",
+   "tool": "get-sum",
+   "query": "add 17 and 25"
+  },
+  {
+   "server": "everything",
+   "tool": "echo",
+   "query": "repeat this message back to me"
+  },
+  {
+   "server": "playwright",
+   "tool": "browser_navigate",
+   "query": "open https://example.com in the browser"
+  },
+  {
+   "server": "playwright",
+   "tool": "browser_click",
+   "query": "press the Sign in button on the page"
+  },
+  {
+   "server": "playwright",
+   "tool": "browser_type",
+   "query": "enter my email address into the login field"
+  },
+  {
+   "server": "playwright",
+   "tool": "browser_take_screenshot",
+   "query": "capture an image of the current page"
+  },
+  {
+   "server": "playwright",
+   "tool": "browser_fill_form",
+   "query": "complete the registration form with these values"
+  },
+  {
+   "server": "playwright",
+   "tool": "browser_snapshot",
+   "query": "get the accessibility tree of the page"
+  },
+  {
+   "server": "playwright",
+   "tool": "browser_press_key",
+   "query": "hit Enter on the keyboard"
+  },
+  {
+   "server": "playwright",
+   "tool": "browser_wait_for",
+   "query": "pause until the text Loading disappears"
+  },
+  {
+   "server": "playwright",
+   "tool": "browser_console_messages",
+   "query": "show errors logged by the page's JavaScript"
+  },
+  {
+   "server": "playwright",
+   "tool": "browser_file_upload",
+   "query": "attach a PDF to the upload control"
+  },
+  {
+   "server": "playwright",
+   "tool": "browser_navigate_back",
+   "query": "go back to the previous page"
+  },
+  {
+   "server": "git",
+   "tool": "git_status",
+   "query": "which files have I changed locally but not committed"
+  },
+  {
+   "server": "git",
+   "tool": "git_log",
+   "query": "show the last ten commits in my local repository"
+  },
+  {
+   "server": "git",
+   "tool": "git_diff_staged",
+   "query": "what is staged for the next commit"
+  },
+  {
+   "server": "git",
+   "tool": "git_commit",
+   "query": "commit the staged changes with the message fix typo"
+  },
+  {
+   "server": "git",
+   "tool": "git_add",
+   "query": "stage src/app.py for commit"
+  },
+  {
+   "server": "git",
+   "tool": "git_create_branch",
+   "query": "make a new local branch called feature/login"
+  },
+  {
+   "server": "git",
+   "tool": "git_checkout",
+   "query": "switch to the main branch"
+  },
+  {
+   "server": "git",
+   "tool": "git_show",
+   "query": "display the contents of commit a1b2c3"
+  },
+  {
+   "server": "git",
+   "tool": "git_reset",
+   "query": "unstage everything"
+  },
+  {
+   "server": "git",
+   "tool": "git_diff",
+   "query": "compare my branch with main"
+  },
+  {
+   "server": "time",
+   "tool": "get_current_time",
+   "query": "what time is it in Tokyo right now"
+  },
+  {
+   "server": "time",
+   "tool": "convert_time",
+   "query": "what is 3pm Dublin time in New York"
+  },
+  {
+   "server": "fetch",
+   "tool": "fetch",
+   "query": "download the page at this URL and give me its text"
+  },
+  {
+   "server": "github-all-toolsets",
+   "tool": "issue_write",
+   "query": "open a new issue on GitHub about the login bug"
+  },
+  {
+   "server": "github-all-toolsets",
+   "tool": "list_issues",
+   "query": "show the open issues in the repository"
+  },
+  {
+   "server": "github-all-toolsets",
+   "tool": "search_issues",
+   "query": "find GitHub issues mentioning timeout across the organisation"
+  },
+  {
+   "server": "github-all-toolsets",
+   "tool": "add_issue_comment",
+   "query": "reply on issue 42 saying it is fixed"
+  },
+  {
+   "server": "github-all-toolsets",
+   "tool": "create_pull_request",
+   "query": "open a pull request from my branch into main"
+  },
+  {
+   "server": "github-all-toolsets",
+   "tool": "list_pull_requests",
+   "query": "which pull requests are open"
+  },
+  {
+   "server": "github-all-toolsets",
+   "tool": "merge_pull_request",
+   "query": "merge pull request 17"
+  },
+  {
+   "server": "github-all-toolsets",
+   "tool": "pull_request_read",
+   "query": "show me the diff and review comments of pull request 17"
+  },
+  {
+   "server": "github-all-toolsets",
+   "tool": "get_file_contents",
+   "query": "read the workflow file from the repository on GitHub"
+  },
+  {
+   "server": "github-all-toolsets",
+   "tool": "create_or_update_file",
+   "query": "change one file in the GitHub repo and commit it directly"
+  },
+  {
+   "server": "github-all-toolsets",
+   "tool": "push_files",
+   "query": "commit several files to the remote repository in one go"
+  },
+  {
+   "server": "github-all-toolsets",
+   "tool": "create_branch",
+   "query": "create a branch on GitHub from main"
+  },
+  {
+   "server": "github-all-toolsets",
+   "tool": "list_commits",
+   "query": "list the commits on the main branch of the GitHub repository"
+  },
+  {
+   "server": "github-all-toolsets",
+   "tool": "search_code",
+   "query": "search all of GitHub for uses of this function name"
+  },
+  {
+   "server": "github-all-toolsets",
+   "tool": "search_repositories",
+   "query": "find repositories about FHIR validation"
+  },
+  {
+   "server": "github-all-toolsets",
+   "tool": "create_repository",
+   "query": "set up a new private repo under my account"
+  },
+  {
+   "server": "github-all-toolsets",
+   "tool": "fork_repository",
+   "query": "make my own copy of that open source project"
+  },
+  {
+   "server": "github-all-toolsets",
+   "tool": "get_latest_release",
+   "query": "what is the newest release version of this project"
+  },
+  {
+   "server": "github-all-toolsets",
+   "tool": "list_dependabot_alerts",
+   "query": "are there any vulnerable dependencies flagged"
+  },
+  {
+   "server": "github-all-toolsets",
+   "tool": "list_code_scanning_alerts",
+   "query": "show security findings from code scanning"
+  },
+  {
+   "server": "github-all-toolsets",
+   "tool": "get_job_logs",
+   "query": "why did the CI job fail, show its output"
+  },
+  {
+   "server": "github-all-toolsets",
+   "tool": "actions_run_trigger",
+   "query": "start the deploy workflow manually"
+  },
+  {
+   "server": "github-all-toolsets",
+   "tool": "list_notifications",
+   "query": "what unread GitHub notifications do I have"
+  },
+  {
+   "server": "github-all-toolsets",
+   "tool": "create_gist",
+   "query": "share this snippet as a gist"
+  },
+  {
+   "server": "github-all-toolsets",
+   "tool": "get_me",
+   "query": "which GitHub account am I signed in as"
+  },
+  {
+   "server": "github-all-toolsets",
+   "tool": "star_repository",
+   "query": "star this repo"
+  },
+  {
+   "server": "github-all-toolsets",
+   "tool": "list_discussions",
+   "query": "show recent discussions in the repo"
+  },
+  {
+   "server": "github-all-toolsets",
+   "tool": "label_write",
+   "query": "create a label called needs-triage"
+  }
+ ]
+}

@@ -1,0 +1,97 @@
+{
+  "comment": "Servers whose tool listings are measured. Versions are the newest published before 4 March 2026. Each is started as a local process on stdio and asked for its tools; no tool is called. npm servers are started through the bin entry of their package.json, PyPI servers through their console script, and the GitHub server from the release binary that ci.sh downloads.",
+  "servers": [
+    {
+      "name": "filesystem",
+      "source": "npm",
+      "package": "@modelcontextprotocol/server-filesystem",
+      "version": "2026.1.14",
+      "arguments": [
+        "{work}"
+      ]
+    },
+    {
+      "name": "memory",
+      "source": "npm",
+      "package": "@modelcontextprotocol/server-memory",
+      "version": "2026.1.26",
+      "arguments": []
+    },
+    {
+      "name": "sequential-thinking",
+      "source": "npm",
+      "package": "@modelcontextprotocol/server-sequential-thinking",
+      "version": "2025.12.18",
+      "arguments": []
+    },
+    {
+      "name": "everything",
+      "source": "npm",
+      "package": "@modelcontextprotocol/server-everything",
+      "version": "2026.1.26",
+      "arguments": []
+    },
+    {
+      "name": "playwright",
+      "source": "npm",
+      "package": "@playwright/mcp",
+      "version": "0.0.68",
+      "arguments": [
+        "--headless"
+      ]
+    },
+    {
+      "name": "git",
+      "source": "pypi",
+      "package": "mcp-server-git",
+      "version": "2026.1.14",
+      "executable": "mcp-server-git",
+      "arguments": [
+        "--repository",
+        "{work}"
+      ]
+    },
+    {
+      "name": "time",
+      "source": "pypi",
+      "package": "mcp-server-time",
+      "version": "2026.1.26",
+      "executable": "mcp-server-time",
+      "arguments": []
+    },
+    {
+      "name": "fetch",
+      "source": "pypi",
+      "package": "mcp-server-fetch",
+      "version": "2025.4.7",
+      "executable": "mcp-server-fetch",
+      "arguments": []
+    },
+    {
+      "name": "github",
+      "source": "github-release",
+      "package": "github/github-mcp-server",
+      "version": "resolved in ci.sh",
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "not-a-token-listing-only"
+      },
+      "arguments": [
+        "stdio"
+      ]
+    },
+    {
+      "name": "github-all-toolsets",
+      "source": "github-release",
+      "package": "github/github-mcp-server",
+      "version": "resolved in ci.sh",
+      "arguments": [
+        "stdio",
+        "--toolsets",
+        "all"
+      ],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "not-a-token-listing-only"
+      }
+    }
+  ]
+}

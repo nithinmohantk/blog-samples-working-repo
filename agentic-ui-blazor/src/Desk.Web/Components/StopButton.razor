@@ -1,0 +1,18 @@
+@implements IDisposable
+
+@if (AgentContext.Status is ConversationStatus.Streaming)
+{
+    <button type="button" class="desk-stop" @onclick="AgentContext.CancelAsync">Stop</button>
+}
+
+@code {
+    private IDisposable? _registration;
+
+    [CascadingParameter]
+    public AgentContext AgentContext { get; set; } = default!;
+
+    protected override void OnInitialized()
+        => _registration = AgentContext.RegisterOnStatusChanged(_ => InvokeAsync(StateHasChanged));
+
+    public void Dispose() => _registration?.Dispose();
+}

@@ -1,0 +1,24 @@
+{
+  "_comment": "US East (N. Virginia), USD. Read from the AWS pricing pages named in 'source'. Free tiers and data transfer are left out, as they are in AWS's own worked examples.",
+  "web_function": {
+    "source": "https://aws.amazon.com/lambda/pricing/ (Web Functions, Arm)",
+    "active_vcpu_second": 0.0000276944,
+    "memory_gb_second": 0.0000036667,
+    "per_million_requests": 0.30
+  },
+  "event_function": {
+    "source": "https://aws.amazon.com/lambda/pricing/ (Event Functions)",
+    "gb_second_arm": 0.0000133334,
+    "gb_second_x86": 0.0000166667,
+    "per_million_requests": 0.20
+  },
+  "http_api": {
+    "source": "https://aws.amazon.com/api-gateway/pricing/ (HTTP APIs, first 300 million requests a month)",
+    "per_million_requests": 1.00
+  },
+  "app_runner": {
+    "source": "https://aws.amazon.com/apprunner/pricing/",
+    "active_vcpu_hour": 0.064,
+    "gb_hour": 0.007
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "_note": "On-demand list prices in USD for US East (N. Virginia), as published on the AWS pricing pages named in 'source'. No free tier, discounts, Savings Plans or taxes. Check the pages before relying on any figure.",
+  "hours_per_month": 730,
+  "fargate": {
+    "source": "https://aws.amazon.com/fargate/pricing/",
+    "x86": {"vcpu_second": 0.000011244, "gb_second": 0.000001235},
+    "arm": {"vcpu_second": 0.0000089944, "gb_second": 0.0000009889}
+  },
+  "alb": {
+    "source": "https://aws.amazon.com/elasticloadbalancing/pricing/",
+    "hour": 0.0225, "lcu_hour": 0.008,
+    "lcu": {"new_connections_per_second": 25, "active_connections": 3000, "processed_gb_per_hour": 1.0, "rule_evaluations_per_second": 1000, "free_rules": 10}
+  },
+  "public_ipv4": {"source": "https://aws.amazon.com/vpc/pricing/", "hour": 0.005},
+  "apprunner": {
+    "source": "https://aws.amazon.com/apprunner/pricing/",
+    "provisioned_gb_hour": 0.007, "active_vcpu_hour": 0.064, "active_gb_hour": 0.007
+  },
+  "lambda": {
+    "source": "https://aws.amazon.com/lambda/pricing/",
+    "million_requests": 0.20,
+    "x86": {"gb_second": 0.0000166667},
+    "arm": {"gb_second": 0.0000133334},
+    "provisioned_concurrency": {"x86": {"gb_second": 0.0000041667, "duration_gb_second": 0.0000097222}},
+    "free_tier": {"requests": 1000000, "gb_seconds": 400000}
+  },
+  "http_api": {"source": "https://aws.amazon.com/api-gateway/pricing/", "million_requests": 1.00},
+  "logs": {"source": "https://aws.amazon.com/cloudwatch/pricing/", "ingest_gb": 0.50},
+  "data_transfer_out": {"source": "https://aws.amazon.com/ec2/pricing/on-demand/", "gb": 0.09}
+}

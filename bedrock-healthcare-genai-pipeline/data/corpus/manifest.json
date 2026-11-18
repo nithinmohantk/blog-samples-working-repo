@@ -1,0 +1,6 @@
+[
+  {"doc_id": "DOC-IM-01", "file": "im-standards-summary.md", "title": "Fixture: information management standards summary", "publisher": "HIQA", "version": "2024", "published": "2024-06-27", "review_due": "2027-06-30"},
+  {"doc_id": "DOC-ID-02", "file": "identifier-data-standards-summary.md", "title": "Fixture: identifier data standards summary", "publisher": "HSE", "version": "3", "published": "2025-11-11", "review_due": "2027-11-30"},
+  {"doc_id": "DOC-PIA-03", "file": "pia-guidance-summary.md", "title": "Fixture: privacy impact assessment summary", "publisher": "HIQA", "version": "2", "published": "2017-12-01", "review_due": "2026-12-31"},
+  {"doc_id": "DOC-IM-00", "file": "im-standards-2017-summary.md", "title": "Fixture: superseded data collection standards summary", "publisher": "HIQA", "version": "2017", "published": "2017-01-01", "review_due": "2024-06-27", "superseded_by": "DOC-IM-01"}
+]
