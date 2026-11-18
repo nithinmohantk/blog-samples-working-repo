@@ -1,0 +1,25 @@
+{
+  "facts": {
+    "Redis 7.2.4": {
+      "redis_version": "7.2.4",
+      "redis_git_sha1": "d2c8a4b9",
+      "redis_mode": "standalone",
+      "HELLO server": "redis",
+      "HELLO version": "7.2.4",
+      "COMMAND COUNT": 241
+    },
+    "Valkey unstable": {
+      "redis_version": "255.255.255",
+      "redis_git_sha1": "1950acd1",
+      "redis_mode": "standalone",
+      "HELLO server": "redis",
+      "HELLO version": "255.255.255",
+      "COMMAND COUNT": 241
+    }
+  },
+  "workload_diff": [],
+  "rdb_headers": [
+    "REDIS0011",
+    "REDIS0012"
+  ]
+}

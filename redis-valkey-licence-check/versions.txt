@@ -1,0 +1,8 @@
+redis 7.2.4: d2c8a4b91e8c0e6aefd1f5bc0bf582cddbe046b7
+valkey: 1950acd1e2b8c2282d51e528377f6e564eb447cd 2024-03-29 18:38:13 +0100
+valkey server binary: valkey-server
+valkey LICENSE first line: Copyright (c) 2006-2020, Salvatore Sanfilippo
+redis LICENSE first line: Copyright (c) 2006-2020, Salvatore Sanfilippo
+gcc (Ubuntu 15.2.0-16ubuntu1) 15.2.0
+Python 3.12.16
+redis-py 5.0.3
