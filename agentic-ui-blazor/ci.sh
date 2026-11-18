@@ -22,10 +22,16 @@ grep -q "Build succeeded" "$out/02-build.txt" || status=1
 
 {
   echo "== 3. tests: the agent alone, the agent over AG-UI, the component in bUnit"
-  rm -f "$out/wire-traces.txt"
+  rm -f "$out/wire-traces.txt" "$out/forged-approval.txt" "$out/stream-size.txt"
   DESK_OUT="$out" dotnet test tests/Desk.Tests -c Release --no-build --logger "console;verbosity=normal" 2>&1 | grep -E "^\s+(Passed|Failed|Skipped) |Error Message|Assert\.|Expected|Actual|Exception|   at Desk|Total tests|Passed:|Failed:|Test Run|Passed!|Failed!" | head -n 150
 } 2>&1 | tee "$out/03-tests.txt"
 grep -qE "Test Run Successful|Passed!" "$out/03-tests.txt" || status=1
+{
+  echo "== 3a. a forged approval, with the server-side check off and on"
+  sort "$out/forged-approval.txt"
+  echo "== 3b. size of the event stream"
+  sort "$out/stream-size.txt"
+} 2>&1 | tee "$out/03a-findings.txt"
 
 {
   echo "== 4. browser: Chromium against the two running services"

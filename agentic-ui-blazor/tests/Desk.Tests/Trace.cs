@@ -37,6 +37,17 @@ internal static class Trace
         }
     }
 
+    public static void Line(string file, string line)
+    {
+        if (Environment.GetEnvironmentVariable("DESK_OUT") is { Length: > 0 } folder)
+        {
+            lock (s_gate)
+            {
+                File.AppendAllText(Path.Combine(folder, file), line + "\n");
+            }
+        }
+    }
+
     private static string Roles(JsonObject request)
         => "[" + string.Join(", ", (request["messages"]?.AsArray() ?? []).Select(m => m?["role"]?.GetValue<string>())) + "]";
 
