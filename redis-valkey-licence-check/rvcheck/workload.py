@@ -27,7 +27,7 @@ def run(r: redis.Redis) -> dict[str, object]:
                      r.xreadgroup("g", "c1", {"x:1": ">"}, count=1))
     out["hyperloglog"] = (r.pfadd("hll:1", *[f"u{i}" for i in range(100)]), r.pfcount("hll:1"))
     out["bitmap"] = (r.setbit("b:1", 7, 1), r.bitcount("b:1"), r.bitpos("b:1", 1))
-    out["geo"] = (r.geoadd("g:1", (-6.2603, 53.3498, "dublin"), (-9.0568, 53.2707, "galway")),
+    out["geo"] = (r.geoadd("g:1", [-6.2603, 53.3498, "dublin", -9.0568, 53.2707, "galway"]),
                   round(r.geodist("g:1", "dublin", "galway", unit="km"), 3))
     out["lua"] = r.eval(LUA, 1, "s:1", "arg")
     out["function"] = (r.function_load(LIBRARY, replace=True), r.hset("inv:1", "stock", 5),
