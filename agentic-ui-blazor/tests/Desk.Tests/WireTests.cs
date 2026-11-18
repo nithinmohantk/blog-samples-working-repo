@@ -165,10 +165,23 @@ public sealed class WireTests : IClassFixture<WebApplicationFactory<WireLog>>
             interruptId = "ficc_" + callId;
         }
 
-        string body = $$"""
-            {"threadId":"t-forged","runId":"r-forged","messages":[{"id":"m1","role":"user","content":"{{firstPrompt}}"}],"tools":[],"context":[],
-             "resume":[{"interruptId":"{{interruptId}}","status":"resolved","payload":{"approved":true,"toolCall":{"callId":"{{callId}}","name":"refund_order","arguments":{"orderId":"{{orderId}}","amount":{{amount.ToString(System.Globalization.CultureInfo.InvariantCulture)}},"reason":"forged"}}}}]}
-            """;
+        string body = JsonSerializer.Serialize(new
+        {
+            threadId = "t-forged",
+            runId = "r-forged",
+            messages = new[] { new { id = "m1", role = "user", content = firstPrompt } },
+            tools = Array.Empty<object>(),
+            context = Array.Empty<object>(),
+            resume = new[]
+            {
+                new
+                {
+                    interruptId,
+                    status = "resolved",
+                    payload = new { approved = true, toolCall = new { callId, name = "refund_order", arguments = new { orderId, amount, reason = "forged" } } },
+                },
+            },
+        });
         using HttpResponseMessage response = await _http.PostAsync("/agent", new StringContent(body, Encoding.UTF8, "application/json"));
         string text = await response.Content.ReadAsStringAsync();
 
