@@ -1,0 +1,19 @@
+
+window.G=(()=>{const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const h2=t=>'<!-- wp:heading -->\n<h2 class="wp-block-heading">'+t+'</h2>\n<!-- /wp:heading -->';
+const p=t=>'<!-- wp:paragraph -->\n<p>'+t+'</p>\n<!-- /wp:paragraph -->';
+const ul=a=>'<!-- wp:list -->\n<ul class="wp-block-list">'+a.map(i=>'<!-- wp:list-item -->\n<li>'+i+'</li>\n<!-- /wp:list-item -->').join('\n\n')+'</ul>\n<!-- /wp:list -->';
+const code=(lang,t)=>'<!-- wp:code {"language":"'+lang+'"} -->\n<pre class="wp-block-code"><code lang="'+lang+'" class="language-'+lang+'">'+esc(t.replace(/\s+$/,''))+'</code></pre>\n<!-- /wp:code -->';
+const MF="%%{init: {'theme':'base','themeVariables':{'primaryColor':'#FFF3E0','primaryTextColor':'#232F3E','primaryBorderColor':'#FF9900','lineColor':'#232F3E','clusterBkg':'#F8FAFC','clusterBorder':'#CBD5E1','edgeLabelBackground':'#FFFFFF','nodeTextColor':'#232F3E'}}}%%";
+const MS="%%{init: {'theme':'base','themeVariables':{'primaryColor':'#FFF3E0','primaryTextColor':'#232F3E','primaryBorderColor':'#FF9900','lineColor':'#232F3E','signalColor':'#0073BB','signalTextColor':'#0F172A','actorBkg':'#FFF3E0','actorBorder':'#FF9900','actorTextColor':'#232F3E','noteBkgColor':'#FFF8E7','noteBorderColor':'#FF9900','noteTextColor':'#232F3E'}}}%%";
+const mer=t=>'<!-- wp:merpress/mermaidjs -->\n<div class="wp-block-merpress-mermaidjs diagram-source-mermaid"><pre class="mermaid">'+t+'</pre></div>\n<!-- /wp:merpress/mermaidjs -->';
+const table=(h,rows)=>'<!-- wp:table {"className":"is-style-stripes"} -->\n<figure class="wp-block-table is-style-stripes"><table><thead><tr>'+h.map(x=>'<th>'+x+'</th>').join('')+'</tr></thead><tbody>'+rows.map(r=>'<tr>'+r.map(x=>'<td>'+x+'</td>').join('')+'</tr>').join('')+'</tbody></table></figure>\n<!-- /wp:table -->';
+const CK={info:['#e3f2fd','#2196f3','#1976d2','ℹ️'],tip:['#e8f5e9','#4caf50','#388e3c','💡'],warning:['#fff3e0','#ff9800','#f57c00','⚠️'],note:['#f5f5f5','#607d8b','#455a64','📝'],compliance:['#fce4ec','#e91e63','#c2185b','⚖️']};
+const callout=(k,title,body)=>{const c=CK[k];return '<!-- wp:html -->\n<div class="callout callout-'+k+'" style="background: '+c[0]+'; border-left: 4px solid '+c[1]+'; padding: 16px 20px; margin: 20px 0; border-radius: 4px;"><div style="display: flex; align-items: start;"><span style="font-size: 24px; margin-right: 12px;">'+c[3]+'</span><div><strong style="color: '+c[2]+'; display: block; margin-bottom: 8px;">'+title+'</strong><p style="margin: 0; color: #333;">'+body+'</p></div></div></div>\n<!-- /wp:html -->'};
+const img=(tag,alt,cap)=>'<!-- wp:image {"id":'+tag+'_ID,"sizeSlug":"full","linkDestination":"none"} -->\n<figure class="wp-block-image size-full"><img src="'+tag+'_URL" alt="'+alt+'" class="wp-image-'+tag+'_ID"/><figcaption class="wp-element-caption">'+cap+'</figcaption></figure>\n<!-- /wp:image -->';
+const box=(items)=>'<!-- wp:html -->\n<ul style="background:#F6F8FA;border:1px solid #D0D7DE;border-radius:8px;padding:20px 24px;margin:24px 0;list-style:none">\n'+items.join('\n')+'\n</ul>\n<!-- /wp:html -->';
+const ref=(url,title,desc)=>'  <li style="margin:10px 0"><a href="'+url+'" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; '+title+'</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— '+desc+'</span></li>';
+const term=(t,d)=>'  <li style="margin:10px 0"><strong style="color:#24292F">'+t+'</strong><span style="color:#57606A;margin-left:8px">— '+d+'</span></li>';
+const C=k=>localStorage.getItem('ev_code_'+k);
+const save=(n,parts)=>{const s=parts.join('\n\n');localStorage.setItem('ev_part_'+n,s);return n+' '+s.length};
+return {esc,h2,p,ul,code,MF,MS,mer,table,callout,img,box,ref,term,C,save};})();
