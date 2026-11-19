@@ -1,0 +1,20 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "OwnNamespacePrefixOnly",
+      "Effect": "Allow",
+      "Action": ["s3:GetObject", "s3:PutObject"],
+      "Resource": "arn:aws:s3:::shared-exports/${aws:PrincipalTag/kubernetes-namespace}/*"
+    },
+    {
+      "Sid": "ThisClusterOnly",
+      "Effect": "Deny",
+      "Action": "s3:*",
+      "Resource": "*",
+      "Condition": {
+        "StringNotEquals": {"aws:PrincipalTag/eks-cluster-name": ["prod-eu", "prod-eu-dr"]}
+      }
+    }
+  ]
+}
