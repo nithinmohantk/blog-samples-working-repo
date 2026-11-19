@@ -1,0 +1,9 @@
+$ python -m horizondb_readiness "$SOURCE_URI" --geo-replica --peak-connections 90
+[BLOCKER] major_version: PostgreSQL 16 is not offered; HorizonDB offers 17 (ga), 18 (preview). Test the application on 17 first, then migrate with dump/restore or logical replication.
+[INFO   ] extension:vector: vector 0.6.2 will be 0.8.0 on HorizonDB; review its release notes.
+[INFO   ] allowlist:vector: Add vector to azure.extensions in the parameter group before CREATE EXTENSION.
+[ACTION ] no_primary_key: 1 table(s) without a primary key (public.audit_log): UPDATE and DELETE cannot be replicated logically without one, so a low-downtime migration needs a key or REPLICA IDENTITY FULL.
+[ACTION ] connection_pooling: Peak 90 of 100 connections. No built-in PgBouncer: run a pooler in your own compute or rely on client-side pools.
+[BLOCKER] cross_region_readers: No cross-region readers: disaster recovery is geo-redundant backup and restore.
+{'blocker': 2, 'action': 2, 'info': 2}
+exit code 2

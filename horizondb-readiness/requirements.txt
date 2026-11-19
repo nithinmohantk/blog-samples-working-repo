@@ -1,0 +1,4 @@
+psycopg[binary]==3.2.3
+pytest==8.3.3
+# Only for the live tests: a throwaway PostgreSQL 16.2 with pgvector 0.6.2.
+pgserver==0.1.4
