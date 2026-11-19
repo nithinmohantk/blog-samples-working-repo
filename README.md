@@ -69,6 +69,7 @@ Each folder has its own README that says what the code does, how to run it, and 
 | `ddb-global-active-active` | [Multi-Region Active-Active Serverless Patterns with Global Tables](https://www.dataa.dev/2026/04/17/multi-region-active-active-serverless-patterns-with-global-tables/) | Python, YAML |
 | `bda-invoice-intake` | [Amazon Bedrock Data Automation: Intelligent Document Processing Without the Pipeline Plumbing](https://www.dataa.dev/2026/03/03/amazon-bedrock-data-automation-intelligent-document-processing-without-the-pipeline-plumbing/) | Python, YAML |
 | `irsa-to-pod-identity` | [Amazon EKS Pod Identity: When to Replace IRSA and How to Migrate](https://www.dataa.dev/2026/05/01/amazon-eks-pod-identity-the-end-of-oidc-complexity/) | Python, YAML |
+| `zero-etl-preflight` | [Zero-ETL Analytics: Amazon Aurora to Redshift Continuous Sync](https://www.dataa.dev/2026/04/28/zero-etl-analytics-amazon-aurora-to-redshift-continuous-sync/) | Python, SQL |
 
 ## Verification status
 
