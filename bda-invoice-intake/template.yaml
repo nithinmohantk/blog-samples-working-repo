@@ -1,0 +1,71 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Bedrock Data Automation intake: a Lambda function on BDA job events that
+  queues low-confidence or unmatched documents for review.
+
+Parameters:
+  OutputBucket:
+    Type: String
+    Description: Bucket that BDA writes job output to
+  ConfidenceThreshold:
+    Type: String
+    Default: "0.85"
+  RequiredFields:
+    Type: String
+    Default: invoice_number,supplier_name,gross_total
+
+Resources:
+  ReviewDeadLetterQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      MessageRetentionPeriod: 1209600
+      SqsManagedSseEnabled: true
+
+  ReviewQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      VisibilityTimeout: 300
+      SqsManagedSseEnabled: true
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt ReviewDeadLetterQueue.Arn
+        maxReceiveCount: 5
+
+  ResultRouter:
+    Type: AWS::Serverless::Function
+    Properties:
+      Runtime: python3.13
+      Architectures: [arm64]
+      Handler: intake.handler
+      CodeUri: .
+      Timeout: 60
+      MemorySize: 256
+      Environment:
+        Variables:
+          REVIEW_QUEUE_URL: !Ref ReviewQueue
+          CONFIDENCE_THRESHOLD: !Ref ConfidenceThreshold
+          REQUIRED_FIELDS: !Ref RequiredFields
+      Policies:
+        - S3ReadPolicy:
+            BucketName: !Ref OutputBucket
+        - SQSSendMessagePolicy:
+            QueueName: !GetAtt ReviewQueue.QueueName
+      Events:
+        JobFinished:
+          Type: EventBridgeRule
+          Properties:
+            Pattern:
+              source: [aws.bedrock]
+              detail-type:
+                - Bedrock Data Automation Job Succeeded
+                - Bedrock Data Automation Job Failed With Client Error
+                - Bedrock Data Automation Job Failed With Service Error
+            RetryPolicy:
+              MaximumRetryAttempts: 4
+              MaximumEventAgeInSeconds: 3600
+            DeadLetterConfig:
+              Type: SQS
+
+Outputs:
+  ReviewQueueUrl:
+    Value: !Ref ReviewQueue
