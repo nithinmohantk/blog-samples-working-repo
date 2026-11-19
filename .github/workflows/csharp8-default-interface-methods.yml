@@ -1,0 +1,36 @@
+name: C# 8 default interface methods
+
+on:
+  push:
+    paths:
+      - "csharp8-default-interface-methods/**"
+      - ".github/workflows/csharp8-default-interface-methods.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write   # only to publish the result files to a results branch
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+      - name: Build, run and check
+        id: run
+        continue-on-error: true
+        run: ./csharp8-default-interface-methods/ci.sh "$GITHUB_WORKSPACE/out/csharp8-default-interface-methods"
+      - name: Publish results
+        run: |
+          cd "$GITHUB_WORKSPACE/out"
+          printf 'commit: %s\nrun: %s/%s/actions/runs/%s\nsamples: %s\n' "$GITHUB_SHA" "$GITHUB_SERVER_URL" "$GITHUB_REPOSITORY" "$GITHUB_RUN_ID" "${{ steps.run.outcome }}" > run.txt
+          git init -q -b ci-results-csharp8-dim
+          git add -A
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" commit -q -m "Results for $GITHUB_SHA"
+          git push -q --force "https://x-access-token:${{ github.token }}@github.com/${GITHUB_REPOSITORY}.git" ci-results-csharp8-dim
+      - name: Fail if the checks failed
+        if: steps.run.outcome != 'success'
+        run: exit 1
