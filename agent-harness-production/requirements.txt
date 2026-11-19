@@ -1,0 +1,2 @@
+jsonschema
+opentelemetry-sdk
