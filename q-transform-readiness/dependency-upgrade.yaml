@@ -1,0 +1,16 @@
+name: dependency-upgrade
+description: "Library versions to apply after the JDK 21 upgrade of the orders monolith"
+
+dependencyManagement:
+  dependencies:
+    - identifier: "org.springframework.boot:spring-boot-starter-web"
+      targetVersion: "3.4.4"
+      versionProperty: "spring-boot.version"
+      originType: "THIRD_PARTY"
+    - identifier: "com.example.shared:orders-domain"
+      targetVersion: "5.0.0"
+      originType: "FIRST_PARTY"
+  plugins:
+    - identifier: "org.apache.maven.plugins:maven-surefire-plugin"
+      targetVersion: "3.5.2"
+      originType: "THIRD_PARTY"

@@ -1,0 +1,48 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >
+  DynamoDB global table (MREC) for the orders service, replicated to
+  eu-west-1 and us-east-1. Deploy this stack once, in eu-west-1.
+
+Parameters:
+  TableName:
+    Type: String
+    Default: orders
+
+Resources:
+  OrdersTable:
+    Type: AWS::DynamoDB::GlobalTable
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      TableName: !Ref TableName
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: pk
+          AttributeType: S
+      KeySchema:
+        - AttributeName: pk
+          KeyType: HASH
+      # MREC replicates through DynamoDB Streams, so a stream is required.
+      StreamSpecification:
+        StreamViewType: NEW_AND_OLD_IMAGES
+      SSESpecification:
+        SSEEnabled: true
+      Replicas:
+        - Region: eu-west-1
+          DeletionProtectionEnabled: true
+          PointInTimeRecoverySpecification:
+            PointInTimeRecoveryEnabled: true
+          Tags:
+            - Key: service
+              Value: orders
+        - Region: us-east-1
+          DeletionProtectionEnabled: true
+          PointInTimeRecoverySpecification:
+            PointInTimeRecoveryEnabled: true
+          Tags:
+            - Key: service
+              Value: orders
+
+Outputs:
+  TableArn:
+    Value: !GetAtt OrdersTable.Arn
