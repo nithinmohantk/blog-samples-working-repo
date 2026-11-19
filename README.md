@@ -81,6 +81,7 @@ Each folder has its own README that says what the code does, how to run it, and 
 | `slo-burn-rate-rules` | [SRE on Azure Kubernetes Service: SLOs, Error Budgets and the Tools That Support Them](https://www.dataa.dev/2024/11/28/introduction-to-site-reliability-engineering-sre-in-azure-achieving-higher-reliability-with-aks-and-essential-tools/) | Python, YAML |
 | `context-budget` | [Token Budgets for LLM Prompts: Allocate the Context Window Before You Fill It](https://www.dataa.dev/2024/06/05/context-window-management-token-budgets-prioritization-and-compression/) | Python |
 | `ann-algorithms` | [Vector Search Algorithms: Exact Search, IVF, Product Quantization and HNSW](https://www.dataa.dev/2024/08/20/vector-search-algorithms-from-brute-force-to-hnsw-and-beyond/) | Python |
+| `gpt-model-compare` | [GPT-3.5 Turbo, GPT-4 or GPT-4 Turbo: Choosing an OpenAI Model in January 2024](https://www.dataa.dev/2024/01/15/gpt-35-gpt-4-gpt-4-turbo-complete-guide-2024/) | Python |
 
 ## Verification status
 
