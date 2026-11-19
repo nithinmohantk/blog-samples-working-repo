@@ -72,6 +72,7 @@ Each folder has its own README that says what the code does, how to run it, and 
 | `zero-etl-preflight` | [Zero-ETL from Aurora to Amazon Redshift](https://www.dataa.dev/2026/04/28/zero-etl-analytics-amazon-aurora-to-redshift-continuous-sync/) | Python, SQL |
 | `inference-cost-per-token` | [Inferentia2, Trainium or NVIDIA GPUs for LLM Inference](https://www.dataa.dev/2026/04/10/aws-inferentia-vs-nvidia-gpus-the-2026-enterprise-cost-matrix/) | Python |
 | `nova-model-eval` | [Amazon Nova After 15 Months: Which Model for Which Job](https://www.dataa.dev/2026/03/17/amazon-nova-models-the-honest-15-month-enterprise-evaluation/) | Python |
+| `graviton-readiness` | [Moving to Graviton4: What to Check, How to Measure, How to Migrate](https://www.dataa.dev/2026/03/25/aws-graviton4-production-benchmark-and-migration-guide-for-enterprise-workloads/) | Python |
 
 ## Verification status
 
