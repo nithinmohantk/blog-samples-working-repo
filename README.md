@@ -84,6 +84,7 @@ Each folder has its own README that says what the code does, how to run it, and 
 | `gpt-model-compare` | [GPT-3.5 Turbo, GPT-4 or GPT-4 Turbo: Choosing an OpenAI Model in January 2024](https://www.dataa.dev/2024/01/15/gpt-35-gpt-4-gpt-4-turbo-complete-guide-2024/) | Python |
 | `spark-internals-lab` | [Inside a Spark Job: Stages, Shuffles, AQE and Memory](https://www.dataa.dev/2025/11/09/spark-isnt-magic-what-twenty-years-of-data-engineering-taught-me-about-distributed-processing/) | Python (PySpark) |
 | `azure-openai-client` | [Azure OpenAI from Python in November 2024](https://www.dataa.dev/2024/11/17/azure-openai-service-with-python-building-enterprise-ai-applications/) | Python |
+| `openai-chat-production` | [OpenAI Chat Completions in September 2024](https://www.dataa.dev/2024/09/10/openai-api-complete-guide-gpt4-assistants/) | Python |
 
 ## Verification status
 
