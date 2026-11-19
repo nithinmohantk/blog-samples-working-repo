@@ -80,6 +80,7 @@ Each folder has its own README that says what the code does, how to run it, and 
 | `iot-stream-windows` | [IoT Analytics in Real Time: What to Do at the Edge, in the Stream and in the Lake](https://www.dataa.dev/2024/07/13/the-intersection-of-data-analytics-and-iot-real-time-decision-making/) | Python |
 | `slo-burn-rate-rules` | [SRE on Azure Kubernetes Service: SLOs, Error Budgets and the Tools That Support Them](https://www.dataa.dev/2024/11/28/introduction-to-site-reliability-engineering-sre-in-azure-achieving-higher-reliability-with-aks-and-essential-tools/) | Python, YAML |
 | `context-budget` | [Token Budgets for LLM Prompts: Allocate the Context Window Before You Fill It](https://www.dataa.dev/2024/06/05/context-window-management-token-budgets-prioritization-and-compression/) | Python |
+| `ann-algorithms` | [Vector Search Algorithms: Exact Search, IVF, Product Quantization and HNSW](https://www.dataa.dev/2024/08/20/vector-search-algorithms-from-brute-force-to-hnsw-and-beyond/) | Python |
 
 ## Verification status
 
