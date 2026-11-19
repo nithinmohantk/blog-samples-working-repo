@@ -1,0 +1,7 @@
+== 2. three programs that must not compile
+-- experiments/01-call-through-class (expected: CS1061)
+error CS1061: 'Bmw' does not contain a definition for 'DefaultMessage' and no accessible extension method 'DefaultMessage' accepting a first argument of type 'Bmw' could be found (are you missing a using directive or an assembly reference?)
+-- experiments/02-two-defaults-clash (expected: CS8705)
+error CS8705: Interface member 'IVehicle.Describe()' does not have a most specific implementation. Neither 'IElectric.IVehicle.Describe()', nor 'ILuxury.IVehicle.Describe()' are most specific.
+-- experiments/04-csharp-7-3 (expected: CS8370)
+error CS8370: Feature 'default interface implementation' is not available in C# 7.3. Please use language version 8.0 or greater.
