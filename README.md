@@ -68,6 +68,7 @@ Each folder has its own README that says what the code does, how to run it, and 
 | `q-transform-readiness` | [Legacy to Serverless: Automated Codebase Modernization with Amazon Q Developer](https://www.dataa.dev/2026/04/07/legacy-to-serverless-automated-codebase-modernization-with-amazon-q-developer/) | Python, YAML |
 | `ddb-global-active-active` | [Multi-Region Active-Active Serverless Patterns with Global Tables](https://www.dataa.dev/2026/04/17/multi-region-active-active-serverless-patterns-with-global-tables/) | Python, YAML |
 | `bda-invoice-intake` | [Amazon Bedrock Data Automation: Intelligent Document Processing Without the Pipeline Plumbing](https://www.dataa.dev/2026/03/03/amazon-bedrock-data-automation-intelligent-document-processing-without-the-pipeline-plumbing/) | Python, YAML |
+| `irsa-to-pod-identity` | [Amazon EKS Pod Identity: When to Replace IRSA and How to Migrate](https://www.dataa.dev/2026/05/01/amazon-eks-pod-identity-the-end-of-oidc-complexity/) | Python, YAML |
 
 ## Verification status
 
