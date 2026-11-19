@@ -1,0 +1,20 @@
+# Custom NodeClass for EKS Auto Mode. Leave the built-in "default" NodeClass
+# alone; create your own for private subnets, a custom node role or a
+# customer-managed KMS key for node storage.
+apiVersion: eks.amazonaws.com/v1
+kind: NodeClass
+metadata:
+  name: private-encrypted
+spec:
+  role: AmazonEKSAutoNodeRole            # IAM role name; needs an EKS access entry
+  subnetSelectorTerms:
+    - tags:
+        kubernetes.io/role/internal-elb: "1"
+  securityGroupSelectorTerms:
+    - tags:
+        aws:eks:cluster-name: orders-prod
+  ephemeralStorage:
+    size: 80Gi
+    iops: 3000
+    throughput: 125
+    kmsKeyID: alias/eks-node-storage

@@ -1,0 +1,45 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >
+  DynamoDB global table in multi-Region strong consistency (MRSC) mode for
+  items that must never diverge, such as stock levels or balances. Two
+  replicas (us-east-1, us-east-2) and a DynamoDB-managed witness (us-west-2),
+  all in the US Region set. Deploy this stack in us-east-1. The table must be
+  created empty; MRSC cannot be enabled on a table that already holds items.
+
+Parameters:
+  TableName:
+    Type: String
+    Default: inventory
+
+Resources:
+  InventoryTable:
+    Type: AWS::DynamoDB::GlobalTable
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      TableName: !Ref TableName
+      BillingMode: PAY_PER_REQUEST
+      MultiRegionConsistency: STRONG
+      GlobalTableWitnesses:
+        - Region: us-west-2
+      AttributeDefinitions:
+        - AttributeName: pk
+          AttributeType: S
+      KeySchema:
+        - AttributeName: pk
+          KeyType: HASH
+      SSESpecification:
+        SSEEnabled: true
+      Replicas:
+        - Region: us-east-1
+          DeletionProtectionEnabled: true
+          PointInTimeRecoverySpecification:
+            PointInTimeRecoveryEnabled: true
+        - Region: us-east-2
+          DeletionProtectionEnabled: true
+          PointInTimeRecoverySpecification:
+            PointInTimeRecoveryEnabled: true
+
+Outputs:
+  TableArn:
+    Value: !GetAtt InventoryTable.Arn

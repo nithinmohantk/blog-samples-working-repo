@@ -1,0 +1,38 @@
+[
+  {
+    "name": "get_customer_summary",
+    "description": "Return the order count and total spend in EUR for one customer. Use this before listing orders when the user asks how much a customer has spent.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "customer_id": {
+          "type": "string",
+          "description": "Customer identifier in the form C-123456"
+        }
+      },
+      "required": ["customer_id"]
+    }
+  },
+  {
+    "name": "list_customer_orders",
+    "description": "Return one page of a customer's orders, newest first. Pass next_token from the previous result to get the next page. At most 25 orders are returned per call.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "customer_id": {
+          "type": "string",
+          "description": "Customer identifier in the form C-123456"
+        },
+        "limit": {
+          "type": "integer",
+          "description": "Orders per page, 1 to 25. Defaults to 10."
+        },
+        "next_token": {
+          "type": "string",
+          "description": "Opaque token from the previous page. Omit for the first page."
+        }
+      },
+      "required": ["customer_id"]
+    }
+  }
+]

@@ -59,6 +59,14 @@ Each folder has its own README that says what the code does, how to run it, and 
 | `ehds-access-logging` | [EHDS Provisional Agreement: What EHR Systems Must Build Into the Access Path](https://www.dataa.dev/2024/03/23/ehds-provisional-agreement-what-ehr-systems-must-build/) | Python, FHIR |
 | `redis-valkey-licence-check` | [Redis Changes Its Licence, Valkey Forks: What It Means for Your Deployments, and a One-Way Data Trap](https://www.dataa.dev/2024/03/30/redis-licence-change-valkey-fork-deployments-rdb-rollback/) | Python, Bash |
 | `xz-cve-2024-3094-sbom-triage` | [The xz Backdoor (CVE-2024-3094): SBOM Triage for Images and Lambda Layers, and Where SBOMs Go Blind](https://www.dataa.dev/2024/03/31/xz-backdoor-cve-2024-3094-sbom-triage-images-lambda-layers/) | Python, Bash |
+| `cowork-folder-check` | [Anthropic Claude Cowork: Building General-Purpose AI Agents for Enterprise Knowledge Work](https://www.dataa.dev/2026/01/24/anthropic-claude-cowork-building-general-purpose-ai-agents-for-enterprise-knowledge-work/) | Python |
+| `dsql-occ-client` | [Amazon Aurora DSQL in Production: What Enterprise Architects Need to Know](https://www.dataa.dev/2026/02/03/amazon-aurora-dsql-in-production-what-15-months-teaches-enterprise-architects/) | Python, SQL |
+| `eks-automode-lint` | [Amazon EKS Auto Mode: What AWS Manages, What It Costs and How to Migrate](https://www.dataa.dev/2026/02/14/amazon-eks-auto-mode-how-aws-finally-solved-the-node-management-problem/) | Python, YAML |
+| `s3tables-starter` | [Amazon S3 Tables & Apache Iceberg: Native Lakehouse in S3, 14 Months Later](https://www.dataa.dev/2026/02/21/amazon-s3-tables-apache-iceberg-native-lakehouse-in-s3-14-months-later/) | Python |
+| `mcp-on-aws` | [Model Context Protocol (MCP) on AWS: The New Architecture for Enterprise AI Agent Integrations](https://www.dataa.dev/2026/03/22/model-context-protocol-mcp-on-aws-the-new-architecture-for-enterprise-ai-agent-integrations/) | Python |
+| `smus-upgrade-readiness` | [Amazon SageMaker Unified Studio: Is This the End of Fragmented MLOps on AWS?](https://www.dataa.dev/2026/03/27/amazon-sagemaker-unified-studio-is-this-the-end-of-fragmented-mlops-on-aws/) | Python |
+| `q-transform-readiness` | [Legacy to Serverless: Automated Codebase Modernization with Amazon Q Developer](https://www.dataa.dev/2026/04/07/legacy-to-serverless-automated-codebase-modernization-with-amazon-q-developer/) | Python, YAML |
+| `ddb-global-active-active` | [Multi-Region Active-Active Serverless Patterns with Global Tables](https://www.dataa.dev/2026/04/17/multi-region-active-active-serverless-patterns-with-global-tables/) | Python, YAML |
 
 ## Verification status
 

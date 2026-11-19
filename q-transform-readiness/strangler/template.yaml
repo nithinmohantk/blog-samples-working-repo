@@ -1,0 +1,83 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Strangler-fig facade for a Java monolith. An HTTP API sends POST /orders to
+  a Java 21 Lambda function extracted from the monolith and proxies every
+  other request, unchanged, to the existing application. Move more routes to
+  Lambda one at a time; delete the proxy route when nothing is left behind it.
+
+Parameters:
+  MonolithBaseUrl:
+    Type: String
+    Description: HTTPS base URL of the existing application, without a trailing slash
+    AllowedPattern: "^https://[^/]+(/.*[^/])?$"
+
+Resources:
+  FacadeApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      AccessLogSettings:
+        DestinationArn: !GetAtt ApiAccessLogs.Arn
+        Format: '{"requestId":"$context.requestId","routeKey":"$context.routeKey","status":"$context.status","integrationLatency":"$context.integrationLatency"}'
+
+  ApiAccessLogs:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      RetentionInDays: 90
+
+  # Everything not yet extracted goes to the monolith.
+  MonolithIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref FacadeApi
+      IntegrationType: HTTP_PROXY
+      IntegrationMethod: ANY
+      IntegrationUri: !Sub "${MonolithBaseUrl}/{proxy}"
+      PayloadFormatVersion: "1.0"
+      TimeoutInMillis: 29000
+
+  MonolithRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref FacadeApi
+      RouteKey: "ANY /{proxy+}"
+      Target: !Sub "integrations/${MonolithIntegration}"
+
+  OrderEvents:
+    Type: AWS::Events::EventBus
+    Properties:
+      Name: !Sub "${AWS::StackName}-orders"
+
+  # The first capability moved out of the monolith. The more specific route
+  # POST /orders wins over ANY /{proxy+}.
+  OrderIntakeFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: order-intake/
+      Handler: com.example.orders.OrderIntakeHandler::handleRequest
+      Runtime: java21
+      Architectures: [arm64]
+      MemorySize: 1024
+      Timeout: 10
+      AutoPublishAlias: live
+      SnapStart:
+        ApplyOn: PublishedVersions
+      Environment:
+        Variables:
+          EVENT_BUS_NAME: !Ref OrderEvents
+      Policies:
+        - EventBridgePutEventsPolicy:
+            EventBusName: !Ref OrderEvents
+      Events:
+        CreateOrder:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref FacadeApi
+            Path: /orders
+            Method: POST
+
+Outputs:
+  ApiUrl:
+    Value: !Sub "https://${FacadeApi}.execute-api.${AWS::Region}.${AWS::URLSuffix}"
+  OrderEventBus:
+    Value: !Ref OrderEvents
