@@ -1,6 +1,6 @@
 # cosmos-rust-ga
 
-Sample code for the dataa.dev article *Azure Cosmos DB SDK for Rust Is GA: What Changes for Developers, DevOps and Architects* (19 Nov 2026).
+Sample code for the dataa.dev article *Azure Cosmos DB SDK for Rust Is Generally Available: What Changes for Developers, DevOps and Architects* (19 Nov 2026).
 
 An order service's storage layer on Azure Cosmos DB for NoSQL with `azure_data_cosmos` 1.0.0, the generally available Rust SDK.
 
