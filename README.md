@@ -76,6 +76,7 @@ Each folder has its own README that says what the code does, how to run it, and 
 | `graviton-readiness` | [Moving to Graviton4: What to Check, How to Measure, How to Migrate](https://www.dataa.dev/2026/03/25/aws-graviton4-production-benchmark-and-migration-guide-for-enterprise-workloads/) | Python |
 | `hpa-behavior-sim` | [Horizontal Pod Autoscaling: How the Algorithm Decides, and How to Tune It](https://www.dataa.dev/2024/03/14/scaling-up-your-pods-how-horizontal-pod-autoscaling-wins/) | Python, YAML |
 | `subword-tokenizers` | [Tokenization for LLM Engineers: BPE, WordPiece, Unigram and What They Cost You](https://www.dataa.dev/2024/04/06/introduction-to-tokenization/) | Python |
+| `insight-first-charts` | [Data Storytelling: Lead With the Finding, Then Show the Evidence](https://www.dataa.dev/2024/05/11/data-storytelling-how-to-communicate-insights-effectively/) | Python |
 
 ## Verification status
 
