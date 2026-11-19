@@ -1,0 +1,9 @@
+== 1. versions
+Python 3.13.18
+jsonschema 4.26.0
+opentelemetry-api 1.44.0
+opentelemetry-sdk 1.44.0
+sqlite 3.46.1
+Docker version 29.4.2, build 055a478
+sandbox image python:3.13-slim: Python 3.13.18
+Linux 7.0.0-1016-aws x86_64

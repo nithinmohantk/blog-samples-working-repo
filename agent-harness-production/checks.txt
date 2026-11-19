@@ -1,0 +1,26 @@
+ok   bare: runaway never ends by itself
+ok   harness: runaway stopped by the model call budget
+ok   bare: bad arguments crash the run
+ok   harness: bad arguments are corrected
+ok   bare: unknown tool crashes the run
+ok   harness: unknown tool is reported and the run recovers
+ok   bare: a transient failure crashes the run
+ok   harness: a transient failure is retried
+ok   bare: 2 MB goes to the model
+ok   harness: the result is cut to the limit
+ok   bare: waits for the slow tool
+ok   harness: gives up on the slow tool after 1 s
+ok   bare: the injected refund is paid
+ok   harness: the injected refund is not paid
+ok   bare: the key leaks
+ok   harness: the key does not leak
+ok   bare: 1 GB is allocated in the agent
+ok   harness: the allocation fails in the child
+ok   bare: code reaches the network
+ok   harness, process sandbox: code still reaches the network
+ok   bare: crash and restart pays twice
+ok   harness: crash and restart pays once
+ok   container: code cannot reach the network
+ok   container: the key does not leak
+ok   container: the allocation fails
+25 of 25 checks passed

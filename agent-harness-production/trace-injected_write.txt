@@ -1,0 +1,6 @@
+chat scripted-1              ok                        
+execute_tool read_ticket     ok                        
+chat scripted-1              ok                        
+execute_tool refund_order    error.type=not_approved   
+chat scripted-1              ok                        
+invoke_agent desk            ok                        

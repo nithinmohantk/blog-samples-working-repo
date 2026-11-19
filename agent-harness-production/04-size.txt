@@ -1,0 +1,9 @@
+== 4. size of each part
+   20 harness/bare.py
+  166 harness/loop.py
+   58 harness/tools.py
+   28 harness/budget.py
+   27 harness/policy.py
+   37 harness/store.py
+   50 harness/sandbox.py
+  386 total

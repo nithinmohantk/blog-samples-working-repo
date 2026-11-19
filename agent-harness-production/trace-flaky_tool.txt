@@ -1,0 +1,4 @@
+chat scripted-1              ok                        
+execute_tool inventory       ok                         retries=2
+chat scripted-1              ok                        
+invoke_agent desk            ok                        
