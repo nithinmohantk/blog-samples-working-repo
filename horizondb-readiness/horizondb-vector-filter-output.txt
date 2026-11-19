@@ -1,0 +1,26 @@
+$ python vector_filter.py "$URI"     # Azure HorizonDB, Sweden Central, 2 vCores, client: Cloud Shell in West Europe
+PostgreSQL 17.11 (Azure HorizonDB (532bbf654b7)(release)), pgvector 0.8.7; 20,000 rows, 50 tenants (2% per tenant), k = 10
+iterative_scan=off           ef_search=  40: rows returned mean   0.8, min  0; recall@10 0.09; median 29.6 ms
+iterative_scan=off           ef_search= 100: rows returned mean   1.9, min  0; recall@10 0.18; median 30.3 ms
+iterative_scan=off           ef_search= 400: rows returned mean   7.2, min  1; recall@10 0.70; median 31.9 ms
+iterative_scan=strict_order  ef_search=  40: rows returned mean  10.0, min 10; recall@10 0.77; median 33.5 ms
+iterative_scan=strict_order  ef_search= 100: rows returned mean  10.0, min 10; recall@10 0.83; median 33.6 ms
+iterative_scan=strict_order  ef_search= 400: rows returned mean  10.0, min 10; recall@10 0.93; median 34.1 ms
+iterative_scan=relaxed_order ef_search=  40: rows returned mean  10.0, min 10; recall@10 0.92; median 33.3 ms
+iterative_scan=relaxed_order ef_search= 100: rows returned mean  10.0, min 10; recall@10 0.94; median 33.0 ms
+iterative_scan=relaxed_order ef_search= 400: rows returned mean  10.0, min 10; recall@10 0.96; median 33.9 ms
+pg_diskann plan:
+  Limit  (cost=0.00..8.68 rows=10 width=12)
+    ->  Custom Scan (DiskANNFilteredScan)  (cost=0.00..347.40 rows=400 width=12)
+          Strategy: Filter() -> Vector
+          Rows Retrieved: 0 count
+          TIDs Collected: 0 count
+pg_diskann (default settings)          : rows returned mean  10.0, min 10; recall@10 1.00; median 33.8 ms
+
+# Two more runs (recall@10 range over all three runs):
+#   off           ef 40 / 100 / 400: 0.09 / 0.18-0.20 / 0.70-0.71
+#   strict_order  ef 40 / 100 / 400: 0.77-0.79 / 0.83-0.84 / 0.93-0.95
+#   relaxed_order ef 40 / 100 / 400: 0.92-0.95 / 0.94-0.96 / 0.96-0.98
+#   pg_diskann: 1.00 in every run
+# Network round trip (psql "select 1", West Europe -> Sweden Central): about 24.4 ms,
+# so the server-side part of each median is roughly 1-9 ms.

@@ -21,12 +21,14 @@ def test_major_versions():
 
 def test_extensions_missing_unsupported_older_and_newer():
     out = assess(SourceFacts(170002, {
-        "timescaledb": "2.17.0",        # not offered
+        "citus": "13.0.1",              # not offered
         "pg_failover_slots": "1.1.0",   # listed as not supported
-        "vector": "0.8.1",              # newer than offered 0.8.0
-        "postgis": "3.4.2",             # older than offered 3.5.2
+        "vector": "0.9.0",              # newer than offered 0.8.7
+        "postgis": "3.4.2",             # older than offered 3.6.4
+        "pgaadauth": "1.9",             # managed by the service: ignored
     }))
-    assert {"extension:timescaledb", "extension:pg_failover_slots"} <= codes(out, Severity.BLOCKER)
+    assert {"extension:citus", "extension:pg_failover_slots"} <= codes(out, Severity.BLOCKER)
+    assert not any("pgaadauth" in c for c in codes(out))
     assert "extension:vector" in codes(out, Severity.ACTION)
     assert "extension:postgis" in codes(out, Severity.INFO)
 
@@ -50,6 +52,6 @@ def test_replication_keys_pooling_and_inventory_items():
 
 
 def test_low_connection_use_is_not_flagged_and_summary_counts():
-    out = assess(SourceFacts(160004, {"vector": "0.8.0"}, max_connections=200, peak_connections=40))
+    out = assess(SourceFacts(160004, {"vector": "0.8.7"}, max_connections=200, peak_connections=40))
     assert "connection_pooling" not in codes(out)
     assert summary(out) == {"blocker": 1, "action": 0, "info": 1}
