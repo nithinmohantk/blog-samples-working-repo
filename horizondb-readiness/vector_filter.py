@@ -77,8 +77,9 @@ def _exact(conn: psycopg.Connection, qs: list[str], tenant: int, k: int) -> list
     return exact
 
 
-def _measure(conn: psycopg.Connection, settings: list[str], index: str, label: int, mode: str,
+def _measure(conn: psycopg.Connection, settings: list[str], marker: str, label: int, mode: str,
              qs: list[str], exact: list[set[int]], tenant: int, k: int) -> Result:
+    """`marker` is text the query plan must contain, proving the intended index is used."""
     with conn.cursor() as cur:
         cur.execute("BEGIN")
         for setting in settings:
@@ -87,7 +88,7 @@ def _measure(conn: psycopg.Connection, settings: list[str], index: str, label: i
         cur.execute("SET LOCAL enable_bitmapscan = off")
         plan = "\n".join(r[0] for r in cur.execute(
             "EXPLAIN SELECT id FROM vf_docs WHERE tenant_id = 7 ORDER BY embedding <=> %s::vector LIMIT 10", (qs[0],)))
-        assert index in plan, plan
+        assert marker in plan, plan
         got, times = [], []
         for q in qs:
             t0 = time.perf_counter()
@@ -125,7 +126,11 @@ def run_diskann(conn: psycopg.Connection, k: int = 10, queries: int = 20, tenant
     conn.execute("ANALYZE vf_docs")
     qs = _query_vectors(conn, queries)
     exact = _exact(conn, qs, tenant, k)
-    return _measure(conn, [], "vf_docs_diskann", 0, "diskann", qs, exact, tenant, k)
+    plan = "\n".join(r[0] for r in conn.execute(
+        "EXPLAIN SELECT id FROM vf_docs WHERE tenant_id = 7 ORDER BY embedding <=> %s::vector LIMIT 10", (qs[0],)))
+    print("pg_diskann plan:\n  " + plan.replace("\n", "\n  "))
+    # pg_diskann reports a custom scan node (DiskANNFilteredScan when it filters inside the search).
+    return _measure(conn, [], "DiskANN", 0, "diskann", qs, exact, tenant, k)
 
 
 def _version(v: str) -> tuple[int, ...]:
