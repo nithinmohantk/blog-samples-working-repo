@@ -1,0 +1,8 @@
+[
+  { "name": "github", "url": "https://api.githubcopilot.com/mcp/" },
+  { "name": "records", "url": "https://mcp.internal.contoso-health.example/records" },
+  { "name": "jira", "command": ["npx", "-y", "@acme/mcp-jira@3.2.1"] },
+  { "name": "jira", "command": ["npx", "-y", "@acme/mcp-jira"] },
+  { "name": "github", "command": ["node", "/tmp/github-mcp.js"] },
+  { "name": "notes", "url": "https://share.pastebin.example/mcp" }
+]

@@ -1,0 +1,12 @@
+{
+  "allowManagedMcpServersOnly": true,
+  "allowedMcpServers": [
+    { "serverUrl": "https://api.githubcopilot.com/*" },
+    { "serverUrl": "https://mcp.internal.contoso-health.example/*" },
+    { "serverCommand": ["npx", "-y", "@acme/mcp-jira@3.2.1"] }
+  ],
+  "deniedMcpServers": [
+    { "serverName": "pastebin" },
+    { "serverUrl": "https://*.pastebin.example/*" }
+  ]
+}
