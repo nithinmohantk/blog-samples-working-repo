@@ -71,6 +71,7 @@ Each folder has its own README that says what the code does, how to run it, and 
 | `irsa-to-pod-identity` | [Amazon EKS Pod Identity: When to Replace IRSA and How to Migrate](https://www.dataa.dev/2026/05/01/amazon-eks-pod-identity-the-end-of-oidc-complexity/) | Python, YAML |
 | `zero-etl-preflight` | [Zero-ETL from Aurora to Amazon Redshift](https://www.dataa.dev/2026/04/28/zero-etl-analytics-amazon-aurora-to-redshift-continuous-sync/) | Python, SQL |
 | `inference-cost-per-token` | [Inferentia2, Trainium or NVIDIA GPUs for LLM Inference](https://www.dataa.dev/2026/04/10/aws-inferentia-vs-nvidia-gpus-the-2026-enterprise-cost-matrix/) | Python |
+| `nova-model-eval` | [Amazon Nova After 15 Months: Which Model for Which Job](https://www.dataa.dev/2026/03/17/amazon-nova-models-the-honest-15-month-enterprise-evaluation/) | Python |
 
 ## Verification status
 
