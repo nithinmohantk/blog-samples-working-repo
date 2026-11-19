@@ -86,6 +86,7 @@ Each folder has its own README that says what the code does, how to run it, and 
 | `spark-internals-lab` | [Inside a Spark Job: Stages, Shuffles, AQE and Memory](https://www.dataa.dev/2025/11/09/spark-isnt-magic-what-twenty-years-of-data-engineering-taught-me-about-distributed-processing/) | Python (PySpark) |
 | `azure-openai-client` | [Azure OpenAI from Python in November 2024](https://www.dataa.dev/2024/11/17/azure-openai-service-with-python-building-enterprise-ai-applications/) | Python |
 | `openai-chat-production` | [OpenAI Chat Completions in September 2024](https://www.dataa.dev/2024/09/10/openai-api-complete-guide-gpt4-assistants/) | Python |
+| `cosmos-rust-ga` | [Azure Cosmos DB SDK for Rust Is GA](https://www.dataa.dev/) | Rust |
 
 ## Verification status
 

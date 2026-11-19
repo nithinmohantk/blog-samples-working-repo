@@ -1,0 +1,27 @@
+# Copy to .github/workflows/cosmos-orders.yml in your own repository.
+name: cosmos-orders
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # 1.88 is azure_data_cosmos 1.0.0's minimum supported Rust version.
+        toolchain: ["1.88", stable]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ matrix.toolchain }}
+          components: clippy, rustfmt
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo fmt --check
+      - run: cargo clippy --all-targets --locked -- -D warnings
+      - run: cargo test --locked
+      # Fails the build if a dependency has a published security advisory.
+      - run: cargo install cargo-audit --locked && cargo audit
