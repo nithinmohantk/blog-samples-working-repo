@@ -11,7 +11,7 @@ Companion code for the dataa.dev article *IoT Analytics in Real Time: What to Do
 | `TumblingWindows` | Event-time windows per device with a watermark and allowed lateness. Late readings from devices that were offline land in the right window; readings later than allowed are counted, not merged into closed results. |
 | `HysteresisAlarm` | Raise after N consecutive breaches, clear only below a lower threshold, so a value at the limit does not flap. |
 
-Production systems get these from a stream engine (Apache Flink, Amazon Kinesis Data Analytics, Azure Stream Analytics) or an edge runtime; the point here is to make the settings easy to reason about and test.
+Production systems get these from a stream engine (Apache Flink, including Amazon Managed Service for Apache Flink, or Azure Stream Analytics) or an edge runtime; the point here is to make the settings easy to reason about and test.
 
 ## Tests
 
