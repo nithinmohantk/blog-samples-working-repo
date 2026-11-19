@@ -1,0 +1,62 @@
+groups:
+- name: slo-orders-api-recording
+  interval: 1m
+  rules:
+  - record: slo:error_ratio:rate5m
+    expr: sum(rate(http_requests_total{job="orders-api",code=~"5.."}[5m])) / sum(rate(http_requests_total{job="orders-api"}[5m]))
+    labels:
+      service: orders-api
+  - record: slo:error_ratio:rate30m
+    expr: sum(rate(http_requests_total{job="orders-api",code=~"5.."}[30m])) / sum(rate(http_requests_total{job="orders-api"}[30m]))
+    labels:
+      service: orders-api
+  - record: slo:error_ratio:rate1h
+    expr: sum(rate(http_requests_total{job="orders-api",code=~"5.."}[1h])) / sum(rate(http_requests_total{job="orders-api"}[1h]))
+    labels:
+      service: orders-api
+  - record: slo:error_ratio:rate6h
+    expr: sum(rate(http_requests_total{job="orders-api",code=~"5.."}[6h])) / sum(rate(http_requests_total{job="orders-api"}[6h]))
+    labels:
+      service: orders-api
+  - record: slo:error_ratio:rate3d
+    expr: sum(rate(http_requests_total{job="orders-api",code=~"5.."}[3d])) / sum(rate(http_requests_total{job="orders-api"}[3d]))
+    labels:
+      service: orders-api
+- name: slo-orders-api-alerts
+  rules:
+  - alert: SLOErrorBudgetBurn1h
+    expr: |-
+      slo:error_ratio:rate1h{service="orders-api"} > (14.4 * 0.001)
+      and
+      slo:error_ratio:rate5m{service="orders-api"} > (14.4 * 0.001)
+    for: 2m
+    labels:
+      severity: page
+      service: orders-api
+    annotations:
+      summary: orders-api is spending its error budget 14.4x too fast
+      description: Over 1h (confirmed over 5m) orders-api is failing fast enough to spend 2% of its 30d error budget. Objective 99.900%.
+  - alert: SLOErrorBudgetBurn6h
+    expr: |-
+      slo:error_ratio:rate6h{service="orders-api"} > (6.0 * 0.001)
+      and
+      slo:error_ratio:rate30m{service="orders-api"} > (6.0 * 0.001)
+    for: 2m
+    labels:
+      severity: page
+      service: orders-api
+    annotations:
+      summary: orders-api is spending its error budget 6.0x too fast
+      description: Over 6h (confirmed over 30m) orders-api is failing fast enough to spend 5% of its 30d error budget. Objective 99.900%.
+  - alert: SLOErrorBudgetBurn3d
+    expr: |-
+      slo:error_ratio:rate3d{service="orders-api"} > (1.0 * 0.001)
+      and
+      slo:error_ratio:rate6h{service="orders-api"} > (1.0 * 0.001)
+    for: 15m
+    labels:
+      severity: ticket
+      service: orders-api
+    annotations:
+      summary: orders-api is spending its error budget 1.0x too fast
+      description: Over 3d (confirmed over 6h) orders-api is failing fast enough to spend 10% of its 30d error budget. Objective 99.900%.
