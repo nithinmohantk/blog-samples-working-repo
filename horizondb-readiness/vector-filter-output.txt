@@ -1,0 +1,5 @@
+$ python vector_filter.py "$TEST_URI"
+PostgreSQL 16.2, pgvector 0.6.2; 20,000 rows, 50 tenants (2% per tenant), k = 10
+ef_search=  40: rows returned mean   0.8, min  0; recall@10 0.08
+ef_search= 100: rows returned mean   1.9, min  0; recall@10 0.20
+ef_search= 400: rows returned mean   7.3, min  1; recall@10 0.71
