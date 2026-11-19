@@ -1,0 +1,87 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "class": "supplier_invoice",
+  "description": "Supplier invoices received by accounts payable, one invoice per document",
+  "type": "object",
+  "definitions": {
+    "line_items_item": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string",
+          "inferenceType": "explicit",
+          "instruction": "Description of the goods or service"
+        },
+        "quantity": {
+          "type": "number",
+          "inferenceType": "explicit",
+          "instruction": "Quantity billed"
+        },
+        "unit_price": {
+          "type": "number",
+          "inferenceType": "explicit",
+          "instruction": "Price per unit before VAT"
+        },
+        "line_total": {
+          "type": "number",
+          "inferenceType": "explicit",
+          "instruction": "Line amount before VAT"
+        }
+      }
+    }
+  },
+  "properties": {
+    "invoice_number": {
+      "type": "string",
+      "inferenceType": "explicit",
+      "instruction": "The invoice number or invoice ID as printed"
+    },
+    "invoice_date": {
+      "type": "string",
+      "inferenceType": "inferred",
+      "instruction": "The invoice date, formatted YYYY-MM-DD"
+    },
+    "supplier_name": {
+      "type": "string",
+      "inferenceType": "explicit",
+      "instruction": "The legal name of the company issuing the invoice"
+    },
+    "supplier_vat_number": {
+      "type": "string",
+      "inferenceType": "inferred",
+      "instruction": "The supplier's VAT registration number, without spaces"
+    },
+    "currency": {
+      "type": "string",
+      "inferenceType": "inferred",
+      "instruction": "The ISO 4217 currency code of the amounts, such as EUR or GBP"
+    },
+    "net_total": {
+      "type": "number",
+      "inferenceType": "explicit",
+      "instruction": "The total before VAT"
+    },
+    "vat_total": {
+      "type": "number",
+      "inferenceType": "explicit",
+      "instruction": "The total VAT charged"
+    },
+    "gross_total": {
+      "type": "number",
+      "inferenceType": "explicit",
+      "instruction": "The total amount payable including VAT"
+    },
+    "purchase_order_number": {
+      "type": "string",
+      "inferenceType": "explicit",
+      "instruction": "The customer's purchase order number, if one is quoted"
+    },
+    "line_items": {
+      "type": "array",
+      "instruction": "Each billed line on the invoice",
+      "items": {
+        "$ref": "#/definitions/line_items_item"
+      }
+    }
+  }
+}
