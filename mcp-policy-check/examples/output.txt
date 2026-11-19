@@ -1,0 +1,17 @@
+$ python -m mcp_policy examples/managed-settings.json examples/inventory.json
+[INFO  ] deny_by_name: Denying 'pastebin' by name blocks only servers with that label; add the URL or command too.
+
+LOAD  github         https://api.githubcopilot.com/mcp/                   allowlist serverUrl: {'serverUrl': 'https://api.githubcopilot.com/*'}
+LOAD  records        https://mcp.internal.contoso-health.example/records  allowlist serverUrl: {'serverUrl': 'https://mcp.internal.contoso-health.example/*'}
+LOAD  jira           npx -y @acme/mcp-jira@3.2.1                          allowlist serverCommand: {'serverCommand': ['npx', '-y', '@acme/mcp-jira@3.2.1']}
+BLOCK jira           npx -y @acme/mcp-jira                                no serverCommand entry matches
+BLOCK github         node /tmp/github-mcp.js                              no serverCommand entry matches
+BLOCK notes          https://share.pastebin.example/mcp                   denylist: {'serverUrl': 'https://*.pastebin.example/*'}
+exit code 0
+
+$ python -m mcp_policy examples/weak-settings.json
+[HIGH  ] allowlist_not_locked: allowManagedMcpServersOnly is not true: user and project allowlists merge in and can widen this one.
+[MEDIUM] plain_http: http://mcp.partner.example/* allows unencrypted HTTP; MCP traffic can carry code and secrets.
+[MEDIUM] unpinned_package: ['npx', '@playwright/mcp@latest'] runs whatever version is latest at launch; pin a version.
+[INFO  ] deny_by_name: Denying 'pastebin' by name blocks only servers with that label; add the URL or command too.
+exit code 2

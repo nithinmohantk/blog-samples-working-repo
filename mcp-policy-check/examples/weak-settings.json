@@ -1,0 +1,10 @@
+{
+  "allowedMcpServers": [
+    { "serverName": "github" },
+    { "serverUrl": "http://mcp.partner.example/*" },
+    { "serverCommand": ["npx", "@playwright/mcp@latest"] }
+  ],
+  "deniedMcpServers": [
+    { "serverName": "pastebin" }
+  ]
+}
