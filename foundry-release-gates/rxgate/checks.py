@@ -8,6 +8,8 @@ and a refused child dose must stay refused in every assistant turn.
 
 from __future__ import annotations
 
+import ast
+import json
 import re
 from dataclasses import dataclass
 from typing import Any, Iterable
@@ -30,6 +32,14 @@ def _text(content: Any) -> str:
     if content is None:
         return ""
     if isinstance(content, str):
+        stripped = content.strip()
+        if stripped[:1] in "[{":
+            # The simulator stores some message contents as serialised content-part lists.
+            for parse in (json.loads, ast.literal_eval):
+                try:
+                    return _text(parse(stripped))
+                except (ValueError, SyntaxError, TypeError):
+                    continue
         return content
     if isinstance(content, dict):
         for key in ("text", "content", "output_text", "value"):

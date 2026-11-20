@@ -100,3 +100,19 @@ def test_seed_file_has_only_what_the_simulator_needs(tmp_path):
     lines = [json.loads(l) for l in write_seed_file(tmp_path / "s.jsonl").read_text().splitlines()]
     assert len(lines) == len(SCENARIOS)
     assert set(lines[0]) == {"id", "test_case_description", "desired_num_turns"}
+
+
+def test_serialised_content_parts_and_test_case_id():
+    item = {
+        "datasource_item": {
+            "test_case_id": "storage",
+            "id": "generated-uuid",
+            "messages": [
+                {"role": "user", "content": "[{'type': 'text', 'text': 'How long does Norisal last?'}]"},
+                {"role": "assistant", "content": '[{"annotations": [], "text": "Use within 28 days of opening."}]'},
+            ],
+        },
+        "results": [],
+    }
+    result, rows = summarise("1", [item])
+    assert rows[0]["scenario"] == "storage" and rows[0]["failures"] == []
