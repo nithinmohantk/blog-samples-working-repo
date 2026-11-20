@@ -88,7 +88,7 @@ Each folder has its own README that says what the code does, how to run it, and 
 | `openai-chat-production` | [OpenAI Chat Completions in September 2024](https://www.dataa.dev/2024/09/10/openai-api-complete-guide-gpt4-assistants/) | Python |
 | `cosmos-rust-ga` | [Azure Cosmos DB SDK for Rust Is Generally Available](https://www.dataa.dev/2026/11/19/azure-cosmos-db-sdk-for-rust-generally-available/) | Rust |
 | `horizondb-readiness` | [Azure HorizonDB or Flexible Server](https://www.dataa.dev/2026/11/19/azure-horizondb-or-postgresql-flexible-server/) | Python |
-| `mcp-policy-check` | [Governing Claude Code and GitHub Copilot CLI in the Enterprise](https://www.dataa.dev/2026/11/19/governing-claude-code-and-github-copilot-cli-in-the-enterprise/) | Python |
+| `mcp-policy-check` | [Governing Claude Code and GitHub Copilot CLI in the Enterprise](https://www.dataa.dev/2026/11/20/governing-claude-code-and-github-copilot-cli-in-the-enterprise/) | Python |
 
 ## Verification status
 
