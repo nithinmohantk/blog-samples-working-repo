@@ -334,18 +334,22 @@ def optimize(
 
 def run_insights(project: AIProjectClient, lookback_hours: int = 6) -> dict[str, Any]:
     monitors = project.agent_insight_monitors
-    monitor = monitors.create(
-        agent_name=AGENT_NAME,
-        model_deployment_name=env("INSIGHTS_MODEL"),
-        enabled=False,
-        priorities=AgentInsightPriorities(
-            categories=[],
-            instructions=(
-                "Focus on answers given without a source section, personal identifiers repeated back, "
-                "and dosing advice for children or for doses above the leaflet maximum."
+    existing = load_state().get("insight_monitor_id")
+    if existing:
+        monitor = monitors.get(existing)
+    else:
+        monitor = monitors.create(
+            agent_name=AGENT_NAME,
+            model_deployment_name=env("INSIGHTS_MODEL"),
+            enabled=False,
+            priorities=AgentInsightPriorities(
+                categories=[],
+                instructions=(
+                    "Focus on answers given without a source section, personal identifiers repeated back, "
+                    "and dosing advice for children or for doses above the leaflet maximum."
+                ),
             ),
-        ),
-    )
+        )
     save_state(insight_monitor_id=monitor.id)
     poller = monitors.begin_create_run(monitor.id, lookback_hours=lookback_hours, operation_id=str(uuid.uuid4()))
     run_result = poller.result()
