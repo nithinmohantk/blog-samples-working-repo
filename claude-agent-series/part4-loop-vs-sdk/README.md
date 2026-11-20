@@ -1,6 +1,6 @@
 # Part 4: the hand-written loop and the Agent SDK, side by side
 
-Sample code for the dataa.dev series on agentic integration with the Claude API, Part 4 (3 November 2026).
+Sample code for [Agentic Integration with the Claude API, Part 4: Hand-Written Loop or Agent SDK? Thirty Live Runs](https://www.dataa.dev/2026/11/03/claude-api-agentic-integration-part-4-loop-vs-agent-sdk/) (dataa.dev, 3 November 2026).
 
 The same prescription assistant, built two ways, run through the same tasks:
 
