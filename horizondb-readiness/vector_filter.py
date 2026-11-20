@@ -3,7 +3,7 @@
 An HNSW scan finds `hnsw.ef_search` nearest candidates first and applies the
 WHERE clause afterwards. When the filter keeps only a small share of rows, a
 query asking for 10 neighbours can return fewer than 10. pgvector 0.8.0
-(the version on HorizonDB) adds iterative index scans, and HorizonDB's
+added iterative index scans (HorizonDB offered 0.8.7 in November 2026), and HorizonDB's
 pg_diskann pushes filters into the vector search; this script measures the
 problem itself, on whatever pgvector version the server has. On pgvector
 0.8.0 or later it also measures iterative scans (`hnsw.iterative_scan`

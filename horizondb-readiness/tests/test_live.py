@@ -38,7 +38,7 @@ def test_findings_for_a_pg16_source(uri):
     out = assess(collect(uri))
     by_code = {x.code: x for x in out}
     assert by_code["major_version"].severity is Severity.BLOCKER
-    assert by_code["extension:vector"].severity is Severity.INFO  # 0.6.2 -> 0.8.0
+    assert by_code["extension:vector"].severity is Severity.INFO  # 0.6.2 -> 0.8.7
     assert by_code["no_primary_key"].severity is Severity.ACTION
 
 
