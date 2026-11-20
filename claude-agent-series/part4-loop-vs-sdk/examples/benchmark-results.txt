@@ -1,0 +1,32 @@
+bench.py --reps 3: 5 tasks x 2 implementations x 3 repetitions = 30 live runs.
+Claude Opus 5.5, effort medium. anthropic 2.4.0 (API 2026-10-21); claude-agent-sdk 0.2.176 (Claude Code 2.1.316).
+Azure Cloud Shell, Python 3.12. Implementations alternate order per task. All data synthetic.
+
+Summary (medians per task; ok = runs that passed the state and tool-call checks)
+task             impl  ok  calls tools  in_tok  out    cost   wall_s start_s
+lookup           loop  3/3   2    2      2894   241  0.0055    4.1     -
+lookup           sdk   3/3   3    2      3659   285  0.0086    4.9    0.8
+patient          loop  3/3   2    1      2785   262  0.0058    4.3     -
+patient          sdk   3/3   2    1      3529   331  0.0088    5.8    0.9
+unknown          loop  3/3   2    1      2647   166  0.0041    4.0     -
+unknown          sdk   3/3   2    1      3391   135  0.0042    4.3    0.8
+cancel_denied    loop  3/3   3    2      4600   490  0.0133    7.8     -
+cancel_denied    sdk   3/3   3    2      5675   405  0.0117    6.6    0.8
+cancel_approved  loop  3/3   2    1      2869   337  0.0087    5.2     -
+cancel_approved  sdk   3/3   3    2      5784   429  0.0128    7.0    0.9
+TOTAL loop  ok 15/15  cost $0.1428  median wall 4.3s
+TOTAL sdk   ok 15/15  cost $0.1475  median wall 5.8s
+
+calls: loop = Messages API calls made; sdk = num_turns from ResultMessage (not the same measure).
+in_tok = uncached + cache write + cache read input tokens.
+cost: loop computed from usage at list prices; sdk = ResultMessage.total_cost_usd.
+start_s: SDK only, query() call to the init message (Claude Code start-up).
+
+Tool sequences for the cancellation tasks
+  sdk  cancel_denied    x3: get_prescription, cancel_prescription
+  sdk  cancel_approved  x3: get_prescription, cancel_prescription
+  loop cancel_denied    x3: get_prescription, cancel_prescription
+  loop cancel_approved  rep1: cancel_prescription; rep2: get_prescription, cancel_prescription; rep3: cancel_prescription
+
+Footprint: claude_agent_sdk wheel unpacked 315 MB, of which the bundled claude binary is 328,262,000 bytes;
+anthropic 2.4.0 unpacked 30 MB.
