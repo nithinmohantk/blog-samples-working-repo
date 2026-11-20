@@ -1,0 +1,28 @@
+Live runs of rxagent_sdk against the Claude API (claude-opus-5-5),
+claude-agent-sdk 0.2.168 (bundled Claude Code CLI 2.1.301), Python 3.12, Azure Cloud Shell.
+All prescription data is synthetic. Tool-use IDs are as returned; they are not secrets.
+
+Run 0 - first version, before the fixes in commit 901e5d2
+  CanUseToolShadowedWarning (intentional: the lookups are pre-approved in allowed_tools)
+  RuntimeError: aclose(): asynchronous generator is already running
+    cause: returning from inside `async for message in query(...)`; fix: read the stream to the end.
+  Cost of this cold run: $0.0165 (cache_write 2,023, cache_read 1,624)
+
+Run 1 - "Is RX-1002 still active, and has it been dispensed?"
+  turn 1  tool: mcp__rx__get_prescription({"rx_id": "RX-1002"})
+  turn 1  tool: mcp__rx__get_dispense_events({"rx_id": "RX-1002"})
+  result=success  stop=end_turn  turns=3  wall=4.4s  api=5.1s
+  input=4 cache_write=401 cache_read=3248 output=312  cost=$0.0090  denials=0
+  RX-1002 is active, and yes, it has been dispensed twice.
+
+Run 2 - "Cancel RX-1003. The patient developed a persistent dry cough on ramipril
+         and the GP has switched them to another medicine."  (--approve ask; reviewer answered n)
+  turn 1  tool: mcp__rx__get_prescription({"rx_id": "RX-1003"})
+  turn 2  tool: mcp__rx__cancel_prescription({"rx_id": "RX-1003", "reason": "..."})
+  APPROVAL NEEDED ... Approve? [y/N] n
+  result=success  stop=end_turn  turns=3  wall=200.8s (includes the wait for the reviewer)  api=8.4s
+  input=6 cache_write=890 cache_read=4710 output=404  cost=$0.0138  denials=1
+  audit: tool_requested get_prescription; tool_completed is_error=false;
+         tool_requested cancel_prescription reason="<102 chars>"; approval approved=false
+  RX-1003 has not been cancelled because the reviewer did not approve the request.
+  The record was not changed. ... I won't send the request again.
