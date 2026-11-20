@@ -1,0 +1,4 @@
+azure-ai-projects==2.11.0
+azure-identity>=1.25
+openai>=2.0
+pytest>=8
