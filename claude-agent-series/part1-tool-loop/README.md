@@ -1,6 +1,6 @@
 # Part 1: a hand-written tool-use loop on the Claude Messages API
 
-Sample code for the dataa.dev series on agentic integration with the Claude API, Part 1 (13 October 2026).
+Sample code for [Agentic Integration with the Claude API, Part 1: Writing the Tool-Use Loop Yourself](https://www.dataa.dev/2026/10/13/claude-api-agentic-integration-part-1-tool-use-loop/) (dataa.dev, 13 October 2026).
 
 A prescription status assistant over a synthetic e-prescription service. Claude Opus 5.5 decides which lookups to make; the loop decides what is allowed to happen.
 
