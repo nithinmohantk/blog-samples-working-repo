@@ -75,7 +75,7 @@ deploy() { # name model capacity
 }
 echo "== model deployments"
 deploy "$AGENT_MODEL" "$AGENT_MODEL" 100
-deploy "$OPT_MODEL" "$OPT_MODEL" 50
+deploy "$OPT_MODEL" "$OPT_MODEL" 250  # 50 (50K TPM) rate-limited the Agent Insights run
 
 echo "== Log Analytics + Application Insights, connected to the project"
 az monitor log-analytics workspace show -g "$RG" -n "$LAW" -o none 2>/dev/null || \
