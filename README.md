@@ -91,6 +91,7 @@ Each folder has its own README that says what the code does, how to run it, and 
 | `mcp-policy-check` | [Governing Claude Code and GitHub Copilot CLI in the Enterprise](https://www.dataa.dev/2026/11/20/governing-claude-code-and-github-copilot-cli-in-the-enterprise/) | Python |
 | `claude-agent-series/part1-tool-loop` | [Agentic Integration with the Claude API, Part 1: Writing the Tool-Use Loop Yourself](https://www.dataa.dev/2026/10/13/claude-api-agentic-integration-part-1-tool-use-loop/) | Python |
 | `claude-agent-series/part2-agent-sdk` | [Agentic Integration with the Claude API, Part 2: The Same Agent on the Claude Agent SDK](https://www.dataa.dev/2026/10/20/claude-api-agentic-integration-part-2-agent-sdk/) | Python |
+| `claude-agent-series/part3-server-tools` | [Agentic Integration with the Claude API, Part 3: Server-Side Tools and API Version 2026-10-21](https://www.dataa.dev/2026/10/27/claude-api-agentic-integration-part-3-server-tools/) | Python |
 
 ## Verification status
 
