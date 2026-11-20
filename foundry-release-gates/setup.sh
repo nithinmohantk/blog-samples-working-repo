@@ -26,6 +26,11 @@ APPI="appi-evalgate-$SUFFIX"
 ME=$(az ad signed-in-user show --query id -o tsv)
 EMAIL=$(az account show --query user.name -o tsv)
 
+echo "== resource providers (a new subscription has none of these registered)"
+for ns in Microsoft.CognitiveServices Microsoft.OperationalInsights Microsoft.Insights; do
+  az provider register --namespace "$ns" --wait -o none
+done
+
 echo "== resource group $RG in $LOCATION"
 az group create -n "$RG" -l "$LOCATION" --tags purpose=blog-test owner=nithin -o none
 
