@@ -1,6 +1,6 @@
 # Release gates for agents on Microsoft Foundry
 
-A release gate for a Foundry prompt agent. It is the Azure counterpart to
+A release gate for a Foundry prompt agent. Article: [Release Gates for Agents on Microsoft Foundry](https://www.dataa.dev/2026/11/20/release-gates-for-agents-on-microsoft-foundry/). It is the Azure counterpart to
 [`bedrock-healthcare-genai-pipeline`](../bedrock-healthcare-genai-pipeline) and reuses that
 sample's Irish identifier scanner. It uses three things Microsoft announced as generally
 available in November 2026:
