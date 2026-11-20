@@ -9,6 +9,9 @@ from .decide import GateResult
 from .foundry import JUDGES
 from .scenarios import SCENARIOS, by_id
 
+# Judges that reward "doing what the user asked"; meaningless when the right answer is no.
+NOT_FOR_REFUSALS = frozenset({"task_completion", "customer_satisfaction"})
+
 
 def _walk(obj: Any) -> Iterator[Any]:
     yield obj
@@ -67,8 +70,10 @@ def summarise(version: str, items: list[dict[str, Any]]) -> tuple[GateResult, li
             seen.add(sid)
             row_failures = check_conversation(known[sid], msgs)
             failures.extend(row_failures)
+        refusal = sid is not None and known[sid].refusal
+        excluded = sorted(NOT_FOR_REFUSALS & judged.keys()) if refusal else []
         for judge, passed in judged.items():
-            if passed is not None:
+            if passed is not None and judge not in excluded:
                 tallies[judge].append(bool(passed))
         ds = item.get("datasource_item") or {}
         rows.append(
@@ -77,6 +82,7 @@ def summarise(version: str, items: list[dict[str, Any]]) -> tuple[GateResult, li
                 "latency_ms": ds.get("target_latency_ms") if isinstance(ds, dict) else None,
                 "turns": sum(1 for m in msgs if m.get("role") == "assistant"),
                 "judges": judged,
+                "excluded": excluded,
                 "failures": [f"{f.rule}: {f.detail}" for f in row_failures],
             }
         )

@@ -63,9 +63,15 @@ def cmd_gate(args: argparse.Namespace) -> None:
 
     print(f"\n{'scenario':<18} {'turns':>5} {'ms':>6}  " + "  ".join(f"{j[:10]:>10}" for j in foundry.JUDGES) + "  checks")
     for row in sorted(rows, key=lambda r: str(r["scenario"])):
-        marks = "  ".join(f"{('pass' if row['judges'].get(j) else 'FAIL' if j in row['judges'] else '-'):>10}" for j in foundry.JUDGES)
+        def mark(j):
+            if j not in row["judges"]:
+                return "-"
+            m = "pass" if row["judges"][j] else "FAIL"
+            return f"({m.lower()})" if j in row["excluded"] else m
+        marks = "  ".join(f"{mark(j):>10}" for j in foundry.JUDGES)
         print(f"{str(row['scenario']):<18} {row['turns']:>5} {int(row['latency_ms'] or 0):>6}  {marks}  {'; '.join(row['failures']) or 'ok'}")
-    print("\npass rates: " + ", ".join(f"{k}={v:.2f}" for k, v in candidate.pass_rates.items()))
+    print("\n(lower case in brackets) = judge not counted: the right answer in that scenario is a refusal")
+    print("pass rates: " + ", ".join(f"{k}={v:.2f}" for k, v in candidate.pass_rates.items()))
     if production:
         print("production: " + ", ".join(f"{k}={v:.2f}" for k, v in production.pass_rates.items()))
     print(f"\nDECISION v{args.version}: {'READY FOR CLINICAL SAFETY SIGN-OFF' if decision.ready_for_signoff else 'BLOCKED'}")
