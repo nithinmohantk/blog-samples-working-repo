@@ -226,13 +226,14 @@ TRAINING_CASES: list[tuple[str, str]] = [
 
 
 def judge_model_ref(project: AIProjectClient) -> str:
-    """The optimizer wants "{connection}/{deployment}". Use JUDGE_MODEL_REF, else the first model connection."""
+    """The optimizer documents "{connection}/{deployment}". A new project has no model connection
+    (deployments live on the parent Foundry resource), and the plain deployment name was accepted."""
     if os.environ.get("JUDGE_MODEL_REF"):
         return os.environ["JUDGE_MODEL_REF"]
     for conn in project.connections.list():
         if str(conn.type).split(".")[-1].lower() in ("azureopenai", "azure_open_ai", "aiservices"):
             return f"{conn.name}/{env('JUDGE_MODEL')}"
-    raise SystemExit("No model connection found; set JUDGE_MODEL_REF")
+    return env("JUDGE_MODEL")
 
 
 def _optimization_config(project: AIProjectClient, max_candidates: int) -> AgentOptimizationConfiguration:
