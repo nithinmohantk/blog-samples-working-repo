@@ -1,0 +1,33 @@
+Live runs of auditagent against the Claude API from Azure Cloud Shell. anthropic 2.6.0, Python 3.12,
+beta compact-2026-09-04, effort high for both models, compaction threshold 40,000 tokens, budget $4.
+Scores are against the generated answer key. All data is synthetic.
+
+Run 1 - claude-fable-5-2, 48 prescriptions, --stop-after 4 (simulated interruption)
+  turns 1-4: get_progress; get_details x many + list_prescriptions; get_details + record_findings; record_findings
+  stopped after 4 turns: tool_calls=21, all 56 findings already recorded, 0 of 48 marked reviewed, $0.5617
+
+Run 2 - --resume from the checkpoint written after turn 4
+  turns 5-7: mark_reviewed, get_progress, end_turn. No prefix-check error on resume.
+  outcome=completed turns=7 tool_calls=23 compactions=0 elapsed=94s cost=$0.6959 reviewed=48/48
+  score: 56/56 correct, precision 1.0, recall 1.0
+  Claude reported that a corrected note was refused as "already recorded": the register keeps the first note.
+
+Run 3 - claude-fable-5-2, 144 prescriptions (--patients 48), before the compaction caching fix
+  compaction at turn 11 (context 42,034 -> 4,572 tokens), summary 5,912 chars
+  outcome=completed turns=19 tool_calls=79 compactions=1 elapsed=215s
+  input=44690 cache_write=58302 cache_read=277960 output=27742 cost=$2.1058
+  score: 151/151, precision 1.0, recall 1.0
+  Finding: the compaction request had no cache breakpoint, so ~42k tokens of history were billed as
+  uncached input at $8/M. Fix: cache_control on the compaction request (commit 6f8eec8).
+
+Run 4 - claude-opus-5-5, 144 prescriptions, with the fix
+  compaction at turn 28: input 127, cache_read 40,280, cache_write 1,209, output 2,311, cost $0.0608
+  outcome=completed turns=46 tool_calls=129 compactions=1 elapsed=239s
+  input=223 cache_write=68588 cache_read=802823 output=26895 cost=$1.0423
+  score: 151/151, precision 1.0, recall 1.0
+
+Run 5 - claude-fable-5-2, 144 prescriptions, with the fix
+  compaction at turn 11: input 127, cache_read 40,904, cache_write 3,681, output 3,622, cost $0.1909
+  outcome=completed turns=18 tool_calls=81 compactions=1 elapsed=213s
+  input=167 cache_write=65206 cache_read=307547 output=26259 cost=$1.7653
+  score: 151/151, precision 1.0, recall 1.0
