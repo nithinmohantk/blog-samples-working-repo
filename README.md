@@ -94,6 +94,7 @@ Each folder has its own README that says what the code does, how to run it, and 
 | `claude-agent-series/part3-server-tools` | [Agentic Integration with the Claude API, Part 3: Server-Side Tools and API Version 2026-10-21](https://www.dataa.dev/2026/10/27/claude-api-agentic-integration-part-3-server-tools/) | Python |
 | `claude-agent-series/part4-loop-vs-sdk` | [Agentic Integration with the Claude API, Part 4: Hand-Written Loop or Agent SDK? Thirty Live Runs](https://www.dataa.dev/2026/11/03/claude-api-agentic-integration-part-4-loop-vs-agent-sdk/) | Python |
 | `claude-agent-series/part5-long-horizon` | [Agentic Integration with the Claude API, Part 5: Long-Horizon Agents on Claude Fable 5.2](https://www.dataa.dev/2026/11/09/claude-api-agentic-integration-part-5-long-horizon-fable-5-2/) | Python |
+| `copilot-sdk-harness-test` | [Microsoft Copilot SDK 2.0: Putting a Production Agent Harness to the Test](https://www.dataa.dev/2026/11/20/microsoft-copilot-sdk-2-0-agent-harness-test/) | Python |
 
 ## Verification status
 

@@ -1,6 +1,6 @@
 # Microsoft Copilot SDK 2.0 through the eleven-failure harness test
 
-Sample code for the dataa.dev article on putting Microsoft Copilot SDK 2.0 to the test (20 November 2026).
+Sample code for [Microsoft Copilot SDK 2.0: Putting a Production Agent Harness to the Test](https://www.dataa.dev/2026/11/20/microsoft-copilot-sdk-2-0-agent-harness-test/) (dataa.dev, 20 November 2026).
 
 The eleven bad days from [What an Agent Harness Needs Before Production](https://www.dataa.dev/2026/09/15/agent-harness-production-eleven-failures/), run against `microsoft-copilot-sdk` 2.0.1 (Python), in two configurations:
 
