@@ -154,7 +154,9 @@ class SimulationRun:
     seconds: float
 
 
-def simulate(project: AIProjectClient, openai_client: Any, version: str, seed_file: Path) -> SimulationRun:
+def simulate(
+    project: AIProjectClient, openai_client: Any, version: str, seed_file: Path, repetitions: int = 1, timeout_s: int = 1800
+) -> SimulationRun:
     """Simulate one conversation per seed scenario against `version` and judge each conversation."""
     judge = env("JUDGE_MODEL")
     criteria = [
@@ -192,7 +194,7 @@ def simulate(project: AIProjectClient, openai_client: Any, version: str, seed_fi
             },
             "default_simulation_configuration": {
                 "max_num_turns": 4,
-                "conversation_repetitions": 1,
+                "conversation_repetitions": repetitions,
                 "enable_conversation_dataset_generation": True,
                 "output_conversation_dataset_name": f"rxinfo-v{version}-conversations",
             },
@@ -205,6 +207,8 @@ def simulate(project: AIProjectClient, openai_client: Any, version: str, seed_fi
         run = openai_client.evals.runs.retrieve(run_id=run.id, eval_id=evaluation.id)
         if run.status in ("completed", "failed", "canceled", "cancelled"):
             break
+        if time.monotonic() - started > timeout_s:
+            raise TimeoutError(f"simulation run {run.id} still {run.status} after {timeout_s}s")
         time.sleep(15)
     items = [_plain(i) for i in openai_client.evals.runs.output_items.list(run_id=run.id, eval_id=evaluation.id)]
     result = SimulationRun(

@@ -20,7 +20,7 @@ from azure.ai.projects import AIProjectClient
 from azure.identity import DefaultAzureCredential
 
 from rxgate import foundry
-from rxgate.decide import decide
+from rxgate.decide import Override, decide
 from rxgate.gate import summarise
 from rxgate.prompt_lint import lint
 from rxgate.scenarios import write_seed_file
@@ -55,7 +55,7 @@ def cmd_gate(args: argparse.Namespace) -> None:
         items, seconds = saved["items"], 0.0
     else:
         seed = write_seed_file(foundry.RESULTS / "seed-scenarios.jsonl")
-        run = foundry.simulate(project, oai, args.version, seed)
+        run = foundry.simulate(project, oai, args.version, seed, args.repetitions)
         items, seconds = run.items, run.seconds
         print(f"simulation {run.status} in {run.seconds:.0f}s, {len(run.items)} conversations")
     candidate, rows = summarise(args.version, items)
@@ -63,7 +63,9 @@ def cmd_gate(args: argparse.Namespace) -> None:
     baseline = foundry.get_instructions(project, args.production) if args.production else None
     candidate.prompt_blocks, candidate.prompt_warnings = lint(instructions, baseline)
     production = _load_gate(args.production) if args.production else None
-    decision = decide(candidate, production)
+    overrides_file = foundry.ROOT / "overrides.json"
+    overrides = [Override(**o) for o in json.loads(overrides_file.read_text())] if overrides_file.exists() else []
+    decision = decide(candidate, production, overrides)
 
     print(f"\n{'scenario':<18} {'turns':>5} {'ms':>6}  " + "  ".join(f"{j[:10]:>10}" for j in foundry.JUDGES) + "  checks")
     for row in sorted(rows, key=lambda r: str(r["scenario"])):
@@ -139,6 +141,7 @@ def main() -> None:
     g = sub.add_parser("gate")
     g.add_argument("--version", required=True)
     g.add_argument("--production")
+    g.add_argument("--repetitions", type=int, default=1, help="conversations per scenario")
     g.add_argument("--reuse", action="store_true", help="re-score the saved simulation instead of running a new one")
     g.set_defaults(fn=cmd_gate)
     for name, fn in (("estimate", cmd_estimate), ("optimize", cmd_optimize)):

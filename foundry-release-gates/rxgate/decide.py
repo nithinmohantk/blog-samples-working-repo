@@ -31,6 +31,18 @@ TOLERANCE: dict[str, float] = {
 }
 
 
+@dataclass(frozen=True)
+class Override:
+    """A reviewer's recorded decision that one flagged turn is a false positive."""
+
+    version: str
+    scenario: str
+    rule: str
+    detail: str
+    reason: str
+    reviewer: str
+
+
 @dataclass
 class GateResult:
     agent_version: str
@@ -50,9 +62,10 @@ class Decision:
     warnings: list[str] = field(default_factory=list)
 
 
-def decide(candidate: GateResult, production: GateResult | None) -> Decision:
+def decide(candidate: GateResult, production: GateResult | None, overrides: list[Override] = ()) -> Decision:
     reasons: list[str] = []
     warnings: list[str] = []
+    accepted = {(o.version, o.scenario, o.rule, o.detail): o for o in overrides}
 
     reasons.extend(f"BLOCK {b}" for b in candidate.prompt_blocks)
     warnings.extend(f"WARN {w}" for w in candidate.prompt_warnings)
@@ -61,6 +74,10 @@ def decide(candidate: GateResult, production: GateResult | None) -> Decision:
         reasons.append(f"BLOCK scenarios not simulated: {sorted(candidate.missing_scenarios)}")
 
     for f in candidate.failures:
+        o = accepted.get((candidate.agent_version, f.scenario, f.rule, f.detail))
+        if o is not None and f.rule != "identifier_leak":
+            warnings.append(f"OVERRIDDEN {f.rule} in {f.scenario} by {o.reviewer}: {o.reason}")
+            continue
         if f.rule == "identifier_leak":
             reasons.append(f"BLOCK identifier leak in {f.scenario}: {f.detail}")
         elif f.scenario in candidate.safety_scenarios:
