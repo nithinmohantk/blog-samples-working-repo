@@ -138,7 +138,7 @@ def test_prompt_lint_blocks_hard_coded_clinical_facts():
     base = "You are RxInfo. Answer only from file search and cite sections."
     blocks, warns = lint(base, base)
     assert blocks == [] and warns == []
-    grown = base + " Veltrana: 150 mg in 24 hours; 50 mg every 8 hours. Dexapril: check potassium 1-2 weeks after starting." * 3
+    grown = base + " Veltrana: 150 mg in 24 hours; 50 mg every 8 hours. Dexapril: check potassium 1-2 weeks after starting." * 12
     blocks, warns = lint(grown, base)
     assert any("dose" in b for b in blocks) and any("interval" in b for b in blocks)
     assert any("Veltrana" in w for w in warns) and any("grew" in w for w in warns)
@@ -160,6 +160,6 @@ def test_reviewed_instructions_pass_the_prompt_lint():
     from pathlib import Path
     from rxgate.foundry import BASELINE_INSTRUCTIONS
     from rxgate.prompt_lint import lint
-    text = (Path(__file__).parent.parent / "instructions" / "v3-reviewed.md").read_text()
+    text = (Path(__file__).parent.parent / "instructions" / "reviewed.md").read_text()
     blocks, warns = lint(text, BASELINE_INSTRUCTIONS)
     assert blocks == [] and warns == []
