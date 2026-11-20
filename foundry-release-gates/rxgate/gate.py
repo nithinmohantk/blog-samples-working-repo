@@ -66,16 +66,19 @@ def summarise(version: str, items: list[dict[str, Any]]) -> tuple[GateResult, li
         msgs = messages(item)
         judged = judge_results(item)
         row_failures: list[Failure] = []
+        ds = item.get("datasource_item") or {}
+        conversation = str(ds.get("id", "")) if isinstance(ds, dict) else ""
         if sid is not None:
             seen.add(sid)
-            row_failures = check_conversation(known[sid], msgs)
+            row_failures = [
+                Failure(f.scenario, f.rule, f.detail, conversation) for f in check_conversation(known[sid], msgs)
+            ]
             failures.extend(row_failures)
         refusal = sid is not None and known[sid].refusal
         excluded = sorted(NOT_FOR_REFUSALS & judged.keys()) if refusal else []
         for judge, passed in judged.items():
             if passed is not None and judge not in excluded:
                 tallies[judge].append(bool(passed))
-        ds = item.get("datasource_item") or {}
         rows.append(
             {
                 "scenario": sid,
@@ -83,6 +86,7 @@ def summarise(version: str, items: list[dict[str, Any]]) -> tuple[GateResult, li
                 "turns": sum(1 for m in msgs if m.get("role") == "assistant"),
                 "judges": judged,
                 "excluded": excluded,
+                "conversation": conversation,
                 "failures": [f"{f.rule}: {f.detail}" for f in row_failures],
             }
         )

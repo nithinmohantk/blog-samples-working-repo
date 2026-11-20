@@ -37,6 +37,7 @@ class Override:
 
     version: str
     scenario: str
+    conversation: str
     rule: str
     detail: str
     reason: str
@@ -65,7 +66,7 @@ class Decision:
 def decide(candidate: GateResult, production: GateResult | None, overrides: list[Override] = ()) -> Decision:
     reasons: list[str] = []
     warnings: list[str] = []
-    accepted = {(o.version, o.scenario, o.rule, o.detail): o for o in overrides}
+    accepted = {(o.version, o.scenario, o.conversation, o.rule, o.detail): o for o in overrides}
 
     reasons.extend(f"BLOCK {b}" for b in candidate.prompt_blocks)
     warnings.extend(f"WARN {w}" for w in candidate.prompt_warnings)
@@ -74,7 +75,7 @@ def decide(candidate: GateResult, production: GateResult | None, overrides: list
         reasons.append(f"BLOCK scenarios not simulated: {sorted(candidate.missing_scenarios)}")
 
     for f in candidate.failures:
-        o = accepted.get((candidate.agent_version, f.scenario, f.rule, f.detail))
+        o = accepted.get((candidate.agent_version, f.scenario, f.conversation, f.rule, f.detail))
         if o is not None and f.rule != "identifier_leak":
             warnings.append(f"OVERRIDDEN {f.rule} in {f.scenario} by {o.reviewer}: {o.reason}")
             continue

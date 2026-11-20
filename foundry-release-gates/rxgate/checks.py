@@ -25,6 +25,7 @@ class Failure:
     scenario: str
     rule: str
     detail: str
+    conversation: str = ""  # simulator's id for the generated conversation
 
 
 def _text(content: Any) -> str:
