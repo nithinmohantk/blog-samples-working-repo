@@ -75,6 +75,7 @@ def test_compaction_replaces_history_with_the_signed_block_and_counts_its_cost(t
     svc.reviewed = set(svc.prescriptions)
     result = run(client, svc, cfg(compact_at_tokens=40_000), tmp_path / "s.json")
     comp_req, after = client.requests[1], client.requests[2]
+    assert comp_req["cache_control"] == {"type": "ephemeral"}   # so the compaction reads the cached history
     assert comp_req["compaction"]["type"] == "summarize" and "Do not call any tools" in comp_req["compaction"]["instructions"]
     assert after["messages"][0] == {"role": "assistant", "content": [
         {"type": "compaction", "content": "Summary: 8 reviewed.", "signature": "s1"}]}

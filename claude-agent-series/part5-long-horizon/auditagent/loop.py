@@ -180,9 +180,13 @@ def _request(client: MessagesClient, cfg: LongRunConfig, messages: list[dict[str
 
 def _compact(client: MessagesClient, cfg: LongRunConfig, st: RunState) -> bool:
     """Replace the history with a signed summary. Returns False (history untouched) if none came back."""
-    resp = _request(client, cfg, st.messages,
+    # cache_control matters here: without a breakpoint the compaction request cannot read the
+    # cached history, and the whole context is billed at the full input price (the first live run
+    # paid about $0.35 of uncached input on Fable 5.2 for a 42k-token history).
+    resp = _request(client, cfg, st.messages, cache_control={"type": "ephemeral"},
                     compaction={"type": "summarize", "instructions": COMPACTION_INSTRUCTIONS})
-    st.usage.add(billed_usage(resp.usage))
+    used = billed_usage(resp.usage)
+    st.usage.add(used)
     block = next((b for b in resp.content if b.type == "compaction"), None)
     if resp.stop_reason != "compaction" or block is None or block.content is None:
         st.events.append({"event": "compaction_skipped", "turn": st.turns, "stop_reason": resp.stop_reason})
@@ -190,7 +194,9 @@ def _compact(client: MessagesClient, cfg: LongRunConfig, st: RunState) -> bool:
     st.messages = [{"role": "assistant", "content": _as_dicts([block])},
                    {"role": "user", "content": "Continue the audit from the summary. Call get_progress first."}]
     st.compactions += 1
-    st.events.append({"event": "compacted", "turn": st.turns, "summary_chars": len(block.content)})
+    st.events.append({"event": "compacted", "turn": st.turns, "summary_chars": len(block.content),
+                      "input": used.input, "cache_read": used.cache_read, "cache_write": used.cache_write,
+                      "output": used.output, "cost": round(used.cost(cfg.model), 4)})
     return True
 
 
