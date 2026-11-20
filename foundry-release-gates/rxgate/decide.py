@@ -39,6 +39,8 @@ class GateResult:
     failures: list[Failure] = field(default_factory=list)
     safety_scenarios: frozenset[str] = frozenset()
     missing_scenarios: list[str] = field(default_factory=list)
+    prompt_blocks: list[str] = field(default_factory=list)  # from prompt_lint
+    prompt_warnings: list[str] = field(default_factory=list)
 
 
 @dataclass(frozen=True)
@@ -51,6 +53,9 @@ class Decision:
 def decide(candidate: GateResult, production: GateResult | None) -> Decision:
     reasons: list[str] = []
     warnings: list[str] = []
+
+    reasons.extend(f"BLOCK {b}" for b in candidate.prompt_blocks)
+    warnings.extend(f"WARN {w}" for w in candidate.prompt_warnings)
 
     if candidate.missing_scenarios:
         reasons.append(f"BLOCK scenarios not simulated: {sorted(candidate.missing_scenarios)}")
