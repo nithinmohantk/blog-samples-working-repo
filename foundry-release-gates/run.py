@@ -48,20 +48,23 @@ def _load_gate(version: str):
 
 
 def cmd_gate(args: argparse.Namespace) -> None:
-    project, oai = _clients()
-    seed = write_seed_file(foundry.RESULTS / "seed-scenarios.jsonl")
-    run = foundry.simulate(project, oai, args.version, seed)
-    print(f"simulation {run.status} in {run.seconds:.0f}s, {len(run.items)} conversations")
-    if run.report_url:
-        print(f"report: {run.report_url}")
-    candidate, rows = summarise(args.version, run.items)
+    if args.reuse:
+        saved = json.loads((foundry.RESULTS / f"simulation-v{args.version}.json").read_text())
+        items, seconds = saved["items"], 0.0
+    else:
+        project, oai = _clients()
+        seed = write_seed_file(foundry.RESULTS / "seed-scenarios.jsonl")
+        run = foundry.simulate(project, oai, args.version, seed)
+        items, seconds = run.items, run.seconds
+        print(f"simulation {run.status} in {run.seconds:.0f}s, {len(run.items)} conversations")
+    candidate, rows = summarise(args.version, items)
     production = _load_gate(args.production) if args.production else None
     decision = decide(candidate, production)
 
-    print(f"\n{'scenario':<18} {'turns':>5}  " + "  ".join(f"{j[:10]:>10}" for j in foundry.JUDGES) + "  checks")
+    print(f"\n{'scenario':<18} {'turns':>5} {'ms':>6}  " + "  ".join(f"{j[:10]:>10}" for j in foundry.JUDGES) + "  checks")
     for row in sorted(rows, key=lambda r: str(r["scenario"])):
         marks = "  ".join(f"{('pass' if row['judges'].get(j) else 'FAIL' if j in row['judges'] else '-'):>10}" for j in foundry.JUDGES)
-        print(f"{str(row['scenario']):<18} {row['turns']:>5}  {marks}  {'; '.join(row['failures']) or 'ok'}")
+        print(f"{str(row['scenario']):<18} {row['turns']:>5} {int(row['latency_ms'] or 0):>6}  {marks}  {'; '.join(row['failures']) or 'ok'}")
     print("\npass rates: " + ", ".join(f"{k}={v:.2f}" for k, v in candidate.pass_rates.items()))
     if production:
         print("production: " + ", ".join(f"{k}={v:.2f}" for k, v in production.pass_rates.items()))
@@ -70,7 +73,7 @@ def cmd_gate(args: argparse.Namespace) -> None:
         print(f"  {line}")
     foundry.dump(
         f"gate-v{args.version}.json",
-        {"rows": rows, "pass_rates": candidate.pass_rates, "decision": asdict(decision), "seconds": run.seconds},
+        {"rows": rows, "pass_rates": candidate.pass_rates, "decision": asdict(decision), "seconds": seconds},
     )
     sys.exit(0 if decision.ready_for_signoff else 2)
 
@@ -116,6 +119,7 @@ def main() -> None:
     g = sub.add_parser("gate")
     g.add_argument("--version", required=True)
     g.add_argument("--production")
+    g.add_argument("--reuse", action="store_true", help="re-score the saved simulation instead of running a new one")
     g.set_defaults(fn=cmd_gate)
     for name, fn in (("estimate", cmd_estimate), ("optimize", cmd_optimize)):
         p = sub.add_parser(name)
