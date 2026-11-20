@@ -1,0 +1,2 @@
+claude-agent-sdk==0.2.168
+pytest==8.3.3
