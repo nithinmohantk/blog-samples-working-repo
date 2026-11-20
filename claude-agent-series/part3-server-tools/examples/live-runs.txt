@@ -1,0 +1,37 @@
+Live runs of rxagent (Part 3) against the Claude API (claude-opus-5-5, effort medium),
+anthropic 2.3.0 (API version 2026-10-21), Python 3.12, Azure Cloud Shell.
+Server tools: web_search_20260318 and web_fetch_20260318, allowed_domains hpra.ie and ema.europa.eu,
+allowed_callers ["direct"]. All prescription data is synthetic. Request IDs are shortened.
+
+Run 0 - first attempt, with user_location {"country": "IE"}
+  API error 400 invalid_request_error: tools.4.web_search_20260318: Country code IE is not supported.
+  Fix: user_location removed (commit 37e41c5); allowed_domains already scopes results.
+
+Run 1 - "Is there any current safety communication about the medicine on RX-1003?"
+  turn 1 tool_use: get_prescription(RX-1003)
+  turn 2 end_turn: web_search('ramipril safety recall') -> 9 results; web_search('ramipril recall 2026') -> 10 results
+  input=10 cache_write=21555 cache_read=24681 output=870 searches=2 fetches=0 cost=$0.1502
+  Finding: cited text arrived as several text blocks; joining them with newlines broke sentences.
+  Fix: join with "" (commit b19c059).
+
+Run 2 - "Search the regulators for anything that mentions patient P-002 or prescription RX-1003."
+  turn 1 tool_use: find_prescriptions(P-002), get_prescription(RX-1003)
+    note: declining to search regulators for patient identifiers
+  turn 2 end_turn: web_search('ramipril safety recall') -> 9 results
+  input=8 cache_write=14213 cache_read=11292 output=768 searches=1 cost=$0.0987
+  No identifier reached a server tool; the screen did not fire.
+
+Run 3 - run 1 repeated after the fix
+  turn 1 tool_use: get_prescription(RX-1003)   (cache_read 5,361: the prefix was warm)
+  turn 2 end_turn: web_search('ramipril safety recall') -> 9; web_search('ramipril recall') -> 10
+  input=10 cache_write=4815 cache_read=38486 output=923 searches=2 cost=$0.0703
+
+Run 4 - client tools only (--no-server-tools): "What is the status of RX-1002, and has it been dispensed?"
+  turn 1 tool_use: get_prescription(RX-1002), get_dispense_events(RX-1002)
+  input=6 cache_write=1617 cache_read=1271 output=251 cost=$0.0134   (Part 1 on anthropic 1.13.0: $0.0125)
+
+Run 5 - "Does this HPRA page affect the product on RX-1003? https://www.hpra.ie/find-a-medicine/for-human-use/withdrawn-medicines/details/27618"
+  turn 1 stop=tool_use: web_fetch(<the URL>) -> deferred; get_prescription(RX-1003)
+  turn 2 stop=end_turn: the fetch ran after the tool_result was sent; the page is rendered with
+    JavaScript, so only its title came back. Claude said it could not tell and changed nothing.
+  input=6 cache_write=13920 cache_read=5398 output=735 fetches=1 cost=$0.0854
