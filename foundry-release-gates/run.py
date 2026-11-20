@@ -22,6 +22,7 @@ from azure.identity import DefaultAzureCredential
 from rxgate import foundry
 from rxgate.decide import decide
 from rxgate.gate import summarise
+from rxgate.prompt_lint import lint
 from rxgate.scenarios import write_seed_file
 
 
@@ -48,16 +49,19 @@ def _load_gate(version: str):
 
 
 def cmd_gate(args: argparse.Namespace) -> None:
+    project, oai = _clients()
     if args.reuse:
         saved = json.loads((foundry.RESULTS / f"simulation-v{args.version}.json").read_text())
         items, seconds = saved["items"], 0.0
     else:
-        project, oai = _clients()
         seed = write_seed_file(foundry.RESULTS / "seed-scenarios.jsonl")
         run = foundry.simulate(project, oai, args.version, seed)
         items, seconds = run.items, run.seconds
         print(f"simulation {run.status} in {run.seconds:.0f}s, {len(run.items)} conversations")
     candidate, rows = summarise(args.version, items)
+    instructions = foundry.get_instructions(project, args.version)
+    baseline = foundry.get_instructions(project, args.production) if args.production else None
+    candidate.prompt_blocks, candidate.prompt_warnings = lint(instructions, baseline)
     production = _load_gate(args.production) if args.production else None
     decision = decide(candidate, production)
 
