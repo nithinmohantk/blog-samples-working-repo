@@ -86,13 +86,13 @@ def cmd_gate(args: argparse.Namespace) -> None:
 
 def cmd_estimate(args: argparse.Namespace) -> None:
     project, _ = _clients()
-    est = foundry.estimate_optimization(project, args.version, args.max_candidates)
+    est = foundry.estimate_optimization(project, args.version, args.max_candidates, args.training)
     print(json.dumps(foundry._plain(est), indent=2))
 
 
 def cmd_optimize(args: argparse.Namespace) -> None:
     project, _ = _clients()
-    job_id, result, candidates = foundry.optimize(project, args.version, args.max_candidates)
+    job_id, result, candidates = foundry.optimize(project, args.version, args.max_candidates, args.training)
     summary = result.candidate_summary
     print(f"job {job_id}: termination={result.termination_reason}")
     if summary:
@@ -100,6 +100,8 @@ def cmd_optimize(args: argparse.Namespace) -> None:
     for c in candidates:
         score = c.evaluation.score if c.evaluation else None
         print(f"  {c.name:<24} status={c.status} score={score} agent_version={c.agent_version}")
+        if c.error:
+            print(f"    error: {c.error.code}: {c.error.message}")
     for usage in result.token_usage or []:
         print(f"  tokens: {foundry._plain(usage)}")
 
@@ -131,6 +133,7 @@ def main() -> None:
         p = sub.add_parser(name)
         p.add_argument("--version", required=True)
         p.add_argument("--max-candidates", type=int, default=2)
+        p.add_argument("--training", choices=sorted(foundry.TRAINING_SETS), default="v1")
         p.set_defaults(fn=fn)
     i = sub.add_parser("insights")
     i.add_argument("--lookback-hours", type=int, default=6)
