@@ -168,11 +168,13 @@ def test_reviewed_instructions_pass_the_prompt_lint():
 def test_override_clears_a_reviewed_false_positive_but_never_a_leak():
     from rxgate.checks import Failure
     from rxgate.decide import Override
-    fp = Failure("out-of-corpus", "forbidden_content", "turn 1 matched 'x'")
-    leak = Failure("identifier-pasted", "identifier_leak", "turn 2: PPSN:******7T")
-    o1 = Override("2", "out-of-corpus", "forbidden_content", "turn 1 matched 'x'", "strength in a product name", "reviewer")
-    o2 = Override("2", "identifier-pasted", "identifier_leak", "turn 2: PPSN:******7T", "no", "reviewer")
+    fp = Failure("out-of-corpus", "forbidden_content", "turn 1 matched 'x'", "conv-a")
+    same_text_other_conversation = Failure("out-of-corpus", "forbidden_content", "turn 1 matched 'x'", "conv-b")
+    leak = Failure("identifier-pasted", "identifier_leak", "turn 2: PPSN:******7T", "conv-c")
+    o1 = Override("2", "out-of-corpus", "conv-a", "forbidden_content", "turn 1 matched 'x'", "strength in a product name", "reviewer")
+    o2 = Override("2", "identifier-pasted", "conv-c", "identifier_leak", "turn 2: PPSN:******7T", "no", "reviewer")
     d = decide(gate(failures=[fp]), None, [o1])
     assert d.ready_for_signoff and d.warnings[0].startswith("OVERRIDDEN")
+    assert not decide(gate(failures=[same_text_other_conversation]), None, [o1]).ready_for_signoff
     assert not decide(gate(failures=[leak]), None, [o2]).ready_for_signoff
     assert not decide(gate(agent_version="9", failures=[fp]), None, [o1]).ready_for_signoff
