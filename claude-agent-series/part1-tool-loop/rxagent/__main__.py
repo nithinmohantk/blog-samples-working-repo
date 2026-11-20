@@ -4,12 +4,15 @@
     python -m rxagent --approve ask "Cancel RX-1003: the patient had a cough on ramipril."
 
 The API key is read from ANTHROPIC_API_KEY by the SDK; it is never printed.
+A key that can act on more than one workspace also needs ANTHROPIC_WORKSPACE_ID
+(sent as the anthropic-workspace-id header); a workspace-scoped key does not.
 """
 from __future__ import annotations
 
 import argparse
 import json
 import logging
+import os
 import sys
 
 import anthropic
@@ -53,10 +56,19 @@ def main(argv: list[str] | None = None) -> int:
     a = p.parse_args(argv)
     logging.basicConfig(level=logging.INFO if a.log else logging.WARNING, stream=sys.stderr, format="%(message)s")
 
-    client = anthropic.Anthropic()  # ANTHROPIC_API_KEY from the environment
-    result = run(client, RxService.with_sample_data(), a.prompt,
-                 approver=ask_on_terminal if a.approve == "ask" else deny_all,
-                 cfg=LoopConfig(model=a.model, effort=a.effort))
+    workspace = os.environ.get("ANTHROPIC_WORKSPACE_ID")
+    client = anthropic.Anthropic(  # ANTHROPIC_API_KEY from the environment
+        default_headers={"anthropic-workspace-id": workspace} if workspace else None)
+    try:
+        result = run(client, RxService.with_sample_data(), a.prompt,
+                     approver=ask_on_terminal if a.approve == "ask" else deny_all,
+                     cfg=LoopConfig(model=a.model, effort=a.effort))
+    except anthropic.APIStatusError as e:  # after the SDK's own retries
+        print(f"API error {e.status_code} ({type(e).__name__}), request_id={e.request_id}: {e.message}", file=sys.stderr)
+        return 2
+    except anthropic.APIConnectionError as e:
+        print(f"Could not reach the API: {e}", file=sys.stderr)
+        return 2
     print_trace(result, a.model)
     print("\n" + (result.text or f"[no answer: {result.outcome} {result.stop_details or ''}]"))
     return 0 if result.outcome == "completed" else 1
