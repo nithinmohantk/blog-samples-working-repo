@@ -22,7 +22,10 @@ def _walk(obj: Any) -> Iterator[Any]:
 
 def scenario_id(item: dict[str, Any]) -> str | None:
     known = by_id()
-    for node in _walk(item.get("datasource_item", item)):
+    ds = item.get("datasource_item") or {}
+    if isinstance(ds, dict) and ds.get("test_case_id") in known:
+        return ds["test_case_id"]
+    for node in _walk(ds or item):
         if isinstance(node, dict) and isinstance(node.get("id"), str) and node["id"] in known:
             return node["id"]
     return None
@@ -67,9 +70,11 @@ def summarise(version: str, items: list[dict[str, Any]]) -> tuple[GateResult, li
         for judge, passed in judged.items():
             if passed is not None:
                 tallies[judge].append(bool(passed))
+        ds = item.get("datasource_item") or {}
         rows.append(
             {
                 "scenario": sid,
+                "latency_ms": ds.get("target_latency_ms") if isinstance(ds, dict) else None,
                 "turns": sum(1 for m in msgs if m.get("role") == "assistant"),
                 "judges": judged,
                 "failures": [f"{f.rule}: {f.detail}" for f in row_failures],
