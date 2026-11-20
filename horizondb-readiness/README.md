@@ -32,4 +32,4 @@ A throwaway cluster (PostgreSQL 17.11, Sweden Central, 1 node, 2 vCores, HA disa
 
 ## What was verified locally
 
-10 tests pass with Python 3.12, psycopg 3.2.3 and pytest 8.3.3: 6 unit tests of the rules, and 4 live tests against PostgreSQL 16.2 with pgvector 0.6.2 started by `pgserver` 0.1.4 (collector, CLI exit codes and JSON, and the filtered-HNSW measurement). Nothing was run against Azure HorizonDB, which offers PostgreSQL 17 and pgvector 0.8.0; the vector measurement shows the problem pgvector 0.8.0's iterative scans and HorizonDB's filtered DiskANN are meant to address, not those fixes. The catalog is a snapshot: re-read the Microsoft Learn pages before a real migration.
+10 tests pass with Python 3.12, psycopg 3.2.3 and pytest 8.3.3: 6 unit tests of the rules, and 4 live tests against PostgreSQL 16.2 with pgvector 0.6.2 started by `pgserver` 0.1.4 (collector, CLI exit codes and JSON, and the filtered-HNSW measurement). Locally the vector measurement shows the problem; the HorizonDB run above shows the fixes. The catalog is a snapshot of one live cluster: re-check `pg_available_extensions` on yours before a real migration.
