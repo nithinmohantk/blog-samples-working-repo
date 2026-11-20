@@ -8,6 +8,7 @@ event per call, which is why the cancel tool is left out here.
 from __future__ import annotations
 
 import json
+import os
 import sys
 
 import anthropic
@@ -47,7 +48,8 @@ def get_dispense_events(rx_id: str) -> str:
 
 
 def main(prompt: str) -> None:
-    client = anthropic.Anthropic()
+    workspace = os.environ.get("ANTHROPIC_WORKSPACE_ID")
+    client = anthropic.Anthropic(default_headers={"anthropic-workspace-id": workspace} if workspace else None)
     runner = client.beta.messages.tool_runner(
         model="claude-opus-5-5",
         max_tokens=4096,
