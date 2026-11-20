@@ -248,3 +248,9 @@ def test_search_errors_and_costs_and_sources_are_reported():
     assert result.sources == [("HPRA notice", "https://www.hpra.ie/n1")]
     expected = (1000 * 4.0 + 100 * 20.0) / 1_000_000 + 2 * 0.01
     assert abs(result.cost_usd("claude-opus-5-5") - expected) < 1e-9
+
+
+def test_cited_text_blocks_are_joined_without_breaking_sentences():
+    client = FakeClient(msg("end_turn", text("The leaflet says "), cited("\"use with care\"", "https://www.hpra.ie/l", "Leaflet"),
+                            text(". Nothing else was found.")))
+    assert run(client, RxService.with_sample_data(), "q").text == "The leaflet says \"use with care\". Nothing else was found."

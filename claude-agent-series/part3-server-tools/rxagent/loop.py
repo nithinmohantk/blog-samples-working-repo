@@ -185,7 +185,9 @@ def _sources(content: list[Any]) -> list[tuple[str, str]]:
 
 
 def _text(content: list[Any]) -> str:
-    return "\n".join(b.text for b in content if b.type == "text").strip()
+    # With citations, one sentence can arrive as several text blocks (cited spans are separate
+    # blocks). Join them with nothing in between; the blocks carry their own spacing.
+    return "".join(b.text for b in content if b.type == "text").strip()
 
 
 def _create(client: MessagesClient, cfg: LoopConfig, messages: list[dict[str, Any]], max_tokens: int) -> Any:
