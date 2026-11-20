@@ -139,6 +139,8 @@ class RunState:
     @classmethod
     def load(cls, path: Path, svc: AuditService) -> tuple["RunState", str]:
         raw = json.loads(path.read_text())
+        if raw["service"].get("patients", 16) != svc.patients:
+            raise ValueError(f"checkpoint is for {raw['service'].get('patients')} patients, not {svc.patients}")
         svc.load_state(raw["service"])
         st = cls(raw["messages"], raw["turns"], raw["compactions"], raw["tool_calls"], Usage(**raw["usage"]),
                  elapsed_s=raw["elapsed_s"], events=raw["events"])

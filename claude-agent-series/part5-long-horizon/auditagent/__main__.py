@@ -44,6 +44,7 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--effort", default="high", choices=["low", "medium", "high", "xhigh", "max"])
     p.add_argument("--budget", type=float, default=4.0, help="stop when the run has cost this many USD")
     p.add_argument("--compact-at", type=int, default=40_000, help="compact when the context passes this many tokens")
+    p.add_argument("--patients", type=int, default=16, help="audit size: 3 prescriptions per patient")
     p.add_argument("--checkpoint", default="state.json")
     p.add_argument("--resume", action="store_true")
     p.add_argument("--stop-after", type=int, help="stop after this many turns in this session")
@@ -52,8 +53,10 @@ def main(argv: list[str] | None = None) -> int:
     a = p.parse_args(argv)
     logging.basicConfig(level=logging.INFO if a.log else logging.WARNING, stream=sys.stderr, format="%(message)s")
 
-    svc = AuditService.with_sample_data()
     path = Path(a.checkpoint)
+    if a.resume:  # the checkpoint knows the audit size
+        a.patients = json.loads(path.read_text())["service"].get("patients", 16)
+    svc = AuditService.with_sample_data(a.patients)
     state, model = None, a.model
     if a.resume:
         state, model = RunState.load(path, svc)
@@ -96,7 +99,7 @@ def main(argv: list[str] | None = None) -> int:
     if a.results:
         Path(a.results).write_text(json.dumps({"outcome": result.outcome, "model": model, "effort": cfg.effort,
                                                "turns": st.turns, "tool_calls": st.tool_calls,
-                                               "compactions": st.compactions, "elapsed_s": round(st.elapsed_s, 1),
+                                               "compactions": st.compactions, "elapsed_s": round(st.elapsed_s, 1), "patients": a.patients,
                                                "usage": u.__dict__, "cost_usd": round(u.cost(model), 4),
                                                "score": sc, "events": st.events}, indent=1))
     return 0 if result.outcome in ("completed", "stopped") else 1
