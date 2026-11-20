@@ -1,6 +1,6 @@
 # Part 2: the same agent on the Claude Agent SDK
 
-Sample code for the dataa.dev series on agentic integration with the Claude API, Part 2 (20 October 2026).
+Sample code for [Agentic Integration with the Claude API, Part 2: The Same Agent on the Claude Agent SDK](https://www.dataa.dev/2026/10/20/claude-api-agentic-integration-part-2-agent-sdk/) (dataa.dev, 20 October 2026).
 
 The Part 1 prescription assistant rebuilt on `claude-agent-sdk` 0.2.168 (bundles Claude Code 2.1.301). The SDK runs the agent loop in a Claude Code process; the tools run in this Python process through an in-process MCP server.
 
