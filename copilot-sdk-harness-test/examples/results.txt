@@ -1,0 +1,38 @@
+microsoft-copilot-sdk 2.0.1 (Python 3.12), native runtime 1.0.114, in-process hosting.
+Scripted OpenAI-compatible model through BYOK; Copilot inference off; no GitHub sign-in.
+
+Run 1: Azure Cloud Shell (no bubblewrap)          Run 2: Ubuntu 24.04 VM with bubblewrap, slirp4netns, iproute2
+scenario config    verdict (Cloud Shell)
+runaway  defaults  585 model calls in 30 s; 66 more after the wait ended
+runaway  hardened  stopped by the budget after 12 model calls
+badargs  defaults  Invalid tool arguments: order_id: Field required
+badargs  hardened  Invalid tool arguments: order_id: Field required
+unknown  defaults  Tool 'get_invoice' does not exist. Available tools ... bash, read_bash, ... (all 18 built-ins)
+unknown  hardened  Tool 'get_invoice' does not exist. Available tools ... get_order, get_tracking, export_history, check_stock, refund
+flaky    defaults  answered after 4 model calls; model saw "Tool execution failed" twice (no host name)
+flaky    hardened  answered after 2 model calls; the tool retried internally
+big      defaults  838 characters sent; the 2,100,000-byte output was written to the OS temp directory until disconnect
+big      hardened  4065 characters sent (capped in the tool)
+slow     defaults  7.6 s; waited for the tool
+slow     hardened  2.5 s; timed out after 1 s
+inject   defaults  refunds paid: B-9 150.00
+inject   hardened  refunds paid: none (permission gate rejected)
+genenv   defaults  PAYMENTS_API_KEY=sk-test-NOT-A-REAL-KEY-1234
+genenv   hardened  Cloud Shell: "Sandboxing is enabled but not supported on this platform" (refused)
+                   VM:          PAYMENTS_API_KEY=copilot_mask_... (masked)
+genmem   defaults  allocated 1073741824
+genmem   hardened  Cloud Shell: refused (no sandbox)   VM: allocated 1073741824 (no memory limit)
+gennet   defaults  connected
+gennet   hardened  Cloud Shell: refused (no sandbox)   VM: connection failed inside the sandbox
+crash    defaults  refunds paid after resume: 2
+crash    hardened  refunds paid after resume: 1
+
+Other observations
+- send_and_wait(timeout=60) stops waiting, not the session: the loop continued until session.abort().
+- execution.limits.max_ai_credits: minimum 30; with a BYOK model it did not stop 613 model calls in 20 s.
+- No permission handler: every tool call, reads included, was denied ("user not available").
+- mode="empty" requires per-tenant storage (base_directory or session_fs) and an explicit available_tools list.
+- A low-level Tool handler must return ToolResult; returning a plain string failed the call.
+- On resume after a crash, the runtime told the model: "Tool execution was interrupted before a result was
+  recorded. Its effects may be absent, partial, or already complete" and did not re-run the tool itself.
+- Sandbox default policy without credential masking still exposed the secret on the VM.
