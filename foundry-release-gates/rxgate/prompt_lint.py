@@ -14,7 +14,7 @@ from pathlib import Path
 CORPUS = Path(__file__).resolve().parent / "corpus"
 DOSE = re.compile(r"(?i)\b\d+(?:\.\d+)?\s*(?:mg|ml|micrograms?|mcg)\b(?:\s*/\s*kg)?")
 INTERVAL = re.compile(r"(?i)\bevery\s+\d+\s*(?:hours?|days?|weeks?|months?)\b|\b\d+\s*(?:-|to|–)\s*\d+\s*weeks?\b")
-MAX_GROWTH = 10.0  # the reviewed v3 prompt is 5x the baseline; the optimizer candidate was 24x
+MAX_GROWTH = 10.0  # the reviewed prompt is 5x the baseline; the optimizer candidate was 24x
 
 
 def product_names() -> list[str]:
