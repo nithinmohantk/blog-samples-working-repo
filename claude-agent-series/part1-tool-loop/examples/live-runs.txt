@@ -1,0 +1,61 @@
+Live runs against the Claude API: Claude Opus 5.5, anthropic 1.13.0 (API version 2023-06-01), effort medium.
+Request IDs shortened. Each run starts from the same synthetic data.
+
+$ python -m rxagent "What is the status of RX-1002, and has it been dispensed?"
+turn 1  stop=tool_use  in=    4 cache_write= 1126 cache_read=    0 out=  111  request_id=req_011ChE...
+    tool: get_prescription({"rx_id": "RX-1002"}) -> ok 0.0 ms
+    tool: get_dispense_events({"rx_id": "RX-1002"}) -> ok 0.0 ms
+turn 2  stop=end_turn  in=    2 cache_write=  346 cache_read= 1126 out=  133  request_id=req_011ChE...
+
+outcome=completed  turns=2  input=6 cache_write=1472 cache_read=1126 output=244  cost=$0.0125
+
+RX-1002 is active. It is for Atorvastatin 20 mg tablets, 1 tablet at night, for patient P-001. Dr A. Example issued it on 2026-09-12. It has 4 repeats left.
+
+Yes, it has been dispensed twice. Both times it was 28 tablets from Example Pharmacy, Galway:
+- 2026-09-13
+- 2026-10-10
+
+
+$ python -m rxagent --approve ask --log "Cancel RX-1003. The patient developed a persistent dry cough on ramipril and the GP has switched them to another medicine."
+{"event": "model_turn", "turn": 1, "stop_reason": "tool_use", "request_id": "req_011ChE...", "input_tokens": 4, "output_tokens": 111, "cache_creation_input_tokens": 1148, "cache_read_input_tokens": 0}
+
+  APPROVAL NEEDED  cancel_prescription {"rx_id": "RX-1003", "reason": "Patient developed a persistent dry cough on ramipril and the GP has switched them to another medicine."}
+  Approve? [y/N] y
+{"event": "tool_call", "turn": 1, "tool": "cancel_prescription", "args": {"rx_id": "RX-1003", "reason": "<102 chars>"}, "is_error": false, "approved": true, "ms": 0.2}
+{"event": "model_turn", "turn": 2, "stop_reason": "end_turn", "request_id": "req_011ChE...", "input_tokens": 2, "output_tokens": 158, "cache_creation_input_tokens": 277, "cache_read_input_tokens": 1148}
+turn 1  stop=tool_use  in=    4 cache_write= 1148 cache_read=    0 out=  111  request_id=req_011ChE...
+    tool: cancel_prescription({"rx_id": "RX-1003", "reason": "Patient developed a persistent dry cough on rami) -> ok approved 0.2 ms
+turn 2  stop=end_turn  in=    2 cache_write=  277 cache_read= 1148 out=  158  request_id=req_011ChE...
+
+outcome=completed  turns=2  input=6 cache_write=1425 cache_read=1148 output=269  cost=$0.0128
+(answer omitted: it confirms the cancellation, the medication, prescriber, reason and the 2 repeats that can no longer be dispensed)
+
+
+$ python -m rxagent "Has RX-1020 been dispensed? If you cannot find it, list what patient P-002 has instead."
+turn 1  stop=tool_use  in=    4 cache_write= 1140 cache_read=    0 out=  229  request_id=req_011ChE...
+    note: I'm checking whether the fallback is needed, and it hinges on the result. The prescription lookup and the dispense-event check are independent of each
+    tool: get_prescription({"rx_id": "RX-1020"}) -> error 0.0 ms
+    tool: get_dispense_events({"rx_id": "RX-1020"}) -> error 0.0 ms
+turn 2  stop=tool_use  in=    2 cache_write=  389 cache_read= 1140 out=   56  request_id=req_011ChE...
+    tool: find_prescriptions({"patient_id": "P-002"}) -> ok 0.1 ms
+turn 3  stop=end_turn  in=    2 cache_write=  154 cache_read= 1529 out=  152  request_id=req_011ChE...
+
+outcome=completed  turns=3  input=8 cache_write=1683 cache_read=2669 output=437  cost=$0.0177
+
+I couldn't find "RX-1020". The system says it doesn't exist, so I can't tell you whether it was dispensed.
+
+Patient P-002 has one prescription:
+- "RX-1003": Ramipril 5 mg capsules, 1 capsule daily. It is active with 2 repeats left. Dr B. Example issued it on 2026-10-05.
+
+I haven't checked whether "RX-1003" has been dispensed. I can look that up if you need it.
+
+
+$ python runner_version.py "What is the status of RX-1002, and has it been dispensed?"
+stop=tool_use tools=['get_prescription', 'get_dispense_events'] in=816 out=111
+stop=end_turn tools=[] in=1174 out=141
+
+RX-1002 is active. It is for Atorvastatin 20 mg tablets, 1 tablet at night, for patient P-001. Dr A. Example issued it on 2026-09-12, and it has 4 repeats left.
+
+Yes, it has been dispensed twice, both times at Example Pharmacy, Galway:
+- 2026-09-13: 28 tablets.
+- 2026-10-10: 28 tablets.
