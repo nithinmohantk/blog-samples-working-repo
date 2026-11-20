@@ -13,7 +13,8 @@ LOCATION="${LOCATION:-swedencentral}"
 RG="${RG:-rg-foundry-evalgate-blogtest}"
 BUDGET_AMOUNT="${BUDGET_AMOUNT:-25}"
 AGENT_MODEL="${AGENT_MODEL:-gpt-4.1-mini}"
-OPT_MODEL="${OPT_MODEL:-gpt-5.1}"
+# gpt-5.1 had zero GlobalStandard quota on the test subscription; gpt-5-mini had 500.
+OPT_MODEL="${OPT_MODEL:-gpt-5-mini}"
 
 az account set --subscription "$SUBSCRIPTION"
 az config set extension.use_dynamic_install=yes_without_prompt --only-show-errors >/dev/null
@@ -50,8 +51,10 @@ az rest --method put -o none \
 rm -f /tmp/budget.json
 
 echo "== Foundry resource $ACCOUNT and project $PROJECT"
+az cognitiveservices account show -n "$ACCOUNT" -g "$RG" -o none 2>/dev/null || \
 az cognitiveservices account create -n "$ACCOUNT" -g "$RG" -l "$LOCATION" --kind AIServices --sku S0 \
   --custom-domain "$ACCOUNT" --assign-identity --allow-project-management true -o none
+az cognitiveservices account project show -n "$ACCOUNT" -g "$RG" --project-name "$PROJECT" -o none 2>/dev/null || \
 az cognitiveservices account project create -n "$ACCOUNT" -g "$RG" --project-name "$PROJECT" -l "$LOCATION" -o none
 ACCOUNT_ID=$(az cognitiveservices account show -n "$ACCOUNT" -g "$RG" --query id -o tsv)
 PROJECT_ID=$(az cognitiveservices account project show -n "$ACCOUNT" -g "$RG" --project-name "$PROJECT" --query id -o tsv)
@@ -59,6 +62,9 @@ PROJECT_MI=$(az cognitiveservices account project show -n "$ACCOUNT" -g "$RG" --
 
 deploy() { # name model capacity
   local version
+  if az cognitiveservices account deployment show -n "$ACCOUNT" -g "$RG" --deployment-name "$1" -o none 2>/dev/null; then
+    echo "   $1 already deployed"; return
+  fi
   version=$(az cognitiveservices account list-models -n "$ACCOUNT" -g "$RG" \
     --query "[?name=='$2' && format=='OpenAI'].version | sort(@) | [-1]" -o tsv)
   [ -n "$version" ] || { echo "model $2 not offered in $LOCATION"; exit 1; }
@@ -72,8 +78,10 @@ deploy "$AGENT_MODEL" "$AGENT_MODEL" 100
 deploy "$OPT_MODEL" "$OPT_MODEL" 50
 
 echo "== Log Analytics + Application Insights, connected to the project"
+az monitor log-analytics workspace show -g "$RG" -n "$LAW" -o none 2>/dev/null || \
 az monitor log-analytics workspace create -g "$RG" -n "$LAW" -l "$LOCATION" --retention-time 30 -o none
 LAW_ID=$(az monitor log-analytics workspace show -g "$RG" -n "$LAW" --query id -o tsv)
+az monitor app-insights component show -g "$RG" -a "$APPI" -o none 2>/dev/null || \
 az monitor app-insights component create -g "$RG" -a "$APPI" -l "$LOCATION" --workspace "$LAW_ID" -o none
 APPI_ID=$(az monitor app-insights component show -g "$RG" -a "$APPI" --query id -o tsv)
 # The connection string goes straight from one Azure call into another; it is never printed.
