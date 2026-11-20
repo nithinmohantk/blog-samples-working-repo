@@ -118,16 +118,20 @@ def ensure_vector_store(openai_client: Any) -> str:
     return store.id
 
 
-def create_agent_version(project: AIProjectClient, vector_store_id: str, instructions: str, label: str) -> str:
+def create_agent_version(
+    project: AIProjectClient, vector_store_id: str, instructions: str, label: str, model: str | None = None
+) -> str:
+    model = model or env("AGENT_MODEL")
     agent = project.agents.create_version(
         agent_name=AGENT_NAME,
         definition=PromptAgentDefinition(
-            model=env("AGENT_MODEL"),
+            model=model,
             instructions=instructions,
-            temperature=0.2,
+            # gpt-5 family reasoning models reject a temperature setting.
+            temperature=None if model.startswith("gpt-5") else 0.2,
             tools=[FileSearchTool(vector_store_ids=[vector_store_id], max_num_results=4)],
         ),
-        metadata={"label": label},
+        metadata={"label": label, "model": model},
     )
     return str(agent.version)
 
