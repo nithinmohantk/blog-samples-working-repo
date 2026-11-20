@@ -105,7 +105,9 @@ def server_tool_definitions(policy: ServerToolPolicy) -> list[dict[str, Any]]:
             "max_uses": policy.max_searches,
             "allowed_domains": domains,
             "allowed_callers": ["direct"],
-            "user_location": {"type": "approximate", "country": "IE", "timezone": "Europe/Dublin"},
+            # No user_location: in the live test the API rejected country "IE" with a 400
+            # ("Country code IE is not supported"). allowed_domains already keeps results to
+            # the Irish and EU regulators.
         },
         {
             "type": "web_fetch_20260318",
