@@ -1,6 +1,6 @@
 # Part 3: server-side tools and API version 2026-10-21
 
-Sample code for the dataa.dev series on agentic integration with the Claude API, Part 3 (27 October 2026).
+Sample code for [Agentic Integration with the Claude API, Part 3: Server-Side Tools and API Version 2026-10-21](https://www.dataa.dev/2026/10/27/claude-api-agentic-integration-part-3-server-tools/) (dataa.dev, 27 October 2026).
 
 The Part 1 prescription assistant, moved to `anthropic` 2.3.0 (which sends API version `2026-10-21`), with two server tools added: web search and web fetch, restricted to medicines regulators, so staff can ask whether there is a safety communication about a prescribed medicine. Anthropic runs these tools; the loop only sees each call after it has run.
 
