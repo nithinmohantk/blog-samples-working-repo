@@ -26,10 +26,12 @@ class AuditService:
     findings: dict[tuple[str, str], str] = field(default_factory=dict)   # (rx_id, rule) -> note
     reviewed: set[str] = field(default_factory=set)
 
+    patients: int = 16
+
     @classmethod
-    def with_sample_data(cls) -> "AuditService":
-        rx, d = generate()
-        return cls(rx, d)
+    def with_sample_data(cls, patients: int = 16) -> "AuditService":
+        rx, d = generate(patients=patients)
+        return cls(rx, d, patients=patients)
 
     # ---- reads -------------------------------------------------------------------
     def list_page(self, page: int) -> dict[str, Any]:
@@ -84,7 +86,8 @@ class AuditService:
 
     # ---- checkpointing -------------------------------------------------------------
     def to_state(self) -> dict[str, Any]:
-        return {"findings": [[r, rule, note] for (r, rule), note in sorted(self.findings.items())],
+        return {"patients": self.patients,
+                "findings": [[r, rule, note] for (r, rule), note in sorted(self.findings.items())],
                 "reviewed": sorted(self.reviewed)}
 
     def load_state(self, state: dict[str, Any]) -> None:
