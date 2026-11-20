@@ -14,9 +14,11 @@ import json
 import logging
 import sys
 import time
+import warnings
 
 from claude_agent_sdk import (
     AssistantMessage,
+    CanUseToolShadowedWarning,
     ClaudeSDKError,
     ResultMessage,
     SystemMessage,
@@ -41,13 +43,14 @@ async def run(prompt: str, approve: str, model: str, effort: str, tool_search: b
     options = build_options(RxService.with_sample_data(), ask_on_terminal if approve == "ask" else deny_all, audit,
                             model=model, effort=effort, tool_search=tool_search)
     started = time.perf_counter()
-    turn = 0
-    async for message in query(prompt=prompt_stream(prompt), options=options):
+    turns: dict[str, int] = {}  # the SDK yields one AssistantMessage per content block; group by message_id
+    exit_code = 1
+    async for message in query(prompt=prompt_stream(prompt), options=options):  # read to the end; do not return early
         if isinstance(message, SystemMessage) and message.subtype == "init":
             tools = message.data.get("tools", [])
             print(f"session start  model={message.data.get('model')}  tools={tools}")
         elif isinstance(message, AssistantMessage):
-            turn += 1
+            turn = turns.setdefault(message.message_id or str(len(turns)), len(turns) + 1)
             for block in message.content:
                 if isinstance(block, ToolUseBlock):
                     print(f"turn {turn}  tool: {block.name}({json.dumps(block.input)[:80]})")
@@ -65,8 +68,8 @@ async def run(prompt: str, approve: str, model: str, effort: str, tool_search: b
             for e in audit.events:
                 print("  audit:", json.dumps(e))
             print("\n" + (message.result or f"[no answer: {message.errors}]"))
-            return 0 if message.subtype == "success" and not message.is_error else 1
-    return 1
+            exit_code = 0 if message.subtype == "success" and not message.is_error else 1
+    return exit_code
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -79,6 +82,8 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--log", action="store_true")
     a = p.parse_args(argv)
     logging.basicConfig(level=logging.INFO if a.log else logging.WARNING, stream=sys.stderr, format="%(message)s")
+    # Intentional: the lookups are pre-approved, so they never reach can_use_tool. The audit hook sees every call.
+    warnings.filterwarnings("ignore", category=CanUseToolShadowedWarning)
     try:
         return asyncio.run(run(a.prompt, a.approve, a.model, a.effort, not a.no_tool_search))
     except ClaudeSDKError as e:
