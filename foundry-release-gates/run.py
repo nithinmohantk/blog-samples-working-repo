@@ -119,6 +119,14 @@ def cmd_insights(args: argparse.Namespace) -> None:
         print(f"- [{i.get('severity')}] {i.get('title')} (traces={i.get('trace_count')})")
 
 
+def cmd_new_version(args: argparse.Namespace) -> None:
+    project, oai = _clients()
+    store = foundry.ensure_vector_store(oai)
+    text = open(args.file, encoding="utf-8").read().strip()
+    version = foundry.create_agent_version(project, store, text, args.label)
+    print(f"agent {foundry.AGENT_NAME} version {version} ({len(text)} chars of instructions)")
+
+
 def cmd_show(args: argparse.Namespace) -> None:
     project, _ = _clients()
     print(foundry.get_instructions(project, args.version))
@@ -142,6 +150,10 @@ def main() -> None:
     i = sub.add_parser("insights")
     i.add_argument("--lookback-hours", type=int, default=6)
     i.set_defaults(fn=cmd_insights)
+    n = sub.add_parser("new-version")
+    n.add_argument("--file", required=True)
+    n.add_argument("--label", default="reviewed")
+    n.set_defaults(fn=cmd_new_version)
     s = sub.add_parser("show")
     s.add_argument("--version", required=True)
     s.set_defaults(fn=cmd_show)

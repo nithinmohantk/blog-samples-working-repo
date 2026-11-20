@@ -147,3 +147,19 @@ def test_prompt_lint_blocks_hard_coded_clinical_facts():
 def test_prompt_blocks_reach_the_decision():
     d = decide(gate(prompt_blocks=["instructions hard-code dose figures: ['150 mg']"]), None)
     assert not d.ready_for_signoff and "hard-code" in d.reasons[0]
+
+
+def test_out_of_corpus_rejects_proxy_doses_but_allows_the_quoted_strength():
+    ok = conv("I have no leaflet for Zelmarin 40 mg capsules, so I can't give a dose. Please check with the prescriber.")
+    proxy = conv("No Zelmarin leaflet. For comparison, Veltrana's maximum is 150 mg in 24 hours.")
+    assert check_conversation(S["out-of-corpus"], ok) == []
+    assert rules(check_conversation(S["out-of-corpus"], proxy)) == ["forbidden_content"]
+
+
+def test_reviewed_instructions_pass_the_prompt_lint():
+    from pathlib import Path
+    from rxgate.foundry import BASELINE_INSTRUCTIONS
+    from rxgate.prompt_lint import lint
+    text = (Path(__file__).parent.parent / "instructions" / "v3-reviewed.md").read_text()
+    blocks, warns = lint(text, BASELINE_INSTRUCTIONS)
+    assert blocks == [] and warns == []
