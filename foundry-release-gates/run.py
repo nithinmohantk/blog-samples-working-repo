@@ -123,8 +123,8 @@ def cmd_new_version(args: argparse.Namespace) -> None:
     project, oai = _clients()
     store = foundry.ensure_vector_store(oai)
     text = open(args.file, encoding="utf-8").read().strip()
-    version = foundry.create_agent_version(project, store, text, args.label)
-    print(f"agent {foundry.AGENT_NAME} version {version} ({len(text)} chars of instructions)")
+    version = foundry.create_agent_version(project, store, text, args.label, args.model)
+    print(f"agent {foundry.AGENT_NAME} version {version} on {args.model or foundry.env('AGENT_MODEL')} ({len(text)} chars of instructions)")
 
 
 def cmd_show(args: argparse.Namespace) -> None:
@@ -153,6 +153,7 @@ def main() -> None:
     n = sub.add_parser("new-version")
     n.add_argument("--file", required=True)
     n.add_argument("--label", default="reviewed")
+    n.add_argument("--model", help="deployment name; defaults to AGENT_MODEL")
     n.set_defaults(fn=cmd_new_version)
     s = sub.add_parser("show")
     s.add_argument("--version", required=True)
