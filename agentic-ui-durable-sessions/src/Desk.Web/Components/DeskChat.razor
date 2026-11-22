@@ -55,7 +55,7 @@
     {
         // For the lab: turn the fix off to see what the default buttons do with a restored approval.
         _ownApprovalButtons = Configuration.GetValue("DESK_RESTORED_APPROVAL_BUTTONS", true);
-        _session = DeskSession.Open(ChatClient, Store, ThreadId, LoggerFactory);
+        _session = DeskSession.Open(ChatClient, Store, ThreadId, LoggerFactory, compact: Configuration.GetValue("DESK_COMPACT_JOURNAL", true));
         _agent = _session.Agent;
         _thread = _session.Thread;
     }

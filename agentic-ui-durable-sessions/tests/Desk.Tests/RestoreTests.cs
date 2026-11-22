@@ -289,6 +289,8 @@ public sealed class RestoreTests : IDisposable
         }
         else
         {
+            // What a closed tab is to the server: the circuit ends and the components are disposed.
+            live.Dispose();
             session.Dispose();
         }
 
@@ -303,6 +305,31 @@ public sealed class RestoreTests : IDisposable
 
         Trace.Line("restore-results.txt", $"7b {ending} 1.5 s into an answer, recorder {(recordWhileStreaming ? "on " : "off")} | journal rows while streaming: {during} | afterwards: {afterwards}, end mark: {endMark} | a reload shows {restored.Turns.Count} turns, ended mid-turn: {reloaded.Thread.EndedMidTurn}, last block: {(last.Length > 60 ? last[..60] + "..." : last)}");
         Assert.Equal(recordWhileStreaming, during > 0);
+        reloaded.Dispose();
+    }
+
+    [Fact]
+    public async Task A_stopped_answer_is_not_part_of_the_conversation_afterwards()
+    {
+        string thread = NewThread();
+        (DeskSession session, AgentContext live) = Open(thread);
+        Task send = live.SendMessageAsync("Explain the refund policy", default);
+        await Task.Delay(1000);
+        await live.CancelAsync();
+        await Quietly(send);
+        int onThePage = live.Turns.Count;
+        int requests = Wire.Entries.Count;
+
+        await live.SendMessageAsync("Where is order O-1002?", default);
+        int sent = Wire.Entries[^1].Request["messages"]!.AsArray().Count;
+
+        (DeskSession reloaded, AgentContext restored) = Open(thread);
+        await restored.RestoreAsync(default);
+
+        Trace.Line("restore-results.txt", $"7c Stop, then a new question | turns on the page: {live.Turns.Count} (the stopped one is still shown: {onThePage == 1}) | messages sent with the new question: {sent} | turns after a reload: {restored.Turns.Count}");
+        Assert.Equal(1, sent);
+        Assert.Equal(1, restored.Turns.Count);
+        session.Dispose();
         reloaded.Dispose();
     }
 
