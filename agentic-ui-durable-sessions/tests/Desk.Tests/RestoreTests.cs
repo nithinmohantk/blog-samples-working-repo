@@ -394,10 +394,10 @@ public sealed class RestoreTests : IDisposable
         Assert.Equal(1, taken.Count(t => t));
     }
 
-    private (WebApplicationFactory<AgentService>, IChatClient) StartAgent(bool durableApprovals)
+    private (WebApplicationFactory<AgentService>, IChatClient) StartAgent(bool durableApprovals, int wordDelay = 0)
     {
         WebApplicationFactory<AgentService> factory = new WebApplicationFactory<AgentService>().WithWebHostBuilder(host => host
-            .UseSetting("DESK_WORD_DELAY_MS", "0")
+            .UseSetting("DESK_WORD_DELAY_MS", wordDelay.ToString())
             .UseSetting("DESK_DATA", _folder)
             .UseSetting("DESK_DURABLE_APPROVALS", durableApprovals.ToString()));
         return (factory, new AGUIChatClient(new AGUIChatClientOptions(factory.CreateClient(), "/agent")));
