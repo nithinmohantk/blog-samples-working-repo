@@ -152,10 +152,12 @@ public sealed class ThreadLab(WebApplicationFactory<AgentService> factory) : ICl
         UIAgent<LabState> agent = MakeWithState(chat, "t-lab-2", live);
         AgentContext context = new(agent);
         context.RegisterOnStatusChanged(status => Say($"  status -> {status}"));
-        await context.SendMessageAsync("Draft a reply for order O-1001", CancellationToken.None);
+        await Bounded(context.SendMessageAsync("Draft a reply for order O-1001", CancellationToken.None));
         Say($"state after a draft: reply={Short(agent.State.Value.Reply)}");
-        await context.SendMessageAsync("Refund order O-1003", CancellationToken.None);
-        Say($"live, after the refund question: status={context.Status} turns={context.Turns.Count}");
+        Task liveSend = context.SendMessageAsync("Refund order O-1003", CancellationToken.None);
+        await WaitAsync(() => liveSend.IsCompleted || context.Status == ConversationStatus.AwaitingInput);
+        await Task.Delay(300);
+        Say($"live, after the refund question: send completed={liveSend.IsCompleted} status={context.Status} turns={context.Turns.Count}");
         string stored = JsonSerializer.Serialize(live.GetUpdates(), json);
         List<ChatResponseUpdate> Load() => JsonSerializer.Deserialize<List<ChatResponseUpdate>>(stored, json)!;
 
@@ -164,7 +166,7 @@ public sealed class ThreadLab(WebApplicationFactory<AgentService> factory) : ICl
         FunctionApprovalBlock liveBlock = context.Turns.SelectMany(t => t.ResponseBlocks).OfType<FunctionApprovalBlock>().Last();
         liveBlock.Approve();
         await WaitAsync(() => wire.Entries.Count > before && context.Status == ConversationStatus.Idle);
-        Say($"live Approve(): new wire requests={wire.Entries.Count - before} refunds={ledger.Refunds.Count} status={context.Status}");
+        Say($"live Approve(): new wire requests={wire.Entries.Count - before} refunds={ledger.Refunds.Count} status={context.Status} send completed={liveSend.IsCompleted}");
         ledger.Clear();
 
         Say("\n# restored copy A (as after a reload): Approve() on the block");
@@ -172,7 +174,7 @@ public sealed class ThreadLab(WebApplicationFactory<AgentService> factory) : ICl
         UIAgent<LabState> agentA = MakeWithState(chat, "t-lab-2", memoryA);
         AgentContext a = new(agentA);
         a.RegisterOnStatusChanged(status => Say($"  A status -> {status}"));
-        await a.RestoreAsync(CancellationToken.None);
+        await Bounded(a.RestoreAsync(CancellationToken.None));
         Say($"A restored: status={a.Status} turns={a.Turns.Count} state.reply={Short(agentA.State.Value.Reply)}");
         FunctionApprovalBlock blockA = a.Turns.SelectMany(t => t.ResponseBlocks).OfType<FunctionApprovalBlock>().Last();
         before = wire.Entries.Count;
@@ -183,27 +185,40 @@ public sealed class ThreadLab(WebApplicationFactory<AgentService> factory) : ICl
         Say("\n# restored copy B (a second tab): answer by sending the approval response through the context");
         Memory memoryB = new("t-lab-2", Load());
         AgentContext b = new(MakeWithState(chat, "t-lab-2", memoryB));
-        await b.RestoreAsync(CancellationToken.None);
+        await Bounded(b.RestoreAsync(CancellationToken.None));
         FunctionApprovalBlock blockB = b.Turns.SelectMany(t => t.ResponseBlocks).OfType<FunctionApprovalBlock>().Last();
         before = wire.Entries.Count;
-        await b.SendMessageAsync(new ChatMessage(ChatRole.User, [blockB.ApprovalRequest.CreateResponse(true)]), CancellationToken.None);
+        await Bounded(b.SendMessageAsync(new ChatMessage(ChatRole.User, [blockB.ApprovalRequest.CreateResponse(true)]), CancellationToken.None));
         Say($"B sent the response: new wire requests={wire.Entries.Count - before} refunds={ledger.Refunds.Count} status={b.Status} error={b.Error?.GetType().Name}: {b.Error?.Message}");
         Say($"B turns={b.Turns.Count} last turn blocks=[{string.Join(" | ", b.Turns[^1].RequestBlocks.Concat(b.Turns[^1].ResponseBlocks).Select(Describe))}]");
         Say($"B approval block now: {Describe(blockB)}");
 
         Say("\n# copy A answers the same approval after B did (the live answer above already used it once)");
         before = wire.Entries.Count;
-        await a.SendMessageAsync(new ChatMessage(ChatRole.User, [blockA.ApprovalRequest.CreateResponse(true)]), CancellationToken.None);
+        await Bounded(a.SendMessageAsync(new ChatMessage(ChatRole.User, [blockA.ApprovalRequest.CreateResponse(true)]), CancellationToken.None));
         Say($"A sent the response: new wire requests={wire.Entries.Count - before} refunds={ledger.Refunds.Count} attempts={ledger.Attempts} status={a.Status} error={a.Error?.GetType().Name}: {a.Error?.Message}");
 
         Say("\n# a journal cut in the middle of an answer (the first 6 updates of turn 1)");
         Memory cut = new("t-lab-2", Load().Take(6).ToList());
         AgentContext c = new(MakeWithState(chat, "t-lab-2", cut));
-        await c.RestoreAsync(CancellationToken.None);
+        await Bounded(c.RestoreAsync(CancellationToken.None));
         Say($"cut restored: status={c.Status} turns={c.Turns.Count} blocks=[{string.Join(" | ", c.Turns.SelectMany(t => t.RequestBlocks.Concat(t.ResponseBlocks)).Select(Describe))}]");
         before = wire.Entries.Count;
-        await c.SendMessageAsync("Where is order O-1002?", CancellationToken.None);
+        await Bounded(c.SendMessageAsync("Where is order O-1002?", CancellationToken.None));
         Say($"cut, next question: status={c.Status} error={c.Error?.Message} wire roles=[{string.Join(",", wire.Entries.Skip(before).SelectMany(e => e.Request["messages"]!.AsArray().Select(m => m!["role"])))}]");
+    }
+
+    /// <summary>Waits for a call, but not for ever: some of these wait for a person.</summary>
+    private async Task Bounded(Task task)
+    {
+        if (await Task.WhenAny(task, Task.Delay(4000)) != task)
+        {
+            Say("  (the call had not returned after 4 s)");
+        }
+        else if (task.IsFaulted)
+        {
+            Say("  (the call threw " + task.Exception!.InnerException!.GetType().Name + ": " + task.Exception.InnerException.Message + ")");
+        }
     }
 
     private static async Task WaitAsync(Func<bool> done)
