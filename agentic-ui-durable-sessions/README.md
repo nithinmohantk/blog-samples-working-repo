@@ -12,7 +12,7 @@ All orders and customers are invented. The model is a scripted stand-in: nothing
 | `src/Desk.Web/Components` | The Blazor Server UI. `RestoreOnLoad` rebuilds the conversation, `RestoredApproval` gives a restored approval buttons that work, `RunError` says when an approval was refused |
 | `src/Desk.Agent` | The AG-UI agent service. Pending approvals are behind `IApprovalStore`, in memory or in SQLite |
 | `src/Desk.Core` | The agent pipeline, the tools, and the payment stand-in, which can keep its refunds in a file |
-| `tests/Desk.Tests` | 17 tests: the UI agent with a journal against the agent service on an in-memory server, where "a reload" is new objects for the same thread id |
+| `tests/Desk.Tests` | 18 tests: the UI agent with a journal against the agent service on an in-memory server, where "a reload" is new objects for the same thread id |
 | `e2e/run.py` | Chromium (Playwright): ten steps that reload the page, restart each service and open a second tab |
 | `ci.sh` | Everything the workflow runs |
 

@@ -334,6 +334,28 @@ public sealed class RestoreTests : IDisposable
     }
 
     [Fact]
+    public async Task The_agent_tells_the_thread_about_a_turn_only_when_the_turn_is_over()
+    {
+        _agent.Dispose();
+        (_agent, _chat) = StartAgent(durableApprovals: true, wordDelay: 100);
+        CountingThread thread = new();
+        UIAgent agent = new(_chat, options => options.Thread = thread, NullLoggerFactory.Instance);
+        AgentContext context = new(agent);
+
+        // "hello" is answered in 26 words. At 100 ms a word that takes about 2.6 s.
+        Task send = context.SendMessageAsync("hello", default);
+        await Task.Delay(1300);
+        int words = context.Turns.SelectMany(turn => turn.ResponseBlocks).OfType<RichContentBlock>().Sum(block => block.RawText.Split(' ', StringSplitOptions.RemoveEmptyEntries).Length);
+        string during = thread.ToString();
+        await send;
+
+        Trace.Line("restore-results.txt", $"0a calls to the thread, 1.3 s into an answer with {words} words on the page | {during} | after the answer ended | {thread}");
+        Assert.True(words > 3, $"only {words} words had arrived");
+        Assert.Equal(0, thread.Total);
+        agent.Dispose();
+    }
+
+    [Fact]
     public async Task What_a_long_conversation_costs()
     {
         string thread = NewThread();
@@ -427,4 +449,32 @@ public sealed class RestoreTests : IDisposable
         RichContentBlock text => $"{text.Role}: \"{text.RawText}\"",
         _ => block.GetType().Name,
     };
+
+    /// <summary>Keeps nothing. Counts what the agent asks of it.</summary>
+    private sealed class CountingThread : IConversationThread
+    {
+        private int _user, _updates, _complete, _reads;
+
+        public string ThreadId => "counting";
+
+        public bool IsStateful => false;
+
+        public string? ConversationId => null;
+
+        public int Total => _user + _updates + _complete + _reads;
+
+        public void AppendUserMessage(ChatMessage message) => _user++;
+
+        public void AppendUpdate(ChatResponseUpdate update) => _updates++;
+
+        public void CompleteTurn() => _complete++;
+
+        public IReadOnlyList<ChatResponseUpdate> GetUpdates()
+        {
+            _reads++;
+            return [];
+        }
+
+        public override string ToString() => $"AppendUserMessage {_user}, AppendUpdate {_updates}, CompleteTurn {_complete}, GetUpdates {_reads}";
+    }
 }
