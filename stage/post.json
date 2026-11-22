@@ -1,6 +1,0 @@
-{
-  "title": "The AWS Public IPv4 Charge: Audit Every Address Before 1 February 2024",
-  "slug": "aws-public-ipv4-charge-audit-every-address",
-  "date": "2024-01-27T09:00:00",
-  "excerpt": "From 1 February 2024 every public IPv4 address on AWS costs $0.005 an hour. An EC2 API audit that finds every address, names what holds it and marks what becomes chargeable, tested in moto: a ten-address demo account goes from $6.96 to $34.80 in February."
-}
