@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <base href="/" />
+    <link rel="stylesheet" href="@Assets["_content/Microsoft.AspNetCore.Components.AI/ai-chat.css"]" />
+    <link rel="stylesheet" href="@Assets["app.css"]" />
+    <ImportMap />
+    <HeadOutlet @rendermode="s_inBrowser" />
+</head>
+<body>
+    @* Nothing is rendered on the server. The page is this shell, and the components start in the browser. *@
+    <Routes @rendermode="s_inBrowser" />
+    <script src="@Assets["_framework/blazor.web.js"]"></script>
+</body>
+</html>
+
+@code {
+    private static readonly IComponentRenderMode s_inBrowser = new InteractiveWebAssemblyRenderMode(prerender: false);
+}

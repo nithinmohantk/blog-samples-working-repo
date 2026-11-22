@@ -1,0 +1,26 @@
+@if (!Block.HasResult)
+{
+    <div class="order-card order-card--loading" role="status">Looking up @Block.OrderId…</div>
+}
+else if (Block.Order is null)
+{
+    <div class="order-card order-card--missing">No order @Block.OrderId</div>
+}
+else
+{
+    <div class="order-card" data-order="@Block.Order.Id">
+        <div class="order-card__id">@Block.Order.Id</div>
+        <div class="order-card__item">@Block.Order.Item</div>
+        <dl>
+            <dt>Customer</dt><dd>@Block.Order.Customer</dd>
+            <dt>Total</dt><dd>@Block.Order.Total.ToString("0.00") EUR</dd>
+            <dt>Status</dt><dd class="order-card__status">@Block.Order.Status</dd>
+            <dt>Carrier</dt><dd>@Block.Order.Carrier</dd>
+        </dl>
+    </div>
+}
+
+@code {
+    [Parameter, EditorRequired]
+    public OrderToolBlock Block { get; set; } = default!;
+}
