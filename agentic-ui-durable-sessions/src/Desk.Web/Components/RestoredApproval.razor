@@ -1,0 +1,54 @@
+@implements IDisposable
+
+@* An approval request that came back from storage. The block's own Approve() no longer leads anywhere,
+   because the run that was waiting for it ended with the old page. The answer is sent as a new message. *@
+
+<div class="sc-ai-approval desk-restored-approval" data-call="@Block.Id">
+    <div class="sc-ai-approval__title">Approval required</div>
+    <div class="sc-ai-approval__tool-name">@Block.ToolName</div>
+    <pre class="desk-restored-approval__arguments">@JsonSerializer.Serialize(Block.Arguments, s_indented)</pre>
+    @if (Thread.WasAnswered(Block.Id))
+    {
+        <div class="desk-restored-approval__answered">Answered</div>
+    }
+    else
+    {
+        <div class="sc-ai-approval__actions">
+            <button type="button" disabled="@_busy" @onclick="() => AnswerAsync(true)">Approve</button>
+            <button type="button" disabled="@_busy" @onclick="() => AnswerAsync(false)">Reject</button>
+        </div>
+    }
+</div>
+
+@code {
+    private static readonly JsonSerializerOptions s_indented = new() { WriteIndented = true };
+    private IDisposable? _registration;
+    private bool _busy;
+
+    [CascadingParameter]
+    public AgentContext AgentContext { get; set; } = default!;
+
+    [Parameter, EditorRequired]
+    public FunctionApprovalBlock Block { get; set; } = default!;
+
+    [Parameter, EditorRequired]
+    public JournalThread Thread { get; set; } = default!;
+
+    protected override void OnInitialized()
+        => _registration = AgentContext.RegisterOnStatusChanged(_ => InvokeAsync(StateHasChanged));
+
+    private async Task AnswerAsync(bool approved)
+    {
+        _busy = true;
+        try
+        {
+            await AgentContext.SendMessageAsync(new ChatMessage(ChatRole.User, [Block.ApprovalRequest.CreateResponse(approved)]), CancellationToken.None);
+        }
+        finally
+        {
+            _busy = false;
+        }
+    }
+
+    public void Dispose() => _registration?.Dispose();
+}

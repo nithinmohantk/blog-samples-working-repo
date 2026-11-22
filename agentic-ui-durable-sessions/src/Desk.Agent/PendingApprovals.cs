@@ -1,4 +1,3 @@
-using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
@@ -11,12 +10,11 @@ namespace Desk.Agent;
 /// Remembers which tool calls this server stopped for approval, so that an approval is only accepted
 /// for a call the server itself proposed, with the arguments it proposed, once, within a time limit.
 /// Without it the endpoint runs whatever tool call an approval names, because the call travels in the
-/// client's resume payload. In memory: with more than one instance this belongs in a shared store.
+/// client's resume payload. Where the list is kept is the store's business.
 /// </summary>
-public sealed class PendingApprovals(TimeProvider clock)
+public sealed class PendingApprovals(TimeProvider clock, IApprovalStore store)
 {
     private static readonly TimeSpan s_lifetime = TimeSpan.FromMinutes(10);
-    private readonly ConcurrentDictionary<string, (string Fingerprint, DateTimeOffset Expires)> _pending = new(StringComparer.Ordinal);
 
     /// <summary>On the way out: note every tool call that a run ends on waiting for approval.</summary>
     public async IAsyncEnumerable<BaseEvent> WatchAsync(IAsyncEnumerable<BaseEvent> events, [EnumeratorCancellation] CancellationToken cancellationToken)
@@ -38,7 +36,7 @@ public sealed class PendingApprovals(TimeProvider clock)
                         if (interrupt.ToolCallId is { } id && calls.TryGetValue(id, out var proposed))
                         {
                             using JsonDocument parsed = JsonDocument.Parse(proposed.Arguments.Length == 0 ? "{}" : proposed.Arguments.ToString());
-                            _pending[interrupt.Id] = (ToolCallFingerprint.Of(proposed.Name, parsed.RootElement), clock.GetUtcNow() + s_lifetime);
+                            store.Put(interrupt.Id, new PendingApproval(ToolCallFingerprint.Of(proposed.Name, parsed.RootElement), clock.GetUtcNow() + s_lifetime));
                         }
                     }
 
@@ -55,7 +53,7 @@ public sealed class PendingApprovals(TimeProvider clock)
         problem = "";
         foreach (AGUIResume entry in resume ?? [])
         {
-            if (!_pending.TryRemove(entry.InterruptId, out var pending))
+            if (!store.TryTake(entry.InterruptId, out PendingApproval pending))
             {
                 problem = "No approval is pending for this interrupt. It was never asked for, was already answered, or was asked by another server instance.";
                 return false;

@@ -2,6 +2,7 @@
   <ItemGroup>
     <PackageReference Include="AGUI.Server" />
     <PackageReference Include="AGUI.Formatting" />
+    <PackageReference Include="Microsoft.Data.Sqlite" />
     <PackageReference Include="Microsoft.Extensions.AI" />
     <ProjectReference Include="..\Desk.Core\Desk.Core.csproj" />
   </ItemGroup>

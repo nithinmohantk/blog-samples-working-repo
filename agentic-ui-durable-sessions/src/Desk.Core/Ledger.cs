@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 namespace Desk.Core;
 
 public sealed record Refund(string Key, string OrderId, decimal Amount, string Reason);
@@ -5,14 +7,29 @@ public sealed record Refund(string Key, string OrderId, decimal Amount, string R
 /// <summary>
 /// Stands in for the payment system: the place where a refund really happens.
 /// A refund is recorded at most once per key, however many times it is asked for.
+/// Give it a file and the refunds outlive the process, as a payment system's records would.
 /// </summary>
 public sealed class Ledger
 {
     private readonly Lock _gate = new();
     private readonly Dictionary<string, Refund> _byKey = new(StringComparer.Ordinal);
+    private readonly string? _file;
     private int _attempts;
 
-    /// <summary>How many times a refund was asked for, including repeats.</summary>
+    public Ledger(string? file = null)
+    {
+        _file = file;
+        if (file is not null && File.Exists(file))
+        {
+            foreach (string line in File.ReadLines(file).Where(line => line.Length > 0))
+            {
+                Refund refund = JsonSerializer.Deserialize<Refund>(line)!;
+                _byKey[refund.Key] = refund;
+            }
+        }
+    }
+
+    /// <summary>How many times a refund was asked for since this process started, including repeats.</summary>
     public int Attempts => Volatile.Read(ref _attempts);
 
     public IReadOnlyList<Refund> Refunds
@@ -32,13 +49,26 @@ public sealed class Ledger
             }
 
             _byKey[refund.Key] = refund;
+            if (_file is not null)
+            {
+                File.AppendAllText(_file, JsonSerializer.Serialize(refund) + Environment.NewLine);
+            }
+
             return (refund, true);
         }
     }
 
     public void Clear()
     {
-        lock (_gate) { _byKey.Clear(); }
+        lock (_gate)
+        {
+            _byKey.Clear();
+            if (_file is not null)
+            {
+                File.Delete(_file);
+            }
+        }
+
         Interlocked.Exchange(ref _attempts, 0);
     }
 }

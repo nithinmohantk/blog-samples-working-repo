@@ -1,0 +1,22 @@
+@* Sits inside the AgentBoundary. When the thread came from storage, asks the agent to rebuild the conversation from it. *@
+
+@if (Thread.EndedMidTurn)
+{
+    <p class="desk__notice" role="status">The last answer was interrupted before it finished. What arrived is shown.</p>
+}
+
+@code {
+    [CascadingParameter]
+    public AgentContext AgentContext { get; set; } = default!;
+
+    [Parameter, EditorRequired]
+    public JournalThread Thread { get; set; } = default!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Thread.RestoredUpdates > 0)
+        {
+            await AgentContext.RestoreAsync(CancellationToken.None);
+        }
+    }
+}

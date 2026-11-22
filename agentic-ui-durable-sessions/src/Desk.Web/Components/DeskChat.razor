@@ -1,0 +1,64 @@
+@implements IDisposable
+@inject IChatClient ChatClient
+@inject ILoggerFactory LoggerFactory
+@inject JournalStore Store
+@inject IConfiguration Configuration
+
+<div class="desk">
+    <AgentBoundary Agent="_agent">
+        <section class="sc-ai-root sc-ai-chat-page desk__chat">
+            <header class="desk__header">
+                <h1>Order desk</h1>
+                <StopButton />
+            </header>
+            <div class="sc-ai-chat-page__body">
+                <RestoreOnLoad Thread="_thread" />
+                <MessageList>
+                    <EmptyContent>
+                        <p class="desk__welcome">Ask about an order, for example: Where is order O-1001?</p>
+                    </EmptyContent>
+                    <ChildContent>
+                        <BlockRenderer TBlock="OrderToolBlock" Context="order">
+                            <OrderCard Block="order" />
+                        </BlockRenderer>
+                        @if (_ownApprovalButtons)
+                        {
+                            @* Only for approval requests that came from storage. A live one keeps the default buttons. *@
+                            <BlockRenderer TBlock="FunctionApprovalBlock" When="@(block => _thread.WasRestored(block.Id))" Context="approval">
+                                <RestoredApproval Block="approval" Thread="_thread" />
+                            </BlockRenderer>
+                        }
+                    </ChildContent>
+                </MessageList>
+                <RunError />
+            </div>
+            <div class="sc-ai-chat-page__footer">
+                <div class="sc-ai-chat-page__input-container">
+                    <MessageInput Placeholder="Ask about an order..." />
+                </div>
+            </div>
+        </section>
+    </AgentBoundary>
+    <ReplyPanel State="_agent.State" />
+</div>
+
+@code {
+    private DeskSession _session = default!;
+    private UIAgent<CaseState> _agent = default!;
+    private JournalThread _thread = default!;
+    private bool _ownApprovalButtons;
+
+    [Parameter, EditorRequired]
+    public string ThreadId { get; set; } = default!;
+
+    protected override void OnInitialized()
+    {
+        // For the lab: turn the fix off to see what the default buttons do with a restored approval.
+        _ownApprovalButtons = Configuration.GetValue("DESK_RESTORED_APPROVAL_BUTTONS", true);
+        _session = DeskSession.Open(ChatClient, Store, ThreadId, LoggerFactory);
+        _agent = _session.Agent;
+        _thread = _session.Thread;
+    }
+
+    public void Dispose() => _session.Dispose();
+}

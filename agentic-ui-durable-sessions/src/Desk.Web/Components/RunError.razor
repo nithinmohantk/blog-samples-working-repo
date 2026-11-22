@@ -1,0 +1,24 @@
+@implements IDisposable
+
+@* Says so when a request to the agent service failed. A refused approval arrives here as HTTP 409. *@
+
+@if (AgentContext.Status is ConversationStatus.Error)
+{
+    <p class="desk__error" role="alert">
+        @(AgentContext.Error is HttpRequestException { StatusCode: System.Net.HttpStatusCode.Conflict }
+            ? "That approval was already answered, or it has expired. This click paid nothing."
+            : "The request failed: " + AgentContext.Error?.Message)
+    </p>
+}
+
+@code {
+    private IDisposable? _registration;
+
+    [CascadingParameter]
+    public AgentContext AgentContext { get; set; } = default!;
+
+    protected override void OnInitialized()
+        => _registration = AgentContext.RegisterOnStatusChanged(_ => InvokeAsync(StateHasChanged));
+
+    public void Dispose() => _registration?.Dispose();
+}

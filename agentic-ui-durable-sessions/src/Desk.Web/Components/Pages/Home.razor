@@ -1,0 +1,28 @@
+@page "/"
+@page "/c/{ThreadId}"
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
+@inject NavigationManager Navigation
+
+<PageTitle>Order desk</PageTitle>
+
+@if (_valid)
+{
+    <DeskChat ThreadId="@ThreadId" />
+}
+
+@code {
+    private bool _valid;
+
+    /// <summary>The conversation is named in the address, so a reload, a bookmark and a second tab all open the same one.</summary>
+    [Parameter]
+    public string? ThreadId { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        _valid = ThreadId is { Length: 32 } && ThreadId.All(char.IsAsciiHexDigitLower);
+        if (!_valid)
+        {
+            Navigation.NavigateTo($"/c/{Guid.NewGuid():N}", replace: true);
+        }
+    }
+}

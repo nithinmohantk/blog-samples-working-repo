@@ -19,8 +19,18 @@ builder.Services.Configure<JsonOptions>(options =>
     AGUIJsonUtilities.RegisterInterruptContentTypes(options.SerializerOptions);
 });
 
+// DESK_DATA names a folder. With it, pending approvals and the payment stand-in survive a restart.
+string? data = builder.Configuration["DESK_DATA"];
+if (data is not null)
+{
+    Directory.CreateDirectory(data);
+}
+
 builder.Services.AddSingleton<OrderBook>();
-builder.Services.AddSingleton<Ledger>();
+builder.Services.AddSingleton(new Ledger(data is null ? null : Path.Combine(data, "ledger.jsonl")));
+builder.Services.AddSingleton<IApprovalStore>(data is not null && builder.Configuration.GetValue("DESK_DURABLE_APPROVALS", true)
+    ? new SqliteApprovalStore(Path.Combine(data, "approvals.db"))
+    : new MemoryApprovalStore());
 builder.Services.AddSingleton(new WireLog(builder.Configuration["DESK_WIRE_LOG"]));
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddSingleton<PendingApprovals>();
