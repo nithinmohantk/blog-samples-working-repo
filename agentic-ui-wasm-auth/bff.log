@@ -1,0 +1,960 @@
+info: Microsoft.AspNetCore.DataProtection.KeyManagement.XmlKeyManager[62]
+      User profile is available. Using '/home/runner/.aspnet/DataProtection-Keys' as key repository; keys will not be encrypted at rest.
+info: Microsoft.Hosting.Lifetime[14]
+      Now listening on: http://127.0.0.1:5110
+info: Microsoft.Hosting.Lifetime[0]
+      Application started. Press Ctrl+C to shut down.
+info: Microsoft.Hosting.Lifetime[0]
+      Hosting environment: Production
+info: Microsoft.Hosting.Lifetime[0]
+      Content root path: /home/runner/work/_temp/desk-wasm-publish/bff
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5110/signin - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'HTTP: GET /signin'
+info: Microsoft.AspNetCore.Http.Result.ContentResult[2]
+      Write content with HTTP Response ContentType of text/html
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'HTTP: GET /signin'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5110/signin - 200 851 text/html 54.7359ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5110/ - - -
+info: Microsoft.AspNetCore.Authorization.DefaultAuthorizationService[2]
+      Authorization failed. These requirements were not met:
+      DenyAnonymousAuthorizationRequirement: Requires an authenticated user.
+info: Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationHandler[12]
+      AuthenticationScheme: Cookies was challenged.
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5110/ - 302 0 - 7.0277ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 POST http://127.0.0.1:5110/agent - application/json 2
+info: Microsoft.AspNetCore.Authorization.DefaultAuthorizationService[2]
+      Authorization failed. These requirements were not met:
+      DenyAnonymousAuthorizationRequirement: Requires an authenticated user.
+info: Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationHandler[12]
+      AuthenticationScheme: Cookies was challenged.
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 POST http://127.0.0.1:5110/agent - 401 0 - 4.0876ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5110/_framework/blazor.web.js - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[2]
+      Sending file. Request path: '_framework/blazor.web.js'. Physical path: '/home/runner/work/_temp/desk-wasm-publish/bff/wwwroot/_framework/blazor.web.js.br'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5110/_framework/blazor.web.js - 200 58019 text/javascript 17.2433ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5110/ - - -
+info: Microsoft.AspNetCore.Authorization.DefaultAuthorizationService[2]
+      Authorization failed. These requirements were not met:
+      DenyAnonymousAuthorizationRequirement: Requires an authenticated user.
+info: Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationHandler[12]
+      AuthenticationScheme: Cookies was challenged.
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5110/ - 302 0 - 3.1398ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5110/signin?ReturnUrl=%2F - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'HTTP: GET /signin'
+info: Microsoft.AspNetCore.Http.Result.ContentResult[2]
+      Write content with HTTP Response ContentType of text/html
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'HTTP: GET /signin'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5110/signin?ReturnUrl=%2F - 200 851 text/html 0.5675ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 POST http://127.0.0.1:5110/signin - application/x-www-form-urlencoded 8
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'HTTP: POST /signin'
+info: Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationHandler[10]
+      AuthenticationScheme: Cookies signed in.
+info: Microsoft.AspNetCore.Http.Result.RedirectResult[1]
+      Executing RedirectResult, redirecting to /.
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'HTTP: POST /signin'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 POST http://127.0.0.1:5110/signin - 302 0 - 12.1357ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5110/ - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint '/ (/)'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint '/ (/)'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5110/ - 200 - text/html;+charset=utf-8 108.8029ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5110/_content/Microsoft.AspNetCore.Components.AI/ai-chat.jgw3rr6wlp.css - - -
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5110/app.qj2u44slzv.css - - -
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5110/_framework/blazor.web.yrew3uaoal.js - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[2]
+      Sending file. Request path: '_content/Microsoft.AspNetCore.Components.AI/ai-chat.jgw3rr6wlp.css'. Physical path: '/home/runner/work/_temp/desk-wasm-publish/bff/wwwroot/_content/Microsoft.AspNetCore.Components.AI/ai-chat.css.br'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[2]
+      Sending file. Request path: '_framework/blazor.web.yrew3uaoal.js'. Physical path: '/home/runner/work/_temp/desk-wasm-publish/bff/wwwroot/_framework/blazor.web.js.br'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5110/_content/Microsoft.AspNetCore.Components.AI/ai-chat.jgw3rr6wlp.css - 200 2019 text/css 3.4721ms
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5110/_framework/blazor.web.yrew3uaoal.js - 200 58019 text/javascript 2.2543ms
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[2]
+      Sending file. Request path: 'app.qj2u44slzv.css'. Physical path: '/home/runner/work/_temp/desk-wasm-publish/bff/wwwroot/app.css.br'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5110/app.qj2u44slzv.css - 200 471 text/css 3.5383ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5110/_framework/dotnet.qiraygjhmd.js - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[2]
+      Sending file. Request path: '_framework/dotnet.qiraygjhmd.js'. Physical path: '/home/runner/work/_temp/desk-wasm-publish/bff/wwwroot/_framework/dotnet.js.br'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5110/_framework/dotnet.qiraygjhmd.js - 200 14642 text/javascript 1.1882ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5110/_framework/dotnet.runtime.uyfhwbfd13.js - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5110/_framework/dotnet.native.gyn70opcq7.js - - -
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[2]
+      Sending file. Request path: '_framework/dotnet.runtime.uyfhwbfd13.js'. Physical path: '/home/runner/work/_temp/desk-wasm-publish/bff/wwwroot/_framework/dotnet.runtime.uyfhwbfd13.js.br'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5110/_framework/dotnet.runtime.uyfhwbfd13.js - 200 47485 text/javascript 1.2076ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5110/_framework/dotnet.native.mjledzavap.wasm - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[2]
+      Sending file. Request path: '_framework/dotnet.native.gyn70opcq7.js'. Physical path: '/home/runner/work/_temp/desk-wasm-publish/bff/wwwroot/_framework/dotnet.native.gyn70opcq7.js.br'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5110/_framework/dotnet.native.gyn70opcq7.js - 200 26895 text/javascript 2.0663ms
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[2]
+      Sending file. Request path: '_framework/dotnet.native.mjledzavap.wasm'. Physical path: '/home/runner/work/_temp/desk-wasm-publish/bff/wwwroot/_framework/dotnet.native.mjledzavap.wasm.br'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5110/_framework/dotnet.native.mjledzavap.wasm - 200 1003700 application/wasm 11.3031ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5110/_framework/System.Runtime.InteropServices.JavaScript.tq7sacobc9.wasm - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5110/_framework/System.Private.CoreLib.7f833i9i73.wasm - - -
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[2]
+      Sending file. Request path: '_framework/System.Runtime.InteropServices.JavaScript.tq7sacobc9.wasm'. Physical path: '/home/runner/work/_temp/desk-wasm-publish/bff/wwwroot/_framework/System.Runtime.InteropServices.JavaScript.tq7sacobc9.wasm.br'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5110/_framework/System.Runtime.InteropServices.JavaScript.tq7sacobc9.wasm - 200 16936 application/wasm 0.9949ms
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[2]
+      Sending file. Request path: '_framework/System.Private.CoreLib.7f833i9i73.wasm'. Physical path: '/home/runner/work/_temp/desk-wasm-publish/bff/wwwroot/_framework/System.Private.CoreLib.7f833i9i73.wasm.br'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5110/_framework/System.Private.CoreLib.7f833i9i73.wasm - 200 642386 application/wasm 2.1155ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5110/_framework/AGUI.Abstractions.he79ew6zdx.wasm - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5110/_framework/AGUI.Formatting.idgz11lkcu.wasm - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[2]
+      Sending file. Request path: '_framework/AGUI.Abstractions.he79ew6zdx.wasm'. Physical path: '/home/runner/work/_temp/desk-wasm-publish/bff/wwwroot/_framework/AGUI.Abstractions.he79ew6zdx.wasm.br'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5110/_framework/AGUI.Abstractions.he79ew6zdx.wasm - 200 80734 application/wasm 3.7037ms
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[2]
+      Sending file. Request path: '_framework/AGUI.Formatting.idgz11lkcu.wasm'. Physical path: '/home/runner/work/_temp/desk-wasm-publish/bff/wwwroot/_framework/AGUI.Formatting.idgz11lkcu.wasm.br'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5110/_framework/AGUI.Formatting.idgz11lkcu.wasm - 200 4839 application/wasm 0.5524ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5110/_framework/AGUI.Client.2a4ytpnff7.wasm - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5110/_framework/Desk.Client.8mq8vatlfh.wasm - - -
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[2]
+      Sending file. Request path: '_framework/AGUI.Client.2a4ytpnff7.wasm'. Physical path: '/home/runner/work/_temp/desk-wasm-publish/bff/wwwroot/_framework/AGUI.Client.2a4ytpnff7.wasm.br'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5110/_framework/AGUI.Client.2a4ytpnff7.wasm - 200 24056 application/wasm 4.9125ms
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[2]
+      Sending file. Request path: '_framework/Desk.Client.8mq8vatlfh.wasm'. Physical path: '/home/runner/work/_temp/desk-wasm-publish/bff/wwwroot/_framework/Desk.Client.8mq8vatlfh.wasm.br'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5110/_framework/Desk.Client.8mq8vatlfh.wasm - 200 17658 application/wasm 0.6783ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5110/_framework/Microsoft.AspNetCore.Components.AI.qsj3k07sgm.wasm - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[2]
+      Sending file. Request path: '_framework/Microsoft.AspNetCore.Components.AI.qsj3k07sgm.wasm'. Physical path: '/home/runner/work/_temp/desk-wasm-publish/bff/wwwroot/_framework/Microsoft.AspNetCore.Components.AI.qsj3k07sgm.wasm.br'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5110/_framework/Microsoft.AspNetCore.Components.AI.qsj3k07sgm.wasm - 200 36453 application/wasm 0.8523ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5110/_framework/Microsoft.AspNetCore.Components.Web.f2euq9co88.wasm - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5110/_framework/Microsoft.AspNetCore.Components.WebAssembly.fi7eqeo1hs.wasm - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[2]
+      Sending file. Request path: '_framework/Microsoft.AspNetCore.Components.WebAssembly.fi7eqeo1hs.wasm'. Physical path: '/home/runner/work/_temp/desk-wasm-publish/bff/wwwroot/_framework/Microsoft.AspNetCore.Components.WebAssembly.fi7eqeo1hs.wasm.br'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5110/_framework/Microsoft.AspNetCore.Components.WebAssembly.fi7eqeo1hs.wasm - 200 48056 application/wasm 0.6958ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5110/_framework/Microsoft.AspNetCore.Components.606u2tutvm.wasm - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5110/_framework/Microsoft.Extensions.AI.Abstractions.whdzyvmrj3.wasm - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[2]
+      Sending file. Request path: '_framework/Microsoft.AspNetCore.Components.Web.f2euq9co88.wasm'. Physical path: '/home/runner/work/_temp/desk-wasm-publish/bff/wwwroot/_framework/Microsoft.AspNetCore.Components.Web.f2euq9co88.wasm.br'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5110/_framework/Microsoft.AspNetCore.Components.Web.f2euq9co88.wasm - 200 21387 application/wasm 3.7263ms
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[2]
+      Sending file. Request path: '_framework/Microsoft.AspNetCore.Components.606u2tutvm.wasm'. Physical path: '/home/runner/work/_temp/desk-wasm-publish/bff/wwwroot/_framework/Microsoft.AspNetCore.Components.606u2tutvm.wasm.br'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5110/_framework/Microsoft.AspNetCore.Components.606u2tutvm.wasm - 200 99507 application/wasm 1.3676ms
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[2]
+      Sending file. Request path: '_framework/Microsoft.Extensions.AI.Abstractions.whdzyvmrj3.wasm'. Physical path: '/home/runner/work/_temp/desk-wasm-publish/bff/wwwroot/_framework/Microsoft.Extensions.AI.Abstractions.whdzyvmrj3.wasm.br'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5110/_framework/Microsoft.Extensions.AI.Abstractions.whdzyvmrj3.wasm - 200 104815 application/wasm 1.7643ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5110/_framework/Microsoft.Extensions.AI.c5dm36nl7y.wasm - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[2]
+      Sending file. Request path: '_framework/Microsoft.Extensions.AI.c5dm36nl7y.wasm'. Physical path: '/home/runner/work/_temp/desk-wasm-publish/bff/wwwroot/_framework/Microsoft.Extensions.AI.c5dm36nl7y.wasm.br'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5110/_framework/Microsoft.Extensions.AI.c5dm36nl7y.wasm - 200 24033 application/wasm 1.0743ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5110/_framework/Microsoft.Extensions.Configuration.Abstractions.gol3euaj3d.wasm - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[2]
+      Sending file. Request path: '_framework/Microsoft.Extensions.Configuration.Abstractions.gol3euaj3d.wasm'. Physical path: '/home/runner/work/_temp/desk-wasm-publish/bff/wwwroot/_framework/Microsoft.Extensions.Configuration.Abstractions.gol3euaj3d.wasm.br'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5110/_framework/Microsoft.Extensions.Configuration.Abstractions.gol3euaj3d.wasm - 200 2314 application/wasm 0.7567ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5110/_framework/Microsoft.Extensions.Configuration.EnvironmentVariables.vaqacjgd1g.wasm - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[2]
+      Sending file. Request path: '_framework/Microsoft.Extensions.Configuration.EnvironmentVariables.vaqacjgd1g.wasm'. Physical path: '/home/runner/work/_temp/desk-wasm-publish/bff/wwwroot/_framework/Microsoft.Extensions.Configuration.EnvironmentVariables.vaqacjgd1g.wasm.br'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5110/_framework/Microsoft.Extensions.Configuration.EnvironmentVariables.vaqacjgd1g.wasm - 200 5093 application/wasm 0.7334ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5110/_framework/Microsoft.Extensions.Configuration.Json.q81lkglnox.wasm - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[2]
+      Sending file. Request path: '_framework/Microsoft.Extensions.Configuration.Json.q81lkglnox.wasm'. Physical path: '/home/runner/work/_temp/desk-wasm-publish/bff/wwwroot/_framework/Microsoft.Extensions.Configuration.Json.q81lkglnox.wasm.br'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5110/_framework/Microsoft.Extensions.Configuration.Json.q81lkglnox.wasm - 200 4139 application/wasm 0.5951ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5110/_framework/Microsoft.Extensions.Configuration.e6rfa9mvfw.wasm - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[2]
+      Sending file. Request path: '_framework/Microsoft.Extensions.Configuration.e6rfa9mvfw.wasm'. Physical path: '/home/runner/work/_temp/desk-wasm-publish/bff/wwwroot/_framework/Microsoft.Extensions.Configuration.e6rfa9mvfw.wasm.br'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5110/_framework/Microsoft.Extensions.Configuration.e6rfa9mvfw.wasm - 200 3660 application/wasm 0.6176ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5110/_framework/Microsoft.Extensions.DependencyInjection.nyfzzvsl5t.wasm - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5110/_framework/Microsoft.Extensions.Diagnostics.Abstractions.qz20gv1zfo.wasm - - -
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[2]
+      Sending file. Request path: '_framework/Microsoft.Extensions.DependencyInjection.nyfzzvsl5t.wasm'. Physical path: '/home/runner/work/_temp/desk-wasm-publish/bff/wwwroot/_framework/Microsoft.Extensions.DependencyInjection.nyfzzvsl5t.wasm.br'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5110/_framework/Microsoft.Extensions.DependencyInjection.nyfzzvsl5t.wasm - 200 22545 application/wasm 0.5625ms
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[2]
+      Sending file. Request path: '_framework/Microsoft.Extensions.Diagnostics.Abstractions.qz20gv1zfo.wasm'. Physical path: '/home/runner/work/_temp/desk-wasm-publish/bff/wwwroot/_framework/Microsoft.Extensions.Diagnostics.Abstractions.qz20gv1zfo.wasm.br'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5110/_framework/Microsoft.Extensions.Diagnostics.Abstractions.qz20gv1zfo.wasm - 200 2669 application/wasm 0.5613ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5110/_framework/Microsoft.Extensions.DependencyInjection.Abstractions.tpz6r41egw.wasm - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[2]
+      Sending file. Request path: '_framework/Microsoft.Extensions.DependencyInjection.Abstractions.tpz6r41egw.wasm'. Physical path: '/home/runner/work/_temp/desk-wasm-publish/bff/wwwroot/_framework/Microsoft.Extensions.DependencyInjection.Abstractions.tpz6r41egw.wasm.br'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5110/_framework/Microsoft.Extensions.DependencyInjection.Abstractions.tpz6r41egw.wasm - 200 10024 application/wasm 0.7353ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5110/_framework/Microsoft.Extensions.Diagnostics.es1aeztafo.wasm - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[2]
+      Sending file. Request path: '_framework/Microsoft.Extensions.Diagnostics.es1aeztafo.wasm'. Physical path: '/home/runner/work/_temp/desk-wasm-publish/bff/wwwroot/_framework/Microsoft.Extensions.Diagnostics.es1aeztafo.wasm.br'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5110/_framework/Microsoft.Extensions.Diagnostics.es1aeztafo.wasm - 200 6384 application/wasm 0.5654ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5110/_framework/Microsoft.Extensions.Hosting.Abstractions.wgrd77yf8o.wasm - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[2]
+      Sending file. Request path: '_framework/Microsoft.Extensions.Hosting.Abstractions.wgrd77yf8o.wasm'. Physical path: '/home/runner/work/_temp/desk-wasm-publish/bff/wwwroot/_framework/Microsoft.Extensions.Hosting.Abstractions.wgrd77yf8o.wasm.br'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5110/_framework/Microsoft.Extensions.Hosting.Abstractions.wgrd77yf8o.wasm - 200 1874 application/wasm 0.5134ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5110/_framework/Microsoft.Extensions.Logging.Abstractions.4i6oozy18z.wasm - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[2]
+      Sending file. Request path: '_framework/Microsoft.Extensions.Logging.Abstractions.4i6oozy18z.wasm'. Physical path: '/home/runner/work/_temp/desk-wasm-publish/bff/wwwroot/_framework/Microsoft.Extensions.Logging.Abstractions.4i6oozy18z.wasm.br'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5110/_framework/Microsoft.Extensions.Logging.Abstractions.4i6oozy18z.wasm - 200 11403 application/wasm 0.5207ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5110/_framework/Microsoft.Extensions.Logging.ksbw1ccply.wasm - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[2]
+      Sending file. Request path: '_framework/Microsoft.Extensions.Logging.ksbw1ccply.wasm'. Physical path: '/home/runner/work/_temp/desk-wasm-publish/bff/wwwroot/_framework/Microsoft.Extensions.Logging.ksbw1ccply.wasm.br'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5110/_framework/Microsoft.Extensions.Logging.ksbw1ccply.wasm - 200 7623 application/wasm 0.5970ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5110/_framework/Microsoft.Extensions.Options.nvltry3500.wasm - - -
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5110/_framework/Microsoft.JSInterop.WebAssembly.kthmj8ue8z.wasm - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[2]
+      Sending file. Request path: '_framework/Microsoft.JSInterop.WebAssembly.kthmj8ue8z.wasm'. Physical path: '/home/runner/work/_temp/desk-wasm-publish/bff/wwwroot/_framework/Microsoft.JSInterop.WebAssembly.kthmj8ue8z.wasm.br'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5110/_framework/Microsoft.JSInterop.WebAssembly.kthmj8ue8z.wasm - 200 4840 application/wasm 0.3811ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5110/_framework/Microsoft.Extensions.Primitives.r3l7i8m1e0.wasm - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[2]
+      Sending file. Request path: '_framework/Microsoft.Extensions.Primitives.r3l7i8m1e0.wasm'. Physical path: '/home/runner/work/_temp/desk-wasm-publish/bff/wwwroot/_framework/Microsoft.Extensions.Primitives.r3l7i8m1e0.wasm.br'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5110/_framework/Microsoft.Extensions.Primitives.r3l7i8m1e0.wasm - 200 4430 application/wasm 1.1649ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5110/_framework/Microsoft.JSInterop.2nx24y4yum.wasm - - -
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[2]
+      Sending file. Request path: '_framework/Microsoft.Extensions.Options.nvltry3500.wasm'. Physical path: '/home/runner/work/_temp/desk-wasm-publish/bff/wwwroot/_framework/Microsoft.Extensions.Options.nvltry3500.wasm.br'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5110/_framework/Microsoft.Extensions.Options.nvltry3500.wasm - 200 11491 application/wasm 1.4282ms
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[2]
+      Sending file. Request path: '_framework/Microsoft.JSInterop.2nx24y4yum.wasm'. Physical path: '/home/runner/work/_temp/desk-wasm-publish/bff/wwwroot/_framework/Microsoft.JSInterop.2nx24y4yum.wasm.br'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5110/_framework/Microsoft.JSInterop.2nx24y4yum.wasm - 200 18777 application/wasm 0.4191ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5110/_framework/System.Collections.Concurrent.ecmdlpy739.wasm - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[2]
+      Sending file. Request path: '_framework/System.Collections.Concurrent.ecmdlpy739.wasm'. Physical path: '/home/runner/work/_temp/desk-wasm-publish/bff/wwwroot/_framework/System.Collections.Concurrent.ecmdlpy739.wasm.br'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5110/_framework/System.Collections.Concurrent.ecmdlpy739.wasm - 200 2203 application/wasm 0.5288ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5110/_framework/System.Collections.Immutable.z0cbdmj7uh.wasm - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[2]
+      Sending file. Request path: '_framework/System.Collections.Immutable.z0cbdmj7uh.wasm'. Physical path: '/home/runner/work/_temp/desk-wasm-publish/bff/wwwroot/_framework/System.Collections.Immutable.z0cbdmj7uh.wasm.br'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5110/_framework/System.Collections.Immutable.z0cbdmj7uh.wasm - 200 20109 application/wasm 1.5335ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5110/_framework/System.Collections.4ckf5htf71.wasm - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[2]
+      Sending file. Request path: '_framework/System.Collections.4ckf5htf71.wasm'. Physical path: '/home/runner/work/_temp/desk-wasm-publish/bff/wwwroot/_framework/System.Collections.4ckf5htf71.wasm.br'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5110/_framework/System.Collections.4ckf5htf71.wasm - 200 10404 application/wasm 0.4929ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5110/_framework/System.ComponentModel.Annotations.rmm64iio7v.wasm - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[2]
+      Sending file. Request path: '_framework/System.ComponentModel.Annotations.rmm64iio7v.wasm'. Physical path: '/home/runner/work/_temp/desk-wasm-publish/bff/wwwroot/_framework/System.ComponentModel.Annotations.rmm64iio7v.wasm.br'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5110/_framework/System.ComponentModel.Annotations.rmm64iio7v.wasm - 200 2561 application/wasm 0.5119ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5110/_framework/System.Collections.NonGeneric.x7mjbb5c38.wasm - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[2]
+      Sending file. Request path: '_framework/System.Collections.NonGeneric.x7mjbb5c38.wasm'. Physical path: '/home/runner/work/_temp/desk-wasm-publish/bff/wwwroot/_framework/System.Collections.NonGeneric.x7mjbb5c38.wasm.br'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5110/_framework/System.Collections.NonGeneric.x7mjbb5c38.wasm - 200 2793 application/wasm 4.0539ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5110/_framework/System.ComponentModel.Primitives.t60rcfrxf6.wasm - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[2]
+      Sending file. Request path: '_framework/System.ComponentModel.Primitives.t60rcfrxf6.wasm'. Physical path: '/home/runner/work/_temp/desk-wasm-publish/bff/wwwroot/_framework/System.ComponentModel.Primitives.t60rcfrxf6.wasm.br'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5110/_framework/System.ComponentModel.Primitives.t60rcfrxf6.wasm - 200 2306 application/wasm 0.4944ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5110/_framework/System.ComponentModel.TypeConverter.mnjeh2olhm.wasm - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[2]
+      Sending file. Request path: '_framework/System.ComponentModel.TypeConverter.mnjeh2olhm.wasm'. Physical path: '/home/runner/work/_temp/desk-wasm-publish/bff/wwwroot/_framework/System.ComponentModel.TypeConverter.mnjeh2olhm.wasm.br'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5110/_framework/System.ComponentModel.TypeConverter.mnjeh2olhm.wasm - 200 1863 application/wasm 0.8172ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5110/_framework/System.ComponentModel.er3kikotc9.wasm - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[2]
+      Sending file. Request path: '_framework/System.ComponentModel.er3kikotc9.wasm'. Physical path: '/home/runner/work/_temp/desk-wasm-publish/bff/wwwroot/_framework/System.ComponentModel.er3kikotc9.wasm.br'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5110/_framework/System.ComponentModel.er3kikotc9.wasm - 200 1701 application/wasm 0.5130ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5110/_framework/System.Diagnostics.TraceSource.xytt53qi1z.wasm - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[2]
+      Sending file. Request path: '_framework/System.Diagnostics.TraceSource.xytt53qi1z.wasm'. Physical path: '/home/runner/work/_temp/desk-wasm-publish/bff/wwwroot/_framework/System.Diagnostics.TraceSource.xytt53qi1z.wasm.br'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5110/_framework/System.Diagnostics.TraceSource.xytt53qi1z.wasm - 200 7329 application/wasm 0.4742ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5110/_framework/System.Console.upy0u0jozb.wasm - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[2]
+      Sending file. Request path: '_framework/System.Console.upy0u0jozb.wasm'. Physical path: '/home/runner/work/_temp/desk-wasm-publish/bff/wwwroot/_framework/System.Console.upy0u0jozb.wasm.br'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5110/_framework/System.Console.upy0u0jozb.wasm - 200 6084 application/wasm 0.4470ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5110/_framework/System.Diagnostics.DiagnosticSource.dnco9wovpc.wasm - - -
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5110/_framework/System.Drawing.Primitives.8pgr835pu8.wasm - - -
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5110/_framework/System.Drawing.gflaykoww9.wasm - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[2]
+      Sending file. Request path: '_framework/System.Drawing.gflaykoww9.wasm'. Physical path: '/home/runner/work/_temp/desk-wasm-publish/bff/wwwroot/_framework/System.Drawing.gflaykoww9.wasm.br'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5110/_framework/System.Drawing.gflaykoww9.wasm - 200 1642 application/wasm 3.8623ms
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[2]
+      Sending file. Request path: '_framework/System.Drawing.Primitives.8pgr835pu8.wasm'. Physical path: '/home/runner/work/_temp/desk-wasm-publish/bff/wwwroot/_framework/System.Drawing.Primitives.8pgr835pu8.wasm.br'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5110/_framework/System.Drawing.Primitives.8pgr835pu8.wasm - 200 2749 application/wasm 3.9848ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5110/_framework/System.IO.Pipelines.054uks7kmr.wasm - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[2]
+      Sending file. Request path: '_framework/System.Diagnostics.DiagnosticSource.dnco9wovpc.wasm'. Physical path: '/home/runner/work/_temp/desk-wasm-publish/bff/wwwroot/_framework/System.Diagnostics.DiagnosticSource.dnco9wovpc.wasm.br'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5110/_framework/System.Diagnostics.DiagnosticSource.dnco9wovpc.wasm - 200 58466 application/wasm 6.3286ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5110/_framework/System.Linq.5kbr857xfi.wasm - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[2]
+      Sending file. Request path: '_framework/System.Linq.5kbr857xfi.wasm'. Physical path: '/home/runner/work/_temp/desk-wasm-publish/bff/wwwroot/_framework/System.Linq.5kbr857xfi.wasm.br'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5110/_framework/System.Linq.5kbr857xfi.wasm - 200 17355 application/wasm 0.4332ms
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5110/_framework/System.Memory.l351s2b3s6.wasm - - -
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[2]
+      Sending file. Request path: '_framework/System.IO.Pipelines.054uks7kmr.wasm'. Physical path: '/home/runner/work/_temp/desk-wasm-publish/bff/wwwroot/_framework/System.IO.Pipelines.054uks7kmr.wasm.br'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5110/_framework/System.IO.Pipelines.054uks7kmr.wasm - 200 2641 application/wasm 1.1393ms
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[2]
+      Sending file. Request path: '_framework/System.Memory.l351s2b3s6.wasm'. Physical path: '/home/runner/work/_temp/desk-wasm-publish/bff/wwwroot/_framework/System.Memory.l351s2b3s6.wasm.br'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5110/_framework/System.Memory.l351s2b3s6.wasm - 200 6112 application/wasm 0.3412ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5110/_framework/System.Net.Http.Json.rgaq9wdhsl.wasm - - -
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5110/_framework/System.Net.Http.pfsyqkop5g.wasm - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[2]
+      Sending file. Request path: '_framework/System.Net.Http.Json.rgaq9wdhsl.wasm'. Physical path: '/home/runner/work/_temp/desk-wasm-publish/bff/wwwroot/_framework/System.Net.Http.Json.rgaq9wdhsl.wasm.br'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5110/_framework/System.Net.Http.Json.rgaq9wdhsl.wasm - 200 8291 application/wasm 0.4356ms
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[2]
+      Sending file. Request path: '_framework/System.Net.Http.pfsyqkop5g.wasm'. Physical path: '/home/runner/work/_temp/desk-wasm-publish/bff/wwwroot/_framework/System.Net.Http.pfsyqkop5g.wasm.br'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5110/_framework/System.Net.Http.pfsyqkop5g.wasm - 200 64277 application/wasm 0.3226ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5110/_framework/System.Net.Mail.k8err68nlu.wasm - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[2]
+      Sending file. Request path: '_framework/System.Net.Mail.k8err68nlu.wasm'. Physical path: '/home/runner/work/_temp/desk-wasm-publish/bff/wwwroot/_framework/System.Net.Mail.k8err68nlu.wasm.br'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5110/_framework/System.Net.Mail.k8err68nlu.wasm - 200 8556 application/wasm 0.5466ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5110/_framework/System.Net.Primitives.gipghidzt5.wasm - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5110/_framework/System.Net.ServerSentEvents.qz4vs2ziox.wasm - - -
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[2]
+      Sending file. Request path: '_framework/System.Net.Primitives.gipghidzt5.wasm'. Physical path: '/home/runner/work/_temp/desk-wasm-publish/bff/wwwroot/_framework/System.Net.Primitives.gipghidzt5.wasm.br'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5110/_framework/System.Net.Primitives.gipghidzt5.wasm - 200 2931 application/wasm 0.4397ms
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5110/_framework/System.ObjectModel.052ltch5mz.wasm - - -
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[2]
+      Sending file. Request path: '_framework/System.Net.ServerSentEvents.qz4vs2ziox.wasm'. Physical path: '/home/runner/work/_temp/desk-wasm-publish/bff/wwwroot/_framework/System.Net.ServerSentEvents.qz4vs2ziox.wasm.br'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5110/_framework/System.Net.ServerSentEvents.qz4vs2ziox.wasm - 200 7841 application/wasm 0.3531ms
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[2]
+      Sending file. Request path: '_framework/System.ObjectModel.052ltch5mz.wasm'. Physical path: '/home/runner/work/_temp/desk-wasm-publish/bff/wwwroot/_framework/System.ObjectModel.052ltch5mz.wasm.br'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5110/_framework/System.ObjectModel.052ltch5mz.wasm - 200 2103 application/wasm 0.3588ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5110/_framework/System.Private.Uri.2jlfjlce0t.wasm - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[2]
+      Sending file. Request path: '_framework/System.Private.Uri.2jlfjlce0t.wasm'. Physical path: '/home/runner/work/_temp/desk-wasm-publish/bff/wwwroot/_framework/System.Private.Uri.2jlfjlce0t.wasm.br'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5110/_framework/System.Private.Uri.2jlfjlce0t.wasm - 200 26332 application/wasm 0.6142ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5110/_framework/System.Runtime.InteropServices.h45u78t9gg.wasm - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[2]
+      Sending file. Request path: '_framework/System.Runtime.InteropServices.h45u78t9gg.wasm'. Physical path: '/home/runner/work/_temp/desk-wasm-publish/bff/wwwroot/_framework/System.Runtime.InteropServices.h45u78t9gg.wasm.br'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5110/_framework/System.Runtime.InteropServices.h45u78t9gg.wasm - 200 1743 application/wasm 0.6262ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5110/_framework/System.Runtime.c74rpxwukb.wasm - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[2]
+      Sending file. Request path: '_framework/System.Runtime.c74rpxwukb.wasm'. Physical path: '/home/runner/work/_temp/desk-wasm-publish/bff/wwwroot/_framework/System.Runtime.c74rpxwukb.wasm.br'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5110/_framework/System.Runtime.c74rpxwukb.wasm - 200 2808 application/wasm 0.6743ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5110/_framework/System.Security.Cryptography.ncpwlyysfh.wasm - - -
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5110/_framework/System.Text.Encodings.Web.9542yqdvfb.wasm - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[2]
+      Sending file. Request path: '_framework/System.Security.Cryptography.ncpwlyysfh.wasm'. Physical path: '/home/runner/work/_temp/desk-wasm-publish/bff/wwwroot/_framework/System.Security.Cryptography.ncpwlyysfh.wasm.br'
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[2]
+      Sending file. Request path: '_framework/System.Text.Encodings.Web.9542yqdvfb.wasm'. Physical path: '/home/runner/work/_temp/desk-wasm-publish/bff/wwwroot/_framework/System.Text.Encodings.Web.9542yqdvfb.wasm.br'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5110/_framework/System.Security.Cryptography.ncpwlyysfh.wasm - 200 9383 application/wasm 0.3816ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5110/_framework/System.Text.Encodings.Web.9542yqdvfb.wasm - 200 10260 application/wasm 0.3349ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5110/_framework/System.Text.Json.t4kgk3m2p5.wasm - - -
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5110/_framework/System.Text.RegularExpressions.2vd0vge1gd.wasm - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[2]
+      Sending file. Request path: '_framework/System.Text.RegularExpressions.2vd0vge1gd.wasm'. Physical path: '/home/runner/work/_temp/desk-wasm-publish/bff/wwwroot/_framework/System.Text.RegularExpressions.2vd0vge1gd.wasm.br'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5110/_framework/System.Text.RegularExpressions.2vd0vge1gd.wasm - 200 37052 application/wasm 0.3034ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5110/_framework/System.Threading.24u22mamuy.wasm - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[2]
+      Sending file. Request path: '_framework/System.Text.Json.t4kgk3m2p5.wasm'. Physical path: '/home/runner/work/_temp/desk-wasm-publish/bff/wwwroot/_framework/System.Text.Json.t4kgk3m2p5.wasm.br'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5110/_framework/System.Text.Json.t4kgk3m2p5.wasm - 200 159486 application/wasm 2.6271ms
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[2]
+      Sending file. Request path: '_framework/System.Threading.24u22mamuy.wasm'. Physical path: '/home/runner/work/_temp/desk-wasm-publish/bff/wwwroot/_framework/System.Threading.24u22mamuy.wasm.br'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5110/_framework/System.Threading.24u22mamuy.wasm - 200 1718 application/wasm 0.3715ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5110/_framework/icudt_EFIGS.xyuimhy3ww.dat - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[2]
+      Sending file. Request path: '_framework/icudt_EFIGS.xyuimhy3ww.dat'. Physical path: '/home/runner/work/_temp/desk-wasm-publish/bff/wwwroot/_framework/icudt_EFIGS.xyuimhy3ww.dat.br'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5110/_framework/icudt_EFIGS.xyuimhy3ww.dat - 200 154180 application/octet-stream 1.2497ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5110/_framework/resource-collection.vsShn.js - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5110/_framework/resource-collection.vsShn.js - 200 11933 application/javascript 1.1801ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5110/bff/me - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'HTTP: GET /bff/me'
+info: Microsoft.AspNetCore.Http.Result.JsonResult[3]
+      Writing value of type '<>f__AnonymousType0`2' as Json.
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'HTTP: GET /bff/me'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5110/bff/me - 200 - application/json;+charset=utf-8 8.8392ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5110/ - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint '/ (/)'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint '/ (/)'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5110/ - 200 - text/html;+charset=utf-8 8.4038ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5110/bff/me - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'HTTP: GET /bff/me'
+info: Microsoft.AspNetCore.Http.Result.JsonResult[3]
+      Writing value of type '<>f__AnonymousType0`2' as Json.
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'HTTP: GET /bff/me'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5110/bff/me - 200 - application/json;+charset=utf-8 1.8772ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 POST http://127.0.0.1:5110/agent - application/json;+charset=utf-8 241
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'HTTP: POST /agent => ForwardAsync'
+info: System.Net.Http.HttpClient.agent.LogicalHandler[100]
+      Start processing HTTP request POST http://127.0.0.1:5111/agent
+info: System.Net.Http.HttpClient.agent.ClientHandler[100]
+      Sending HTTP request POST http://127.0.0.1:5111/agent
+info: System.Net.Http.HttpClient.agent.ClientHandler[101]
+      Received HTTP response headers after 154.15ms - 200
+info: System.Net.Http.HttpClient.agent.LogicalHandler[101]
+      End processing HTTP request after 161.1009ms - 200
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'HTTP: POST /agent => ForwardAsync'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 POST http://127.0.0.1:5110/agent - 200 - text/event-stream 359.0679ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 POST http://127.0.0.1:5110/agent - application/json;+charset=utf-8 919
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'HTTP: POST /agent => ForwardAsync'
+info: System.Net.Http.HttpClient.agent.LogicalHandler[100]
+      Start processing HTTP request POST http://127.0.0.1:5111/agent
+info: System.Net.Http.HttpClient.agent.ClientHandler[100]
+      Sending HTTP request POST http://127.0.0.1:5111/agent
+info: System.Net.Http.HttpClient.agent.ClientHandler[101]
+      Received HTTP response headers after 168.6812ms - 200
+info: System.Net.Http.HttpClient.agent.LogicalHandler[101]
+      End processing HTTP request after 168.8447ms - 200
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'HTTP: POST /agent => ForwardAsync'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 POST http://127.0.0.1:5110/agent - 200 - text/event-stream 3083.2327ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 POST http://127.0.0.1:5110/agent - application/json;+charset=utf-8 975
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'HTTP: POST /agent => ForwardAsync'
+info: System.Net.Http.HttpClient.agent.LogicalHandler[100]
+      Start processing HTTP request POST http://127.0.0.1:5111/agent
+info: System.Net.Http.HttpClient.agent.ClientHandler[100]
+      Sending HTTP request POST http://127.0.0.1:5111/agent
+info: System.Net.Http.HttpClient.agent.ClientHandler[101]
+      Received HTTP response headers after 6.9802ms - 200
+info: System.Net.Http.HttpClient.agent.LogicalHandler[101]
+      End processing HTTP request after 7.1037ms - 200
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'HTTP: POST /agent => ForwardAsync'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 POST http://127.0.0.1:5110/agent - 200 - text/event-stream 27.5606ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 POST http://127.0.0.1:5110/agent - application/json;+charset=utf-8 1218
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'HTTP: POST /agent => ForwardAsync'
+info: System.Net.Http.HttpClient.agent.LogicalHandler[100]
+      Start processing HTTP request POST http://127.0.0.1:5111/agent
+info: System.Net.Http.HttpClient.agent.ClientHandler[100]
+      Sending HTTP request POST http://127.0.0.1:5111/agent
+info: System.Net.Http.HttpClient.agent.ClientHandler[101]
+      Received HTTP response headers after 18.0812ms - 200
+info: System.Net.Http.HttpClient.agent.LogicalHandler[101]
+      End processing HTTP request after 18.1825ms - 200
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'HTTP: POST /agent => ForwardAsync'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 POST http://127.0.0.1:5110/agent - 200 - text/event-stream 87.5739ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 POST http://127.0.0.1:5110/agent - application/json;+charset=utf-8 1650
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'HTTP: POST /agent => ForwardAsync'
+info: System.Net.Http.HttpClient.agent.LogicalHandler[100]
+      Start processing HTTP request POST http://127.0.0.1:5111/agent
+info: System.Net.Http.HttpClient.agent.ClientHandler[100]
+      Sending HTTP request POST http://127.0.0.1:5111/agent
+info: System.Net.Http.HttpClient.agent.ClientHandler[101]
+      Received HTTP response headers after 4.2152ms - 200
+info: System.Net.Http.HttpClient.agent.LogicalHandler[101]
+      End processing HTTP request after 4.3099ms - 200
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'HTTP: POST /agent => ForwardAsync'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 POST http://127.0.0.1:5110/agent - 200 - text/event-stream 5.5068ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 POST http://127.0.0.1:5110/agent - application/json;+charset=utf-8 1893
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'HTTP: POST /agent => ForwardAsync'
+info: System.Net.Http.HttpClient.agent.LogicalHandler[100]
+      Start processing HTTP request POST http://127.0.0.1:5111/agent
+info: System.Net.Http.HttpClient.agent.ClientHandler[100]
+      Sending HTTP request POST http://127.0.0.1:5111/agent
+info: System.Net.Http.HttpClient.agent.ClientHandler[101]
+      Received HTTP response headers after 4.7765ms - 200
+info: System.Net.Http.HttpClient.agent.LogicalHandler[101]
+      End processing HTTP request after 4.8648ms - 200
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'HTTP: POST /agent => ForwardAsync'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 POST http://127.0.0.1:5110/agent - 200 - text/event-stream 271.6976ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 POST http://127.0.0.1:5110/agent - application/json 2
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'HTTP: POST /agent => ForwardAsync'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'HTTP: POST /agent => ForwardAsync'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 POST http://127.0.0.1:5110/agent - 400 0 - 0.5804ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 POST http://127.0.0.1:5110/agent - application/json;+charset=utf-8 2466
+info: Microsoft.AspNetCore.Authorization.DefaultAuthorizationService[2]
+      Authorization failed. These requirements were not met:
+      DenyAnonymousAuthorizationRequirement: Requires an authenticated user.
+info: Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationHandler[12]
+      AuthenticationScheme: Cookies was challenged.
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 POST http://127.0.0.1:5110/agent - 401 0 - 0.6209ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5110/signin - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'HTTP: GET /signin'
+info: Microsoft.AspNetCore.Http.Result.ContentResult[2]
+      Write content with HTTP Response ContentType of text/html
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'HTTP: GET /signin'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5110/signin - 200 851 text/html 0.3160ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 POST http://127.0.0.1:5110/signin - application/x-www-form-urlencoded 9
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'HTTP: POST /signin'
+info: Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationHandler[10]
+      AuthenticationScheme: Cookies signed in.
+info: Microsoft.AspNetCore.Http.Result.RedirectResult[1]
+      Executing RedirectResult, redirecting to /.
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'HTTP: POST /signin'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 POST http://127.0.0.1:5110/signin - 302 0 - 1.0735ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5110/ - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint '/ (/)'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint '/ (/)'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5110/ - 200 - text/html;+charset=utf-8 12.8684ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5110/bff/me - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'HTTP: GET /bff/me'
+info: Microsoft.AspNetCore.Http.Result.JsonResult[3]
+      Writing value of type '<>f__AnonymousType0`2' as Json.
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'HTTP: GET /bff/me'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5110/bff/me - 200 - application/json;+charset=utf-8 0.6925ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 POST http://127.0.0.1:5110/agent - application/json;+charset=utf-8 238
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'HTTP: POST /agent => ForwardAsync'
+info: System.Net.Http.HttpClient.agent.LogicalHandler[100]
+      Start processing HTTP request POST http://127.0.0.1:5111/agent
+info: System.Net.Http.HttpClient.agent.ClientHandler[100]
+      Sending HTTP request POST http://127.0.0.1:5111/agent
+info: System.Net.Http.HttpClient.agent.ClientHandler[101]
+      Received HTTP response headers after 2.3115ms - 200
+info: System.Net.Http.HttpClient.agent.LogicalHandler[101]
+      End processing HTTP request after 2.5328ms - 200
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'HTTP: POST /agent => ForwardAsync'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 POST http://127.0.0.1:5110/agent - 200 - text/event-stream 4.0131ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 POST http://127.0.0.1:5110/agent - application/json;+charset=utf-8 481
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'HTTP: POST /agent => ForwardAsync'
+info: System.Net.Http.HttpClient.agent.LogicalHandler[100]
+      Start processing HTTP request POST http://127.0.0.1:5111/agent
+info: System.Net.Http.HttpClient.agent.ClientHandler[100]
+      Sending HTTP request POST http://127.0.0.1:5111/agent
+info: System.Net.Http.HttpClient.agent.ClientHandler[101]
+      Received HTTP response headers after 1.6714ms - 200
+info: System.Net.Http.HttpClient.agent.LogicalHandler[101]
+      End processing HTTP request after 1.7685ms - 200
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'HTTP: POST /agent => ForwardAsync'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 POST http://127.0.0.1:5110/agent - 200 - text/event-stream 64.4031ms
+info: Microsoft.Hosting.Lifetime[0]
+      Application is shutting down...

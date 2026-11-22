@@ -1,0 +1,16 @@
+== 2. build
+    0 Error(s)
+    0 Warning(s)
+Build succeeded.
+ > AGUI.Abstractions 1.0.1 
+ > AGUI.Client 1.0.1 1.0.1 
+ > AGUI.Formatting 1.0.1 
+ > AGUI.Server 1.0.1 
+ > Microsoft.AspNetCore.Authentication.JwtBearer 11.0.0 
+ > Microsoft.AspNetCore.Components.AI 0.1.0-preview.1.26466.103
+ > Microsoft.AspNetCore.Components.WebAssembly 11.0.0 
+ > Microsoft.AspNetCore.Components.WebAssembly.Server 11.0.0 
+ > Microsoft.AspNetCore.Mvc.Testing 11.0.0 11.0.0 
+ > Microsoft.Extensions.AI 11.0.0 
+ > Microsoft.IdentityModel.JsonWebTokens 8.19.2 
+ > xunit 2.9.3 2.9.3 

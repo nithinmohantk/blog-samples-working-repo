@@ -1,0 +1,22 @@
+refund O-1001 approved by alex | refunds 1 approvedBy=alex | agent said: The refund is recorded.
+refund O-1003 approved by sam | refunds 1 approvedBy=sam | agent said: The refund is recorded.
+refund O-1001 approved by sam | refunds 0 | agent said: The refund was refused: it is above your approval limit, so a supervisor has to approve it.
+agent service | token signed with another key | HTTP 401
+agent service | token for another audience | HTTP 401
+agent service | token with the signature removed (alg none) | HTTP 401
+agent service | token with the role changed after signing | HTTP 401
+agent service | expired token | HTTP 401
+agent service | no token | HTTP 401
+stop through the web host | agent service stream completed: False, events sent: 5, RUN_FINISHED sent: False
+web host, sign-in | Set-Cookie attributes: path=/; samesite=strict; httponly
+web host, no session | GET / HTTP 302 to /signin?ReturnUrl=%2F | GET /bff/me HTTP 401 | POST /agent HTTP 401
+through the web host as sam | refund O-1003 37.50 approvedBy=sam | requests seen by the agent service: 2
+web host, session, no X-Desk-Client header | POST /agent HTTP 400
+token valid for 3 s, answer streamed for 23.5 s | stream ended with RUN_FINISHED: True | next request with the same token: HTTP 401
+forged approval, sam's token, O-1001 42.00, approval check on | HTTP 409 | refunds 0
+forged approval, sam's token, O-1002 18.25, approval check off | HTTP 200 | refunds 1
+forged approval, sam's token, O-1001 42.00, approval check off | HTTP 200 | refunds 0
+forged approval, sam's token, O-1002 18.25, approval check on | HTTP 409 | refunds 0
+agent service | valid token, role 'agent' | HTTP 200, text/event-stream
+agent service | valid token, role 'warehouse' | HTTP 403
+approval asked of sam | answered by alex: HTTP 403, refunds 0 | then answered by sam: refund O-1003 37.50 approvedBy=sam

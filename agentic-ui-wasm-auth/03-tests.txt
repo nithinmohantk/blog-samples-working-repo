@@ -1,0 +1,66 @@
+== 3. tests: the agent service with tokens, then the web host in front of it
+      Failed to validate the token.
+      Microsoft.IdentityModel.Tokens.SecurityTokenSignatureKeyNotFoundException: IDX10517: Signature validation failed. The token's kid is missing. Keys tried: 'Microsoft.IdentityModel.Tokens.SymmetricSecurityKey, KeyId: '', InternalId: 'SBIeoxSABKfPpSDJEyJ_ENPhLIraVZ2XK5CD_NWrjLs'. , KeyId: \n'.
+      Exceptions caught:
+      Exceptions caught:
+      Failed to validate the token.
+      Microsoft.IdentityModel.Tokens.SecurityTokenInvalidAudienceException: IDX10214: Audience validation failed. See https://aka.ms/identitymodel/app-context-switches
+      Failed to validate the token.
+      Microsoft.IdentityModel.Tokens.SecurityTokenInvalidSignatureException: IDX10504: Unable to validate signature, token does not have a signature: '[PII of type 'Microsoft.IdentityModel.Logging.SecurityArtifact' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+      Failed to validate the token.
+      Microsoft.IdentityModel.Tokens.SecurityTokenSignatureKeyNotFoundException: IDX10517: Signature validation failed. The token's kid is missing. Keys tried: 'Microsoft.IdentityModel.Tokens.SymmetricSecurityKey, KeyId: '', InternalId: 'SBIeoxSABKfPpSDJEyJ_ENPhLIraVZ2XK5CD_NWrjLs'. , KeyId: \n'.
+      Exceptions caught:
+      Exceptions caught:
+      Failed to validate the token.
+      Microsoft.IdentityModel.Tokens.SecurityTokenExpiredException: IDX10223: Lifetime validation failed. The token is expired. ValidTo (UTC): '11/22/2026 08:25:13', Current time (UTC): '11/22/2026 08:33:13'.
+  Passed Desk.Tests.AgentAuthTests.The_refund_tool_applies_the_limit_of_the_person_who_approved(who: "alex", order: "O-1001", refunds: 1) [1 s]
+  Passed Desk.Tests.AgentAuthTests.The_refund_tool_applies_the_limit_of_the_person_who_approved(who: "sam", order: "O-1003", refunds: 1) [37 ms]
+  Passed Desk.Tests.AgentAuthTests.The_refund_tool_applies_the_limit_of_the_person_who_approved(who: "sam", order: "O-1001", refunds: 0) [28 ms]
+  Passed Desk.Tests.AgentAuthTests.A_request_without_a_valid_token_is_401(kind: "token signed with another key") [32 ms]
+  Passed Desk.Tests.AgentAuthTests.A_request_without_a_valid_token_is_401(kind: "token for another audience") [30 ms]
+  Passed Desk.Tests.AgentAuthTests.A_request_without_a_valid_token_is_401(kind: "token with the signature removed (alg none)") [17 ms]
+  Passed Desk.Tests.AgentAuthTests.A_request_without_a_valid_token_is_401(kind: "token with the role changed after signing") [11 ms]
+  Passed Desk.Tests.AgentAuthTests.A_request_without_a_valid_token_is_401(kind: "expired token") [11 ms]
+  Passed Desk.Tests.AgentAuthTests.A_request_without_a_valid_token_is_401(kind: "no token") [10 ms]
+  Passed Desk.Tests.BffTests.Stopping_in_the_browser_ends_the_run_on_the_agent_service [2 s]
+  Passed Desk.Tests.BffTests.The_session_cookie_is_HttpOnly_and_SameSite_Strict [218 ms]
+  Passed Desk.Tests.BffTests.Without_a_session_the_page_redirects_to_sign_in_and_the_endpoint_answers_401 [160 ms]
+  Passed Desk.Tests.BffTests.With_a_session_the_stream_comes_through_and_the_refund_is_recorded_against_the_person [183 ms]
+  Passed Desk.Tests.BffTests.An_unknown_user_cannot_sign_in [237 ms]
+  Passed Desk.Tests.BffTests.With_a_session_but_without_the_client_header_the_request_is_refused [256 ms]
+      Failed to validate the token.
+      Microsoft.IdentityModel.Tokens.SecurityTokenExpiredException: IDX10223: Lifetime validation failed. The token is expired. ValidTo (UTC): '11/22/2026 08:33:16', Current time (UTC): '11/22/2026 08:33:36'.
+  Passed Desk.Tests.AgentAuthTests.A_stream_that_started_with_a_valid_token_continues_after_the_token_expires [23 s]
+  Passed Desk.Tests.AgentAuthTests.A_forged_approval_with_a_real_token(verify: True, order: "O-1001", euros: "42.00", status: Conflict, refunds: 0) [57 ms]
+  Passed Desk.Tests.AgentAuthTests.A_forged_approval_with_a_real_token(verify: False, order: "O-1002", euros: "18.25", status: OK, refunds: 1) [56 ms]
+  Passed Desk.Tests.AgentAuthTests.A_forged_approval_with_a_real_token(verify: False, order: "O-1001", euros: "42.00", status: OK, refunds: 0) [49 ms]
+  Passed Desk.Tests.AgentAuthTests.A_forged_approval_with_a_real_token(verify: True, order: "O-1002", euros: "18.25", status: Conflict, refunds: 0) [31 ms]
+  Passed Desk.Tests.AgentAuthTests.A_valid_token_gets_the_event_stream [41 ms]
+  Passed Desk.Tests.AgentAuthTests.A_valid_token_without_a_desk_role_is_403 [24 ms]
+  Passed Desk.Tests.AgentAuthTests.An_approval_asked_of_Sam_cannot_be_answered_by_Alex_and_is_not_used_up_by_the_attempt [54 ms]
+Test Run Successful.
+Total tests: 23
+     Passed: 23
+-- what the tests recorded
+agent service | expired token | HTTP 401
+agent service | no token | HTTP 401
+agent service | token for another audience | HTTP 401
+agent service | token signed with another key | HTTP 401
+agent service | token with the role changed after signing | HTTP 401
+agent service | token with the signature removed (alg none) | HTTP 401
+agent service | valid token, role 'agent' | HTTP 200, text/event-stream
+agent service | valid token, role 'warehouse' | HTTP 403
+approval asked of sam | answered by alex: HTTP 403, refunds 0 | then answered by sam: refund O-1003 37.50 approvedBy=sam
+forged approval, sam's token, O-1001 42.00, approval check off | HTTP 200 | refunds 0
+forged approval, sam's token, O-1001 42.00, approval check on | HTTP 409 | refunds 0
+forged approval, sam's token, O-1002 18.25, approval check off | HTTP 200 | refunds 1
+forged approval, sam's token, O-1002 18.25, approval check on | HTTP 409 | refunds 0
+refund O-1001 approved by alex | refunds 1 approvedBy=alex | agent said: The refund is recorded.
+refund O-1001 approved by sam | refunds 0 | agent said: The refund was refused: it is above your approval limit, so a supervisor has to approve it.
+refund O-1003 approved by sam | refunds 1 approvedBy=sam | agent said: The refund is recorded.
+stop through the web host | agent service stream completed: False, events sent: 5, RUN_FINISHED sent: False
+through the web host as sam | refund O-1003 37.50 approvedBy=sam | requests seen by the agent service: 2
+token valid for 3 s, answer streamed for 23.5 s | stream ended with RUN_FINISHED: True | next request with the same token: HTTP 401
+web host, no session | GET / HTTP 302 to /signin?ReturnUrl=%2F | GET /bff/me HTTP 401 | POST /agent HTTP 401
+web host, session, no X-Desk-Client header | POST /agent HTTP 400
+web host, sign-in | Set-Cookie attributes: path=/; samesite=strict; httponly

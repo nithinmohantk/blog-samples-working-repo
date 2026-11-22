@@ -1,0 +1,19 @@
+== 4. publish, as it would be deployed: the WebAssembly app is trimmed and compressed
+  Desk.Bff -> <publish>/bff/
+  Desk.Bff -> src/Desk.Bff/bin/Release/net11.0/Desk.Bff.dll
+  Desk.Client (Blazor output) -> src/Desk.Client/bin/Release/net11.0/wwwroot
+  Desk.Client -> src/Desk.Client/bin/Release/net11.0/Desk.Client.dll
+  Desk.Core -> src/Desk.Core/bin/Release/net11.0/Desk.Core.dll
+_framework: 68 files, 13.78 MiB as built, 3.81 MiB as Brotli, 4.87 MiB as gzip
+       980 KiB  dotnet.native.mjledzavap.wasm.br
+       627 KiB  System.Private.CoreLib.7f833i9i73.wasm.br
+       254 KiB  icudt_CJK.5lgyv9xn0b.dat.br
+       233 KiB  icudt_no_CJK.h0en30vv0c.dat.br
+       231 KiB  blazor.web.js.map.br
+       174 KiB  blazor.server.js.map.br
+       156 KiB  System.Text.Json.t4kgk3m2p5.wasm.br
+       151 KiB  icudt_EFIGS.xyuimhy3ww.dat.br
+-- what ships to the browser: application and protocol assemblies under _framework
+AGUI.Abstractions.wasm AGUI.Client.wasm AGUI.Formatting.wasm Desk.Client.wasm Microsoft.AspNetCore.Components.AI.wasm Microsoft.Extensions.AI.Abstractions.wasm Microsoft.Extensions.AI.wasm 
+server-only code in the browser bundle (Desk.Core, Desk.Agent, Desk.Bff): 0
+files under wwwroot that contain the lab signing key: 0

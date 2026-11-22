@@ -1,0 +1,68 @@
+[
+ {
+  "step": "no session: the app is not served",
+  "ok": true,
+  "seconds": 0.11,
+  "detail": "an address without a session ends at /signin?ReturnUrl=%2F"
+ },
+ {
+  "step": "first load of the WebAssembly app",
+  "ok": true,
+  "seconds": 2.23,
+  "detail": "chat usable 1.7 s after the click, empty cache; 68 responses, 3002 KiB over the wire, of which 64 files and 2994 KiB under /_framework/ (content-encoding: br, gzip)"
+ },
+ {
+  "step": "second load",
+  "ok": true,
+  "seconds": 1.69,
+  "detail": "reload: chat usable after 1.2 s; 68 responses, 59 from the browser cache, 5 KiB over the wire"
+ },
+ {
+  "step": "order card from a backend tool",
+  "ok": true,
+  "seconds": 0.51,
+  "detail": "O-1001 | Synthetic kettle | Customer | Test Customer One | Total | 42.00 EUR | Status | delivered | Carrier | Example Post"
+ },
+ {
+  "step": "the answer streams in the browser, and Stop reaches the agent service",
+  "ok": true,
+  "seconds": 4.67,
+  "detail": "words of the answer on the page at 0.6 s intervals: [7, 11, 15, 19, 23]; after Stop the agent service stream ended early after 22 events, no RUN_FINISHED"
+ },
+ {
+  "step": "Sam approves a refund inside the limit",
+  "ok": true,
+  "seconds": 0.34,
+  "detail": "refunds: [('O-1003', 37.5, 'sam')]"
+ },
+ {
+  "step": "Sam approves a refund above the limit",
+  "ok": true,
+  "seconds": 0.78,
+  "detail": "Sam clicked Approve on 42.00; refunds still 1; the agent said it needs a supervisor"
+ },
+ {
+  "step": "nothing in the browser to steal",
+  "ok": true,
+  "seconds": 0.01,
+  "detail": "document.cookie is empty; session cookie httpOnly=True sameSite=Strict; requests carrying an Authorization header: 0; hosts the browser talked to: ['127.0.0.1:5110']"
+ },
+ {
+  "step": "the cross-site check",
+  "ok": true,
+  "seconds": 0.01,
+  "detail": "a POST from the page without X-Desk-Client: HTTP 400"
+ },
+ {
+  "step": "the session ends in the middle of a conversation",
+  "ok": true,
+  "seconds": 0.13,
+  "detail": "with the cookie gone, the next question ended at /signin; the conversation on the page is lost"
+ },
+ {
+  "step": "Alex approves the refund Sam could not",
+  "ok": true,
+  "seconds": 2.06,
+  "detail": "refunds: [('O-1003', 37.5, 'sam'), ('O-1001', 42.0, 'alex')]"
+ }
+]

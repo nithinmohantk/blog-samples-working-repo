@@ -1,0 +1,23 @@
+== 5. browser: Chromium against the published web host and the agent service
+playwright 1.65.2
+-- with curl: no session, then the agent service called directly without a token
+GET  web host /            HTTP 302 -> http://127.0.0.1:5110/signin?ReturnUrl=%2F
+POST web host /agent       HTTP 401
+POST agent service /agent  HTTP 401
+GET  web host /_framework/blazor.web.js  HTTP 200, 58019 bytes, no session needed
+-- browser steps
+ok   no session: the app is not served: an address without a session ends at /signin?ReturnUrl=%2F
+ok   first load of the WebAssembly app: chat usable 1.7 s after the click, empty cache; 68 responses, 3002 KiB over the wire, of which 64 files and 2994 KiB under /_framework/ (content-encoding: br, gzip)
+ok   second load: reload: chat usable after 1.2 s; 68 responses, 59 from the browser cache, 5 KiB over the wire
+ok   order card from a backend tool: O-1001 | Synthetic kettle | Customer | Test Customer One | Total | 42.00 EUR | Status | delivered | Carrier | Example Post
+ok   the answer streams in the browser, and Stop reaches the agent service: words of the answer on the page at 0.6 s intervals: [7, 11, 15, 19, 23]; after Stop the agent service stream ended early after 22 events, no RUN_FINISHED
+ok   Sam approves a refund inside the limit: refunds: [('O-1003', 37.5, 'sam')]
+ok   Sam approves a refund above the limit: Sam clicked Approve on 42.00; refunds still 1; the agent said it needs a supervisor
+ok   nothing in the browser to steal: document.cookie is empty; session cookie httpOnly=True sameSite=Strict; requests carrying an Authorization header: 0; hosts the browser talked to: ['127.0.0.1:5110']
+ok   the cross-site check: a POST from the page without X-Desk-Client: HTTP 400
+ok   the session ends in the middle of a conversation: with the cookie gone, the next question ended at /signin; the conversation on the page is lost
+ok   Alex approves the refund Sam could not: refunds: [('O-1003', 37.5, 'sam'), ('O-1001', 42.0, 'alex')]
+11 of 11 browser steps passed
+-- browser console, errors and warnings
+error: Failed to load resource: the server responded with a status of 400 (Bad Request)
+error: Failed to load resource: the server responded with a status of 401 (Unauthorized)
