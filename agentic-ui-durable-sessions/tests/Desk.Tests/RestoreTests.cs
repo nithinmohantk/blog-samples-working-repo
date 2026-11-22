@@ -328,7 +328,7 @@ public sealed class RestoreTests : IDisposable
 
         Trace.Line("restore-results.txt", $"7c Stop, then a new question | turns on the page: {live.Turns.Count} (the stopped one is still shown: {onThePage == 1}) | messages sent with the new question: {sent} | turns after a reload: {restored.Turns.Count}");
         Assert.Equal(1, sent);
-        Assert.Equal(1, restored.Turns.Count);
+        Assert.Single(restored.Turns);
         session.Dispose();
         reloaded.Dispose();
     }
