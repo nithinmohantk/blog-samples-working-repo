@@ -265,6 +265,47 @@ public sealed class RestoreTests : IDisposable
         reloaded.Dispose();
     }
 
+    [Theory]
+    [InlineData(false, "the page goes away")]
+    [InlineData(true, "the page goes away")]
+    [InlineData(false, "the user presses Stop")]
+    [InlineData(true, "the user presses Stop")]
+    public async Task What_is_on_disk_when_an_answer_does_not_finish(bool recordWhileStreaming, string ending)
+    {
+        _agent.Dispose();
+        (_agent, _chat) = StartAgent(durableApprovals: true);
+        string thread = NewThread();
+        DeskSession session = DeskSession.Open(_chat, _store, thread, NullLoggerFactory.Instance, recordWhileStreaming: recordWhileStreaming);
+        AgentContext live = new(session.Agent);
+
+        // "policy" makes the scripted model answer slowly: 156 words, one every 150 ms.
+        Task send = live.SendMessageAsync("Explain the refund policy", default);
+        await Task.Delay(1500);
+        long during = _store.Size(thread).Rows;
+
+        if (ending == "the user presses Stop")
+        {
+            await live.CancelAsync();
+        }
+        else
+        {
+            session.Dispose();
+        }
+
+        await Quietly(send);
+        await Task.Delay(300);
+        long afterwards = _store.Size(thread).Rows;
+        bool endMark = _store.Load(thread).Any(row => row.Kind == JournalStore.TurnDone);
+
+        (DeskSession reloaded, AgentContext restored) = Open(thread);
+        await restored.RestoreAsync(default);
+        string last = Blocks(restored).LastOrDefault() ?? "nothing";
+
+        Trace.Line("restore-results.txt", $"7b {ending} 1.5 s into an answer, recorder {(recordWhileStreaming ? "on " : "off")} | journal rows while streaming: {during} | afterwards: {afterwards}, end mark: {endMark} | a reload shows {restored.Turns.Count} turns, ended mid-turn: {reloaded.Thread.EndedMidTurn}, last block: {(last.Length > 60 ? last[..60] + "..." : last)}");
+        Assert.Equal(recordWhileStreaming, during > 0);
+        reloaded.Dispose();
+    }
+
     [Fact]
     public async Task What_a_long_conversation_costs()
     {

@@ -7,9 +7,9 @@ using Microsoft.Extensions.AI;
 namespace Desk.Web.Conversations;
 
 /// <summary>
-/// The conversation as the UI agent sees it, kept in a journal. The agent calls this as things
-/// happen: the user's message, every update of the answer, the end of the turn. Each call is
-/// written at once, so a page that goes away in the middle of an answer leaves what it had.
+/// The conversation as the UI agent sees it, kept in a journal. A finished turn is stored in one
+/// transaction. A turn that is still arriving is stored as it arrives by <see cref="TurnRecorder"/>,
+/// so a page that goes away in the middle of an answer leaves what it had.
 /// A new instance for the same thread reads the journal back, and the agent can restore from it.
 /// </summary>
 public sealed class JournalThread : IConversationThread
@@ -20,11 +20,11 @@ public sealed class JournalThread : IConversationThread
     private readonly JournalStore _store;
     private readonly bool _compact;
     private readonly List<ChatResponseUpdate> _updates = [];
+    private readonly List<ChatResponseUpdate> _turn = [];
     private readonly HashSet<string> _restoredApprovals = new(StringComparer.Ordinal);
     private readonly HashSet<string> _answeredApprovals = new(StringComparer.Ordinal);
     private long _nextSeq;
-    private long _turnStartSeq;
-    private int _turnStartIndex;
+    private long _liveSeq;
 
     public JournalThread(JournalStore store, string threadId, bool compact = true, bool repairToolResults = true)
     {
@@ -46,6 +46,7 @@ public sealed class JournalThread : IConversationThread
         }
 
         _nextSeq = rows.Count == 0 ? 0 : rows[^1].Seq + 1;
+        _liveSeq = _nextSeq;
         RestoredUpdates = _updates.Count;
         EndedMidTurn = rows.Count > 0 && rows[^1].Kind != JournalStore.TurnDone;
     }
@@ -75,13 +76,16 @@ public sealed class JournalThread : IConversationThread
         }
     }
 
+    // The UI agent tells the thread about a turn only when the turn is over: the user's message, every
+    // update and the end mark arrive together. These three methods collect the turn and store it in one
+    // transaction, replacing whatever the recorder wrote while the answer was arriving.
+
     public void AppendUserMessage(ChatMessage message)
     {
         lock (_gate)
         {
-            _turnStartSeq = _nextSeq;
-            _turnStartIndex = _updates.Count;
-            Write(new ChatResponseUpdate(message.Role, [.. message.Contents]) { MessageId = message.MessageId ?? Guid.NewGuid().ToString("N") });
+            _turn.Clear();
+            _turn.Add(AsUpdate(message));
         }
     }
 
@@ -89,7 +93,7 @@ public sealed class JournalThread : IConversationThread
     {
         lock (_gate)
         {
-            Write(update);
+            _turn.Add(update);
         }
     }
 
@@ -97,12 +101,20 @@ public sealed class JournalThread : IConversationThread
     {
         lock (_gate)
         {
-            if (_compact)
+            List<ChatResponseUpdate> final = _compact ? Compact(_turn) : [.. _turn];
+            List<JournalRow> rows = [.. final.Select((update, i) => new JournalRow(_nextSeq + i, JournalStore.Update, JsonSerializer.Serialize(update, s_json)))];
+            rows.Add(new JournalRow(_nextSeq + final.Count, JournalStore.TurnDone, null));
+            _store.Rewrite(ThreadId, _nextSeq, rows);
+
+            foreach (ChatResponseUpdate update in final)
             {
-                Compact();
+                _updates.Add(update);
+                Note(update, restored: false);
             }
 
-            _store.Append(ThreadId, new JournalRow(_nextSeq++, JournalStore.TurnDone, null));
+            _nextSeq += rows.Count;
+            _liveSeq = _nextSeq;
+            _turn.Clear();
         }
     }
 
@@ -114,12 +126,29 @@ public sealed class JournalThread : IConversationThread
         }
     }
 
-    private void Write(ChatResponseUpdate update)
+    // What the recorder calls while an answer is arriving. These rows are provisional: they are what a
+    // reload finds if the turn never ends, and they are replaced when it does.
+
+    public void LiveStart(ChatMessage message)
     {
-        _updates.Add(update);
-        Note(update, restored: false);
-        _store.Append(ThreadId, new JournalRow(_nextSeq++, JournalStore.Update, JsonSerializer.Serialize(update, s_json)));
+        lock (_gate)
+        {
+            _liveSeq = _nextSeq;
+            _store.Rewrite(ThreadId, _liveSeq, [new JournalRow(_liveSeq, JournalStore.Update, JsonSerializer.Serialize(AsUpdate(message), s_json))]);
+            _liveSeq++;
+        }
     }
+
+    public void Live(ChatResponseUpdate update)
+    {
+        lock (_gate)
+        {
+            _store.Append(ThreadId, new JournalRow(_liveSeq++, JournalStore.Update, JsonSerializer.Serialize(update, s_json)));
+        }
+    }
+
+    private static ChatResponseUpdate AsUpdate(ChatMessage message)
+        => new(message.Role, [.. message.Contents]) { MessageId = message.MessageId ?? Guid.NewGuid().ToString("N") };
 
     private void Note(ChatResponseUpdate update, bool restored)
     {
@@ -140,9 +169,8 @@ public sealed class JournalThread : IConversationThread
     /// An answer arrives a word at a time, one update per word. Once the turn is over, the words of one
     /// message are stored as one update. What the agent restores from it is the same.
     /// </summary>
-    private void Compact()
+    private static List<ChatResponseUpdate> Compact(List<ChatResponseUpdate> turn)
     {
-        List<ChatResponseUpdate> turn = _updates[_turnStartIndex..];
         List<ChatResponseUpdate> merged = [];
         StringBuilder? text = null;
         foreach (ChatResponseUpdate update in turn)
@@ -160,15 +188,7 @@ public sealed class JournalThread : IConversationThread
         }
 
         Flush();
-        if (merged.Count == turn.Count)
-        {
-            return;
-        }
-
-        _updates.RemoveRange(_turnStartIndex, turn.Count);
-        _updates.AddRange(merged);
-        _nextSeq = _turnStartSeq + merged.Count;
-        _store.Rewrite(ThreadId, _turnStartSeq, [.. merged.Select((update, i) => new JournalRow(_turnStartSeq + i, JournalStore.Update, JsonSerializer.Serialize(update, s_json)))]);
+        return merged;
 
         void Flush()
         {

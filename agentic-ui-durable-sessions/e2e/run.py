@@ -51,6 +51,17 @@ def ledger() -> dict:
         return json.load(response)
 
 
+def refunded(orders: list[str]) -> dict:
+    """Waits until the payment stand-in holds exactly these refunds, and returns what it holds."""
+    state: dict = {}
+    for _ in range(100):
+        state = ledger()
+        if [r["orderId"] for r in state["refunds"]] == orders:
+            return state
+        time.sleep(0.2)
+    raise AssertionError(state)
+
+
 def wire() -> list[dict]:
     with open(os.path.join(OUT, "e2e-wire.jsonl"), encoding="utf-8") as handle:
         return [json.loads(line) for line in handle if line.strip()]
@@ -65,8 +76,9 @@ def ask(page: Page, text: str) -> None:
 
 def reload(page: Page) -> None:
     page.reload()
+    page.wait_for_selector("[data-restored]", state="attached", timeout=20000)
     expect(page.locator(BOX)).to_be_visible(timeout=20000)
-    page.wait_for_timeout(700)
+    page.wait_for_timeout(300)
 
 
 current_page: list[Page] = []
@@ -168,9 +180,8 @@ def main() -> int:
             reload(page)
             restored = page.locator(".desk-restored-approval").last
             restored.get_by_role("button", name="Approve").click()
-            expect(page.get_by_text("The refund is recorded.").last).to_be_visible(timeout=20000)
-            state = ledger()
-            assert [r["orderId"] for r in state["refunds"]] == ["O-1003", "O-1002"], state
+            state = refunded(["O-1003", "O-1002"])
+            expect(page.get_by_text("The refund is recorded.")).to_have_count(2, timeout=20000)
             return f"the agent service was stopped and started while the approval waited; refunds after Approve: {[r['orderId'] for r in state['refunds']]}"
 
         def two_tabs():
@@ -179,10 +190,11 @@ def main() -> int:
             expect(first).to_be_visible(timeout=20000)
             other = context.new_page()
             other.goto(page.url)
+            other.wait_for_selector("[data-restored]", state="attached", timeout=20000)
             copy = other.locator(".desk-restored-approval").last.get_by_role("button", name="Approve")
             expect(copy).to_be_visible(timeout=20000)
             copy.click()
-            expect(other.get_by_text("The refund is recorded.").last).to_be_visible(timeout=20000)
+            refunded(["O-1003", "O-1002", "O-1001"])
             first.click()
             expect(page.locator(".desk__error")).to_be_visible(timeout=20000)
             page.locator(".desk__error").scroll_into_view_if_needed()

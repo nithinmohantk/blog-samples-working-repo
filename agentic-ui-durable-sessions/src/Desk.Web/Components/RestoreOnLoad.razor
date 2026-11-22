@@ -10,8 +10,14 @@ else if (Thread.EndedMidTurn)
     <p class="desk__notice" role="status">The last answer was interrupted before it finished. What arrived is shown.</p>
 }
 
+@if (_done)
+{
+    <span data-restored="@Thread.RestoredUpdates" hidden></span>
+}
+
 @code {
     private bool _failed;
+    private bool _done;
 
     [CascadingParameter]
     public AgentContext AgentContext { get; set; } = default!;
@@ -21,14 +27,12 @@ else if (Thread.EndedMidTurn)
 
     protected override async Task OnInitializedAsync()
     {
-        if (Thread.RestoredUpdates == 0)
-        {
-            return;
-        }
-
         try
         {
-            await AgentContext.RestoreAsync(CancellationToken.None);
+            if (Thread.RestoredUpdates > 0)
+            {
+                await AgentContext.RestoreAsync(CancellationToken.None);
+            }
         }
         catch (Exception error)
         {
@@ -36,5 +40,7 @@ else if (Thread.EndedMidTurn)
             Logger.LogError(error, "Conversation {Thread} could not be restored", Thread.ThreadId);
             _failed = true;
         }
+
+        _done = true;
     }
 }

@@ -29,9 +29,14 @@ public sealed class DeskSession : IDisposable
 
     public JournalThread Thread { get; }
 
-    public static DeskSession Open(IChatClient chat, JournalStore store, string threadId, ILoggerFactory loggers, bool compact = true, bool repairToolResults = true)
+    public static DeskSession Open(IChatClient chat, JournalStore store, string threadId, ILoggerFactory loggers, bool compact = true, bool repairToolResults = true, bool recordWhileStreaming = true)
     {
         JournalThread thread = new(store, threadId, compact, repairToolResults);
+        if (recordWhileStreaming)
+        {
+            chat = new TurnRecorder(chat, thread);
+        }
+
 
         // The shared state is not part of what the agent restores, so it is stored next to the journal.
         CaseState state = store.LoadState(threadId) is { } saved ? JsonSerializer.Deserialize<CaseState>(saved, s_json)! : new CaseState();
