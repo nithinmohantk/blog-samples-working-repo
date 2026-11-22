@@ -309,7 +309,7 @@ public sealed class RestoreTests : IDisposable
     }
 
     [Fact]
-    public async Task A_stopped_answer_is_not_part_of_the_conversation_afterwards()
+    public async Task A_stopped_answer_stays_in_the_conversation()
     {
         string thread = NewThread();
         (DeskSession session, AgentContext live) = Open(thread);
@@ -321,14 +321,14 @@ public sealed class RestoreTests : IDisposable
         int requests = Wire.Entries.Count;
 
         await live.SendMessageAsync("Where is order O-1002?", default);
-        int sent = Wire.Entries[^1].Request["messages"]!.AsArray().Count;
+        string sent = string.Join(", ", Wire.Entries[^1].Request["messages"]!.AsArray().Select(message => message!["role"]));
 
         (DeskSession reloaded, AgentContext restored) = Open(thread);
         await restored.RestoreAsync(default);
 
-        Trace.Line("restore-results.txt", $"7c Stop, then a new question | turns on the page: {live.Turns.Count} (the stopped one is still shown: {onThePage == 1}) | messages sent with the new question: {sent} | turns after a reload: {restored.Turns.Count}");
-        Assert.Equal(1, sent);
-        Assert.Single(restored.Turns);
+        Trace.Line("restore-results.txt", $"7c Stop, then a new question | turns on the page: {live.Turns.Count} | roles sent with the new question: [{sent}] | turns after a reload: {restored.Turns.Count}, blocks: {string.Join(" / ", Blocks(restored).Select(b => b.Length > 45 ? b[..45] + "..." : b))}");
+        Assert.Equal(2, onThePage + 1);
+        Assert.Equal(2, restored.Turns.Count);
         session.Dispose();
         reloaded.Dispose();
     }

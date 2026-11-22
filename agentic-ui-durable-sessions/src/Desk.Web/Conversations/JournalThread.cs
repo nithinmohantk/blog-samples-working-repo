@@ -21,6 +21,7 @@ public sealed class JournalThread : IConversationThread
     private readonly bool _compact;
     private readonly List<ChatResponseUpdate> _updates = [];
     private readonly List<ChatResponseUpdate> _turn = [];
+    private readonly List<ChatResponseUpdate> _live = [];
     private readonly HashSet<string> _restoredApprovals = new(StringComparer.Ordinal);
     private readonly HashSet<string> _answeredApprovals = new(StringComparer.Ordinal);
     private long _nextSeq;
@@ -115,6 +116,7 @@ public sealed class JournalThread : IConversationThread
             _nextSeq += rows.Count;
             _liveSeq = _nextSeq;
             _turn.Clear();
+            _live.Clear();
         }
     }
 
@@ -133,9 +135,12 @@ public sealed class JournalThread : IConversationThread
     {
         lock (_gate)
         {
-            _liveSeq = _nextSeq;
-            _store.Rewrite(ThreadId, _liveSeq, [new JournalRow(_liveSeq, JournalStore.Update, JsonSerializer.Serialize(AsUpdate(message), s_json))]);
-            _liveSeq++;
+            // A turn that was stopped never reaches CompleteTurn, yet the agent keeps the question in the
+            // history it sends next. Its provisional rows therefore stay, as part of the conversation.
+            _updates.AddRange(_live);
+            _live.Clear();
+            _nextSeq = _liveSeq;
+            Live(AsUpdate(message));
         }
     }
 
@@ -143,6 +148,7 @@ public sealed class JournalThread : IConversationThread
     {
         lock (_gate)
         {
+            _live.Add(update);
             _store.Append(ThreadId, new JournalRow(_liveSeq++, JournalStore.Update, JsonSerializer.Serialize(update, s_json)));
         }
     }
