@@ -1,0 +1,12 @@
+== 1. versions
+11.0.100
+Linux 7.0.0-1020-azure x86_64
+ > AGUI.Abstractions 1.0.1 
+ > AGUI.Client 1.0.1 1.0.1 
+ > AGUI.Formatting 1.0.1 
+ > AGUI.Server 1.0.1 
+ > Microsoft.Extensions.AI 11.0.0 
+ > Microsoft.Extensions.AI.Abstractions 11.0.0 
+ > Microsoft.Extensions.AI.OpenAI 11.0.0 
+ > OpenAI 2.14.0 
+ > System.ClientModel 1.15.0 

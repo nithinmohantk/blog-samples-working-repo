@@ -1,0 +1,3 @@
+== 4. the lab: a real model behind the same agent service
+Passed!  - Failed:     0, Passed:     1, Skipped:     0, Total:     1, Duration: 10 ms - Desk.Tests.dll (net11.0)
+skipped: MODEL_ENDPOINT, MODEL_API_KEY and MODEL_NAME are not all set

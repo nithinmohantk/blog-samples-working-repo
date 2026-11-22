@@ -1,0 +1,1 @@
+skipped: MODEL_ENDPOINT, MODEL_API_KEY and MODEL_NAME are not all set
