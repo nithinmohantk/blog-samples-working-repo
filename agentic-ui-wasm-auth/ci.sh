@@ -69,9 +69,13 @@ for folder, _, names in os.walk(os.path.join(root, "_framework")):
             plain += size
             files += 1
 print(f"_framework: {files} files, {plain / 1048576:.2f} MiB as built, {br / 1048576:.2f} MiB as Brotli, {gz / 1048576:.2f} MiB as gzip")
-for size, name in sorted(biggest, reverse=True)[:12]:
+for size, name in sorted(biggest, reverse=True)[:8]:
     print(f"  {size / 1024:8.0f} KiB  {name}")
 PY
+  echo "-- what ships to the browser: application and protocol assemblies under _framework"
+  ls "$publish/bff/wwwroot/_framework" | grep -E "^(Desk|AGUI|Microsoft\.Extensions\.AI|Microsoft\.AspNetCore\.Components\.AI)[^/]*\.wasm$" | sed -E 's/\.[a-z0-9]{10}\.wasm$/.wasm/' | sort | tr '\n' ' '; echo
+  echo "server-only code in the browser bundle (Desk.Core, Desk.Agent, Desk.Bff): $(ls "$publish/bff/wwwroot/_framework" | grep -cE "^Desk\.(Core|Agent|Bff)\.")"
+  echo "files under wwwroot that contain the lab signing key: $(grep -rl "lab-only-fake-signing-key" "$publish/bff/wwwroot" | wc -l)"
 } 2>&1 | tee "$out/04-publish.txt"
 [ -f "$publish/bff/Desk.Bff.dll" ] || status=1
 

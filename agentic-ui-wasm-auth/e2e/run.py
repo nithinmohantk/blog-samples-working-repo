@@ -48,7 +48,7 @@ def main() -> int:
         page = context.new_page()
         hosts: dict[str, int] = {}
         with_authorization: list[str] = []
-        downloads: list[tuple[str, int]] = []
+        downloads: list[tuple[str, int, str, bool]] = []
         console: list[str] = []
 
         def on_request(request):
@@ -57,14 +57,22 @@ def main() -> int:
             if "authorization" in {name.lower() for name in request.headers}:
                 with_authorization.append(request.url)
 
-        def on_response(response):
-            try:
-                downloads.append((response.url, int(response.headers.get("content-length", "0"))))
-            except ValueError:
-                pass
+        # Sizes come from the browser's own network log: bytes that crossed the wire, and what came from its cache.
+        network = context.new_cdp_session(page)
+        network.send("Network.enable")
+        pending: dict[str, dict] = {}
 
+        def on_response(event):
+            headers = {name.lower(): value for name, value in event["response"]["headers"].items()}
+            pending[event["requestId"]] = {"url": event["response"]["url"], "encoding": headers.get("content-encoding", "none"), "cached": event["response"].get("fromDiskCache", False)}
+
+        def on_finished(event):
+            if (entry := pending.pop(event["requestId"], None)) is not None:
+                downloads.append((entry["url"], int(event["encodedDataLength"]), entry["encoding"], entry["cached"]))
+
+        network.on("Network.responseReceived", on_response)
+        network.on("Network.loadingFinished", on_finished)
         page.on("request", on_request)
-        page.on("response", on_response)
         page.on("console", lambda message: console.append(f"{message.type}: {message.text}"[:300]) if message.type in ("error", "warning") else None)
 
         def sign_in_required():
@@ -80,10 +88,11 @@ def main() -> int:
             expect(page.locator(BOX)).to_be_enabled(timeout=60000)
             seconds = time.monotonic() - started
             expect(page.locator(".desk__user")).to_have_text("Sam (order desk)", timeout=15000)
-            framework = [(url, size) for url, size in downloads if "/_framework/" in url]
-            total = sum(size for _, size in downloads)
-            return (f"chat usable {seconds:.1f} s after the click, cold cache; {len(downloads)} responses, {total / 1024:.0f} KiB over the wire, "
-                    f"of which {len(framework)} files and {sum(s for _, s in framework) / 1024:.0f} KiB under /_framework/")
+            page.wait_for_timeout(500)
+            framework = [entry for entry in downloads if "/_framework/" in entry[0]]
+            encodings = sorted({entry[2] for entry in framework})
+            return (f"chat usable {seconds:.1f} s after the click, empty cache; {len(downloads)} responses, {sum(e[1] for e in downloads) / 1024:.0f} KiB over the wire, "
+                    f"of which {len(framework)} files and {sum(e[1] for e in framework) / 1024:.0f} KiB under /_framework/ (content-encoding: {', '.join(encodings)})")
 
         def second_load():
             downloads.clear()
@@ -91,7 +100,9 @@ def main() -> int:
             page.reload()
             expect(page.locator(BOX)).to_be_enabled(timeout=60000)
             seconds = time.monotonic() - started
-            return f"reload: chat usable after {seconds:.1f} s; {sum(size for _, size in downloads) / 1024:.0f} KiB over the wire"
+            page.wait_for_timeout(500)
+            cached = sum(1 for entry in downloads if entry[3])
+            return f"reload: chat usable after {seconds:.1f} s; {len(downloads)} responses, {cached} from the browser cache, {sum(e[1] for e in downloads) / 1024:.0f} KiB over the wire"
 
         def order_card():
             ask(page, "Where is order O-1001?")
@@ -107,7 +118,8 @@ def main() -> int:
             seen = []
             for _ in range(5):
                 page.wait_for_timeout(600)
-                seen.append(page.locator("body").inner_text().count("original payment method"))
+                text = page.locator("body").inner_text()
+                seen.append(len(text[text.rfind("Explain the refund policy"):].split()) - 4)
             button.click()
             expect(button).to_be_hidden(timeout=15000)
             expect(page.locator(BOX)).to_be_enabled(timeout=15000)
@@ -115,7 +127,7 @@ def main() -> int:
             last = lab("/wire")[-1]
             assert seen[-1] > seen[0], seen
             assert last["completed"] is False and last["last"] != "RUN_FINISHED", last
-            return f"sentences on the page at 0.6 s intervals: {seen}; after Stop the agent service stream ended early after {last['events']} events, no RUN_FINISHED"
+            return f"words of the answer on the page at 0.6 s intervals: {seen}; after Stop the agent service stream ended early after {last['events']} events, no RUN_FINISHED"
 
         def approve_within_limit():
             ask(page, "Refund order O-1003")
