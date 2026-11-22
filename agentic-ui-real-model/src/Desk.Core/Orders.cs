@@ -10,7 +10,8 @@ public sealed record Order(
     [property: JsonPropertyName("total")] decimal Total,
     [property: JsonPropertyName("status")] string Status,
     [property: JsonPropertyName("carrier")] string Carrier,
-    [property: JsonPropertyName("note"), JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? Note = null);
+    [property: JsonPropertyName("note"), JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? Note = null,
+    [property: JsonPropertyName("customerTextUntrusted"), JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? CustomerTextUntrusted = null);
 
 /// <summary>The outcome of a refund request.</summary>
 public sealed record RefundResult(

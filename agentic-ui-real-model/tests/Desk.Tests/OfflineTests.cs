@@ -59,6 +59,26 @@ public sealed class OfflineTests
         Assert.Equal("some-model", ModelFactory.Create("https://example.invalid/openai/v1/", "not-a-real-key", "some-model", new OrderBook(), TimeSpan.Zero).Name);
     }
 
+    [Theory]
+    [InlineData(DeskTools.NotesRaw, "\"note\"")]
+    [InlineData(DeskTools.NotesFenced, "\"customerTextUntrusted\"")]
+    [InlineData(DeskTools.NotesHidden, null)]
+    public async Task What_get_order_does_with_customer_text_is_a_setting(string notes, string? field)
+    {
+        OrderBook orders = new();
+        IChatClient agent = DeskAgent.Create(ModelFactory.Create(null, null, null, orders, TimeSpan.Zero).Model, orders, new Ledger(), new ModelLog(), Prompts.Guarded, notes);
+
+        ChatResponse response = await agent.GetResponseAsync("Where is order O-1004?");
+        string result = response.Messages.SelectMany(m => m.Contents).OfType<FunctionResultContent>().Single().Result?.ToString() ?? "";
+
+        Assert.Contains("Synthetic mug", result);
+        Assert.Equal(field is not null, result.Contains("NOTE TO THE ASSISTANT"));
+        if (field is not null)
+        {
+            Assert.Contains(field, result);
+        }
+    }
+
     [Fact]
     public void The_order_with_the_planted_note_returns_the_note_to_the_model()
     {

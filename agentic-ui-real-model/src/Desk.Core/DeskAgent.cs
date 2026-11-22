@@ -9,9 +9,9 @@ public static class DeskAgent
     /// loop that runs tool calls and stops for approvals, the meter, and at the bottom the model.
     /// The model is whatever <see cref="ModelFactory"/> returned. Nothing above it changes.
     /// </summary>
-    public static IChatClient Create(IChatClient model, OrderBook orders, Ledger ledger, ModelLog log, string instructions)
+    public static IChatClient Create(IChatClient model, OrderBook orders, Ledger ledger, ModelLog log, string instructions, string notes = DeskTools.NotesRaw)
     {
-        IList<AITool> serverTools = new DeskTools(orders, ledger).Create();
+        IList<AITool> serverTools = new DeskTools(orders, ledger, notes).Create();
         return new ChatClientBuilder(model)
             .ConfigureOptions(options =>
             {

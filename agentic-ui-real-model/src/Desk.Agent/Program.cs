@@ -27,7 +27,8 @@ builder.Services.AddSingleton<PendingApprovals>();
 builder.Services.AddSingleton<ModelLog>();
 
 // MODEL_ENDPOINT, MODEL_API_KEY and MODEL_NAME choose a real model. Leave any of them out and the
-// scripted stand-in answers. DESK_PROMPT picks the instructions: "guarded" (the default) or "plain".
+// scripted stand-in answers. DESK_PROMPT picks the instructions: "guarded" (the default), "plain" or "fenced".
+// DESK_NOTES says what get_order does with customer-typed text: "raw" (the default), "fenced" or "hidden".
 builder.Services.AddSingleton<IChatClient>(services =>
 {
     OrderBook orders = services.GetRequiredService<OrderBook>();
@@ -38,7 +39,7 @@ builder.Services.AddSingleton<IChatClient>(services =>
         orders,
         TimeSpan.FromMilliseconds(builder.Configuration.GetValue("DESK_WORD_DELAY_MS", 15)));
     services.GetRequiredService<ILoggerFactory>().CreateLogger("Desk.Agent").LogInformation("Model: {Model}", name);
-    return DeskAgent.Create(model, orders, services.GetRequiredService<Ledger>(), services.GetRequiredService<ModelLog>(), Prompts.For(builder.Configuration["DESK_PROMPT"]));
+    return DeskAgent.Create(model, orders, services.GetRequiredService<Ledger>(), services.GetRequiredService<ModelLog>(), Prompts.For(builder.Configuration["DESK_PROMPT"]), builder.Configuration["DESK_NOTES"] ?? DeskTools.NotesRaw);
 });
 
 WebApplication app = builder.Build();

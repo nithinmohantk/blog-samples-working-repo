@@ -6,11 +6,14 @@ using Microsoft.Extensions.AI;
 namespace Desk.Core;
 
 /// <summary>The three tools the agent can call. Only the refund changes anything, and it needs a person's approval.</summary>
-public sealed class DeskTools(OrderBook orders, Ledger ledger)
+public sealed class DeskTools(OrderBook orders, Ledger ledger, string notes = DeskTools.NotesRaw)
 {
     public const string GetOrderName = "get_order";
     public const string RefundOrderName = "refund_order";
     public const string DraftReplyName = "draft_reply";
+
+    /// <summary>What get_order does with free text a customer typed: pass it on, rename the field so the model can be told what it is, or leave it out.</summary>
+    public const string NotesRaw = "raw", NotesFenced = "fenced", NotesHidden = "hidden";
 
     private static readonly JsonSerializerOptions s_json = new(JsonSerializerDefaults.Web) { TypeInfoResolver = new DefaultJsonTypeInfoResolver() };
 
@@ -24,7 +27,12 @@ public sealed class DeskTools(OrderBook orders, Ledger ledger)
         AIFunctionFactory.Create(DraftReply, DraftReplyName, "Write a draft reply to the customer about an order.", s_json),
     ];
 
-    private Order? GetOrder([Description("The order id, such as O-1001")] string orderId) => orders.Find(orderId);
+    private Order? GetOrder([Description("The order id, such as O-1001")] string orderId) => orders.Find(orderId) switch
+    {
+        { Note: not null } order when notes == NotesHidden => order with { Note = null },
+        { Note: not null } order when notes == NotesFenced => order with { Note = null, CustomerTextUntrusted = order.Note },
+        var order => order,
+    };
 
     private RefundResult RefundOrder(string orderId, decimal amount, string reason)
     {
