@@ -1,11 +1,18 @@
 @* Sits inside the AgentBoundary. When the thread came from storage, asks the agent to rebuild the conversation from it. *@
+@inject ILogger<RestoreOnLoad> Logger
 
-@if (Thread.EndedMidTurn)
+@if (_failed)
+{
+    <p class="desk__error" role="alert">This conversation could not be opened. <a href="/">Start a new one</a>.</p>
+}
+else if (Thread.EndedMidTurn)
 {
     <p class="desk__notice" role="status">The last answer was interrupted before it finished. What arrived is shown.</p>
 }
 
 @code {
+    private bool _failed;
+
     [CascadingParameter]
     public AgentContext AgentContext { get; set; } = default!;
 
@@ -14,9 +21,20 @@
 
     protected override async Task OnInitializedAsync()
     {
-        if (Thread.RestoredUpdates > 0)
+        if (Thread.RestoredUpdates == 0)
+        {
+            return;
+        }
+
+        try
         {
             await AgentContext.RestoreAsync(CancellationToken.None);
+        }
+        catch (Exception error)
+        {
+            // An exception here would end the circuit and leave a dead page. Stored data is input: it can be wrong.
+            Logger.LogError(error, "Conversation {Thread} could not be restored", Thread.ThreadId);
+            _failed = true;
         }
     }
 }

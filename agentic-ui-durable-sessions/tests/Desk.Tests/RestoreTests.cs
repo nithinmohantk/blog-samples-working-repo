@@ -12,6 +12,7 @@ using Microsoft.Extensions.AI;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
 using Xunit;
+using CaseState = Desk.Web.Components.CaseState;
 
 namespace Desk.Tests;
 
@@ -77,6 +78,30 @@ public sealed class RestoreTests : IDisposable
         Assert.True(reloaded.Thread.WasRestored(Approval(restored).Id));
         session.Dispose();
         reloaded.Dispose();
+    }
+
+    [Fact]
+    public async Task A_tool_result_read_back_from_storage_breaks_the_typed_tool_card_until_it_is_repaired()
+    {
+        string thread = NewThread();
+        (DeskSession session, AgentContext live) = Open(thread);
+        await live.SendMessageAsync("Where is order O-1001?", default);
+        object? liveResult = session.Thread.GetUpdates().SelectMany(u => u.Contents).OfType<FunctionResultContent>().Single().Result;
+
+        DeskSession raw = DeskSession.Open(_chat, _store, thread, NullLoggerFactory.Instance, repairToolResults: false);
+        object? storedResult = raw.Thread.GetUpdates().SelectMany(u => u.Contents).OfType<FunctionResultContent>().Single().Result;
+        Exception? failure = await Record.ExceptionAsync(() => new AgentContext(raw.Agent).RestoreAsync(default));
+
+        (DeskSession repaired, AgentContext restored) = Open(thread);
+        await restored.RestoreAsync(default);
+
+        Trace.Line("restore-results.txt", $"0 tool result | live: {liveResult?.GetType().Name} | read back from JSON: {storedResult?.GetType().Name}{(storedResult is System.Text.Json.JsonElement e ? " of kind " + e.ValueKind : "")} | restore as stored: {failure?.GetType().Name ?? "no error"} | restore after repair: {Blocks(restored).Count} blocks");
+        Assert.IsType<string>(liveResult);
+        Assert.IsType<System.Text.Json.JsonException>(failure);
+        Assert.Equal(Blocks(live), Blocks(restored));
+        session.Dispose();
+        raw.Dispose();
+        repaired.Dispose();
     }
 
     [Theory]

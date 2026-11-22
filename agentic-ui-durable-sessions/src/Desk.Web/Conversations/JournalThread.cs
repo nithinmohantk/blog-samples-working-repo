@@ -26,7 +26,7 @@ public sealed class JournalThread : IConversationThread
     private long _turnStartSeq;
     private int _turnStartIndex;
 
-    public JournalThread(JournalStore store, string threadId, bool compact = true)
+    public JournalThread(JournalStore store, string threadId, bool compact = true, bool repairToolResults = true)
     {
         _store = store;
         _compact = compact;
@@ -36,6 +36,11 @@ public sealed class JournalThread : IConversationThread
         foreach (JournalRow row in rows.Where(row => row.Kind == JournalStore.Update))
         {
             ChatResponseUpdate update = JsonSerializer.Deserialize<ChatResponseUpdate>(row.Body!, s_json)!;
+            if (repairToolResults)
+            {
+                RepairToolResults(update);
+            }
+
             _updates.Add(update);
             Note(update, restored: true);
         }
@@ -172,6 +177,22 @@ public sealed class JournalThread : IConversationThread
                 ChatResponseUpdate first = merged[^1];
                 merged[^1] = new ChatResponseUpdate(first.Role, text.ToString()) { MessageId = first.MessageId, ResponseId = first.ResponseId, CreatedAt = first.CreatedAt };
                 text = null;
+            }
+        }
+    }
+
+    /// <summary>
+    /// A tool result is typed as object. Live, the AG-UI client puts a string of JSON there. Read back
+    /// from storage, the same value is a JsonElement that holds a string, and a typed tool block that
+    /// expects the string fails on it. This puts the string back.
+    /// </summary>
+    private static void RepairToolResults(ChatResponseUpdate update)
+    {
+        foreach (FunctionResultContent result in update.Contents.OfType<FunctionResultContent>())
+        {
+            if (result.Result is JsonElement { ValueKind: JsonValueKind.String } text)
+            {
+                result.Result = text.GetString();
             }
         }
     }
