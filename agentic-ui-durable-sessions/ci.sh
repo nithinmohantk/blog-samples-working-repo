@@ -30,6 +30,8 @@ PY
 {
   echo "== 2. build"
   dotnet build tests/Desk.Tests -c Release -v q 2>&1 | grep -E "error|warn|Build succeeded|Warning\(s\)|Error\(s\)" | sort -u | head -n 60
+  echo "-- which package brings in Microsoft.Extensions.Validation"
+  dotnet nuget why tests/Desk.Tests/Desk.Tests.csproj Microsoft.Extensions.Validation 2>&1 | grep -v "^$" | head -n 30
 } 2>&1 | tee "$out/02-build.txt"
 grep -q "Build succeeded" "$out/02-build.txt" || status=1
 
