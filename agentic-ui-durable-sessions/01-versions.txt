@@ -1,0 +1,10 @@
+== 1. versions
+11.0.100
+Microsoft.AspNetCore.App 11.0.0 [/usr/share/dotnet/shared/Microsoft.AspNetCore.App]
+Microsoft.NETCore.App 11.0.0 [/usr/share/dotnet/shared/Microsoft.NETCore.App]
+Linux 7.0.0-1020-azure x86_64
+microsoft.aspnetcore.components.ai 0.1.0-preview.1.26466.103: published 2026-09-16
+agui.client 1.0.1: published 2026-10-12
+agui.server 1.0.1: published 2026-10-12
+microsoft.extensions.ai 11.0.0: published 2026-11-10
+microsoft.data.sqlite 11.0.0: published 2026-11-10

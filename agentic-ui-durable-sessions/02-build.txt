@@ -1,0 +1,17 @@
+== 2. build
+    0 Error(s)
+    0 Warning(s)
+Build succeeded.
+-- which package brings in Microsoft.Extensions.Validation
+Project 'Desk.Tests' has the following dependency graph(s) for 
+'Microsoft.Extensions.Validation':
+  [net11.0]                                                                     
+  └── Desk.Web                                                                  
+      └── Microsoft.AspNetCore.Components.AI@0.1.0-preview.1.26466.103 (>=      
+          0.1.0-preview.1.26466.103)                                            
+          └── Microsoft.AspNetCore.Components.Web@11.0.0-rc.1.26425.128 (>=     
+              11.0.0-rc.1.26425.128)                                            
+              └── Microsoft.AspNetCore.Components.Forms@11.0.0-rc.1.26425.128   
+                  (>= 11.0.0-rc.1.26425.128)                                    
+                  └── [38;5;14mMicrosoft.Extensions.Validation@11.0.0 (>= [0m               
+                      [38;5;14m11.0.0-rc.1.26425.128)[0m                                    

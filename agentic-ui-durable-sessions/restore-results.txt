@@ -1,0 +1,30 @@
+7b the user presses Stop 1.5 s into an answer, recorder on  | journal rows while streaming: 8 | afterwards: 8, end mark: False | a reload shows 1 turns, ended mid-turn: True, last block: assistant: "Refunds are made to the original "
+7b the page goes away 1.5 s into an answer, recorder on  | journal rows while streaming: 11 | afterwards: 11, end mark: False | a reload shows 1 turns, ended mid-turn: True, last block: assistant: "Refunds are made to the original payment method ...
+7b the user presses Stop 1.5 s into an answer, recorder off | journal rows while streaming: 0 | afterwards: 0, end mark: False | a reload shows 0 turns, ended mid-turn: False, last block: nothing
+7b the page goes away 1.5 s into an answer, recorder off | journal rows while streaming: 0 | afterwards: 0, end mark: False | a reload shows 0 turns, ended mid-turn: False, last block: nothing
+1 reload | live: 3 turns, 8 blocks, status AwaitingInput | restored: 3 turns, 8 blocks, status Idle
+1   restored block: user: "Where is order O-1001?"
+1   restored block: OrderToolBlock get_order result=True
+1   restored block: assistant: "Here is the order."
+1   restored block: user: "Draft a reply for order O-1001"
+1   restored block: FunctionInvocationContentBlock draft_reply result=True
+1   restored block: assistant: "I put a draft reply in the panel. Edit it, or add a signature and ask again."
+1   restored block: user: "Refund order O-1003"
+1   restored block: approval refund_order Pending
+8 after  10 turns | journal 70 rows, 11.9 KiB | open and restore 1 ms, 10 turns | last request to the agent service: 37 messages, 6.2 KiB
+8 after  50 turns | journal 350 rows, 59.4 KiB | open and restore 3 ms, 50 turns | last request to the agent service: 197 messages, 32.7 KiB
+8 after 100 turns | journal 700 rows, 118.9 KiB | open and restore 5 ms, 100 turns | last request to the agent service: 397 messages, 65.9 KiB
+2 journal for three turns, compaction on | 20 rows, 3317 characters | restored blocks equal: True
+2 journal for three turns, compaction off | 65 rows, 12266 characters | restored blocks equal: True
+4 default Approve() on a restored approval | block status Pending -> Approved | requests sent: 0 | refunds: 0 | conversation status: Idle
+6 agent service restarted while an approval waited, approvals in SQLite | status Idle | refunds 1
+6 agent service restarted while an approval waited, approvals in memory | status Error, HTTP 409 | refunds 0
+3 shared state | live reply: 96 characters | agent restore alone: 0 characters | with the stored state row: 96 characters
+0 tool result | live: String | read back from JSON: JsonElement of kind String | restore as stored: JsonException | restore after repair: 3 blocks
+7c Stop, then a new question | turns on the page: 2 | roles sent with the new question: [user, user] | turns after a reload: 2, blocks: user: "Explain the refund policy" / assistant: "Refunds are made to the original ... / user: "Where is order O-1002?" / OrderToolBlock get_order result=True / assistant: "Here is the order."
+9 twenty concurrent answers to one pending approval in SQLite | accepted: 1
+5 tab A answers | refunds 1, status Idle
+5 tab B answers the same approval | status Error, error Conflict | refunds 1, attempts 1
+5 a reload after the answer | approval block: Pending, journal says answered: True | blocks: user: "Refund order O-1003" / approval refund_order Pending / FunctionInvocationContentBlock refund_order result=True / assistant: "The refund is recorded."
+7 journal cut mid-answer | thread says ended mid-turn: True | restored status Idle | whole answer: assistant: "I can look up an order, draft a reply to the customer, or prepare a refund for your approval. Give me an order id such as O-1001." | restored: assistant: "I can look " | next question: status Idle, 2 turns
+0a calls to the thread, 1.3 s into an answer with 12 words on the page | AppendUserMessage 0, AppendUpdate 0, CompleteTurn 0, GetUpdates 0 | after the answer ended | AppendUserMessage 1, AppendUpdate 29, CompleteTurn 1, GetUpdates 0

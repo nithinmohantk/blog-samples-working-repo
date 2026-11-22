@@ -1,0 +1,1236 @@
+info: Microsoft.AspNetCore.DataProtection.KeyManagement.XmlKeyManager[62]
+      User profile is available. Using '/home/runner/.aspnet/DataProtection-Keys' as key repository; keys will not be encrypted at rest.
+info: Microsoft.AspNetCore.DataProtection.KeyManagement.XmlKeyManager[58]
+      Creating key {6d09be96-8cd9-46dd-8612-3709cf3285db} with creation date 2026-11-22 09:48:35Z, activation date 2026-11-22 09:48:35Z, and expiration date 2027-02-20 09:48:35Z.
+warn: Microsoft.AspNetCore.DataProtection.KeyManagement.XmlKeyManager[35]
+      No XML encryptor configured. Key {6d09be96-8cd9-46dd-8612-3709cf3285db} may be persisted to storage in unencrypted form.
+info: Microsoft.AspNetCore.DataProtection.Repositories.FileSystemXmlRepository[39]
+      Writing data to file '/home/runner/.aspnet/DataProtection-Keys/key-6d09be96-8cd9-46dd-8612-3709cf3285db.xml'.
+info: Microsoft.Hosting.Lifetime[14]
+      Now listening on: http://127.0.0.1:5120
+info: Microsoft.Hosting.Lifetime[0]
+      Application started. Press Ctrl+C to shut down.
+info: Microsoft.Hosting.Lifetime[0]
+      Hosting environment: Development
+info: Microsoft.Hosting.Lifetime[0]
+      Content root path: /home/runner/work/blog-samples-working-repo/blog-samples-working-repo/agentic-ui-durable-sessions/src/Desk.Web
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5120/ - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint '/ (/)'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint '/ (/)'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5120/ - 200 - text/html;+charset=utf-8 159.9236ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5120/ - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint '/ (/)'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint '/ (/)'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5120/ - 200 - text/html;+charset=utf-8 7.0162ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5120/_content/Microsoft.AspNetCore.Components.AI/ai-chat.jgw3rr6wlp.css - - -
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5120/app.g09742kx4e.css - - -
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5120/_framework/blazor.web.yrew3uaoal.js - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[2]
+      Sending file. Request path: 'app.g09742kx4e.css'. Physical path: '/home/runner/work/blog-samples-working-repo/blog-samples-working-repo/agentic-ui-durable-sessions/src/Desk.Web/obj/Release/net11.0/compressed/jpuvwrqf9w-{0}-g09742kx4e-g09742kx4e.gz'
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[2]
+      Sending file. Request path: '_content/Microsoft.AspNetCore.Components.AI/ai-chat.jgw3rr6wlp.css'. Physical path: '/home/runner/work/blog-samples-working-repo/blog-samples-working-repo/agentic-ui-durable-sessions/src/Desk.Web/obj/Release/net11.0/compressed/jnxlfftgnk-{0}-jgw3rr6wlp-jgw3rr6wlp.gz'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5120/_content/Microsoft.AspNetCore.Components.AI/ai-chat.jgw3rr6wlp.css - 200 11665 text/css 14.7875ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5120/app.g09742kx4e.css - 200 708 text/css 14.2931ms
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[2]
+      Sending file. Request path: '_framework/blazor.web.yrew3uaoal.js'. Physical path: '/home/runner/work/blog-samples-working-repo/blog-samples-working-repo/agentic-ui-durable-sessions/src/Desk.Web/obj/Release/net11.0/compressed/py6h71ds0g-{0}-yrew3uaoal-yrew3uaoal.gz'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5120/_framework/blazor.web.yrew3uaoal.js - 200 67898 text/javascript 17.6545ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5120/_blazor/initializers - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5120/_blazor/initializers - 200 - application/json;+charset=utf-8 12.6558ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 POST http://127.0.0.1:5120/_blazor/negotiate?negotiateVersion=1 - - 0
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 POST http://127.0.0.1:5120/_blazor/negotiate?negotiateVersion=1 - 200 316 application/json 5.7876ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5120/_blazor?id=WQ3UrqLx2HvgyUa7LEszug - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5120/c/7c04538daa914e29a5cdf0066b9857a4 - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint '/c/{ThreadId} (/c/{ThreadId})'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint '/c/{ThreadId} (/c/{ThreadId})'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5120/c/7c04538daa914e29a5cdf0066b9857a4 - 200 - text/html;+charset=utf-8 5.0042ms
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: RichContentBlock Id=c78d9a3bbe08434cb8ece8a788f2c0a7 Role=user
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[100]
+      SendMessageAsync: Streaming assistant response
+info: System.Net.Http.HttpClient.agent.LogicalHandler[100]
+      Start processing HTTP request POST http://127.0.0.1:5121/agent
+info: System.Net.Http.HttpClient.agent.ClientHandler[100]
+      Sending HTTP request POST http://127.0.0.1:5121/agent
+info: System.Net.Http.HttpClient.agent.ClientHandler[101]
+      Received HTTP response headers after 124.8494ms - 200
+info: System.Net.Http.HttpClient.agent.LogicalHandler[101]
+      End processing HTTP request after 133.9153ms - 200
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: OrderToolBlock Id=call-bc8ecb52 Role=assistant
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: RichContentBlock Id=f314115b29f04388b78fe056738e7bd5 Role=assistant
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[102]
+      SendMessageAsync: Stream complete. Total updates=8
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5120/c/7c04538daa914e29a5cdf0066b9857a4 - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint '/c/{ThreadId} (/c/{ThreadId})'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint '/c/{ThreadId} (/c/{ThreadId})'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5120/c/7c04538daa914e29a5cdf0066b9857a4 - 200 - text/html;+charset=utf-8 1.5906ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 POST http://127.0.0.1:5120/_blazor/disconnect - multipart/form-data;+boundary=----WebKitFormBoundaryanYbLF7dEyBMJei4 359
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5120/_content/Microsoft.AspNetCore.Components.AI/ai-chat.jgw3rr6wlp.css - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5120/app.g09742kx4e.css - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5120/_framework/blazor.web.yrew3uaoal.js - - -
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[6]
+      The file app.g09742kx4e.css was not modified
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5120/app.g09742kx4e.css - 304 - text/css 0.9634ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5120/_blazor?id=WQ3UrqLx2HvgyUa7LEszug - 101 - - 1048.3846ms
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[2]
+      Sending file. Request path: '_content/Microsoft.AspNetCore.Components.AI/ai-chat.jgw3rr6wlp.css'. Physical path: '/home/runner/work/blog-samples-working-repo/blog-samples-working-repo/agentic-ui-durable-sessions/src/Desk.Web/obj/Release/net11.0/compressed/jnxlfftgnk-{0}-jgw3rr6wlp-jgw3rr6wlp.gz'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5120/_content/Microsoft.AspNetCore.Components.AI/ai-chat.jgw3rr6wlp.css - 200 11665 text/css 4.1119ms
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[6]
+      The file _framework/blazor.web.yrew3uaoal.js was not modified
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5120/_framework/blazor.web.yrew3uaoal.js - 304 - text/javascript 7.9339ms
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 POST http://127.0.0.1:5120/_blazor/disconnect - 200 0 - 15.9636ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5120/_blazor/initializers - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5120/_blazor/initializers - 200 - application/json;+charset=utf-8 0.4698ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 POST http://127.0.0.1:5120/_blazor/negotiate?negotiateVersion=1 - - 0
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 POST http://127.0.0.1:5120/_blazor/negotiate?negotiateVersion=1 - 200 316 application/json 0.3894ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5120/_blazor?id=CD7mPfZkPvbLAY_TxoEvUg - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: RichContentBlock Id=3d1bf14bb1064feb9c42bad4cc776eed Role=user
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: OrderToolBlock Id=call-bc8ecb52 Role=assistant
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: RichContentBlock Id=f314115b29f04388b78fe056738e7bd5 Role=assistant
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: RichContentBlock Id=c39e0ff8ff214e50a7c61723c91d2459 Role=user
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[100]
+      SendMessageAsync: Streaming assistant response
+info: System.Net.Http.HttpClient.agent.LogicalHandler[100]
+      Start processing HTTP request POST http://127.0.0.1:5121/agent
+info: System.Net.Http.HttpClient.agent.ClientHandler[100]
+      Sending HTTP request POST http://127.0.0.1:5121/agent
+info: System.Net.Http.HttpClient.agent.ClientHandler[101]
+      Received HTTP response headers after 22.4094ms - 200
+info: System.Net.Http.HttpClient.agent.LogicalHandler[101]
+      End processing HTTP request after 22.5723ms - 200
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: FunctionInvocationContentBlock Id=call-f654d23c Role=assistant
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: RichContentBlock Id=e28780b521c54c5da640ff389d55d418 Role=assistant
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[102]
+      SendMessageAsync: Stream complete. Total updates=22
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5120/c/7c04538daa914e29a5cdf0066b9857a4 - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint '/c/{ThreadId} (/c/{ThreadId})'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint '/c/{ThreadId} (/c/{ThreadId})'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5120/c/7c04538daa914e29a5cdf0066b9857a4 - 200 - text/html;+charset=utf-8 1.4619ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 POST http://127.0.0.1:5120/_blazor/disconnect - multipart/form-data;+boundary=----WebKitFormBoundaryjk22XBfzyUnzRLJJ 359
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 POST http://127.0.0.1:5120/_blazor/disconnect - 200 0 - 0.8082ms
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5120/_blazor?id=CD7mPfZkPvbLAY_TxoEvUg - 101 - - 1296.9275ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5120/_content/Microsoft.AspNetCore.Components.AI/ai-chat.jgw3rr6wlp.css - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[2]
+      Sending file. Request path: '_content/Microsoft.AspNetCore.Components.AI/ai-chat.jgw3rr6wlp.css'. Physical path: '/home/runner/work/blog-samples-working-repo/blog-samples-working-repo/agentic-ui-durable-sessions/src/Desk.Web/obj/Release/net11.0/compressed/jnxlfftgnk-{0}-jgw3rr6wlp-jgw3rr6wlp.gz'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5120/_content/Microsoft.AspNetCore.Components.AI/ai-chat.jgw3rr6wlp.css - 200 11665 text/css 0.7303ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5120/_framework/blazor.web.yrew3uaoal.js - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[6]
+      The file _framework/blazor.web.yrew3uaoal.js was not modified
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5120/_framework/blazor.web.yrew3uaoal.js - 304 - text/javascript 0.2860ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5120/app.g09742kx4e.css - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[6]
+      The file app.g09742kx4e.css was not modified
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5120/app.g09742kx4e.css - 304 - text/css 0.2717ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5120/_blazor/initializers - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5120/_blazor/initializers - 200 - application/json;+charset=utf-8 0.2502ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 POST http://127.0.0.1:5120/_blazor/negotiate?negotiateVersion=1 - - 0
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 POST http://127.0.0.1:5120/_blazor/negotiate?negotiateVersion=1 - 200 316 application/json 0.2853ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5120/_blazor?id=AQIydP-lT0WQNcBvhTQZsQ - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: RichContentBlock Id=3d1bf14bb1064feb9c42bad4cc776eed Role=user
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: OrderToolBlock Id=call-bc8ecb52 Role=assistant
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: RichContentBlock Id=f314115b29f04388b78fe056738e7bd5 Role=assistant
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: RichContentBlock Id=54b977a047114fcca9e67754326557d1 Role=user
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: FunctionInvocationContentBlock Id=call-f654d23c Role=assistant
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: RichContentBlock Id=e28780b521c54c5da640ff389d55d418 Role=assistant
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: RichContentBlock Id=69505ef2e21c4aa88c91573e7aadde80 Role=user
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[100]
+      SendMessageAsync: Streaming assistant response
+info: System.Net.Http.HttpClient.agent.LogicalHandler[100]
+      Start processing HTTP request POST http://127.0.0.1:5121/agent
+info: System.Net.Http.HttpClient.agent.ClientHandler[100]
+      Sending HTTP request POST http://127.0.0.1:5121/agent
+info: System.Net.Http.HttpClient.agent.ClientHandler[101]
+      Received HTTP response headers after 4.5101ms - 200
+info: System.Net.Http.HttpClient.agent.LogicalHandler[101]
+      End processing HTTP request after 4.6176ms - 200
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: FunctionApprovalBlock Id=call-a2fd2435 Role=assistant
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[102]
+      SendMessageAsync: Stream complete. Total updates=2
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5120/c/7c04538daa914e29a5cdf0066b9857a4 - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint '/c/{ThreadId} (/c/{ThreadId})'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint '/c/{ThreadId} (/c/{ThreadId})'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5120/c/7c04538daa914e29a5cdf0066b9857a4 - 200 - text/html;+charset=utf-8 1.3215ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 POST http://127.0.0.1:5120/_blazor/disconnect - multipart/form-data;+boundary=----WebKitFormBoundaryYBhcHIu4Ble4fxLZ 359
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 POST http://127.0.0.1:5120/_blazor/disconnect - 200 0 - 1.0632ms
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5120/_blazor?id=AQIydP-lT0WQNcBvhTQZsQ - 101 - - 535.9290ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5120/_content/Microsoft.AspNetCore.Components.AI/ai-chat.jgw3rr6wlp.css - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[2]
+      Sending file. Request path: '_content/Microsoft.AspNetCore.Components.AI/ai-chat.jgw3rr6wlp.css'. Physical path: '/home/runner/work/blog-samples-working-repo/blog-samples-working-repo/agentic-ui-durable-sessions/src/Desk.Web/obj/Release/net11.0/compressed/jnxlfftgnk-{0}-jgw3rr6wlp-jgw3rr6wlp.gz'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5120/_content/Microsoft.AspNetCore.Components.AI/ai-chat.jgw3rr6wlp.css - 200 11665 text/css 0.5239ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5120/app.g09742kx4e.css - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[6]
+      The file app.g09742kx4e.css was not modified
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5120/app.g09742kx4e.css - 304 - text/css 0.3133ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5120/_framework/blazor.web.yrew3uaoal.js - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[6]
+      The file _framework/blazor.web.yrew3uaoal.js was not modified
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5120/_framework/blazor.web.yrew3uaoal.js - 304 - text/javascript 0.2755ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5120/_blazor/initializers - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5120/_blazor/initializers - 200 - application/json;+charset=utf-8 0.2079ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 POST http://127.0.0.1:5120/_blazor/negotiate?negotiateVersion=1 - - 0
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 POST http://127.0.0.1:5120/_blazor/negotiate?negotiateVersion=1 - 200 316 application/json 0.2647ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5120/_blazor?id=fh1HC4zTSZd-nJzA6BEGkQ - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: RichContentBlock Id=3d1bf14bb1064feb9c42bad4cc776eed Role=user
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: OrderToolBlock Id=call-bc8ecb52 Role=assistant
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: RichContentBlock Id=f314115b29f04388b78fe056738e7bd5 Role=assistant
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: RichContentBlock Id=54b977a047114fcca9e67754326557d1 Role=user
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: FunctionInvocationContentBlock Id=call-f654d23c Role=assistant
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: RichContentBlock Id=e28780b521c54c5da640ff389d55d418 Role=assistant
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: RichContentBlock Id=02ee2707c0f74fc58741aa98157abca2 Role=user
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: FunctionApprovalBlock Id=call-a2fd2435 Role=assistant
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[100]
+      SendMessageAsync: Streaming assistant response
+info: System.Net.Http.HttpClient.agent.LogicalHandler[100]
+      Start processing HTTP request POST http://127.0.0.1:5121/agent
+info: System.Net.Http.HttpClient.agent.ClientHandler[100]
+      Sending HTTP request POST http://127.0.0.1:5121/agent
+info: System.Net.Http.HttpClient.agent.ClientHandler[101]
+      Received HTTP response headers after 17.4084ms - 200
+info: System.Net.Http.HttpClient.agent.LogicalHandler[101]
+      End processing HTTP request after 17.5251ms - 200
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: FunctionInvocationContentBlock Id=call-a2fd2435 Role=assistant
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: RichContentBlock Id=3cf02e59ebdc4dbbae03acba37919001 Role=assistant
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[102]
+      SendMessageAsync: Stream complete. Total updates=8
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5120/c/7c04538daa914e29a5cdf0066b9857a4 - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint '/c/{ThreadId} (/c/{ThreadId})'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint '/c/{ThreadId} (/c/{ThreadId})'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5120/c/7c04538daa914e29a5cdf0066b9857a4 - 200 - text/html;+charset=utf-8 3.8269ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 POST http://127.0.0.1:5120/_blazor/disconnect - multipart/form-data;+boundary=----WebKitFormBoundaryrehFlkzwwpvtxteN 359
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5120/_blazor?id=fh1HC4zTSZd-nJzA6BEGkQ - 101 - - 1005.2415ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 POST http://127.0.0.1:5120/_blazor/disconnect - 200 0 - 0.7981ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5120/_content/Microsoft.AspNetCore.Components.AI/ai-chat.jgw3rr6wlp.css - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5120/_framework/blazor.web.yrew3uaoal.js - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[2]
+      Sending file. Request path: '_content/Microsoft.AspNetCore.Components.AI/ai-chat.jgw3rr6wlp.css'. Physical path: '/home/runner/work/blog-samples-working-repo/blog-samples-working-repo/agentic-ui-durable-sessions/src/Desk.Web/obj/Release/net11.0/compressed/jnxlfftgnk-{0}-jgw3rr6wlp-jgw3rr6wlp.gz'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[6]
+      The file _framework/blazor.web.yrew3uaoal.js was not modified
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5120/_content/Microsoft.AspNetCore.Components.AI/ai-chat.jgw3rr6wlp.css - 200 11665 text/css 0.6962ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5120/_framework/blazor.web.yrew3uaoal.js - 304 - text/javascript 0.2582ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5120/app.g09742kx4e.css - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[6]
+      The file app.g09742kx4e.css was not modified
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5120/app.g09742kx4e.css - 304 - text/css 0.9186ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5120/_blazor/initializers - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5120/_blazor/initializers - 200 - application/json;+charset=utf-8 0.2635ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 POST http://127.0.0.1:5120/_blazor/negotiate?negotiateVersion=1 - - 0
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 POST http://127.0.0.1:5120/_blazor/negotiate?negotiateVersion=1 - 200 316 application/json 0.2160ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5120/_blazor?id=BfGqOOUfarlzaXZZhjt4IA - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: RichContentBlock Id=3d1bf14bb1064feb9c42bad4cc776eed Role=user
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: OrderToolBlock Id=call-bc8ecb52 Role=assistant
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: RichContentBlock Id=f314115b29f04388b78fe056738e7bd5 Role=assistant
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: RichContentBlock Id=54b977a047114fcca9e67754326557d1 Role=user
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: FunctionInvocationContentBlock Id=call-f654d23c Role=assistant
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: RichContentBlock Id=e28780b521c54c5da640ff389d55d418 Role=assistant
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: RichContentBlock Id=02ee2707c0f74fc58741aa98157abca2 Role=user
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: FunctionApprovalBlock Id=call-a2fd2435 Role=assistant
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: FunctionInvocationContentBlock Id=call-a2fd2435 Role=assistant
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: RichContentBlock Id=3cf02e59ebdc4dbbae03acba37919001 Role=assistant
+info: Microsoft.AspNetCore.Server.Kestrel.Connections[34]
+      Connection id "0HNQ8FN3FG4CD", Request id "0HNQ8FN3FG4CD:00000001": the application aborted the connection.
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5120/_blazor?id=BfGqOOUfarlzaXZZhjt4IA - 101 - - 369.1593ms
+info: Microsoft.Hosting.Lifetime[0]
+      Application is shutting down...
+info: Microsoft.AspNetCore.DataProtection.KeyManagement.XmlKeyManager[62]
+      User profile is available. Using '/home/runner/.aspnet/DataProtection-Keys' as key repository; keys will not be encrypted at rest.
+info: Microsoft.Hosting.Lifetime[14]
+      Now listening on: http://127.0.0.1:5120
+info: Microsoft.Hosting.Lifetime[0]
+      Application started. Press Ctrl+C to shut down.
+info: Microsoft.Hosting.Lifetime[0]
+      Hosting environment: Development
+info: Microsoft.Hosting.Lifetime[0]
+      Content root path: /home/runner/work/blog-samples-working-repo/blog-samples-working-repo/agentic-ui-durable-sessions/src/Desk.Web
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5120/ - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint '/ (/)'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint '/ (/)'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5120/ - 200 - text/html;+charset=utf-8 138.2132ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5120/c/7c04538daa914e29a5cdf0066b9857a4 - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint '/c/{ThreadId} (/c/{ThreadId})'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint '/c/{ThreadId} (/c/{ThreadId})'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5120/c/7c04538daa914e29a5cdf0066b9857a4 - 200 - text/html;+charset=utf-8 22.7022ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 POST http://127.0.0.1:5120/_blazor/disconnect - multipart/form-data;+boundary=----WebKitFormBoundarytJx3fcXtY7J5dHXw 359
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5120/app.g09742kx4e.css - - -
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5120/_content/Microsoft.AspNetCore.Components.AI/ai-chat.jgw3rr6wlp.css - - -
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5120/_framework/blazor.web.yrew3uaoal.js - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[6]
+      The file _framework/blazor.web.yrew3uaoal.js was not modified
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[6]
+      The file app.g09742kx4e.css was not modified
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5120/app.g09742kx4e.css - 304 - text/css 6.5480ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5120/_framework/blazor.web.yrew3uaoal.js - 304 - text/javascript 6.1846ms
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[2]
+      Sending file. Request path: '_content/Microsoft.AspNetCore.Components.AI/ai-chat.jgw3rr6wlp.css'. Physical path: '/home/runner/work/blog-samples-working-repo/blog-samples-working-repo/agentic-ui-durable-sessions/src/Desk.Web/obj/Release/net11.0/compressed/jnxlfftgnk-{0}-jgw3rr6wlp-jgw3rr6wlp.gz'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5120/_content/Microsoft.AspNetCore.Components.AI/ai-chat.jgw3rr6wlp.css - 200 11665 text/css 13.6054ms
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 POST http://127.0.0.1:5120/_blazor/disconnect - 200 0 - 17.8884ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5120/_blazor/initializers - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5120/_blazor/initializers - 200 - application/json;+charset=utf-8 5.2093ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 POST http://127.0.0.1:5120/_blazor/negotiate?negotiateVersion=1 - - 0
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 POST http://127.0.0.1:5120/_blazor/negotiate?negotiateVersion=1 - 200 316 application/json 4.9899ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5120/_blazor?id=9Aqe33d0dcakeGFXubUbrA - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: RichContentBlock Id=3d1bf14bb1064feb9c42bad4cc776eed Role=user
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: OrderToolBlock Id=call-bc8ecb52 Role=assistant
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: RichContentBlock Id=f314115b29f04388b78fe056738e7bd5 Role=assistant
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: RichContentBlock Id=54b977a047114fcca9e67754326557d1 Role=user
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: FunctionInvocationContentBlock Id=call-f654d23c Role=assistant
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: RichContentBlock Id=e28780b521c54c5da640ff389d55d418 Role=assistant
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: RichContentBlock Id=02ee2707c0f74fc58741aa98157abca2 Role=user
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: FunctionApprovalBlock Id=call-a2fd2435 Role=assistant
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: FunctionInvocationContentBlock Id=call-a2fd2435 Role=assistant
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: RichContentBlock Id=3cf02e59ebdc4dbbae03acba37919001 Role=assistant
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: RichContentBlock Id=97955247101142669c987e7de63a81ea Role=user
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[100]
+      SendMessageAsync: Streaming assistant response
+info: System.Net.Http.HttpClient.agent.LogicalHandler[100]
+      Start processing HTTP request POST http://127.0.0.1:5121/agent
+info: System.Net.Http.HttpClient.agent.ClientHandler[100]
+      Sending HTTP request POST http://127.0.0.1:5121/agent
+info: System.Net.Http.HttpClient.agent.ClientHandler[101]
+      Received HTTP response headers after 39.272ms - 200
+info: System.Net.Http.HttpClient.agent.LogicalHandler[101]
+      End processing HTTP request after 46.8442ms - 200
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: FunctionApprovalBlock Id=call-1004f1f8 Role=assistant
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[102]
+      SendMessageAsync: Stream complete. Total updates=2
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5120/c/7c04538daa914e29a5cdf0066b9857a4 - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint '/c/{ThreadId} (/c/{ThreadId})'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint '/c/{ThreadId} (/c/{ThreadId})'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5120/c/7c04538daa914e29a5cdf0066b9857a4 - 200 - text/html;+charset=utf-8 3.5631ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 POST http://127.0.0.1:5120/_blazor/disconnect - multipart/form-data;+boundary=----WebKitFormBoundaryqH5FSre6FamtWUsw 359
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5120/_content/Microsoft.AspNetCore.Components.AI/ai-chat.jgw3rr6wlp.css - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5120/_blazor?id=9Aqe33d0dcakeGFXubUbrA - 101 - - 1998.4284ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5120/_framework/blazor.web.yrew3uaoal.js - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5120/app.g09742kx4e.css - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[6]
+      The file app.g09742kx4e.css was not modified
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5120/app.g09742kx4e.css - 304 - text/css 0.3208ms
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 POST http://127.0.0.1:5120/_blazor/disconnect - 200 0 - 9.1719ms
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[2]
+      Sending file. Request path: '_content/Microsoft.AspNetCore.Components.AI/ai-chat.jgw3rr6wlp.css'. Physical path: '/home/runner/work/blog-samples-working-repo/blog-samples-working-repo/agentic-ui-durable-sessions/src/Desk.Web/obj/Release/net11.0/compressed/jnxlfftgnk-{0}-jgw3rr6wlp-jgw3rr6wlp.gz'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5120/_content/Microsoft.AspNetCore.Components.AI/ai-chat.jgw3rr6wlp.css - 200 11665 text/css 5.0363ms
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[6]
+      The file _framework/blazor.web.yrew3uaoal.js was not modified
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5120/_framework/blazor.web.yrew3uaoal.js - 304 - text/javascript 6.6266ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5120/_blazor/initializers - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5120/_blazor/initializers - 200 - application/json;+charset=utf-8 0.4672ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 POST http://127.0.0.1:5120/_blazor/negotiate?negotiateVersion=1 - - 0
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 POST http://127.0.0.1:5120/_blazor/negotiate?negotiateVersion=1 - 200 316 application/json 0.3536ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5120/_blazor?id=CvUxK9td53wAok19O4pkUg - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: RichContentBlock Id=3d1bf14bb1064feb9c42bad4cc776eed Role=user
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: OrderToolBlock Id=call-bc8ecb52 Role=assistant
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: RichContentBlock Id=f314115b29f04388b78fe056738e7bd5 Role=assistant
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: RichContentBlock Id=54b977a047114fcca9e67754326557d1 Role=user
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: FunctionInvocationContentBlock Id=call-f654d23c Role=assistant
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: RichContentBlock Id=e28780b521c54c5da640ff389d55d418 Role=assistant
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: RichContentBlock Id=02ee2707c0f74fc58741aa98157abca2 Role=user
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: FunctionApprovalBlock Id=call-a2fd2435 Role=assistant
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: FunctionInvocationContentBlock Id=call-a2fd2435 Role=assistant
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: RichContentBlock Id=3cf02e59ebdc4dbbae03acba37919001 Role=assistant
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: RichContentBlock Id=b79a7b0a59614156ba088bb492d37f39 Role=user
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: FunctionApprovalBlock Id=call-1004f1f8 Role=assistant
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[100]
+      SendMessageAsync: Streaming assistant response
+info: System.Net.Http.HttpClient.agent.LogicalHandler[100]
+      Start processing HTTP request POST http://127.0.0.1:5121/agent
+info: System.Net.Http.HttpClient.agent.ClientHandler[100]
+      Sending HTTP request POST http://127.0.0.1:5121/agent
+info: System.Net.Http.HttpClient.agent.ClientHandler[101]
+      Received HTTP response headers after 128.2042ms - 200
+info: System.Net.Http.HttpClient.agent.LogicalHandler[101]
+      End processing HTTP request after 128.3613ms - 200
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: FunctionInvocationContentBlock Id=call-1004f1f8 Role=assistant
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: RichContentBlock Id=f65118d9f6ea42459a8f1a76990c7219 Role=assistant
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[102]
+      SendMessageAsync: Stream complete. Total updates=8
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: RichContentBlock Id=294fdaf444804874b9471958182035ed Role=user
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[100]
+      SendMessageAsync: Streaming assistant response
+info: System.Net.Http.HttpClient.agent.LogicalHandler[100]
+      Start processing HTTP request POST http://127.0.0.1:5121/agent
+info: System.Net.Http.HttpClient.agent.ClientHandler[100]
+      Sending HTTP request POST http://127.0.0.1:5121/agent
+info: System.Net.Http.HttpClient.agent.ClientHandler[101]
+      Received HTTP response headers after 9.5724ms - 200
+info: System.Net.Http.HttpClient.agent.LogicalHandler[101]
+      End processing HTTP request after 9.71ms - 200
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: FunctionApprovalBlock Id=call-27d8f3d9 Role=assistant
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[102]
+      SendMessageAsync: Stream complete. Total updates=2
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5120/c/7c04538daa914e29a5cdf0066b9857a4 - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint '/c/{ThreadId} (/c/{ThreadId})'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint '/c/{ThreadId} (/c/{ThreadId})'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5120/c/7c04538daa914e29a5cdf0066b9857a4 - 200 - text/html;+charset=utf-8 3.7266ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5120/_content/Microsoft.AspNetCore.Components.AI/ai-chat.jgw3rr6wlp.css - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5120/app.g09742kx4e.css - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[6]
+      The file app.g09742kx4e.css was not modified
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5120/app.g09742kx4e.css - 304 - text/css 0.2419ms
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[2]
+      Sending file. Request path: '_content/Microsoft.AspNetCore.Components.AI/ai-chat.jgw3rr6wlp.css'. Physical path: '/home/runner/work/blog-samples-working-repo/blog-samples-working-repo/agentic-ui-durable-sessions/src/Desk.Web/obj/Release/net11.0/compressed/jnxlfftgnk-{0}-jgw3rr6wlp-jgw3rr6wlp.gz'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5120/_content/Microsoft.AspNetCore.Components.AI/ai-chat.jgw3rr6wlp.css - 200 11665 text/css 0.7435ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5120/_framework/blazor.web.yrew3uaoal.js - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[6]
+      The file _framework/blazor.web.yrew3uaoal.js was not modified
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5120/_framework/blazor.web.yrew3uaoal.js - 304 - text/javascript 0.2636ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5120/_blazor/initializers - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5120/_blazor/initializers - 200 - application/json;+charset=utf-8 0.3348ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 POST http://127.0.0.1:5120/_blazor/negotiate?negotiateVersion=1 - - 0
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 POST http://127.0.0.1:5120/_blazor/negotiate?negotiateVersion=1 - 200 316 application/json 0.3706ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5120/_blazor?id=KaUlvxOrxHbZTNjNE5tkOw - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: RichContentBlock Id=3d1bf14bb1064feb9c42bad4cc776eed Role=user
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: OrderToolBlock Id=call-bc8ecb52 Role=assistant
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: RichContentBlock Id=f314115b29f04388b78fe056738e7bd5 Role=assistant
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: RichContentBlock Id=54b977a047114fcca9e67754326557d1 Role=user
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: FunctionInvocationContentBlock Id=call-f654d23c Role=assistant
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: RichContentBlock Id=e28780b521c54c5da640ff389d55d418 Role=assistant
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: RichContentBlock Id=02ee2707c0f74fc58741aa98157abca2 Role=user
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: FunctionApprovalBlock Id=call-a2fd2435 Role=assistant
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: FunctionInvocationContentBlock Id=call-a2fd2435 Role=assistant
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: RichContentBlock Id=3cf02e59ebdc4dbbae03acba37919001 Role=assistant
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: RichContentBlock Id=b79a7b0a59614156ba088bb492d37f39 Role=user
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: FunctionApprovalBlock Id=call-1004f1f8 Role=assistant
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: FunctionInvocationContentBlock Id=call-1004f1f8 Role=assistant
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: RichContentBlock Id=f65118d9f6ea42459a8f1a76990c7219 Role=assistant
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: RichContentBlock Id=df328bbc691c41dda8bff5e18ae4c686 Role=user
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: FunctionApprovalBlock Id=call-27d8f3d9 Role=assistant
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[100]
+      SendMessageAsync: Streaming assistant response
+info: System.Net.Http.HttpClient.agent.LogicalHandler[100]
+      Start processing HTTP request POST http://127.0.0.1:5121/agent
+info: System.Net.Http.HttpClient.agent.ClientHandler[100]
+      Sending HTTP request POST http://127.0.0.1:5121/agent
+info: System.Net.Http.HttpClient.agent.ClientHandler[101]
+      Received HTTP response headers after 4.5109ms - 200
+info: System.Net.Http.HttpClient.agent.LogicalHandler[101]
+      End processing HTTP request after 4.6175ms - 200
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: FunctionInvocationContentBlock Id=call-27d8f3d9 Role=assistant
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: RichContentBlock Id=27091fdead0d43cab2c96d718f086fb5 Role=assistant
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[102]
+      SendMessageAsync: Stream complete. Total updates=8
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[100]
+      SendMessageAsync: Streaming assistant response
+info: System.Net.Http.HttpClient.agent.LogicalHandler[100]
+      Start processing HTTP request POST http://127.0.0.1:5121/agent
+info: System.Net.Http.HttpClient.agent.ClientHandler[100]
+      Sending HTTP request POST http://127.0.0.1:5121/agent
+info: System.Net.Http.HttpClient.agent.ClientHandler[101]
+      Received HTTP response headers after 14.2793ms - 409
+info: System.Net.Http.HttpClient.agent.LogicalHandler[101]
+      End processing HTTP request after 14.4183ms - 409
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 POST http://127.0.0.1:5120/_blazor/disconnect - multipart/form-data;+boundary=----WebKitFormBoundaryIBtD45NrHjxVSXe1 359
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 POST http://127.0.0.1:5120/_blazor/disconnect - 200 0 - 1.6369ms
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5120/_blazor?id=KaUlvxOrxHbZTNjNE5tkOw - 101 - - 782.1862ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5120/ - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint '/ (/)'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint '/ (/)'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5120/ - 200 - text/html;+charset=utf-8 2.1444ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 POST http://127.0.0.1:5120/_blazor/disconnect - multipart/form-data;+boundary=----WebKitFormBoundary4oNcKpg4uzP9bRWB 359
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 POST http://127.0.0.1:5120/_blazor/disconnect - 200 0 - 0.5890ms
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5120/_blazor?id=CvUxK9td53wAok19O4pkUg - 101 - - 1731.4592ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5120/_content/Microsoft.AspNetCore.Components.AI/ai-chat.jgw3rr6wlp.css - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[2]
+      Sending file. Request path: '_content/Microsoft.AspNetCore.Components.AI/ai-chat.jgw3rr6wlp.css'. Physical path: '/home/runner/work/blog-samples-working-repo/blog-samples-working-repo/agentic-ui-durable-sessions/src/Desk.Web/obj/Release/net11.0/compressed/jnxlfftgnk-{0}-jgw3rr6wlp-jgw3rr6wlp.gz'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5120/_content/Microsoft.AspNetCore.Components.AI/ai-chat.jgw3rr6wlp.css - 200 11665 text/css 1.0717ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5120/app.g09742kx4e.css - - -
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5120/_framework/blazor.web.yrew3uaoal.js - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[6]
+      The file _framework/blazor.web.yrew3uaoal.js was not modified
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[6]
+      The file app.g09742kx4e.css was not modified
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5120/_framework/blazor.web.yrew3uaoal.js - 304 - text/javascript 0.2392ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5120/app.g09742kx4e.css - 304 - text/css 1.6838ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5120/_blazor/initializers - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5120/_blazor/initializers - 200 - application/json;+charset=utf-8 0.1962ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 POST http://127.0.0.1:5120/_blazor/negotiate?negotiateVersion=1 - - 0
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 POST http://127.0.0.1:5120/_blazor/negotiate?negotiateVersion=1 - 200 316 application/json 0.2210ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5120/_blazor?id=dI9Tu2X_6wvLLFl84wOHpA - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5120/c/cfc4f2ce100440b795b8c23a747b79e1 - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint '/c/{ThreadId} (/c/{ThreadId})'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint '/c/{ThreadId} (/c/{ThreadId})'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5120/c/cfc4f2ce100440b795b8c23a747b79e1 - 200 - text/html;+charset=utf-8 0.9617ms
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: RichContentBlock Id=020320fe4e6b4a398e8fe34f0afbb4a9 Role=user
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[100]
+      SendMessageAsync: Streaming assistant response
+info: System.Net.Http.HttpClient.agent.LogicalHandler[100]
+      Start processing HTTP request POST http://127.0.0.1:5121/agent
+info: System.Net.Http.HttpClient.agent.ClientHandler[100]
+      Sending HTTP request POST http://127.0.0.1:5121/agent
+info: System.Net.Http.HttpClient.agent.ClientHandler[101]
+      Received HTTP response headers after 152.5081ms - 200
+info: System.Net.Http.HttpClient.agent.LogicalHandler[101]
+      End processing HTTP request after 152.6098ms - 200
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: RichContentBlock Id=a42f58a38743401cba92ff8e368e5400 Role=assistant
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5120/c/cfc4f2ce100440b795b8c23a747b79e1 - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint '/c/{ThreadId} (/c/{ThreadId})'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint '/c/{ThreadId} (/c/{ThreadId})'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5120/c/cfc4f2ce100440b795b8c23a747b79e1 - 200 - text/html;+charset=utf-8 1.7798ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 POST http://127.0.0.1:5120/_blazor/disconnect - multipart/form-data;+boundary=----WebKitFormBoundaryYn7ZLBdyexRfrOMz 359
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5120/_blazor?id=dI9Tu2X_6wvLLFl84wOHpA - 101 - - 1612.6835ms
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 POST http://127.0.0.1:5120/_blazor/disconnect - 200 0 - 2.1949ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5120/_content/Microsoft.AspNetCore.Components.AI/ai-chat.jgw3rr6wlp.css - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[2]
+      Sending file. Request path: '_content/Microsoft.AspNetCore.Components.AI/ai-chat.jgw3rr6wlp.css'. Physical path: '/home/runner/work/blog-samples-working-repo/blog-samples-working-repo/agentic-ui-durable-sessions/src/Desk.Web/obj/Release/net11.0/compressed/jnxlfftgnk-{0}-jgw3rr6wlp-jgw3rr6wlp.gz'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5120/_content/Microsoft.AspNetCore.Components.AI/ai-chat.jgw3rr6wlp.css - 200 11665 text/css 0.5755ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5120/app.g09742kx4e.css - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[6]
+      The file app.g09742kx4e.css was not modified
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5120/app.g09742kx4e.css - 304 - text/css 0.2062ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5120/_framework/blazor.web.yrew3uaoal.js - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[6]
+      The file _framework/blazor.web.yrew3uaoal.js was not modified
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5120/_framework/blazor.web.yrew3uaoal.js - 304 - text/javascript 0.2283ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5120/_blazor/initializers - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5120/_blazor/initializers - 200 - application/json;+charset=utf-8 0.1951ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 POST http://127.0.0.1:5120/_blazor/negotiate?negotiateVersion=1 - - 0
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 POST http://127.0.0.1:5120/_blazor/negotiate?negotiateVersion=1 - 200 316 application/json 0.2082ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5120/_blazor?id=Dm4CGgjjwl59Gj6XTLAthA - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: RichContentBlock Id=29044d09790b4133a58775071313eade Role=user
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: RichContentBlock Id=a42f58a38743401cba92ff8e368e5400 Role=assistant
+info: Microsoft.AspNetCore.Server.Kestrel.Connections[34]
+      Connection id "0HNQ8FN5F9NU9", Request id "0HNQ8FN5F9NU9:00000001": the application aborted the connection.
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.Hosting.Lifetime[0]
+      Application is shutting down...
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5120/_blazor?id=Dm4CGgjjwl59Gj6XTLAthA - 101 - - 3105.5643ms
+info: Microsoft.AspNetCore.DataProtection.KeyManagement.XmlKeyManager[62]
+      User profile is available. Using '/home/runner/.aspnet/DataProtection-Keys' as key repository; keys will not be encrypted at rest.
+info: Microsoft.Hosting.Lifetime[14]
+      Now listening on: http://127.0.0.1:5120
+info: Microsoft.Hosting.Lifetime[0]
+      Application started. Press Ctrl+C to shut down.
+info: Microsoft.Hosting.Lifetime[0]
+      Hosting environment: Development
+info: Microsoft.Hosting.Lifetime[0]
+      Content root path: /home/runner/work/blog-samples-working-repo/blog-samples-working-repo/agentic-ui-durable-sessions/src/Desk.Web
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5120/ - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint '/ (/)'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint '/ (/)'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5120/ - 200 - text/html;+charset=utf-8 136.7629ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5120/ - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint '/ (/)'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint '/ (/)'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5120/ - 200 - text/html;+charset=utf-8 5.7317ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 POST http://127.0.0.1:5120/_blazor/disconnect - multipart/form-data;+boundary=----WebKitFormBoundarydATv4RTYHpQZBnqK 359
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5120/_content/Microsoft.AspNetCore.Components.AI/ai-chat.jgw3rr6wlp.css - - -
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5120/app.g09742kx4e.css - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[6]
+      The file app.g09742kx4e.css was not modified
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5120/app.g09742kx4e.css - 304 - text/css 5.9585ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5120/_framework/blazor.web.yrew3uaoal.js - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[6]
+      The file _framework/blazor.web.yrew3uaoal.js was not modified
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5120/_framework/blazor.web.yrew3uaoal.js - 304 - text/javascript 1.2248ms
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 POST http://127.0.0.1:5120/_blazor/disconnect - 200 0 - 16.7984ms
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[2]
+      Sending file. Request path: '_content/Microsoft.AspNetCore.Components.AI/ai-chat.jgw3rr6wlp.css'. Physical path: '/home/runner/work/blog-samples-working-repo/blog-samples-working-repo/agentic-ui-durable-sessions/src/Desk.Web/obj/Release/net11.0/compressed/jnxlfftgnk-{0}-jgw3rr6wlp-jgw3rr6wlp.gz'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5120/_content/Microsoft.AspNetCore.Components.AI/ai-chat.jgw3rr6wlp.css - 200 11665 text/css 14.8207ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5120/_blazor/initializers - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5120/_blazor/initializers - 200 - application/json;+charset=utf-8 13.0438ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 POST http://127.0.0.1:5120/_blazor/negotiate?negotiateVersion=1 - - 0
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 POST http://127.0.0.1:5120/_blazor/negotiate?negotiateVersion=1 - 200 316 application/json 4.8112ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5120/_blazor?id=KvEVNgGvSD6XSNXuF0cScA - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5120/c/7f1d1dfa1a454bc8b6d295a02e6f7ba5 - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint '/c/{ThreadId} (/c/{ThreadId})'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint '/c/{ThreadId} (/c/{ThreadId})'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5120/c/7f1d1dfa1a454bc8b6d295a02e6f7ba5 - 200 - text/html;+charset=utf-8 4.5124ms
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: RichContentBlock Id=929a542d82524594a6ab2574b0a9e046 Role=user
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[100]
+      SendMessageAsync: Streaming assistant response
+info: System.Net.Http.HttpClient.agent.LogicalHandler[100]
+      Start processing HTTP request POST http://127.0.0.1:5121/agent
+info: System.Net.Http.HttpClient.agent.ClientHandler[100]
+      Sending HTTP request POST http://127.0.0.1:5121/agent
+info: System.Net.Http.HttpClient.agent.ClientHandler[101]
+      Received HTTP response headers after 25.2648ms - 200
+info: System.Net.Http.HttpClient.agent.LogicalHandler[101]
+      End processing HTTP request after 32.3542ms - 200
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: FunctionApprovalBlock Id=call-4596942c Role=assistant
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[102]
+      SendMessageAsync: Stream complete. Total updates=2
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5120/c/7f1d1dfa1a454bc8b6d295a02e6f7ba5 - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint '/c/{ThreadId} (/c/{ThreadId})'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint '/c/{ThreadId} (/c/{ThreadId})'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5120/c/7f1d1dfa1a454bc8b6d295a02e6f7ba5 - 200 - text/html;+charset=utf-8 1.2277ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 POST http://127.0.0.1:5120/_blazor/disconnect - multipart/form-data;+boundary=----WebKitFormBoundaryjcUfvBdzkBjC6vf3 359
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5120/_blazor?id=KvEVNgGvSD6XSNXuF0cScA - 101 - - 564.3519ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5120/_content/Microsoft.AspNetCore.Components.AI/ai-chat.jgw3rr6wlp.css - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5120/app.g09742kx4e.css - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[6]
+      The file app.g09742kx4e.css was not modified
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5120/app.g09742kx4e.css - 304 - text/css 0.1735ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5120/_framework/blazor.web.yrew3uaoal.js - - -
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[2]
+      Sending file. Request path: '_content/Microsoft.AspNetCore.Components.AI/ai-chat.jgw3rr6wlp.css'. Physical path: '/home/runner/work/blog-samples-working-repo/blog-samples-working-repo/agentic-ui-durable-sessions/src/Desk.Web/obj/Release/net11.0/compressed/jnxlfftgnk-{0}-jgw3rr6wlp-jgw3rr6wlp.gz'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5120/_content/Microsoft.AspNetCore.Components.AI/ai-chat.jgw3rr6wlp.css - 200 11665 text/css 2.1522ms
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 POST http://127.0.0.1:5120/_blazor/disconnect - 200 0 - 10.5095ms
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.StaticAssets.StaticAssetsInvoker[6]
+      The file _framework/blazor.web.yrew3uaoal.js was not modified
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5120/_framework/blazor.web.yrew3uaoal.js - 304 - text/javascript 6.5817ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5120/_blazor/initializers - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5120/_blazor/initializers - 200 - application/json;+charset=utf-8 0.4284ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 POST http://127.0.0.1:5120/_blazor/negotiate?negotiateVersion=1 - - 0
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 POST http://127.0.0.1:5120/_blazor/negotiate?negotiateVersion=1 - 200 316 application/json 0.3094ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:5120/_blazor?id=CT0p4Pc1r-h4Z1sVwdU0YA - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: RichContentBlock Id=b996d7797cda497ab7cefc9a4813f9f0 Role=user
+info: Microsoft.AspNetCore.Components.AI.BlockMappingPipeline[3]
+      Emitting new block: FunctionApprovalBlock Id=call-4596942c Role=assistant
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:5120/_blazor?id=CT0p4Pc1r-h4Z1sVwdU0YA - 101 - - 2952.0556ms
+info: Microsoft.Hosting.Lifetime[0]
+      Application is shutting down...

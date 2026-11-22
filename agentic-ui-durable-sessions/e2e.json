@@ -1,0 +1,62 @@
+[
+ {
+  "step": "a conversation has an address",
+  "ok": true,
+  "seconds": 1.12,
+  "detail": "the conversation has its own address: /c/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx (32 characters, random)"
+ },
+ {
+  "step": "reload",
+  "ok": true,
+  "seconds": 0.41,
+  "detail": "after a reload: order cards 1, text of the answer present"
+ },
+ {
+  "step": "shared state after a reload",
+  "ok": true,
+  "seconds": 1.31,
+  "detail": "after a reload the draft reply and the signature typed by the user are both in the panel"
+ },
+ {
+  "step": "an approval that was waiting, after a reload",
+  "ok": true,
+  "seconds": 1.19,
+  "detail": "the approval came back with buttons; Approve after the reload paid once: [('O-1003', 37.5)]"
+ },
+ {
+  "step": "an answered approval, after another reload",
+  "ok": true,
+  "seconds": 0.39,
+  "detail": "after another reload: Approve buttons 0, approvals shown as answered 1"
+ },
+ {
+  "step": "the web app restarts",
+  "ok": true,
+  "seconds": 2.41,
+  "detail": "the web app was stopped and started; the same address shows the whole conversation and the panel"
+ },
+ {
+  "step": "the agent service restarts while an approval waits",
+  "ok": true,
+  "seconds": 2.19,
+  "detail": "the agent service was stopped and started while the approval waited; refunds after Approve: ['O-1003', 'O-1002']"
+ },
+ {
+  "step": "two tabs answer the same approval",
+  "ok": true,
+  "seconds": 0.94,
+  "detail": "second tab approved and was paid; the first tab's Approve was refused: \"That approval was already answered, or it has expired. This click paid nothing.\"; refunds 3"
+ },
+ {
+  "step": "reload in the middle of an answer",
+  "ok": true,
+  "seconds": 4.76,
+  "detail": "reloaded 1.5 s into a long answer: about 14 words of 156 came back, with a notice; the run on the agent service ended early after 12 events and did not continue"
+ },
+ {
+  "step": "lab: the default buttons on a restored approval",
+  "ok": true,
+  "seconds": 5.33,
+  "detail": "with the component's own buttons on a restored approval: the block now reads \"Approved\"; requests sent 0; refund attempts 0"
+ }
+]
