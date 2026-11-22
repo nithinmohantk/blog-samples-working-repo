@@ -24,8 +24,7 @@ public sealed class JournalThread : IConversationThread
     private readonly List<ChatResponseUpdate> _live = [];
     private readonly HashSet<string> _restoredApprovals = new(StringComparer.Ordinal);
     private readonly HashSet<string> _answeredApprovals = new(StringComparer.Ordinal);
-    private long _nextSeq;
-    private long _liveSeq;
+    private string? _turnId;
 
     public JournalThread(JournalStore store, string threadId, bool compact = true, bool repairToolResults = true)
     {
@@ -46,8 +45,6 @@ public sealed class JournalThread : IConversationThread
             Note(update, restored: true);
         }
 
-        _nextSeq = rows.Count == 0 ? 0 : rows[^1].Seq + 1;
-        _liveSeq = _nextSeq;
         RestoredUpdates = _updates.Count;
         EndedMidTurn = rows.Count > 0 && rows[^1].Kind != JournalStore.TurnDone;
     }
@@ -103,9 +100,9 @@ public sealed class JournalThread : IConversationThread
         lock (_gate)
         {
             List<ChatResponseUpdate> final = _compact ? Compact(_turn) : [.. _turn];
-            List<JournalRow> rows = [.. final.Select((update, i) => new JournalRow(_nextSeq + i, JournalStore.Update, JsonSerializer.Serialize(update, s_json)))];
-            rows.Add(new JournalRow(_nextSeq + final.Count, JournalStore.TurnDone, null));
-            _store.Rewrite(ThreadId, _nextSeq, rows);
+            List<(string, string?)> rows = [.. final.Select(update => (JournalStore.Update, (string?)JsonSerializer.Serialize(update, s_json)))];
+            rows.Add((JournalStore.TurnDone, null));
+            _store.ReplaceTurn(ThreadId, _turnId ?? Guid.NewGuid().ToString("N"), rows);
 
             foreach (ChatResponseUpdate update in final)
             {
@@ -113,8 +110,7 @@ public sealed class JournalThread : IConversationThread
                 Note(update, restored: false);
             }
 
-            _nextSeq += rows.Count;
-            _liveSeq = _nextSeq;
+            _turnId = null;
             _turn.Clear();
             _live.Clear();
         }
@@ -139,7 +135,7 @@ public sealed class JournalThread : IConversationThread
             // history it sends next. Its provisional rows therefore stay, as part of the conversation.
             _updates.AddRange(_live);
             _live.Clear();
-            _nextSeq = _liveSeq;
+            _turnId = Guid.NewGuid().ToString("N");
             Live(AsUpdate(message));
         }
     }
@@ -148,8 +144,25 @@ public sealed class JournalThread : IConversationThread
     {
         lock (_gate)
         {
-            _live.Add(update);
-            _store.Append(ThreadId, new JournalRow(_liveSeq++, JournalStore.Update, JsonSerializer.Serialize(update, s_json)));
+            if (_turnId is not null)
+            {
+                _live.Add(update);
+                _store.Append(ThreadId, _turnId, JournalStore.Update, JsonSerializer.Serialize(update, s_json));
+            }
+        }
+    }
+
+    /// <summary>The request was refused before anything came back: there is no turn, so its rows go.</summary>
+    public void LiveAbandon()
+    {
+        lock (_gate)
+        {
+            if (_turnId is not null)
+            {
+                _store.ReplaceTurn(ThreadId, _turnId, []);
+                _turnId = null;
+                _live.Clear();
+            }
         }
     }
 

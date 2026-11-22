@@ -20,8 +20,28 @@ public sealed class TurnRecorder(IChatClient inner, JournalThread thread) : Dele
             thread.LiveStart(asked);
         }
 
-        await foreach (ChatResponseUpdate update in base.GetStreamingResponseAsync(conversation, options, cancellationToken))
+        bool anything = false;
+        await using IAsyncEnumerator<ChatResponseUpdate> updates = base.GetStreamingResponseAsync(conversation, options, cancellationToken).GetAsyncEnumerator(cancellationToken);
+        while (true)
         {
+            ChatResponseUpdate update;
+            try
+            {
+                if (!await updates.MoveNextAsync())
+                {
+                    break;
+                }
+
+                update = updates.Current;
+            }
+            catch (Exception) when (!anything)
+            {
+                // Refused before the first event, for example an approval somebody else already answered.
+                thread.LiveAbandon();
+                throw;
+            }
+
+            anything = true;
             thread.Live(update);
             yield return update;
         }

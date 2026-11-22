@@ -248,8 +248,8 @@ public sealed class RestoreTests : IDisposable
         // Drop everything after the first three words of the answer, and the end-of-turn mark with it:
         // what the journal holds when the page goes away while the answer is arriving.
         List<JournalRow> rows = _store.Load(thread);
-        long cut = rows.Where(row => row.Body?.Contains("\"text\"") == true && row.Body.Contains("assistant")).Skip(3).First().Seq;
-        _store.Rewrite(thread, cut, []);
+        long cut = rows.Where(row => row.Body?.Contains("\"text\"") == true && row.Body.Contains("assistant")).Skip(3).First().Id;
+        _store.Truncate(thread, cut);
 
         (DeskSession reloaded, AgentContext restored) = Open(thread);
         await restored.RestoreAsync(default);
