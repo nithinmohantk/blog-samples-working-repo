@@ -69,13 +69,22 @@ def reload(page: Page) -> None:
     page.wait_for_timeout(700)
 
 
+current_page: list[Page] = []
+
+
 def step(name: str, check) -> None:
     started = time.monotonic()
     try:
         detail = check()
         results.append({"step": name, "ok": True, "seconds": round(time.monotonic() - started, 2), "detail": detail})
     except Exception as error:  # a failed step is recorded and the run goes on, so one report shows everything
-        results.append({"step": name, "ok": False, "seconds": round(time.monotonic() - started, 2), "detail": str(error).splitlines()[0][:400]})
+        results.append({"step": name, "ok": False, "seconds": round(time.monotonic() - started, 2), "detail": " / ".join(str(error).splitlines()[:6])[:700]})
+        try:
+            current_page[0].screenshot(path=f"{OUT}/failed-{len(results)}.png")
+            with open(f"{OUT}/failed-{len(results)}.txt", "w", encoding="utf-8") as handle:
+                handle.write(current_page[0].locator("body").inner_text())
+        except Exception:
+            pass
     print(("ok   " if results[-1]["ok"] else "FAIL ") + f"{name}: {results[-1]['detail']}")
 
 
@@ -88,6 +97,7 @@ def main() -> int:
         browser = playwright.chromium.launch()
         context = browser.new_context(viewport={"width": 1376, "height": 768})
         page = context.new_page()
+        current_page.append(page)
 
         def address():
             page.goto(WEB)
