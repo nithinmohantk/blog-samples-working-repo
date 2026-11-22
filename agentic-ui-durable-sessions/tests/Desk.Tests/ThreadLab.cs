@@ -177,7 +177,7 @@ public sealed class ThreadLab(WebApplicationFactory<AgentService> factory) : ICl
     /// <summary>Passes every call to the inner thread and writes down what was asked.</summary>
     private sealed class Recording(IConversationThread? inner, Action<string> say) : IConversationThread
     {
-        public IConversationThread Inner { get; } = inner ?? throw new InvalidOperationException("there is no default thread to wrap");
+        public IConversationThread Inner { get; } = inner ?? new Memory("t-lab-1");
 
         public string ThreadId => Inner.ThreadId;
 
@@ -214,7 +214,7 @@ public sealed class ThreadLab(WebApplicationFactory<AgentService> factory) : ICl
     /// <summary>A thread that starts with updates read from storage, and otherwise behaves like the one it wraps.</summary>
     private sealed class Stored(IConversationThread? inner, List<ChatResponseUpdate> loaded) : IConversationThread
     {
-        private readonly IConversationThread _inner = inner ?? throw new InvalidOperationException("there is no default thread to wrap");
+        private readonly IConversationThread _inner = inner ?? new Memory("t-lab-1");
 
         public string ThreadId => _inner.ThreadId;
 
@@ -229,5 +229,28 @@ public sealed class ThreadLab(WebApplicationFactory<AgentService> factory) : ICl
         public void CompleteTurn() => _inner.CompleteTurn();
 
         public IReadOnlyList<ChatResponseUpdate> GetUpdates() => [.. loaded, .. _inner.GetUpdates()];
+    }
+
+    /// <summary>The simplest thread that could work: every user message and every update, in order.</summary>
+    private sealed class Memory(string threadId) : IConversationThread
+    {
+        private readonly List<ChatResponseUpdate> _updates = [];
+
+        public string ThreadId => threadId;
+
+        public bool IsStateful => false;
+
+        public string? ConversationId => null;
+
+        public void AppendUserMessage(ChatMessage message)
+            => _updates.Add(new ChatResponseUpdate(message.Role, [.. message.Contents]) { MessageId = message.MessageId ?? Guid.NewGuid().ToString("N") });
+
+        public void AppendUpdate(ChatResponseUpdate update) => _updates.Add(update);
+
+        public void CompleteTurn()
+        {
+        }
+
+        public IReadOnlyList<ChatResponseUpdate> GetUpdates() => [.. _updates];
     }
 }
