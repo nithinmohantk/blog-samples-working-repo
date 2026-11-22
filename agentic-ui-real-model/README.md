@@ -1,6 +1,6 @@
 # Agentic UI with a real model behind it
 
-Sample for the dataa.dev article "A Real Model Behind the Blazor Agentic UI: 360 Conversations, Two Models and a Planted Instruction" (9 December 2026).
+Sample for the dataa.dev article "[A Real Model Behind the Blazor Agentic UI: 360 Conversations, Two Models and a Planted Instruction](https://www.dataa.dev/2026/12/09/agentic-ui-real-model-360-conversations-planted-instruction/)" (9 December 2026).
 It follows [agentic-ui-blazor](../agentic-ui-blazor), where a scripted stand-in played the model so that everything around it could be tested.
 Here the stand-in is replaced by a real model on an OpenAI-compatible endpoint, and a lab counts what the model does with the same three tools.
 
