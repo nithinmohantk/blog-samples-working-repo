@@ -347,11 +347,13 @@ public sealed class RestoreTests : IDisposable
         await Task.Delay(1300);
         int words = context.Turns.SelectMany(turn => turn.ResponseBlocks).OfType<RichContentBlock>().Sum(block => block.RawText.Split(' ', StringSplitOptions.RemoveEmptyEntries).Length);
         string during = thread.ToString();
+        int callsDuring = thread.Total;
         await send;
 
         Trace.Line("restore-results.txt", $"0a calls to the thread, 1.3 s into an answer with {words} words on the page | {during} | after the answer ended | {thread}");
         Assert.True(words > 3, $"only {words} words had arrived");
-        Assert.Equal(0, thread.Total);
+        Assert.Equal(0, callsDuring);
+        Assert.True(thread.Total > 3);
         agent.Dispose();
     }
 
