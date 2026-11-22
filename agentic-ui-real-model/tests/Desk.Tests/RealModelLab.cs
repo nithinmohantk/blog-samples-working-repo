@@ -19,7 +19,8 @@ namespace Desk.Tests;
 /// short conversation run several times, because one run of a model proves nothing. What is counted
 /// is behaviour that code can check: which tools were asked for, with which arguments, whether a
 /// refund stopped for approval, and what the payment stand-in holds afterwards.
-/// Runs only when MODEL_ENDPOINT, MODEL_API_KEY and MODEL_NAME are set. MODEL_NAME may list several models.
+/// Runs only when MODEL_ENDPOINT, MODEL_API_KEY and MODEL_NAME are set. MODEL_NAME may list several
+/// deployments, separated by commas, each optionally as deployment=label.
 /// </summary>
 public sealed class RealModelLab
 {
@@ -109,8 +110,11 @@ public sealed class RealModelLab
         Scenario[] scenarios = only.Length == 0 ? s_scenarios : [.. s_scenarios.Where(s => only.Contains(s.Id))];
 
         Trace.Line("model-lab.txt", $"endpoint host: {string.Join(".", new Uri(endpoint).Host.Split('.').TakeLast(3))} | models: {string.Join(", ", models)} | runs per scenario: {runs} | started {DateTimeOffset.UtcNow:yyyy-MM-dd HH:mm} UTC");
-        foreach (string model in models)
+        foreach (string entry in models)
         {
+            // "deployment=label" names a deployment whose name does not say which model it serves.
+            string deployment = entry.Split('=')[0];
+            string model = entry.Contains('=') ? $"{entry.Split('=')[1]} (deployment {deployment})" : deployment;
             ConcurrentQueue<(Scenario Scenario, int Run)> work = new(scenarios.SelectMany(s => Enumerable.Range(1, runs).Select(run => (s, run))));
             ConcurrentBag<(Scenario Scenario, int Run, Outcome Outcome, bool Ok, string Note)> done = [];
             Stopwatch wall = Stopwatch.StartNew();
@@ -125,7 +129,7 @@ public sealed class RealModelLab
                         if (!hosts.TryGetValue(item.Scenario.Prompt, out WebApplicationFactory<AgentService>? host))
                         {
                             hosts[item.Scenario.Prompt] = host = new WebApplicationFactory<AgentService>().WithWebHostBuilder(h => h
-                                .UseSetting("MODEL_ENDPOINT", endpoint).UseSetting("MODEL_API_KEY", key).UseSetting("MODEL_NAME", model)
+                                .UseSetting("MODEL_ENDPOINT", endpoint).UseSetting("MODEL_API_KEY", key).UseSetting("MODEL_NAME", deployment)
                                 .UseSetting("DESK_PROMPT", item.Scenario.Prompt));
                         }
 
