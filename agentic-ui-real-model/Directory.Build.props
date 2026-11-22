@@ -1,0 +1,10 @@
+<Project>
+  <PropertyGroup>
+    <TargetFramework>net11.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <ExtensionsAIOpenAIVersion Condition="'$(ExtensionsAIOpenAIVersion)' == ''">11.0.0</ExtensionsAIOpenAIVersion>
+  </PropertyGroup>
+</Project>

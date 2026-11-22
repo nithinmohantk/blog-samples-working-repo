@@ -1,0 +1,21 @@
+<Project>
+  <PropertyGroup>
+    <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
+  </PropertyGroup>
+  <!-- Exact versions, as resolved on 22 November 2026. -->
+  <ItemGroup>
+    <PackageVersion Include="Microsoft.AspNetCore.Components.AI" Version="0.1.0-preview.1.26466.103" />
+    <!-- The Blazor AI preview reaches a release candidate of this package that NuGet reports under
+         advisory GHSA-m28h-pj36-4364 (NU1902). Pinning the released version clears it. -->
+    <PackageVersion Include="Microsoft.Extensions.Validation" Version="11.0.0" />
+    <PackageVersion Include="AGUI.Client" Version="1.0.1" />
+    <PackageVersion Include="AGUI.Server" Version="1.0.1" />
+    <PackageVersion Include="AGUI.Formatting" Version="1.0.1" />
+    <PackageVersion Include="Microsoft.Extensions.AI" Version="11.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.AI.OpenAI" Version="$(ExtensionsAIOpenAIVersion)" />
+    <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="11.0.0" />
+    <PackageVersion Include="xunit" Version="2.9.3" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.5" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.6.0" />
+  </ItemGroup>
+</Project>

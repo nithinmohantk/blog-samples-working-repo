@@ -1,0 +1,27 @@
+@implements IDisposable
+
+<aside class="reply-panel" aria-label="Draft reply">
+    <h2>Draft reply</h2>
+    <label>
+        Signature
+        <input class="reply-panel__signature" value="@State.Value.Signature"
+               @onchange="@(e => State.Value = State.Value with { Signature = e.Value?.ToString() ?? "" })" />
+    </label>
+    <label>
+        Reply @(State.Value.OrderId is { Length: > 0 } id ? $"for {id} ({State.Value.Tone})" : "")
+        <textarea class="reply-panel__reply" rows="6" value="@State.Value.Reply"
+                  @onchange="@(e => State.Value = State.Value with { Reply = e.Value?.ToString() ?? "" })"></textarea>
+    </label>
+</aside>
+
+@code {
+    private IDisposable? _registration;
+
+    [Parameter, EditorRequired]
+    public AgentState<CaseState> State { get; set; } = default!;
+
+    // The agent changes the state from outside the render cycle, so the panel has to ask to be redrawn.
+    protected override void OnInitialized() => _registration = State.OnChanged(() => InvokeAsync(StateHasChanged));
+
+    public void Dispose() => _registration?.Dispose();
+}
