@@ -1,6 +1,6 @@
 # Agentic UI in Blazor WebAssembly, with authentication
 
-Sample for the dataa.dev article "Agentic UI in Blazor WebAssembly: Sessions, Tokens and Who May Approve a Refund" (2 December 2026).
+Sample for the dataa.dev article "[Agentic UI in Blazor WebAssembly: Sessions, Tokens and Who May Approve a Refund](https://www.dataa.dev/2026/12/02/agentic-ui-blazor-webassembly-authentication/)" (2 December 2026).
 It follows [agentic-ui-blazor](../agentic-ui-blazor), where the Blazor components ran on the server.
 Here they run in the browser, so the browser is the AG-UI client and every request has to prove who sent it.
 

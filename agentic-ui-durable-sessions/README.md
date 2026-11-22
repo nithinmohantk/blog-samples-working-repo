@@ -1,6 +1,6 @@
 # Agentic UI that survives a reload
 
-Sample for the dataa.dev article "Agentic UI That Survives a Reload: Persisting the Conversation and a Pending Approval in Blazor" (16 December 2026).
+Sample for the dataa.dev article "[Agentic UI That Survives a Reload: Persisting the Conversation and a Pending Approval in Blazor](https://www.dataa.dev/2026/12/16/agentic-ui-blazor-reload-persisted-conversation-approvals/)" (16 December 2026).
 It follows [agentic-ui-blazor](../agentic-ui-blazor): the same order desk, where the conversation now has an address,
 is kept in a journal, and comes back after a reload, a restart of either service, or in a second tab.
 
