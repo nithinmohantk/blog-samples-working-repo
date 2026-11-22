@@ -140,7 +140,100 @@ public sealed class ThreadLab(WebApplicationFactory<AgentService> factory) : ICl
         }
 
         Say($"\n# the first agent, still waiting: completed={pending.IsCompleted}");
+
+        await ContextLabAsync(chat, wire, ledger, json);
     }
+
+    private async Task ContextLabAsync(IChatClient chat, WireLog wire, Ledger ledger, JsonSerializerOptions json)
+    {
+        ledger.Clear();
+        Say("\n\n## the same through AgentContext, which is what the components use");
+        Memory live = new("t-lab-2");
+        UIAgent<LabState> agent = MakeWithState(chat, "t-lab-2", live);
+        AgentContext context = new(agent);
+        context.RegisterOnStatusChanged(status => Say($"  status -> {status}"));
+        await context.SendMessageAsync("Draft a reply for order O-1001", CancellationToken.None);
+        Say($"state after a draft: reply={Short(agent.State.Value.Reply)}");
+        await context.SendMessageAsync("Refund order O-1003", CancellationToken.None);
+        Say($"live, after the refund question: status={context.Status} turns={context.Turns.Count}");
+        string stored = JsonSerializer.Serialize(live.GetUpdates(), json);
+        List<ChatResponseUpdate> Load() => JsonSerializer.Deserialize<List<ChatResponseUpdate>>(stored, json)!;
+
+        Say("\n# live: Approve() on the block");
+        int before = wire.Entries.Count;
+        FunctionApprovalBlock liveBlock = context.Turns.SelectMany(t => t.ResponseBlocks).OfType<FunctionApprovalBlock>().Last();
+        liveBlock.Approve();
+        await WaitAsync(() => wire.Entries.Count > before && context.Status == ConversationStatus.Idle);
+        Say($"live Approve(): new wire requests={wire.Entries.Count - before} refunds={ledger.Refunds.Count} status={context.Status}");
+        ledger.Clear();
+
+        Say("\n# restored copy A (as after a reload): Approve() on the block");
+        Memory memoryA = new("t-lab-2", Load());
+        UIAgent<LabState> agentA = MakeWithState(chat, "t-lab-2", memoryA);
+        AgentContext a = new(agentA);
+        a.RegisterOnStatusChanged(status => Say($"  A status -> {status}"));
+        await a.RestoreAsync(CancellationToken.None);
+        Say($"A restored: status={a.Status} turns={a.Turns.Count} state.reply={Short(agentA.State.Value.Reply)}");
+        FunctionApprovalBlock blockA = a.Turns.SelectMany(t => t.ResponseBlocks).OfType<FunctionApprovalBlock>().Last();
+        before = wire.Entries.Count;
+        blockA.Approve();
+        await Task.Delay(1500);
+        Say($"A Approve(): block={blockA.Status} new wire requests={wire.Entries.Count - before} refunds={ledger.Refunds.Count} status={a.Status}");
+
+        Say("\n# restored copy B (a second tab): answer by sending the approval response through the context");
+        Memory memoryB = new("t-lab-2", Load());
+        AgentContext b = new(MakeWithState(chat, "t-lab-2", memoryB));
+        await b.RestoreAsync(CancellationToken.None);
+        FunctionApprovalBlock blockB = b.Turns.SelectMany(t => t.ResponseBlocks).OfType<FunctionApprovalBlock>().Last();
+        before = wire.Entries.Count;
+        await b.SendMessageAsync(new ChatMessage(ChatRole.User, [blockB.ApprovalRequest.CreateResponse(true)]), CancellationToken.None);
+        Say($"B sent the response: new wire requests={wire.Entries.Count - before} refunds={ledger.Refunds.Count} status={b.Status} error={b.Error?.GetType().Name}: {b.Error?.Message}");
+        Say($"B turns={b.Turns.Count} last turn blocks=[{string.Join(" | ", b.Turns[^1].RequestBlocks.Concat(b.Turns[^1].ResponseBlocks).Select(Describe))}]");
+        Say($"B approval block now: {Describe(blockB)}");
+
+        Say("\n# copy A answers the same approval after B did (the live answer above already used it once)");
+        before = wire.Entries.Count;
+        await a.SendMessageAsync(new ChatMessage(ChatRole.User, [blockA.ApprovalRequest.CreateResponse(true)]), CancellationToken.None);
+        Say($"A sent the response: new wire requests={wire.Entries.Count - before} refunds={ledger.Refunds.Count} attempts={ledger.Attempts} status={a.Status} error={a.Error?.GetType().Name}: {a.Error?.Message}");
+
+        Say("\n# a journal cut in the middle of an answer (the first 6 updates of turn 1)");
+        Memory cut = new("t-lab-2", Load().Take(6).ToList());
+        AgentContext c = new(MakeWithState(chat, "t-lab-2", cut));
+        await c.RestoreAsync(CancellationToken.None);
+        Say($"cut restored: status={c.Status} turns={c.Turns.Count} blocks=[{string.Join(" | ", c.Turns.SelectMany(t => t.RequestBlocks.Concat(t.ResponseBlocks)).Select(Describe))}]");
+        before = wire.Entries.Count;
+        await c.SendMessageAsync("Where is order O-1002?", CancellationToken.None);
+        Say($"cut, next question: status={c.Status} error={c.Error?.Message} wire roles=[{string.Join(",", wire.Entries.Skip(before).SelectMany(e => e.Request["messages"]!.AsArray().Select(m => m!["role"])))}]");
+    }
+
+    private static async Task WaitAsync(Func<bool> done)
+    {
+        for (int i = 0; i < 60 && !done(); i++)
+        {
+            await Task.Delay(50);
+        }
+    }
+
+    private sealed record LabState
+    {
+        [System.Text.Json.Serialization.JsonPropertyName("reply")] public string Reply { get; init; } = "";
+
+        [System.Text.Json.Serialization.JsonPropertyName("signature")] public string Signature { get; init; } = "";
+    }
+
+    private static UIAgent<LabState> MakeWithState(IChatClient chat, string threadId, IConversationThread thread)
+        => new(chat, options =>
+        {
+            options.Thread = thread;
+            options.ChatOptions = new ChatOptions { RawRepresentationFactory = _ => new RunAgentInput { ThreadId = threadId, State = JsonSerializer.SerializeToElement(options.State.Value) } };
+            options.StateMapper = context =>
+            {
+                if (context.Update.RawRepresentation is StateSnapshotEvent snapshot && snapshot.Snapshot.Deserialize<LabState>() is { } state)
+                {
+                    context.SetState(state);
+                }
+            };
+        }, NullLoggerFactory.Instance, new LabState());
 
     private UIAgent Make(IChatClient chat, string threadId, Func<IConversationThread?, IConversationThread?> wrap)
         => new UIAgent(chat, options =>
@@ -232,9 +325,9 @@ public sealed class ThreadLab(WebApplicationFactory<AgentService> factory) : ICl
     }
 
     /// <summary>The simplest thread that could work: every user message and every update, in order.</summary>
-    private sealed class Memory(string threadId) : IConversationThread
+    private sealed class Memory(string threadId, List<ChatResponseUpdate>? loaded = null) : IConversationThread
     {
-        private readonly List<ChatResponseUpdate> _updates = [];
+        private readonly List<ChatResponseUpdate> _updates = loaded ?? [];
 
         public string ThreadId => threadId;
 
