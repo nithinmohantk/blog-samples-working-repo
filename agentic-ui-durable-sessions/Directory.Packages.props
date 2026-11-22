@@ -1,0 +1,9 @@
+<Project>
+  <ItemGroup>
+    <PackageVersion Include="Microsoft.AspNetCore.Components.AI" Version="0.1.0-preview.1.26466.103" />
+    <PackageVersion Include="AGUI.Client" Version="1.0.1" />
+    <PackageVersion Include="AGUI.Server" Version="1.0.1" />
+    <PackageVersion Include="AGUI.Formatting" Version="1.0.1" />
+    <PackageVersion Include="Microsoft.Extensions.AI" Version="11.0.0" />
+  </ItemGroup>
+</Project>
