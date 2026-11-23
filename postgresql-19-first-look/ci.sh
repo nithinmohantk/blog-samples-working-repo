@@ -18,10 +18,11 @@ ready() { for _ in $(seq 1 60); do docker exec "$1" pg_isready -q -U postgres -h
   sleep 8; ready pg19 && ready pg18 || exit 1
 
   # The image allows password logins but not replication connections. Add that line, then copy the primary.
+  # The standby gets a replication slot, so the primary keeps the WAL the standby has not had yet.
   docker exec pg19 bash -c 'echo "host replication all all scram-sha-256" >> "$PGDATA/pg_hba.conf"'
   docker exec pg19 psql -U postgres -qAtc "select pg_reload_conf()" > /dev/null
   docker run --rm --network pglab --user postgres -v pg19s-data:/var/lib/postgresql -e PGPASSWORD=$password postgres:19 \
-    bash -c 'pg_basebackup -h pg19 -U postgres -D "$PGDATA" -R -X stream && chmod 700 "$PGDATA"' || exit 1
+    bash -c 'pg_basebackup -h pg19 -U postgres -D "$PGDATA" -R -X stream -C -S standby1 && chmod 700 "$PGDATA"' || exit 1
   docker run -d --name pg19s --network pglab -p 127.0.0.1:5420:5432 --shm-size=1g -v pg19s-data:/var/lib/postgresql postgres:19 > /dev/null
   sleep 4; ready pg19s || exit 1
   echo "primary sees: $(docker exec pg19 psql -U postgres -Atc "select application_name || ' ' || state from pg_stat_replication")"

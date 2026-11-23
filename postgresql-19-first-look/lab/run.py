@@ -168,7 +168,7 @@ def under_load(table: str, maintenance_sql: str) -> dict:
         with connect(PG19) as conn:
             while not stop.is_set():
                 levels.add(one(conn, "show effective_wal_level"))
-                slots.add(one(conn, "select count(*) from pg_replication_slots"))
+                slots.add(one(conn, "select count(*) from pg_replication_slots where slot_type = 'logical'"))
                 time.sleep(0.05)
 
     threads = [threading.Thread(target=f) for f in (writer, reader, watcher)]
@@ -208,7 +208,7 @@ def repack():
         r = under_load(table, sql)
         say(f"{sql} | {r['seconds']:.2f} s | {r['before']:.0f} -> {r['after']:.0f} MB | {r['writes_during']} | {r['worst_write']:.0f} ms | {r['reads_during']} | {r['worst_read']:.0f} ms | {r['applied']} = {r['writes_total']}: {r['applied'] == r['writes_total']} ({r['rows']:,} rows)")
         if "CONCURRENTLY" in sql:
-            say(f"while REPACK (CONCURRENTLY) ran: effective_wal_level seen as {r['levels']}, replication slots seen: {r['slots']}")
+            say(f"while REPACK (CONCURRENTLY) ran: effective_wal_level seen as {r['levels']}, logical replication slots seen: {r['slots']}")
     with connect(PG19) as conn:
         conn.execute("create index bloat_c_grp on bloat_c(grp)")
         conn.execute("analyze bloat_c")
