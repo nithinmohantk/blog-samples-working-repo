@@ -122,14 +122,15 @@ def logical_without_restart():
 
 
 # ---------------------------------------------------------------------------------------------
-BLOAT_ROWS = 600_000
+BLOAT_ROWS = 2_400_000
+KEEP_EVERY = 2   # every second row survives the delete
 
 
 def make_bloated(conn, table: str) -> None:
     conn.execute(f"drop table if exists {table}")
     conn.execute(f"create table {table}(id bigint primary key, grp int not null, payload text not null)")
     conn.execute(f"insert into {table} select g, 0, repeat(md5(g::text), 8) from generate_series(1, {BLOAT_ROWS}) g")
-    conn.execute(f"delete from {table} where id % 10 <> 0")
+    conn.execute(f"delete from {table} where id % {KEEP_EVERY} <> 0")
     conn.execute(f"vacuum {table}")
 
 
@@ -150,7 +151,7 @@ def under_load(table: str, maintenance_sql: str) -> dict:
             rng = random.Random(7)
             while not stop.is_set():
                 started = time.perf_counter()
-                conn.execute(f"update {table} set grp = grp + 1 where id = %s", [rng.randrange(1, BLOAT_ROWS // 10) * 10])
+                conn.execute(f"update {table} set grp = grp + 1 where id = %s", [rng.randrange(1, BLOAT_ROWS // KEEP_EVERY) * KEEP_EVERY])
                 writes.append((time.perf_counter(), (time.perf_counter() - started) * 1000))
                 time.sleep(0.002)
 
@@ -159,7 +160,7 @@ def under_load(table: str, maintenance_sql: str) -> dict:
             rng = random.Random(11)
             while not stop.is_set():
                 started = time.perf_counter()
-                conn.execute(f"select grp from {table} where id = %s", [rng.randrange(1, BLOAT_ROWS // 10) * 10]).fetchone()
+                conn.execute(f"select grp from {table} where id = %s", [rng.randrange(1, BLOAT_ROWS // KEEP_EVERY) * KEEP_EVERY]).fetchone()
                 reads.append((time.perf_counter(), (time.perf_counter() - started) * 1000))
                 time.sleep(0.002)
 
@@ -198,7 +199,7 @@ def under_load(table: str, maintenance_sql: str) -> dict:
 
 @experiment("3. REPACK against VACUUM FULL, with a writer and a reader on the table")
 def repack():
-    say(f"table: {BLOAT_ROWS:,} rows of about 300 bytes, nine in ten deleted, then plain VACUUM. A writer updates one row and a reader reads one row about every 2 ms.")
+    say(f"table: {BLOAT_ROWS:,} rows of about 300 bytes, every second one deleted, then plain VACUUM. A writer updates one row and a reader reads one row about every 2 ms.")
     say("statement | took | size before -> after | writes finished during it | slowest write | reads finished during it | slowest read | updates applied = updates acknowledged")
     statements = [("VACUUM FULL bloat_a", "bloat_a"), ("REPACK bloat_b", "bloat_b"), ("REPACK (CONCURRENTLY) bloat_c", "bloat_c")]
     for sql, table in statements:
@@ -218,8 +219,8 @@ def repack():
         say(f"REPACK (CONCURRENTLY) inside a transaction block: {attempt_in_transaction('REPACK (CONCURRENTLY) bloat_c')}")
         conn.execute("create table no_key(a int)")
         say(f"REPACK (CONCURRENTLY) on a table with no primary key: {attempt(conn, 'REPACK (CONCURRENTLY) no_key')}")
-        waits = conn.execute("select locktype, waits, round(wait_time::numeric) from pg_stat_lock where waits > 0 order by waits desc").fetchall()
-        say(f"pg_stat_lock afterwards (locktype, waits, wait_time ms): {waits}")
+        waits = conn.execute("select locktype, waits, round(wait_time::numeric), fastpath_exceeded from pg_stat_lock where waits > 0 or fastpath_exceeded > 0 order by waits desc").fetchall()
+        say(f"pg_stat_lock afterwards (locktype, waits, wait_time ms, fastpath_exceeded): {waits}")
 
 
 def attempt_in_transaction(sql: str) -> str:
@@ -286,6 +287,11 @@ def get_or_create():
         say(f"DO SELECT FOR UPDATE WHERE customer.name = 'Grace' RETURNING name: {locked}")
         filtered = attempt(conn, "insert into customer(email, name) values ('grace@example.test', 'x') on conflict (email) do select where customer.name = 'nobody' returning name")
         say(f"DO SELECT WHERE customer.name = 'nobody' RETURNING name: {filtered}")
+    for label in ("DO NOTHING RETURNING id", "DO SELECT RETURNING id"):
+        with psycopg.connect(host="127.0.0.1", port=PG19, user="postgres", password="lab-only", dbname="postgres") as conn:
+            conn.execute(patterns[label], ["grace@example.test", "Grace"])
+            assigned = one(conn, "select pg_current_xact_id_if_assigned() is not null")
+            say(f"after a conflicting {label}, the transaction has a transaction id: {assigned}")
 
 
 # ---------------------------------------------------------------------------------------------
@@ -307,7 +313,7 @@ def wait_for_lsn():
                     standby.execute(f"WAIT FOR LSN '{lsn}' WITH (MODE 'standby_replay', TIMEOUT '5s')")
                     waits.append((time.perf_counter() - started) * 1000)
                 stale += one(standby, "select v from kv where k = 1") != i
-            extra = f", wait median {statistics.median(waits):.1f} ms, worst {max(waits):.0f} ms" if waits else ""
+            extra = f", wait median {statistics.median(waits):.1f} ms, worst {max(waits):.1f} ms" if waits else ""
             say(f"{label}: {stale} of {rounds} reads on the standby did not see the write just made{extra}")
 
         trial("no added delay, read at once", wait=False)
@@ -397,9 +403,10 @@ def planner():
         for setting in ("on", "off"):
             conn.execute(f"set enable_eager_aggregate = {setting}")
             conn.execute("set max_parallel_workers_per_gather = 0")
-            nodes = [line.strip().lstrip("-> ") for line in plan(conn, aggregate)][:6]
             times = sorted(timed(conn, aggregate) for _ in range(3))
-            say(f"19, 2,000,000 facts joined to 1,000 dimensions, enable_eager_aggregate = {setting}: median {times[1]:.0f} ms | plan: {' / '.join(nodes)}")
+            say(f"19, 2,000,000 facts joined to 1,000 dimensions, enable_eager_aggregate = {setting}: median {times[1]:.0f} ms, plan:")
+            for line in plan(conn, aggregate):
+                say("    " + line)
         conn.execute("reset enable_eager_aggregate")
 
 

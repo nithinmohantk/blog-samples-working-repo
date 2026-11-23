@@ -12,6 +12,7 @@ ready() { for _ in $(seq 1 60); do docker exec "$1" pg_isready -q -U postgres -h
 {
   cleanup
   docker network create pglab > /dev/null
+  docker pull -q postgres:19 > /dev/null; docker pull -q postgres:18 > /dev/null
   docker run -d --name pg19 --network pglab -p 127.0.0.1:5419:5432 --shm-size=1g -e POSTGRES_PASSWORD=$password postgres:19 > /dev/null
   docker run -d --name pg18 --network pglab -p 127.0.0.1:5418:5432 --shm-size=1g -e POSTGRES_PASSWORD=$password postgres:18 > /dev/null
   sleep 8; ready pg19 && ready pg18 || exit 1
@@ -29,7 +30,7 @@ ready() { for _ in $(seq 1 60); do docker exec "$1" pg_isready -q -U postgres -h
 python -m pip install -q "psycopg[binary]==3.2.*" 2>&1 | tail -n 2
 python lab/run.py "$out" 2>&1 | tee "$out/01-console.txt"
 status=${PIPESTATUS[0]}
-failed=$(grep -c "^FAILED" "$out/results.txt" 2>/dev/null || echo 0)
+failed=$(grep -c "^FAILED" "$out/results.txt" 2>/dev/null); failed=${failed:-0}
 echo "experiments that failed: $failed" | tee -a "$out/00-setup.txt"
 docker logs pg19 2>&1 | grep -E "ERROR|FATAL|PANIC" | tail -n 40 > "$out/02-pg19-errors.txt"
 cleanup
