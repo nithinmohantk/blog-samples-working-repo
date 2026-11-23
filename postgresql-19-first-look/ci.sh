@@ -33,6 +33,16 @@ python lab/run.py "$out" 2>&1 | tee "$out/01-console.txt"
 status=${PIPESTATUS[0]}
 failed=$(grep -c "^FAILED" "$out/results.txt" 2>/dev/null); failed=${failed:-0}
 echo "experiments that failed: $failed" | tee -a "$out/00-setup.txt"
+# The tour: plain SQL on 19, each statement echoed with its answer.
+docker exec -i pg19 psql -U postgres -a -f - < sql/tour.sql > "$out/03-tour.txt" 2>&1
+
+# The upgrade checks, on 18, after planting one of everything they look for.
+# The RADIUS line uses a made-up secret and an address that nothing connects from.
+docker exec pg18 bash -c 'echo "host all legacy_app 10.9.9.9/32 radius radiusservers=127.0.0.1 radiussecrets=fake-lab-only" >> "$PGDATA/pg_hba.conf"'
+docker exec -i pg18 psql -U postgres -q -f - < sql/upgrade-plant.sql > "$out/04-upgrade-plant.txt" 2>&1
+sleep 1
+docker exec -i pg18 psql -U postgres -f - < sql/upgrade-checks.sql > "$out/04-upgrade-checks.txt" 2>&1
+grep -n "ERROR" "$out/03-tour.txt" "$out/04-upgrade-plant.txt" "$out/04-upgrade-checks.txt" | tee -a "$out/00-setup.txt"
 docker logs pg19 2>&1 | grep -E "ERROR|FATAL|PANIC" | tail -n 40 > "$out/02-pg19-errors.txt"
 cleanup
 [ "$status" = 0 ] && [ "$failed" = 0 ]
