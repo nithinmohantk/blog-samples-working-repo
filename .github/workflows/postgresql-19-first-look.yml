@@ -4,6 +4,9 @@ on:
   push:
     paths:
       - "postgresql-19-first-look/**"
+      - "!postgresql-19-first-look/ci-more.sh"
+      - "!postgresql-19-first-look/lab/more.py"
+      - "!postgresql-19-first-look/README.md"
       - ".github/workflows/postgresql-19-first-look.yml"
   workflow_dispatch:
 
