@@ -1,30 +1,36 @@
 #!/usr/bin/env bash
-# Probe: what does the PostgreSQL 19 image contain. Usage: ./ci.sh <output directory>
+# Starts PostgreSQL 19 (a primary and a streaming standby) and PostgreSQL 18, then runs the lab.
+# Usage: ./ci.sh <output directory>
 set -uo pipefail
 out="$(mkdir -p "$1" && cd "$1" && pwd)"
 cd "$(dirname "$0")"
+password=lab-only   # a throwaway password for containers that live for one run
+
+cleanup() { docker rm -f pg19 pg19s pg18 > /dev/null 2>&1; docker volume rm -f pg19s-data > /dev/null 2>&1; docker network rm pglab > /dev/null 2>&1; }
+ready() { for _ in $(seq 1 60); do docker exec "$1" pg_isready -q -U postgres -h 127.0.0.1 && return 0; sleep 1; done; echo "$1 did not start"; docker logs "$1" | tail -n 20; return 1; }
+
 {
-  for v in 19 18; do
-    docker pull -q postgres:$v 2>&1 | tail -n 1
-    docker rm -f pg$v > /dev/null 2>&1
-    docker run -d --name pg$v -e POSTGRES_PASSWORD=lab-only postgres:$v > /dev/null
-  done
-  sleep 12
-  for v in 19 18; do
-    echo "=== postgres:$v"
-    docker exec pg$v psql -U postgres -Atc "select version()"
-    docker exec pg$v psql -U postgres -Atc "select name||'='||setting from pg_settings where name in ('jit','default_toast_compression','io_method','io_workers','io_min_workers','io_max_workers','wal_level','effective_wal_level','max_locks_per_transaction','max_repack_replication_slots','autovacuum_max_parallel_workers','md5_password_warnings','password_expiration_warning_threshold','enable_eager_aggregate','max_replication_slots') order by 1"
-    docker exec pg$v psql -U postgres -Atc "select name||' '||default_version from pg_available_extensions where name ~ 'advice|plan|stat_statements|fdw' order by 1"
-    docker exec pg$v psql -U postgres -Atc "select string_agg(viewname, ', ' order by viewname) from pg_views where viewname in ('pg_stat_lock','pg_stat_recovery','pg_stat_autovacuum_scores','pg_stat_progress_repack')"
-  done
-  for h in "WAIT FOR" "REPACK" "INSERT" "COPY" "CREATE PUBLICATION" "CREATE SUBSCRIPTION" "EXPLAIN"; do
-    echo "=== \\h $h"
-    docker exec pg19 psql -U postgres -c "\\h $h"
-  done
-  echo "=== pg_stash_advice objects"
-  docker exec pg19 psql -U postgres -c "create extension if not exists pg_stash_advice" -c "\\dx+ pg_stash_advice"
-  docker exec pg19 psql -U postgres -Atc "select name||'='||setting||' ('||short_desc||')' from pg_settings where name ~ 'advice' order by 1"
-  docker exec pg19 psql -U postgres -c "load 'pg_plan_advice'" -c "select name||'='||setting||' ('||short_desc||')' from pg_settings where name ~ 'advice' order by 1" -c "\\df *advice*"
-  docker exec pg19 psql -U postgres -c "\\d pg_stat_lock" -c "\\d pg_stat_recovery" -c "\\d pg_stat_autovacuum_scores" -c "\\df random"
-  docker rm -f pg19 pg18 > /dev/null
-} 2>&1 | tee "$out/00-probe.txt"
+  cleanup
+  docker network create pglab > /dev/null
+  docker run -d --name pg19 --network pglab -p 127.0.0.1:5419:5432 --shm-size=1g -e POSTGRES_PASSWORD=$password postgres:19 > /dev/null
+  docker run -d --name pg18 --network pglab -p 127.0.0.1:5418:5432 --shm-size=1g -e POSTGRES_PASSWORD=$password postgres:18 > /dev/null
+  sleep 8; ready pg19 && ready pg18 || exit 1
+
+  # The image allows password logins but not replication connections. Add that line, then copy the primary.
+  docker exec pg19 bash -c 'echo "host replication all all scram-sha-256" >> "$PGDATA/pg_hba.conf"'
+  docker exec pg19 psql -U postgres -qAtc "select pg_reload_conf()" > /dev/null
+  docker run --rm --network pglab --user postgres -v pg19s-data:/var/lib/postgresql -e PGPASSWORD=$password postgres:19 \
+    bash -c 'pg_basebackup -h pg19 -U postgres -D "$PGDATA" -R -X stream && chmod 700 "$PGDATA"' || exit 1
+  docker run -d --name pg19s --network pglab -p 127.0.0.1:5420:5432 --shm-size=1g -v pg19s-data:/var/lib/postgresql postgres:19 > /dev/null
+  sleep 4; ready pg19s || exit 1
+  echo "primary sees: $(docker exec pg19 psql -U postgres -Atc "select application_name || ' ' || state from pg_stat_replication")"
+} 2>&1 | tee "$out/00-setup.txt"
+
+python -m pip install -q "psycopg[binary]==3.2.*" 2>&1 | tail -n 2
+python lab/run.py "$out" 2>&1 | tee "$out/01-console.txt"
+status=${PIPESTATUS[0]}
+failed=$(grep -c "^FAILED" "$out/results.txt" 2>/dev/null || echo 0)
+echo "experiments that failed: $failed" | tee -a "$out/00-setup.txt"
+docker logs pg19 2>&1 | grep -E "ERROR|FATAL|PANIC" | tail -n 40 > "$out/02-pg19-errors.txt"
+cleanup
+[ "$status" = 0 ] && [ "$failed" = 0 ]
