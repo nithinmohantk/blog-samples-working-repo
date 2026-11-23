@@ -1,0 +1,201 @@
+PostgreSQL 19 lab, 2026-11-23 13:57 UTC
+
+## 1. Defaults that changed
+18: PostgreSQL 18.7 (Debian 18.7-1.pgdg13+5) | 19: PostgreSQL 19.0 (Debian 19.0-1.pgdg13+1)
+setting | 18 | 19
+jit | on | off
+default_toast_compression | pglz | lz4
+max_locks_per_transaction | 64 | 128
+io_workers | 3 | (not there)
+io_min_workers | (not there) | 2
+io_max_workers | (not there) | 8
+wal_level | replica | replica
+effective_wal_level | (not there) | replica
+max_repack_replication_slots | (not there) | 5
+autovacuum_max_parallel_workers | (not there) | 0
+md5_password_warnings | on | on
+password_expiration_warning_threshold | (not there) | 604800
+enable_eager_aggregate | (not there) | on
+statement | 18 | 19
+select json_array(select 1 where false)::text | None | []
+select coalesce(json_array(select 1 where false)::text, 'NULL') | NULL | []
+
+## 2. Logical decoding without a restart
+18: wal_level=replica | create a logical slot: ERROR: logical decoding requires "wal_level" >= "logical"
+19: wal_level=replica | create a logical slot: lab_slot
+19: with the slot: wal_level=replica, effective_wal_level=logical
+19: decoded changes: ["table public.decode_me: INSERT: id[integer]:1 v[text]:'hello'"]
+19: after dropping the slot: effective_wal_level=replica (after 2 looks, with checkpoints between)
+
+## 3. REPACK against VACUUM FULL, with a writer and a reader on the table
+table: 2,400,000 rows of about 300 bytes, every second one deleted, then plain VACUUM. A writer updates one row and a reader reads one row about every 2 ms.
+statement | took | size before -> after | writes finished during it | slowest write | reads finished during it | slowest read | updates applied = updates acknowledged
+VACUUM FULL bloat_a | 3.63 s | 746 -> 373 MB | 5 | 3641 ms | 21 | 3633 ms | 727 = 727: True (1,200,000 rows)
+REPACK bloat_b | 6.69 s | 746 -> 373 MB | 10 | 6386 ms | 64 | 6579 ms | 373 = 373: True (1,200,000 rows)
+REPACK (CONCURRENTLY) bloat_c | 6.60 s | 746 -> 373 MB | 414 | 898 ms | 1839 | 505 ms | 774 = 774: True (1,200,000 rows)
+while REPACK (CONCURRENTLY) ran: effective_wal_level seen as ['logical', 'replica'], logical replication slots seen: [0, 1]
+REPACK (ANALYZE) bloat_c USING INDEX bloat_c_grp | physical order against grp, correlation 1.00 -> 1.00
+REPACK (CONCURRENTLY) inside a transaction block: ERROR: REPACK (CONCURRENTLY) cannot run inside a transaction block
+REPACK (CONCURRENTLY) on a table with no primary key: ERROR: cannot execute REPACK (CONCURRENTLY) on relation "no_key"
+pg_stat_lock afterwards (locktype, waits, wait_time ms, fastpath_exceeded): [('relation', 4, Decimal('20187'), 0)]
+
+## 4. Get or create: INSERT ... ON CONFLICT DO SELECT
+one existing row, then the same INSERT 5,000 times | 18 | 19: rows returned | WAL written | table size after | identity values used | time
+DO NOTHING RETURNING id | 0 rows, 22 kB WAL, 8 kB, 5001 identity values, 1073 ms | 0 rows, 22 kB WAL, 8 kB, 5001 identity values, 1078 ms
+DO UPDATE SET name = EXCLUDED.name RETURNING id | 5000 rows, 850 kB WAL, 8 kB, 5001 identity values, 1901 ms | 5000 rows, 850 kB WAL, 8 kB, 5001 identity values, 2189 ms
+DO SELECT RETURNING id | ERROR: syntax error at or near "select" | 5000 rows, 22 kB WAL, 8 kB, 5001 identity values, 1080 ms
+16 sessions get-or-create the same new email at once: ids returned [1], rows in the table 1
+DO SELECT FOR UPDATE WHERE customer.name = 'Grace' RETURNING name: Grace
+DO SELECT WHERE customer.name = 'nobody' RETURNING name: (no rows)
+after a conflicting DO NOTHING RETURNING id, the transaction has a transaction id: False
+after a conflicting DO SELECT RETURNING id, the transaction has a transaction id: False
+
+## 5. Read your own write on a standby: WAIT FOR LSN
+standby in recovery: True | pg_stat_recovery: ('2/6692CEC8', 'not paused')
+no added delay, read at once: 1 of 200 reads on the standby did not see the write just made
+no added delay, WAIT FOR LSN first: 0 of 200 reads on the standby did not see the write just made, wait median 0.2 ms, worst 2.6 ms
+standby applies 200 ms late, read at once: 199 of 200 reads on the standby did not see the write just made
+standby applies 200 ms late, WAIT FOR LSN first: 0 of 200 reads on the standby did not see the write just made, wait median 200.6 ms, worst 201.4 ms
+an LSN that never arrives, TIMEOUT '300ms': ERROR: timed out while waiting for target LSN FFFFFFFF/00000000 to be replayed; current standby_replay LSN 2/6697CEE8
+the same with NO_THROW: returns 'timeout'
+a reached LSN: returns 'success'
+MODE 'standby_replay' on the primary: ERROR: recovery is not in progress
+MODE 'primary_flush' on the primary: success
+on 18: ERROR: syntax error at or near "WAIT"
+
+## 6. Smaller SQL additions, with the answer from 18 beside each
+what | 18 | 19
+carry the last reading forward | ERROR: syntax error at or near "nulls" | 20 20 20 23 23
+random date in a range | ERROR: function random(date, date) does not exist | date
+jsonpath string methods | ERROR: syntax error at or near "(" of jsonpath input | "ADA LOVELACE"
+jsonpath split_part | ERROR: syntax error at or near "(" of jsonpath input | "2026"
+COPY ... TO STDOUT (FORMAT json) on 19:
+    {"id":1,"email":"ada@example.test","tags":["a","b"]}
+    {"id":2,"email":"grace@example.test","tags":null}
+COPY ... TO STDOUT (FORMAT json, FORCE_ARRAY) on 19:
+    [
+     {"id":1,"email":"ada@example.test","tags":["a","b"]}
+    ,{"id":2,"email":"grace@example.test","tags":null}
+    ]
+COPY ... (FORMAT json) on 18: ERROR: syntax error at or near "FORMAT"
+
+## 7. Planner: NOT IN, and aggregating before a join
+5,000 orders, 300,000 blocked customers, both columns NOT NULL, no order is blocked. work_mem at its default.
+18: 74236 ms, count 5000 | plan: ->  Seq Scan on orders / Filter: (NOT (ANY (customer_id = (SubPlan 1).col1))) / SubPlan 1
+19: 29 ms, count 5000 | plan: ->  Hash Right Anti Join / ->  Seq Scan on orders
+19, after the NOT NULL is dropped from orders.customer_id: plan: Filter: (NOT (ANY (customer_id = (SubPlan any_1).col1))) / SubPlan any_1
+19, 2,000,000 facts joined to 1,000 dimensions, enable_eager_aggregate = on: median 333 ms, plan:
+    Finalize GroupAggregate
+      Group Key: d.region
+      ->  Sort
+            Sort Key: d.region
+            ->  Hash Join
+                  Hash Cond: (f.dim_id = d.id)
+                  ->  Partial HashAggregate
+                        Group Key: f.dim_id
+                        ->  Seq Scan on fact f
+                  ->  Hash
+                        ->  Seq Scan on dim d
+19, 2,000,000 facts joined to 1,000 dimensions, enable_eager_aggregate = off: median 519 ms, plan:
+    HashAggregate
+      Group Key: d.region
+      ->  Hash Join
+            Hash Cond: (f.dim_id = d.id)
+            ->  Seq Scan on fact f
+            ->  Hash
+                  ->  Seq Scan on dim d
+
+## 8. Bulk insert into a table with a foreign key
+1,000,000 rows inserted in one statement, each pointing at one of 100,000 parents. Median of three, in ms.
+version | with the foreign key | without it | cost of the check
+18 | 5715 | 733 | 4982
+19 | 2705 | 720 | 1985
+with the foreign key, 18 took 2.11 times as long as 19
+
+## 9. Plan advice
+the planner's own choice, with EXPLAIN (COSTS OFF, PLAN_ADVICE):
+    Hash Join
+      Hash Cond: (f.dim_id = d.id)
+      ->  Seq Scan on join_fact f
+      ->  Hash
+            ->  Seq Scan on join_dim d
+    Generated Plan Advice:
+      JOIN_ORDER(f d)
+      HASH_JOIN(d)
+      SEQ_SCAN(f d)
+      NO_GATHER(f d)
+with pg_plan_advice.advice = 'MERGE_JOIN_PLAIN(d)':
+    Merge Join
+      Merge Cond: (f.dim_id = d.id)
+      ->  Index Scan using join_fact_dim on join_fact f
+      ->  Index Scan using join_dim_pkey on join_dim d
+    Supplied Plan Advice:
+      MERGE_JOIN_PLAIN(d) /* matched */
+with pg_plan_advice.advice = 'JOIN_ORDER(d f) NESTED_LOOP_PLAIN(f) INDEX_SCAN(f join_fact_dim)':
+    Nested Loop
+      ->  Seq Scan on join_dim d
+      ->  Index Scan using join_fact_dim on join_fact f
+            Index Cond: (dim_id = d.id)
+    Supplied Plan Advice:
+      INDEX_SCAN(f join_fact_dim) /* matched */
+      JOIN_ORDER(d f) /* matched */
+      NESTED_LOOP_PLAIN(f) /* matched */
+with pg_plan_advice.advice = 'INDEX_SCAN(f no_such_index)':
+    Hash Join
+      Hash Cond: (f.dim_id = d.id)
+      ->  Seq Scan on join_fact f
+      ->  Hash
+            ->  Seq Scan on join_dim d
+    Supplied Plan Advice:
+      INDEX_SCAN(f no_such_index) /* matched, inapplicable, failed */
+pg_stash_advice: advice attached to a query id, applied with no change to the query or the session's advice setting
+settings: [('pg_stash_advice.persist_interval', '30'), ('pg_stash_advice.stash_name', '')]
+query id from EXPLAIN (VERBOSE): found
+stashes: [('lab', 1)]
+with pg_stash_advice.stash_name = 'lab', the same query, nothing else set:
+    Merge Join
+      Merge Cond: (f.dim_id = d.id)
+      ->  Index Scan using join_fact_dim on join_fact f
+      ->  Index Scan using join_dim_pkey on join_dim d
+    Supplied Plan Advice:
+      MERGE_JOIN_PLAIN(d) /* matched */
+
+## 10. TOAST compression: pglz, the old default, against lz4, the new one
+20,000 rows, each a document of about 17 kB of JSON-like text, on 19. Median of three, in ms.
+compression | insert | read every document | table size
+pglz | 3451 | 310 | 31 MB for 297 MB of text
+lz4 | 1886 | 299 | 39 MB for 297 MB of text
+
+## 11. New things to look at
+pg_stat_autovacuum_scores, top four (relname, score, vacuum_score, analyze_score, do_vacuum, do_analyze):
+    ('child', Decimal('60000.00'), Decimal('0.00'), Decimal('60000.00'), True, True)
+    ('child_plain', Decimal('60000.00'), Decimal('0.00'), Decimal('60000.00'), True, True)
+    ('docs_pglz', Decimal('1200.00'), Decimal('0.00'), Decimal('1200.00'), True, True)
+    ('docs_lz4', Decimal('1200.00'), Decimal('0.00'), Decimal('1200.00'), True, True)
+EXPLAIN (ANALYZE, IO, COSTS OFF, TIMING OFF, SUMMARY OFF) select count(*) from fact:
+    Finalize Aggregate (actual rows=1.00 loops=1)
+      Buffers: shared read=12739
+      ->  Gather (actual rows=3.00 loops=1)
+            Workers Planned: 2
+            Workers Launched: 2
+            Buffers: shared read=12739
+            ->  Partial Aggregate (actual rows=1.00 loops=3)
+                  Buffers: shared read=12739
+                  ->  Parallel Seq Scan on fact (actual rows=666666.67 loops=3)
+                        Prefetch: avg=22.05 max=32 capacity=94
+                        I/O: count=1692 waits=14 size=7.53 in-progress=3.18
+                        Buffers: shared read=12739
+                        Worker 0:  Prefetch: avg=27.25 max=31 capacity=94
+                          I/O: count=520 waits=5 size=7.29 in-progress=4.07
+                        Worker 1:  Prefetch: avg=11.55 max=15 capacity=94
+                          I/O: count=565 waits=4 size=7.27 in-progress=1.73
+    Planning:
+      Buffers: shared hit=32 read=4 dirtied=2
+EXPLAIN (ANALYZE, WAL, COSTS OFF, TIMING OFF, SUMMARY OFF) update kv set v = v + 1, just after a checkpoint:
+    Update on kv (actual rows=0.00 loops=1)
+      Buffers: shared hit=2 read=2 dirtied=2
+      WAL: records=1 fpi=2 bytes=8682 fpi bytes=8604
+      ->  Seq Scan on kv (actual rows=1.00 loops=1)
+            Buffers: shared read=1
+    Planning:
+      Buffers: shared hit=21 read=1

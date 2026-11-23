@@ -1,0 +1,104 @@
+-- A short tour of PostgreSQL 19 in plain SQL. ci.sh runs it with psql -a, so the output file shows
+-- each statement followed by what the server answered.
+\pset footer off
+create schema tour;
+CREATE SCHEMA
+set search_path = tour;
+SET
+-- 1. REPACK: rewrite a bloated table
+create table invoice(id bigint primary key, customer_id int not null, body text not null);
+CREATE TABLE
+insert into invoice select g, g % 5000, repeat('x', 200) from generate_series(1, 200000) g;
+INSERT 0 200000
+create index invoice_customer on invoice(customer_id);
+CREATE INDEX
+delete from invoice where id % 3 <> 0;
+DELETE 133334
+select pg_size_pretty(pg_total_relation_size('invoice')) as size_before;
+ size_before 
+-------------
+ 53 MB
+
+-- Readers and writers keep working while this runs. The table needs a primary key.
+REPACK (CONCURRENTLY) invoice;
+REPACK
+select pg_size_pretty(pg_total_relation_size('invoice')) as size_after;
+ size_after 
+------------
+ 18 MB
+
+-- Rewrite in the order of an index and refresh the statistics in the same pass.
+-- This form takes an exclusive lock, as CLUSTER did.
+REPACK (ANALYZE) invoice USING INDEX invoice_customer;
+REPACK
+-- 2. Get or create in one statement
+create table customer(
+    id bigint generated always as identity primary key,
+    email text not null unique,
+    name text not null);
+CREATE TABLE
+insert into customer(email, name) values ('ada@example.test', 'Ada')
+on conflict (email) do select
+returning id, name, old.id as old_id, new.id as new_id;
+ id | name | old_id | new_id 
+----+------+--------+--------
+  1 | Ada  |        |      1
+
+INSERT 0 1
+-- The same email again: nothing is written, and the existing row comes back.
+insert into customer(email, name) values ('ada@example.test', 'Somebody else')
+on conflict (email) do select
+returning id, name, old.id as old_id, new.id as new_id;
+ id | name | old_id | new_id 
+----+------+--------+--------
+  1 | Ada  |      1 |      1
+
+INSERT 0 1
+-- Lock the row that was found, for a read-then-write in the same transaction.
+begin;
+BEGIN
+insert into customer(email, name) values ('ada@example.test', 'x')
+on conflict (email) do select for update
+returning id, name;
+ id | name 
+----+------
+  1 | Ada
+
+INSERT 0 1
+commit;
+COMMIT
+-- 3. Carry the last known reading forward
+select ts, reading, last_value(reading) ignore nulls over (order by ts) as carried
+from (values (1, 20), (2, null), (3, null), (4, 23), (5, null)) as t(ts, reading);
+ ts | reading | carried 
+----+---------+---------
+  1 |      20 |      20
+  2 |         |      20
+  3 |         |      20
+  4 |      23 |      23
+  5 |         |      23
+
+-- 4. A query straight to a JSON array
+copy (select id, email, name from customer) to stdout (format json, force_array);
+[
+ {"id":1,"email":"ada@example.test","name":"Ada"}
+]
+-- 5. A random date in a range, for test data
+select bool_and(d between date '2026-01-01' and date '2026-12-31') as all_in_range, count(distinct d) > 100 as varied
+from (select random(date '2026-01-01', date '2026-12-31') as d from generate_series(1, 1000)) s;
+ all_in_range | varied 
+--------------+--------
+ t            | t
+
+-- 6. String methods inside a JSON path
+select jsonb_path_query('{"name": "  Ada Lovelace  "}', '$.name.btrim().upper()') as name,
+       jsonb_path_query('"2026-11-19"', '$.split_part("-", 1)') as year;
+      name      |  year  
+----------------+--------
+ "ADA LOVELACE" | "2026"
+
+drop schema tour cascade;
+psql:<stdin>:59: NOTICE:  drop cascades to 2 other objects
+DETAIL:  drop cascades to table invoice
+drop cascades to table customer
+DROP SCHEMA

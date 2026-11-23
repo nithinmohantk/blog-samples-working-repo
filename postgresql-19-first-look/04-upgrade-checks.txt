@@ -1,0 +1,53 @@
+1. Roles that still have an MD5 password: 19 warns after every such login
+  rolname   
+------------
+ legacy_app
+
+2. pg_hba.conf lines that use RADIUS: removed in 19
+ line_number | type | database |  user_name   | address  
+-------------+------+----------+--------------+----------
+         129 | host | {all}    | {legacy_app} | 10.9.9.9
+
+3. Settings that 19 removes or forces, set in a file or on the command line
+    name    | setting |       source       
+------------+---------+--------------------
+ io_workers | 4       | configuration file
+
+3b. The same settings, attached to a role or a database
+    role    |     database     |             setting             
+------------+------------------+---------------------------------
+ legacy_app | (every database) | standard_conforming_strings=off
+
+4. Settings whose default changes: where the source is default, the value will change under you
+           name            | setting | source  
+---------------------------+---------+---------
+ default_toast_compression | pglz    | default
+ jit                       | on      | default
+ max_locks_per_transaction | 64      | default
+
+5. Databases in the MULE_INTERNAL encoding: removed, dump and restore with another encoding
+ datname 
+---------
+ mule_db
+
+6. Role, database and tablespace names with a line break in them: pg_upgrade refuses
+ kind | name  
+------+-------
+ role | two  +
+      | lines
+
+7. btree_gist indexes on inet or cidr columns: pg_upgrade refuses, rebuild them with the core GiST opclass first
+    index    | on_table |    opcname    
+-------------+----------+---------------
+ device_addr | device   | gist_inet_ops
+
+8. Indexes built on full text search or pg_trgm: reindex after pg_upgrade unless the database uses the libc provider
+       index       |   opcname    
+-------------------+--------------
+ device_label_trgm | gin_trgm_ops
+ device_notes_fts  | tsvector_ops
+
+ datname  | locale_provider 
+----------+-----------------
+ postgres | libc
+
