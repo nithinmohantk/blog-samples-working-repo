@@ -1,0 +1,26 @@
+=== PostgreSQL 19: creating the roles
+CREATE ROLE
+SET
+WARNING:  setting an MD5-encrypted password
+DETAIL:  MD5 password support is deprecated and will be removed in a future release of PostgreSQL.
+HINT:  Refer to the PostgreSQL documentation for details about migrating to another password type.
+CREATE ROLE
+=== PostgreSQL 19: login as expiring_user
+WARNING:  role password will expire soon
+DETAIL:  The password for role "expiring_user" will expire in 2 days.
+logged in as expiring_user
+=== PostgreSQL 19: login as md5_user
+WARNING:  authenticated with an MD5-encrypted password
+DETAIL:  MD5 password support is deprecated and will be removed in a future release of PostgreSQL.
+logged in as md5_user
+=== PostgreSQL 18: creating the roles
+CREATE ROLE
+SET
+WARNING:  setting an MD5-encrypted password
+DETAIL:  MD5 password support is deprecated and will be removed in a future release of PostgreSQL.
+HINT:  Refer to the PostgreSQL documentation for details about migrating to another password type.
+CREATE ROLE
+=== PostgreSQL 18: login as expiring_user
+logged in as expiring_user
+=== PostgreSQL 18: login as md5_user
+logged in as md5_user

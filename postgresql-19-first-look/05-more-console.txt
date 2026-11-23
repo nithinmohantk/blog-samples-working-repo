@@ -1,0 +1,39 @@
+PostgreSQL 19 lab, second part, 2026-11-23 15:23 UTC
+
+## 12. Logical replication: all tables except one, sequences, and a subscription that names a server
+on 18, FOR ALL TABLES EXCEPT (TABLE skip_me): ERROR: syntax error at or near "except"
+on 18, FOR ALL SEQUENCES: ERROR: syntax error at or near "sequences"
+publisher before: keep_me 2 rows, skip_me 1 row, ticket_no last_value 14
+CREATE PUBLICATION pub_all FOR ALL TABLES EXCEPT (TABLE skip_me), ALL SEQUENCES: CREATE PUBLICATION
+what pub_all publishes, from pg_publication_tables: ['keep_me']
+CREATE SUBSCRIPTION sub_all SERVER publisher PUBLICATION pub_all: CREATE SUBSCRIPTION
+subscriber after the initial copy (arrived in time: True): keep_me 2 rows, skip_me 0 rows, ticket_no last_value 14
+publisher moves on: one more row in each table, 50 more tickets, ticket_no last_value 64
+subscriber a few seconds later: keep_me 3 rows, skip_me 0 rows, ticket_no last_value 14
+drift check: publisher page_lsn 0/020140F0, subscriber srsublsn 0/0200E318
+ALTER SUBSCRIPTION sub_all REFRESH SEQUENCES: ALTER SUBSCRIPTION
+subscriber after the refresh (arrived in time: True): ticket_no last_value 64
+ALTER SUBSCRIPTION sub_all DISABLE, then SET (retain_dead_tuples = true): ALTER SUBSCRIPTION, ALTER SUBSCRIPTION
+what the server said: ["WARNING: commit timestamp and origin data required for detecting conflicts won't be retained", 'NOTICE: deleted rows to detect conflicts would not be removed until the subscription is enabled']
+track_commit_timestamp on this server: off
+replication slots now: [('pg_conflict_detection', 'physical'), ('sub_all', 'logical')]
+
+## 13. A read that marks pages all-visible
+a table of 200,000 rows with autovacuum turned off for it, never vacuumed. Pages marked all-visible, from pg_visibility_map_summary.
+version | after the insert | after one SELECT count(*) | after a second | after VACUUM
+18 | 0 | 0 | 0 | 1667 of 1667 pages
+19 | 0 | 1666 | 1666 | 1667 of 1667 pages
+
+## 14. Autovacuum settings and what the statistics views gained
+ALTER TABLE ... SET (autovacuum_parallel_workers = 2) | 18: ERROR: unrecognized parameter "autovacuum_parallel_workers" | 19: ALTER TABLE
+columns that 19 has and 18 does not:
+    pg_stat_wal: added ['wal_fpi_bytes'], gone []
+    pg_stat_subscription_stats: added ['confl_update_deleted', 'sync_seq_error_count', 'sync_table_error_count'], gone ['sync_error_count']
+    pg_stat_all_tables: added ['stats_reset'], gone []
+    pg_stat_database: added [], gone []
+    pg_stat_activity: added [], gone []
+    pg_stat_replication_slots: added ['mem_exceeded_count', 'slotsync_last_skip', 'slotsync_skip_count'], gone []
+system views in 19 that 18 does not have: ['pg_dsm_registry_allocations', 'pg_publication_sequences', 'pg_stat_autovacuum_scores', 'pg_stat_lock', 'pg_stat_progress_repack', 'pg_stat_recovery']
+system views in 18 that 19 does not have: []
+settings in 19 that 18 does not have (22): ['autovacuum_analyze_score_weight', 'autovacuum_freeze_score_weight', 'autovacuum_max_parallel_workers', 'autovacuum_multixact_freeze_score_weight', 'autovacuum_vacuum_insert_score_weight', 'autovacuum_vacuum_score_weight', 'debug_exec_backend', 'debug_print_raw_parse', 'effective_wal_level', 'enable_eager_aggregate', 'hosts_file', 'io_max_workers', 'io_min_workers', 'io_worker_idle_timeout', 'io_worker_launch_interval', 'log_autoanalyze_min_duration', 'max_repack_replication_slots', 'min_eager_agg_group_size', 'password_expiration_warning_threshold', 'ssl_sni', 'timing_clock_source', 'wal_sender_shutdown_timeout']
+settings in 18 that 19 does not have (2): ['escape_string_warning', 'io_workers']
