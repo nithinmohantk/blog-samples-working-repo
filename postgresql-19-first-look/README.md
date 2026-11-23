@@ -33,8 +33,14 @@ The password in `ci.sh` is a throwaway for containers that live for one run. All
 
 The experiments: changed defaults; logical decoding at `wal_level = replica`; `REPACK` and `REPACK (CONCURRENTLY)` against `VACUUM FULL` with a writer and a reader on the table; `INSERT ... ON CONFLICT DO SELECT`; `WAIT FOR LSN` on the standby; `IGNORE NULLS`, `COPY ... (FORMAT json)`, `random(date, date)` and jsonpath string methods; `NOT IN` and aggregation before a join; bulk insert with a foreign key; `pg_plan_advice` and `pg_stash_advice`; pglz against lz4; the new statistics views.
 
+## Second part
+
+`./ci-more.sh out` starts 19 and 18 without a standby and runs `lab/more.py`: a publication of all tables except one plus all sequences, a subscription that names a foreign server, `REFRESH SEQUENCES`, `retain_dead_tuples`, a read that marks pages all-visible, a comparison of settings and system views between the two versions, and the two login warnings (password about to expire, MD5 password). Output: `more-results.txt` and `06-logins.txt`. The publisher and the subscriber are two databases on one server.
+
 ## What has been verified
 
 [GitHub Actions run 45189048112](https://github.com/nithinmohantk/blog-samples-working-repo/actions/runs/45189048112) on commit `e0765b8`, 23 November 2026, PostgreSQL 19.0 and 18.7: all eleven experiments, the tour and the eight upgrade checks completed without error. The output is on the `ci-results-postgresql-19-first-look` branch.
 
 Not verified: `pg_upgrade` was not run. `REPACK (CONCURRENTLY)` was not tried on partitioned or unlogged tables, under a long-running snapshot, or with a failure part way. The timings compare two versions on one hosted runner and vary between runs; they are not a benchmark.
+
+Second part: [run 45204605389](https://github.com/nithinmohantk/blog-samples-working-repo/actions/runs/45204605389) on commit `a8ffe51`, output on the `ci-results-postgresql-19-first-look-more` branch. Not verified there: an actual `update_deleted` conflict, replication between separate machines, a parallel autovacuum run, SNI.
