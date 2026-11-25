@@ -1,0 +1,14 @@
+# Direct dependencies as of 15 April 2025. requirements.lock pins the full set,
+# resolved with: uv pip install --exclude-newer 2025-04-15T00:00:00Z -r requirements.txt
+llama-index-core==0.12.30
+llama-index-llms-openai==0.3.35
+llama-index-llms-azure-openai==0.3.2
+llama-index-embeddings-openai==0.3.1
+llama-index-embeddings-azure-openai==0.3.2
+llama-index-vector-stores-chroma==0.4.1
+llama-index-vector-stores-qdrant==0.6.0
+llama-index-readers-file==0.4.7
+chromadb==1.0.4
+qdrant-client==1.13.3
+azure-identity==1.21.0
+pytest==8.3.5
