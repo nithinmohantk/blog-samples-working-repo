@@ -1,0 +1,816 @@
+<!-- wp:paragraph -->
+<p>LlamaIndex (formerly GPT Index) is a Python and TypeScript framework for building LLM applications over your own data. Where LangChain started from chains and agents, LlamaIndex started from the data side of Retrieval-Augmented Generation (RAG): loading documents, splitting them into chunks, embedding and indexing them, and retrieving the right chunks at question time. Its integrations are published as separate packages on LlamaHub, so a project installs only the readers, vector stores and model providers it uses.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>This guide builds a small production-style RAG service with <code>llama-index-core</code> 0.12.30, the release current in mid-April 2025. Every listing comes from a sample that was run against Azure OpenAI and is on GitHub. It covers ingestion that does not re-embed unchanged files, two vector stores, routing between index types, a chat engine with memory, an agent with tools, sub-question decomposition and evaluation, with the timings measured on that run.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">Architecture</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>A LlamaIndex application has two paths. The ingestion path loads documents, splits them into nodes, embeds each node and writes it to a vector store, with a document store that remembers what has already been processed. The query path embeds the question, retrieves the closest nodes, optionally re-ranks or filters them, and asks the LLM to write an answer from those nodes. Chat engines, routers and agents sit on top of query engines; they do not replace them.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image {"id":18468,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="https://www.dataa.dev/wp-content/uploads/2026/11/llamaindex-ingestion-and-query-paths.jpg" alt="LlamaIndex architecture: readers, node parser, embedding model, vector store and document store on the ingestion side; retriever, postprocessors, response synthesizer, router, chat engine and agent on the query side" class="wp-image-18468"/><figcaption class="wp-element-caption">Ingestion and query paths in a LlamaIndex application. Higher-level engines call query engines; they do not bypass retrieval.</figcaption></figure>
+<!-- /wp:image -->
+
+<!-- wp:merpress/mermaidjs -->
+<div class="wp-block-merpress-mermaidjs diagram-source-mermaid"><pre class="mermaid">%%{init: {'theme':'base','themeVariables':{'primaryColor':'#FFF3E0','primaryTextColor':'#232F3E','primaryBorderColor':'#FF9900','lineColor':'#232F3E','clusterBkg':'#F8FAFC','clusterBorder':'#CBD5E1','edgeLabelBackground':'#FFFFFF','nodeTextColor':'#232F3E'}}}%%
+flowchart TD
+    A["Markdown, PDF, web pages&lt;br/&gt;(SimpleDirectoryReader, LlamaHub readers)"] --&gt; B["IngestionPipeline"]
+    B --&gt; C["SentenceSplitter&lt;br/&gt;512-token chunks, 50 overlap"]
+    C --&gt; D["Embedding model"]
+    D --&gt; E["Vector store&lt;br/&gt;Chroma, Qdrant, ..."]
+    B --&gt; F["Document store&lt;br/&gt;file id + content hash"]
+    G["Question"] --&gt; H["Retriever&lt;br/&gt;top-k similarity"]
+    E --&gt; H
+    H --&gt; I["Postprocessors&lt;br/&gt;similarity cutoff, re-rank"]
+    I --&gt; J["Response synthesizer&lt;br/&gt;LLM writes the answer"]
+    J --&gt; K["Answer + source nodes"]</pre></div>
+<!-- /wp:merpress/mermaidjs -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">Capabilities</h2>
+<!-- /wp:heading -->
+
+<!-- wp:list -->
+<ul class="wp-block-list"><!-- wp:list-item -->
+<li><strong>Readers:</strong> <code>SimpleDirectoryReader</code> in core for local files, and LlamaHub packages for databases, SaaS APIs and other formats.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li><strong>Indexes:</strong> vector store, summary, tree, keyword table and property graph indexes. <code>KnowledgeGraphIndex</code> is deprecated in 0.12 in favour of <code>PropertyGraphIndex</code>.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li><strong>Query and chat engines:</strong> retrieval with post-processing and several response modes; chat engines that condense follow-up questions using memory.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li><strong>Agents:</strong> <code>FunctionAgent</code>, <code>ReActAgent</code> and <code>AgentWorkflow</code> in <code>llama_index.core.agent.workflow</code>, with query engines and Python functions as tools.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li><strong>Evaluation:</strong> LLM-judged faithfulness, relevancy and correctness evaluators, and a batch runner.</li>
+<!-- /wp:list-item -->
+</ul>
+<!-- /wp:list -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">Installation</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Core and each integration are separate packages. The sample pins the versions published by 15 April 2025; <code>requirements.lock</code> in the repository holds the full set, resolved with <code>uv pip install --exclude-newer 2025-04-15</code>.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:code {"language":"text"} -->
+<pre class="wp-block-code"><code class="language-text"># Direct dependencies as of 15 April 2025. requirements.lock pins the full set,
+# resolved with: uv pip install --exclude-newer 2025-04-15T00:00:00Z -r requirements.txt
+llama-index-core==0.12.30
+llama-index-llms-openai==0.3.35
+llama-index-llms-azure-openai==0.3.2
+llama-index-embeddings-openai==0.3.1
+llama-index-embeddings-azure-openai==0.3.2
+llama-index-vector-stores-chroma==0.4.1
+llama-index-vector-stores-qdrant==0.6.0
+llama-index-readers-file==0.4.7
+llama-index-question-gen-openai==0.3.0
+chromadb==1.0.4
+qdrant-client==1.13.3
+azure-identity==1.21.0
+pytest==8.3.5</code></pre>
+<!-- /wp:code -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">Model configuration</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>The global <code>Settings</code> object holds the LLM and the embedding model used by every index and engine unless one is passed explicitly. The sample signs in to Azure OpenAI with Microsoft Entra ID through <code>azure-identity</code>, so no API key is stored anywhere, and falls back to OpenAI with an API key. Deployment names come from the environment, and both models get a timeout and retries.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:code {"language":"python"} -->
+<pre class="wp-block-code"><code class="language-python">"""Model configuration for every example.
+
+The sample runs against Azure OpenAI with Microsoft Entra ID (no API keys) or
+against OpenAI with OPENAI_API_KEY. Deployment and model names are
+configuration, never literals in the examples.
+
+  RAG_PROVIDER=azure   AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_CHAT_DEPLOYMENT,
+                       AZURE_OPENAI_EMBED_DEPLOYMENT, AZURE_OPENAI_API_VERSION,
+                       AZURE_OPENAI_CHAT_MODEL (the model behind the deployment,
+                       used for context-window and token limits)
+  RAG_PROVIDER=openai  OPENAI_API_KEY, OPENAI_CHAT_MODEL, OPENAI_EMBED_MODEL
+"""
+
+from __future__ import annotations
+
+import os
+from dataclasses import dataclass
+
+from llama_index.core import Settings
+
+DEFAULT_API_VERSION = "2024-10-21"
+
+
+@dataclass(frozen=True)
+class ModelConfig:
+    provider: str
+    chat_model: str  # deployment name on Azure, model name on OpenAI
+    embed_model: str
+    model_name: str = "gpt-4o"
+    endpoint: str | None = None
+    api_version: str = DEFAULT_API_VERSION
+
+
+def _require(name: str) -&gt; str:
+    value = os.environ.get(name, "").strip()
+    if not value:
+        raise RuntimeError(f"{name} is not set")
+    return value
+
+
+def load_config() -&gt; ModelConfig:
+    provider = os.environ.get("RAG_PROVIDER", "azure").strip().lower()
+    if provider == "azure":
+        return ModelConfig(
+            provider="azure",
+            endpoint=_require("AZURE_OPENAI_ENDPOINT"),
+            chat_model=_require("AZURE_OPENAI_CHAT_DEPLOYMENT"),
+            embed_model=_require("AZURE_OPENAI_EMBED_DEPLOYMENT"),
+            model_name=os.environ.get("AZURE_OPENAI_CHAT_MODEL", "gpt-4o"),
+            api_version=os.environ.get("AZURE_OPENAI_API_VERSION", DEFAULT_API_VERSION),
+        )
+    if provider == "openai":
+        _require("OPENAI_API_KEY")
+        return ModelConfig(
+            provider="openai",
+            chat_model=os.environ.get("OPENAI_CHAT_MODEL", "gpt-4o"),
+            embed_model=os.environ.get("OPENAI_EMBED_MODEL", "text-embedding-3-small"),
+        )
+    raise RuntimeError(f"RAG_PROVIDER must be 'azure' or 'openai', not {provider!r}")
+
+
+def configure(config: ModelConfig | None = None, *, timeout: float = 60.0, max_retries: int = 3) -&gt; ModelConfig:
+    """Set the global LLM and embedding model, with timeouts and retries on both."""
+    config = config or load_config()
+    if config.provider == "azure":
+        from azure.identity import DefaultAzureCredential, get_bearer_token_provider
+        from llama_index.embeddings.azure_openai import AzureOpenAIEmbedding
+        from llama_index.llms.azure_openai import AzureOpenAI
+
+        token_provider = get_bearer_token_provider(
+            DefaultAzureCredential(), "https://cognitiveservices.azure.com/.default"
+        )
+        Settings.llm = AzureOpenAI(
+            model=config.model_name,
+            engine=config.chat_model,
+            azure_endpoint=config.endpoint,
+            api_version=config.api_version,
+            azure_ad_token_provider=token_provider,
+            use_azure_ad=True,
+            temperature=0.0,
+            timeout=timeout,
+            max_retries=max_retries,
+        )
+        Settings.embed_model = AzureOpenAIEmbedding(
+            deployment_name=config.embed_model,
+            azure_endpoint=config.endpoint,
+            api_version=config.api_version,
+            azure_ad_token_provider=token_provider,
+            use_azure_ad=True,
+            max_retries=max_retries,
+            embed_batch_size=64,
+        )
+    else:
+        from llama_index.embeddings.openai import OpenAIEmbedding
+        from llama_index.llms.openai import OpenAI
+
+        Settings.llm = OpenAI(model=config.chat_model, temperature=0.0, timeout=timeout, max_retries=max_retries)
+        Settings.embed_model = OpenAIEmbedding(model=config.embed_model, max_retries=max_retries, embed_batch_size=64)
+    return config</code></pre>
+<!-- /wp:code -->
+
+<!-- wp:html -->
+<div class="callout callout-info" style="background: #e3f2fd; border-left: 4px solid #2196f3; padding: 16px 20px; margin: 20px 0; border-radius: 4px;"><div style="display: flex; align-items: start;"><span style="font-size: 24px; margin-right: 12px;">ℹ️</span><div><strong style="color: #1976d2; display: block; margin-bottom: 8px;">MODEL NAMES ON AZURE</strong><p style="margin: 0; color: #333;">On Azure OpenAI, <code>engine</code> is your deployment name and <code>model</code> is the model behind it. LlamaIndex uses <code>model</code> to look up the context window and whether the model supports function calling, so set it even when the deployment has a different name. Left out, it defaults to <code>gpt-35-turbo</code> with a 4,096-token context window.</p></div></div></div>
+<!-- /wp:html -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">Ingestion and vector stores</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Building an index with <code>VectorStoreIndex.from_documents</code> embeds every document every time the process starts. In production that costs money on each deploy and duplicates nodes when the same files are loaded twice. An <code>IngestionPipeline</code> with a document store and the <code>UPSERTS</code> strategy keys each document by its id (the file path here) and a hash of its content: unchanged files are skipped, changed files are re-embedded and their old nodes replaced.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:code {"language":"python"} -->
+<pre class="wp-block-code"><code class="language-python">"""Load, chunk, embed and store documents.
+
+The pipeline keeps a document store next to the vector store, keyed by
+file path. Running it again skips unchanged files and re-embeds changed
+ones, so restarting the service does not pay for every embedding again.
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+from pathlib import Path
+
+from llama_index.core import Settings, SimpleDirectoryReader, StorageContext, VectorStoreIndex
+from llama_index.core.ingestion import DocstoreStrategy, IngestionPipeline
+from llama_index.core.node_parser import SentenceSplitter
+from llama_index.core.schema import BaseNode, Document
+from llama_index.core.storage.docstore import SimpleDocumentStore
+from llama_index.core.vector_stores.types import BasePydanticVectorStore
+
+DATA_DIR = Path(__file__).resolve().parent.parent / "data"
+
+
+def load_documents(path: Path = DATA_DIR, subdir: str | None = None) -&gt; list[Document]:
+    """Read Markdown files; the folder name becomes a `collection` metadata field."""
+    root = path / subdir if subdir else path
+    reader = SimpleDirectoryReader(
+        input_dir=str(root),
+        recursive=True,
+        required_exts=[".md"],
+        filename_as_id=True,
+        raise_on_error=True,
+        file_metadata=lambda p: {"file_name": Path(p).name, "collection": Path(p).parent.name},
+    )
+    return reader.load_data()
+
+
+def splitter() -&gt; SentenceSplitter:
+    return SentenceSplitter(chunk_size=512, chunk_overlap=50)
+
+
+def split(documents: list[Document]) -&gt; list[BaseNode]:
+    return splitter().get_nodes_from_documents(documents)
+
+
+@dataclass
+class IngestResult:
+    index: VectorStoreIndex
+    nodes_written: int
+
+
+def ingest(
+    documents: list[Document],
+    vector_store: BasePydanticVectorStore,
+    docstore_path: Path | None = None,
+) -&gt; IngestResult:
+    """Upsert documents into `vector_store`; only new or changed files are embedded."""
+    docstore = (
+        SimpleDocumentStore.from_persist_path(str(docstore_path))
+        if docstore_path and docstore_path.exists()
+        else SimpleDocumentStore()
+    )
+    pipeline = IngestionPipeline(
+        transformations=[splitter(), Settings.embed_model],
+        vector_store=vector_store,
+        docstore=docstore,
+        docstore_strategy=DocstoreStrategy.UPSERTS,
+    )
+    written = pipeline.run(documents=documents)
+    if docstore_path:
+        docstore_path.parent.mkdir(parents=True, exist_ok=True)
+        pipeline.docstore.persist(str(docstore_path))
+    index = VectorStoreIndex.from_vector_store(vector_store)
+    return IngestResult(index=index, nodes_written=len(written))
+
+
+def chroma_store(path: Path, collection: str = "documents") -&gt; BasePydanticVectorStore:
+    import chromadb
+    from llama_index.vector_stores.chroma import ChromaVectorStore
+
+    client = chromadb.PersistentClient(path=str(path))
+    return ChromaVectorStore(chroma_collection=client.get_or_create_collection(collection))
+
+
+def qdrant_store(path: Path | None = None, url: str | None = None, collection: str = "documents") -&gt; BasePydanticVectorStore:
+    """Local on-disk Qdrant by default; pass `url` for a Qdrant server or Qdrant Cloud."""
+    from qdrant_client import QdrantClient
+    from llama_index.vector_stores.qdrant import QdrantVectorStore
+
+    client = QdrantClient(url=url) if url else QdrantClient(path=str(path))
+    return QdrantVectorStore(client=client, collection_name=collection)
+
+
+def in_memory_index(documents: list[Document]) -&gt; VectorStoreIndex:
+    return VectorStoreIndex(split(documents), storage_context=StorageContext.from_defaults())</code></pre>
+<!-- /wp:code -->
+
+<!-- wp:paragraph -->
+<p>On the test run, the first ingestion into Chroma wrote 4 handbook nodes and 1 sales node in 2.92 s; the second run of the same command wrote 0 nodes in 0.01 s. The same happened with a local on-disk Qdrant collection (4 and 1, then 0 and 0). The offline tests also edit one file and check that only its nodes are written again. Chroma, Qdrant and other stores such as Pinecone plug in the same way, through <code>StorageContext</code> or <code>VectorStoreIndex.from_vector_store</code>; only the client construction differs.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:html -->
+<div class="callout callout-warning" style="background: #fff3e0; border-left: 4px solid #ff9800; padding: 16px 20px; margin: 20px 0; border-radius: 4px;"><div style="display: flex; align-items: start;"><span style="font-size: 24px; margin-right: 12px;">⚠️</span><div><strong style="color: #f57c00; display: block; margin-bottom: 8px;">LOCAL QDRANT</strong><p style="margin: 0; color: #333;"><code>QdrantClient(path=...)</code> locks its folder, so a second client on the same path in the same process fails with "already accessed by another instance". Create one client per collection for the life of the process, as <code>run.py</code> does, or use a Qdrant server when several processes need the same data.</p></div></div></div>
+<!-- /wp:html -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">Query engine</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>A query engine wraps a retriever and a response synthesizer. The sample uses the five closest nodes, the <code>compact</code> response mode (as many retrieved chunks per LLM call as fit) and an optional similarity cutoff.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:code {"language":"python"} -->
+<pre class="wp-block-code"><code class="language-python">engine = engines.query_engine(handbook.index)
+response = engine.query("What does the Team edition cost, and how many shipment events does it include?")
+print(response)
+for node in response.source_nodes:
+    print(f"{node.score:.3f}  {node.metadata['file_name']}")</code></pre>
+<!-- /wp:code -->
+
+<!-- wp:code {"language":"text"} -->
+<pre class="wp-block-code"><code class="language-text">The Team edition costs EUR 1,150 per month, billed annually, and includes 400,000 shipment events per month.
+0.390  pricing.md
+0.308  product-overview.md
+0.267  getting-started.md
+0.241  teams-and-ownership.md</code></pre>
+<!-- /wp:code -->
+
+<!-- wp:paragraph -->
+<p>The answer took 1.59 s. The highest-scoring source is the pricing page, but the scores are close together, which is normal for cosine similarity over short documents. Use the source list to check what the answer was built from, and a similarity cutoff only after measuring where relevant and irrelevant chunks fall for your own data.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">Index types and routing</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Different questions need different indexes. A vector index finds specific facts; a summary index sends every node to the LLM, which is what an overview question needs; a property graph index stores entities and relationships extracted by the LLM, which suits questions about who owns or depends on what. A <code>RouterQueryEngine</code> asks the LLM to pick one tool per question from their descriptions.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:code {"language":"python"} -->
+<pre class="wp-block-code"><code class="language-python">"""Query engines, router, chat engine, agent and sub-question engine."""
+
+from __future__ import annotations
+
+from datetime import date
+
+from llama_index.core import PropertyGraphIndex, Settings, SummaryIndex, VectorStoreIndex
+from llama_index.core.agent.workflow import FunctionAgent
+from llama_index.core.chat_engine.types import BaseChatEngine
+from llama_index.core.indices.property_graph import SimpleLLMPathExtractor
+from llama_index.core.memory import ChatMemoryBuffer
+from llama_index.core.postprocessor import SimilarityPostprocessor
+from llama_index.core.query_engine import RouterQueryEngine, SubQuestionQueryEngine
+from llama_index.core.schema import BaseNode, Document
+from llama_index.core.selectors import LLMSingleSelector
+from llama_index.core.tools import FunctionTool, QueryEngineTool
+
+from .safe_calc import calculate
+
+
+def query_engine(index: VectorStoreIndex, top_k: int = 5, min_score: float | None = None):
+    postprocessors = [SimilarityPostprocessor(similarity_cutoff=min_score)] if min_score else []
+    return index.as_query_engine(
+        similarity_top_k=top_k,
+        response_mode="compact",
+        node_postprocessors=postprocessors,
+    )
+
+
+def property_graph(documents: list[Document], max_paths_per_chunk: int = 10) -&gt; PropertyGraphIndex:
+    """Entity graph built by the LLM. One extraction call per chunk."""
+    return PropertyGraphIndex.from_documents(
+        documents,
+        kg_extractors=[SimpleLLMPathExtractor(llm=Settings.llm, max_paths_per_chunk=max_paths_per_chunk, num_workers=4)],
+        embed_kg_nodes=True,
+    )
+
+
+def router(vector_index: VectorStoreIndex, nodes: list[BaseNode], graph: PropertyGraphIndex) -&gt; RouterQueryEngine:
+    summary_index = SummaryIndex(nodes)
+    tools = [
+        QueryEngineTool.from_defaults(
+            query_engine=query_engine(vector_index),
+            name="facts",
+            description="Specific facts from the product, pricing and onboarding documents.",
+        ),
+        QueryEngineTool.from_defaults(
+            query_engine=summary_index.as_query_engine(response_mode="tree_summarize"),
+            name="summary",
+            description="Summaries and overviews that need every document, not a few passages.",
+        ),
+        QueryEngineTool.from_defaults(
+            query_engine=graph.as_query_engine(include_text=True),
+            name="relationships",
+            description="Who owns, leads, reports to or depends on what: people, teams and services.",
+        ),
+    ]
+    return RouterQueryEngine(selector=LLMSingleSelector.from_defaults(), query_engine_tools=tools, verbose=False)
+
+
+SYSTEM_PROMPT = (
+    "You answer questions about Larkfield Insight using only the retrieved documents. "
+    "If the documents do not contain the answer, say so. Name the document each fact comes from."
+)
+
+
+def chat_engine(index: VectorStoreIndex, token_limit: int = 3000) -&gt; BaseChatEngine:
+    return index.as_chat_engine(
+        chat_mode="condense_plus_context",
+        memory=ChatMemoryBuffer.from_defaults(token_limit=token_limit),
+        system_prompt=SYSTEM_PROMPT,
+        similarity_top_k=4,
+    )
+
+
+def today() -&gt; str:
+    """Return today's date in ISO format."""
+    return date.today().isoformat()
+
+
+def agent(handbook_index: VectorStoreIndex, sales_index: VectorStoreIndex) -&gt; FunctionAgent:
+    tools = [
+        QueryEngineTool.from_defaults(
+            query_engine=query_engine(handbook_index),
+            name="product_docs",
+            description="Product features, editions, pricing and onboarding for Larkfield Insight.",
+        ),
+        QueryEngineTool.from_defaults(
+            query_engine=query_engine(sales_index),
+            name="sales_results",
+            description="Quarterly revenue, new subscriptions and retention for 2024.",
+        ),
+        FunctionTool.from_defaults(fn=calculate),
+        FunctionTool.from_defaults(fn=today),
+    ]
+    return FunctionAgent(
+        tools=tools,
+        llm=Settings.llm,
+        system_prompt=SYSTEM_PROMPT + " Use the calculator for any arithmetic instead of doing it yourself.",
+    )
+
+
+def sub_question_engine(handbook_index: VectorStoreIndex, sales_index: VectorStoreIndex) -&gt; SubQuestionQueryEngine:
+    tools = [
+        QueryEngineTool.from_defaults(
+            query_engine=query_engine(handbook_index),
+            name="product_docs",
+            description="Product features and editions of Larkfield Insight.",
+        ),
+        QueryEngineTool.from_defaults(
+            query_engine=query_engine(sales_index),
+            name="sales_results",
+            description="Sales results by quarter and by edition for 2024.",
+        ),
+    ]
+    return SubQuestionQueryEngine.from_defaults(query_engine_tools=tools, use_async=True)</code></pre>
+<!-- /wp:code -->
+
+<!-- wp:paragraph -->
+<p>Building the property graph for the four handbook documents took 5.09 s (one extraction call per chunk). The router chose the expected tool for all three test questions:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:table {"className":"is-style-stripes"} -->
+<figure class="wp-block-table is-style-stripes"><table><thead><tr><th>Question</th><th>Tool chosen</th><th>Time</th><th>Answer</th></tr></thead><tbody><tr><td>What is the overage charge per 1,000 events on the Team edition?</td><td>facts (vector)</td><td>2.29 s</td><td>EUR 2.50</td></tr><tr><td>Give me an overview of what the Larkfield Insight documentation covers.</td><td>summary</td><td>3.79 s</td><td>A four-part overview: getting started, product, pricing, teams</td></tr><tr><td>Who approves new carrier connectors, and who does that person report to?</td><td>relationships (graph)</td><td>2.44 s</td><td>Priya Raman, who reports to the CTO, Declan Walsh</td></tr></tbody></table></figure>
+<!-- /wp:table -->
+
+<!-- wp:html -->
+<div class="callout callout-info" style="background: #e3f2fd; border-left: 4px solid #2196f3; padding: 16px 20px; margin: 20px 0; border-radius: 4px;"><div style="display: flex; align-items: start;"><span style="font-size: 24px; margin-right: 12px;">ℹ️</span><div><strong style="color: #1976d2; display: block; margin-bottom: 8px;">TREE AND KEYWORD INDEXES</strong><p style="margin: 0; color: #333;"><code>TreeIndex</code> and <code>KeywordTableIndex</code> are still in core, but both call the LLM while the index is being built, which gets expensive on real corpora. A summary index with <code>tree_summarize</code> covers most summarisation needs, and a hybrid vector store covers keyword matching. <code>KnowledgeGraphIndex</code> raises a deprecation warning in 0.12; build new graphs with <code>PropertyGraphIndex</code>.</p></div></div></div>
+<!-- /wp:html -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">Chat engine with memory</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>The <code>condense_plus_context</code> chat mode rewrites each follow-up into a standalone question using the conversation so far, retrieves for that question, and answers with the retrieved context and the chat history. <code>ChatMemoryBuffer</code> caps the history by tokens.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:code {"language":"python"} -->
+<pre class="wp-block-code"><code class="language-python">chat = engines.chat_engine(handbook.index)
+print(chat.chat("Which editions support single sign-on?"))
+print(chat.chat("And how much does the cheaper of those cost per month?"))</code></pre>
+<!-- /wp:code -->
+
+<!-- wp:paragraph -->
+<p>The first answer named Team and Enterprise (0.96 s). The second resolved "the cheaper of those" to the Team edition and answered EUR 1,150 per month, noting that Enterprise is quoted individually (1.89 s). Both answers named the document they came from, as the system prompt asks.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">Agent with tools</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>In 0.12 the agent classes in <code>llama_index.core.agent.workflow</code> run as workflows: <code>FunctionAgent</code> uses the model's native function calling, <code>ReActAgent</code> uses a text reasoning loop for models without it, and <code>AgentWorkflow</code> coordinates several agents. The agent in the sample has two query engine tools, a calculator and a date function. It runs asynchronously and streams events, so the tool calls can be logged.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:code {"language":"python"} -->
+<pre class="wp-block-code"><code class="language-python">agent = engines.agent(handbook.index, sales.index)
+
+async def main():
+    handler = agent.run(user_msg="What was Q3 2024 revenue, and what was the growth rate compared with Q2 2024?")
+    async for event in handler.stream_events():
+        if isinstance(event, ToolCallResult):
+            print(event.tool_name, event.tool_kwargs, event.tool_output)
+    print(await handler)
+
+asyncio.run(main())</code></pre>
+<!-- /wp:code -->
+
+<!-- wp:code {"language":"text"} -->
+<pre class="wp-block-code"><code class="language-text">sales_results {'input': 'Q2 2024 revenue'} -&gt; The revenue for Q2 2024 was 4,200,000 EUR.
+sales_results {'input': 'Q3 2024 revenue'} -&gt; The revenue for Q3 2024 was 4,830,000 EUR.
+calculate {'expression': '(4830000 - 4200000) / 4200000 * 100'} -&gt; 15
+The revenue for Q3 2024 was 4,830,000 EUR. The growth rate compared with Q2 2024,
+which had a revenue of 4,200,000 EUR, was 15%.</code></pre>
+<!-- /wp:code -->
+
+<!-- wp:paragraph -->
+<p>The agent made three tool calls and answered in 4.85 s. The arithmetic went through the calculator rather than the model, because the system prompt tells it to use the tool.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:html -->
+<div class="callout callout-warning" style="background: #fff3e0; border-left: 4px solid #ff9800; padding: 16px 20px; margin: 20px 0; border-radius: 4px;"><div style="display: flex; align-items: start;"><span style="font-size: 24px; margin-right: 12px;">⚠️</span><div><strong style="color: #f57c00; display: block; margin-bottom: 8px;">NO EVAL() IN TOOLS</strong><p style="margin: 0; color: #333;">A calculator tool written as <code>eval(expression)</code> executes whatever text the model sends, and the model's text can be steered by a prompt or by a retrieved document. The sample parses the expression with Python's <code>ast</code> module and allows only numbers and arithmetic operators; its tests check that <code>__import__('os').system('id')</code>, <code>open(...)</code> and a huge exponent are refused.</p></div></div></div>
+<!-- /wp:html -->
+
+<!-- wp:code {"language":"python"} -->
+<pre class="wp-block-code"><code class="language-python">"""Arithmetic for an agent tool without eval().
+
+An agent passes model-generated text to its tools, so a calculator built on
+eval() runs whatever the model (or a prompt-injected document) writes. This
+evaluator walks the parsed expression and allows numbers, + - * / // % **,
+unary signs and parentheses only.
+"""
+
+from __future__ import annotations
+
+import ast
+import operator
+
+_BINARY = {
+    ast.Add: operator.add,
+    ast.Sub: operator.sub,
+    ast.Mult: operator.mul,
+    ast.Div: operator.truediv,
+    ast.FloorDiv: operator.floordiv,
+    ast.Mod: operator.mod,
+    ast.Pow: operator.pow,
+}
+_UNARY = {ast.UAdd: operator.pos, ast.USub: operator.neg}
+MAX_EXPONENT = 100
+MAX_LENGTH = 200
+
+
+def evaluate(expression: str) -&gt; float:
+    if len(expression) &gt; MAX_LENGTH:
+        raise ValueError("expression too long")
+    tree = ast.parse(expression.replace(",", ""), mode="eval")
+
+    def walk(node: ast.AST) -&gt; float:
+        if isinstance(node, ast.Expression):
+            return walk(node.body)
+        if isinstance(node, ast.Constant) and type(node.value) in (int, float):
+            return node.value
+        if isinstance(node, ast.BinOp) and type(node.op) in _BINARY:
+            left, right = walk(node.left), walk(node.right)
+            if isinstance(node.op, ast.Pow) and abs(right) &gt; MAX_EXPONENT:
+                raise ValueError("exponent too large")
+            return _BINARY[type(node.op)](left, right)
+        if isinstance(node, ast.UnaryOp) and type(node.op) in _UNARY:
+            return _UNARY[type(node.op)](walk(node.operand))
+        raise ValueError(f"unsupported element: {type(node).__name__}")
+
+    return walk(tree)
+
+
+def calculate(expression: str) -&gt; str:
+    """Evaluate an arithmetic expression such as (4830000 - 4200000) / 4200000 * 100."""
+    try:
+        result = evaluate(expression)
+    except (ValueError, SyntaxError, ZeroDivisionError, OverflowError) as exc:
+        return f"Error: {exc}"
+    return f"{result:.10g}"</code></pre>
+<!-- /wp:code -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">Sub-question query engine</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>A <code>SubQuestionQueryEngine</code> splits a question that spans several sources into sub-questions, sends each to the right query engine, and combines the answers. It needs the separate <code>llama-index-question-gen-openai</code> package; without it, <code>from_defaults</code> raises an <code>ImportError</code>.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:merpress/mermaidjs -->
+<div class="wp-block-merpress-mermaidjs diagram-source-mermaid"><pre class="mermaid">%%{init: {'theme':'base','themeVariables':{'signalColor':'#0073BB','signalTextColor':'#0F172A','actorBkg':'#FFF3E0','actorBorder':'#FF9900','actorTextColor':'#232F3E','noteBkgColor':'#FFF8E7','noteBorderColor':'#FF9900','noteTextColor':'#232F3E'}}}%%
+sequenceDiagram
+    participant U as Application
+    participant S as SubQuestionQueryEngine
+    participant P as product_docs engine
+    participant R as sales_results engine
+    U-&gt;&gt;S: Which edition sells best, what does it include, what share of revenue?
+    S-&gt;&gt;R: Which edition sold the best in 2024?
+    S-&gt;&gt;P: What features are in the best-selling edition?
+    S-&gt;&gt;R: What share of 2024 revenue did it produce?
+    R--&gt;&gt;S: Team edition; 61% of 2024 revenue
+    P--&gt;&gt;S: Feature list of the Team edition
+    S--&gt;&gt;U: Combined answer with the three sub-answers as sources</pre></div>
+<!-- /wp:merpress/mermaidjs -->
+
+<!-- wp:paragraph -->
+<p>On the test run the engine generated three sub-questions, two for the sales index and one for the product documents, and answered in 4.17 s: the Team edition, its features and 61% of 2024 revenue, all of which match the source documents.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">Evaluation</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>LlamaIndex's evaluators use an LLM as a judge. <code>FaithfulnessEvaluator</code> checks that the answer is supported by the retrieved context, <code>RelevancyEvaluator</code> that the answer and context match the question, and <code>CorrectnessEvaluator</code> scores the answer from 1 to 5 against a reference answer. The sample adds a plain string check for the facts each answer must contain, so a retrieval regression shows up even if a judge is lenient. The evaluators are asynchronous, so the batch runs inside <code>asyncio.run</code>.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:code {"language":"python"} -->
+<pre class="wp-block-code"><code class="language-python">"""Evaluate a query engine with LLM judges and with plain string checks.
+
+The judges (faithfulness, relevancy, correctness) use the configured LLM.
+Each question also carries facts that must appear in the answer, checked in
+code, so a regression in retrieval shows up even when a judge is lenient.
+"""
+
+from __future__ import annotations
+
+import asyncio
+import re
+from dataclasses import dataclass
+
+from llama_index.core.evaluation import (
+    BatchEvalRunner,
+    CorrectnessEvaluator,
+    FaithfulnessEvaluator,
+    RelevancyEvaluator,
+)
+
+
+@dataclass(frozen=True)
+class EvalCase:
+    question: str
+    reference: str
+    must_contain: tuple[str, ...]
+
+
+CASES: list[EvalCase] = [
+    EvalCase("What is the monthly price of the Team edition?", "EUR 1,150 per month, billed annually.", ("1,150",)),
+    EvalCase("How many shipment events per month does the Starter edition include?", "50,000 shipment events.", ("50,000",)),
+    EvalCase("Which carriers have connectors?", "DHL, UPS, FedEx, DPD, An Post and GLS.", ("DHL", "An Post", "GLS")),
+    EvalCase("Can the data residency region be changed after a workspace is created?", "No, it cannot be changed later.", ("cannot",)),
+    EvalCase("How far back do carrier connectors back-fill events?", "The previous 90 days.", ("90",)),
+    EvalCase("Which editions support single sign-on?", "Team and Enterprise only.", ("Team", "Enterprise")),
+]
+
+
+@dataclass
+class CaseResult:
+    question: str
+    answer: str
+    faithful: bool | None
+    relevant: bool | None
+    correctness: float | None
+    missing: list[str]
+
+
+def string_check(answer: str, must_contain: tuple[str, ...]) -&gt; list[str]:
+    normalised = re.sub(r"\s+", " ", answer)
+    return [fact for fact in must_contain if fact.lower() not in normalised.lower()]
+
+
+async def evaluate(query_engine, cases: list[EvalCase] = CASES, workers: int = 4) -&gt; list[CaseResult]:
+    runner = BatchEvalRunner(
+        {"faithfulness": FaithfulnessEvaluator(), "relevancy": RelevancyEvaluator()},
+        workers=workers,
+    )
+    questions = [c.question for c in cases]
+    responses = [await query_engine.aquery(q) for q in questions]
+    judged = await runner.aevaluate_responses(questions, responses=responses)
+    correctness = CorrectnessEvaluator()
+    results = []
+    for i, case in enumerate(cases):
+        answer = str(responses[i])
+        scored = await correctness.aevaluate(query=case.question, response=answer, reference=case.reference)
+        results.append(
+            CaseResult(
+                question=case.question,
+                answer=answer,
+                faithful=judged["faithfulness"][i].passing,
+                relevant=judged["relevancy"][i].passing,
+                correctness=scored.score,
+                missing=string_check(answer, case.must_contain),
+            )
+        )
+    return results
+
+
+def run(query_engine, cases: list[EvalCase] = CASES) -&gt; list[CaseResult]:
+    return asyncio.run(evaluate(query_engine, cases))</code></pre>
+<!-- /wp:code -->
+
+<!-- wp:paragraph -->
+<p>All six questions passed faithfulness and relevancy, scored 5.0 for correctness and contained every required fact. The whole evaluation took 16.92 s. Six hand-written questions over five documents are a smoke test, not a benchmark; a real evaluation set needs questions that the corpus does not answer, questions that need several documents, and enough of each to see a regression.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image {"id":18469,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="https://www.dataa.dev/wp-content/uploads/2026/11/llamaindex-agent-and-evaluation.jpg" alt="Terminal output of the agent tool calls and the six evaluation questions, all passing" class="wp-image-18469"/><figcaption class="wp-element-caption">Agent tool calls and evaluation results from the test run.</figcaption></figure>
+<!-- /wp:image -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">Measured performance</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>These are wall-clock times from one run of <code>python run.py all</code> against Azure OpenAI in Sweden Central, using gpt-4.1-mini and text-embedding-3-small over the five sample documents. They are single measurements on a tiny corpus, useful for comparing the engines with each other rather than as latency targets.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:table {"className":"is-style-stripes"} -->
+<figure class="wp-block-table is-style-stripes"><table><thead><tr><th>Operation</th><th>Time</th><th>Model calls involved</th></tr></thead><tbody><tr><td>Ingest 5 documents (first run)</td><td>2.92 s</td><td>Embeddings for 5 nodes</td></tr><tr><td>Ingest again, nothing changed</td><td>0.01 s</td><td>None</td></tr><tr><td>Query engine, one question</td><td>1.59 s</td><td>1 embedding, 1 completion</td></tr><tr><td>Property graph build, 4 documents</td><td>5.09 s</td><td>1 extraction per chunk, embeddings</td></tr><tr><td>Router, one question</td><td>2.29 to 3.79 s</td><td>Selector, then the chosen engine</td></tr><tr><td>Chat turn</td><td>0.96 to 1.89 s</td><td>Condense, retrieve, answer</td></tr><tr><td>Agent, 3 tool calls</td><td>4.85 s</td><td>Several completions and 2 query engines</td></tr><tr><td>Sub-question engine, 3 sub-questions</td><td>4.17 s</td><td>Question generation, 3 queries in parallel, synthesis</td></tr><tr><td>Evaluation, 6 questions and 3 judges</td><td>16.92 s</td><td>6 queries, 18 judge calls</td></tr></tbody></table></figure>
+<!-- /wp:table -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">Production considerations</h2>
+<!-- /wp:heading -->
+
+<!-- wp:list -->
+<ul class="wp-block-list"><!-- wp:list-item -->
+<li><strong>Ingest once, upsert after.</strong> Keep the document store next to the vector store and run the pipeline on change, not on every start. Ids must be stable: <code>filename_as_id=True</code> works for files, a source system's primary key for records.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li><strong>Pin versions.</strong> Core and each integration release separately and often. Pin the full set with a lock file and upgrade on purpose, re-running the evaluation set.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li><strong>Use identity, not keys.</strong> On Azure, <code>azure_ad_token_provider</code> with a managed identity or workload identity removes the API key from configuration entirely.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li><strong>Set timeouts and retries on every model client.</strong> The defaults can wait a long time on a slow response; a retrieval service should fail fast and retry with backoff.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li><strong>Treat retrieved text as untrusted.</strong> Documents can contain instructions. Keep tools narrow, validate their arguments (as the calculator does) and never give an agent a tool that executes code or shell commands from model output.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li><strong>Measure before tuning.</strong> Chunk size, top-k and similarity cutoffs depend on the corpus. Change one at a time and re-run the evaluation set.</li>
+<!-- /wp:list-item -->
+</ul>
+<!-- /wp:list -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">When to use LlamaIndex</h2>
+<!-- /wp:heading -->
+
+<!-- wp:table {"className":"is-style-stripes"} -->
+<figure class="wp-block-table is-style-stripes"><table><thead><tr><th>Situation</th><th>Fit</th></tr></thead><tbody><tr><td>RAG over your own documents, with control over chunking, retrieval and evaluation</td><td>Good fit; this is what the framework is built around.</td></tr><tr><td>Several data sources behind one question interface</td><td>Good fit: routers, sub-question engines and agents with query engine tools.</td></tr><tr><td>Long-running, branching agent workflows with human approval steps</td><td>LlamaIndex workflows can do it; LangGraph is the more common choice for complex state machines.</td></tr><tr><td>A managed RAG service with no retrieval code</td><td>Consider Amazon Bedrock Knowledge Bases, Azure AI Search with its integrated vectorization, or LlamaCloud.</td></tr><tr><td>Simple prompt chains without retrieval</td><td>A model SDK on its own is usually enough.</td></tr></tbody></table></figure>
+<!-- /wp:table -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">Key takeaways</h2>
+<!-- /wp:heading -->
+
+<!-- wp:list -->
+<ul class="wp-block-list"><!-- wp:list-item -->
+<li>Use an <code>IngestionPipeline</code> with a document store so restarts and re-deploys do not re-embed unchanged documents; on the test run the second ingestion wrote 0 nodes in 0.01 s.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li>Set both <code>engine</code> and <code>model</code> on Azure OpenAI; the model name drives context-window and function-calling behaviour.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li>Route between index types by question type: vector for facts, summary for overviews, property graph for relationships. The router picked correctly for all three test questions.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li>Never build an agent tool on <code>eval()</code>; parse and whitelist instead. <code>FunctionAgent</code> made the arithmetic go through the safe calculator.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li>Pair LLM judges with plain checks for required facts, and keep a small evaluation set in the repository so every upgrade is re-tested.</li>
+<!-- /wp:list-item -->
+</ul>
+<!-- /wp:list -->
+
+<!-- wp:paragraph -->
+<p>Which part of your RAG pipeline needed the most tuning: chunking, retrieval or the evaluation set? Let me know in the comments.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:html -->
+<div class="callout callout-note" style="background: #f5f5f5; border-left: 4px solid #607d8b; padding: 16px 20px; margin: 20px 0; border-radius: 4px;"><div style="display: flex; align-items: start;"><span style="font-size: 24px; margin-right: 12px;">📝</span><div><strong style="color: #455a64; display: block; margin-bottom: 8px;">HOW THIS WAS CHECKED</strong><p style="margin: 0; color: #333;">The sample was installed from the packages published on PyPI by 15 April 2025 (<code>llama-index-core</code> 0.12.30, full pins in <code>requirements.lock</code>) on Python 3.12. Thirteen offline tests cover the calculator, document loading, chunking, re-ingestion into Chroma and local Qdrant, the string check and configuration errors. Every example then ran once against Azure OpenAI in Sweden Central with Microsoft Entra ID authentication, using gpt-4.1-mini (2025-04-14) for chat and text-embedding-3-small for embeddings; the article's outputs and timings are copied from that run. The OpenAI provider path in <code>settings.py</code> was not run. The documents are synthetic: Larkfield Analytics, its products, figures and people are invented.</p></div></div></div>
+<!-- /wp:html -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">Glossary</h2>
+<!-- /wp:heading -->
+
+<!-- wp:html -->
+<dl style="background:#F6F8FA;border:1px solid #D0D7DE;border-radius:8px;padding:20px 24px;margin:24px 0"><dt style="font-weight:700;color:#24292F;margin-top:12px">Node</dt><dd style="margin:4px 0 0 20px;color:#57606A">A chunk of a document with its metadata and relationships; the unit LlamaIndex embeds and retrieves.</dd><dt style="font-weight:700;color:#24292F;margin-top:12px">IngestionPipeline</dt><dd style="margin:4px 0 0 20px;color:#57606A">A sequence of transformations (splitting, embedding) that writes nodes to a vector store, optionally de-duplicating with a document store.</dd><dt style="font-weight:700;color:#24292F;margin-top:12px">Document store</dt><dd style="margin:4px 0 0 20px;color:#57606A">Storage for document ids and content hashes, used to skip or replace documents on re-ingestion.</dd><dt style="font-weight:700;color:#24292F;margin-top:12px">Vector store</dt><dd style="margin:4px 0 0 20px;color:#57606A">A database of embeddings searched by similarity, such as Chroma or Qdrant.</dd><dt style="font-weight:700;color:#24292F;margin-top:12px">Query engine</dt><dd style="margin:4px 0 0 20px;color:#57606A">A retriever plus a response synthesizer: it fetches nodes and asks the LLM to answer from them.</dd><dt style="font-weight:700;color:#24292F;margin-top:12px">Response mode</dt><dd style="margin:4px 0 0 20px;color:#57606A">How retrieved chunks are sent to the LLM, for example <code>compact</code> or <code>tree_summarize</code>.</dd><dt style="font-weight:700;color:#24292F;margin-top:12px">Router query engine</dt><dd style="margin:4px 0 0 20px;color:#57606A">A query engine that asks the LLM to pick one of several query engines from their descriptions.</dd><dt style="font-weight:700;color:#24292F;margin-top:12px">Property graph index</dt><dd style="margin:4px 0 0 20px;color:#57606A">An index of entities and relationships extracted from text by the LLM, queried by graph and by embedding.</dd><dt style="font-weight:700;color:#24292F;margin-top:12px">Chat engine</dt><dd style="margin:4px 0 0 20px;color:#57606A">A conversational wrapper that uses chat history; <code>condense_plus_context</code> rewrites follow-ups into standalone questions.</dd><dt style="font-weight:700;color:#24292F;margin-top:12px">FunctionAgent</dt><dd style="margin:4px 0 0 20px;color:#57606A">An agent that calls tools through the model's native function-calling API.</dd><dt style="font-weight:700;color:#24292F;margin-top:12px">Sub-question query engine</dt><dd style="margin:4px 0 0 20px;color:#57606A">A query engine that splits a question into sub-questions for different engines and combines the answers.</dd><dt style="font-weight:700;color:#24292F;margin-top:12px">Faithfulness</dt><dd style="margin:4px 0 0 20px;color:#57606A">Whether an answer is supported by the retrieved context, as judged by an LLM evaluator.</dd></dl>
+<!-- /wp:html -->
+
+<!-- wp:html -->
+<div class="callout callout-tip sample-code-link" style="background: #e8f5e9; border-left: 4px solid #4caf50; padding: 16px 20px; margin: 20px 0; border-radius: 4px;"><div style="display: flex; align-items: start;"><span style="font-size: 24px; margin-right: 12px;">💡</span><div><strong style="color: #388e3c; display: block; margin-bottom: 8px;">GET THE CODE</strong><p style="margin: 0; color: #333;">The complete sample for this article is on GitHub: <a href="https://github.com/nithinmohantk/blog-samples-working-repo/tree/main/llamaindex-production-rag" target="_blank" rel="noopener">nithinmohantk/blog-samples-working-repo/llamaindex-production-rag</a>. Clone it with <code>git clone https://github.com/nithinmohantk/blog-samples-working-repo.git</code> and open the <code>llamaindex-production-rag</code> folder. Its README says how to run it and what has been verified.</p></div></div></div>
+<!-- /wp:html -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">References &amp; Further Reading</h2>
+<!-- /wp:heading -->
+
+<!-- wp:html -->
+<ul style="background:#F6F8FA;border:1px solid #D0D7DE;border-radius:8px;padding:20px 24px;margin:24px 0;list-style:none"><li style="margin:10px 0"><a href="https://docs.llamaindex.ai/" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; LlamaIndex documentation</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— Guides and API reference</span></li><li style="margin:10px 0"><a href="https://github.com/run-llama/llama_index" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; run-llama/llama_index on GitHub</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— Source code, including the 0.12.30 release</span></li><li style="margin:10px 0"><a href="https://pypi.org/project/llama-index-core/0.12.30/" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; llama-index-core on PyPI</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— Release 0.12.30, published 10 April 2025</span></li><li style="margin:10px 0"><a href="https://llamahub.ai/" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; LlamaHub</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— Reader, vector store and model integrations</span></li><li style="margin:10px 0"><a href="https://docs.trychroma.com/" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; Chroma</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— Open-source vector database used in the sample</span></li><li style="margin:10px 0"><a href="https://github.com/qdrant/qdrant-client" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; Qdrant Python client</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— Client used for the local Qdrant store</span></li><li style="margin:10px 0"><a href="https://github.com/nithinmohantk/blog-samples-working-repo/tree/main/llamaindex-production-rag" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; Sample code for this article</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— Tested sample, results and screenshots</span></li></ul>
+<!-- /wp:html -->
