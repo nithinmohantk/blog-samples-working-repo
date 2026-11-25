@@ -1,0 +1,33 @@
+Live run, 25 November 2026, Azure Cloud Shell (Python 3.12), packages as of 15 April 2025
+(llama-index-core 0.12.30; full pins in requirements.lock).
+Azure OpenAI in Sweden Central, Entra ID sign-in (keys disabled):
+  chat       gpt-4.1-mini (2025-04-14), GlobalStandard
+  embedding  text-embedding-3-small (1), GlobalStandard
+gpt-4o and gpt-4.1 had zero GlobalStandard quota on the subscription in every region checked,
+so the article's gpt-4o examples ran on gpt-4.1-mini (released 14 April 2025).
+
+python run.py all          50.7 s wall clock in total
+
+ingest (Chroma)            2.92 s   4 handbook nodes, 1 sales node written
+ingest again (Chroma)      0.01 s   0 nodes written (unchanged files skipped)
+ingest (Qdrant, local)              4 + 1 written; second run 0 + 0
+query                      1.59 s   "The Team edition costs EUR 1,150 per month, billed annually, and includes
+                                     400,000 shipment events per month."
+                                     sources: pricing.md 0.390, product-overview.md 0.308,
+                                     getting-started.md 0.267, teams-and-ownership.md 0.241
+property graph build       5.09 s
+router: overage question   2.29 s   tool 0 (facts): "EUR 2.50"
+router: overview question  3.79 s   tool 1 (summary): four-part overview of the documents
+router: approval question  2.44 s   tool 2 (relationships): "Priya Raman approves new carrier connectors,
+                                     and she reports to the CTO, Declan Walsh."
+chat turn 1                0.96 s   SSO only in Team and Enterprise
+chat turn 2                1.89 s   "the cheaper of those" resolved to Team, EUR 1,150 per month
+agent (FunctionAgent)      4.85 s   sales_results(Q2) -> 4,200,000; sales_results(Q3) -> 4,830,000;
+                                     calculate('(4830000 - 4200000) / 4200000 * 100') -> 15; answer 15%
+sub-question engine        4.17 s   3 sub-questions (2 to sales_results, 1 to product_docs);
+                                     answer: Team edition, its features, 61% of 2024 revenue
+evaluation (6 questions)  16.92 s   faithfulness 6/6, relevancy 6/6, correctness 5.0 on all 6,
+                                     no missing facts
+
+Before adding llama-index-question-gen-openai, SubQuestionQueryEngine.from_defaults failed with
+ImportError: `llama-index-question-gen-openai` package cannot be found.
