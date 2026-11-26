@@ -1,0 +1,286 @@
+<!-- wp:paragraph -->
+<p>For eleven years GraphQL ran over HTTP on conventions. The 2016 "Serving over HTTP" page on graphql.org said roughly how to send a query, and everyone filled in the rest: most servers answered <code>200 OK</code> for everything, errors included, because a non-200 status might have come from a proxy rather than from GraphQL. Monitoring tools could not tell a failed query from a successful one without reading the body.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>On 12 November the GraphQL Technical Steering Committee published the first edition of the <a href="https://http-spec.graphql.org/September2026/" target="_blank" rel="noopener">GraphQL over HTTP specification</a>, named the September 2026 edition. It adds a media type, <code>application/graphql-response+json</code>, and with it a full set of status codes, including a new <code>294 Partial Success</code>. I ran six popular servers with their default settings against it, sent each the same 22 requests, and compared the answers with the text. This article covers what the specification requires, which servers already follow it, and what to change in clients, servers and the infrastructure in between.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">What the specification settles</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>The specification is a supplement to the GraphQL specification, which stays transport-agnostic. It covers the URL, <code>GET</code> and <code>POST</code> requests, JSON encoding, headers and status codes. Subscriptions are not covered; the HTTP <code>QUERY</code> method, persisted documents and request batching are planned for later editions.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:table {"className":"is-style-stripes"} -->
+<figure class="wp-block-table is-style-stripes"><table><thead><tr><th>Topic</th><th>What the September 2026 edition says</th></tr></thead><tbody><tr><td>Request</td><td>A server MUST accept <code>POST</code> with a JSON body (<code>query</code>, optional <code>operationName</code>, <code>variables</code>, <code>extensions</code>); <code>GET</code> is optional. Unknown body properties MUST be ignored.</td></tr><tr><td>Response media type</td><td>A server MUST support <code>application/graphql-response+json</code>. A server that does not is a <em>legacy server</em> and does not conform.</td></tr><tr><td>Accept</td><td>A client MUST list <code>application/graphql-response+json</code>; if unsure of the server, send <code>application/graphql-response+json, application/json;q=0.9</code>. The server MUST answer in the highest-priority type it supports.</td></tr><tr><td>Data returned</td><td><code>data</code> present and not null: MUST be <code>2xx</code>; <code>200</code> when there are no errors.</td></tr><tr><td>Partial success</td><td><code>data</code> and <code>errors</code> together: SHOULD be <code>294</code>.</td></tr><tr><td>Request errors</td><td>No <code>data</code>: MUST be <code>4xx</code> or <code>5xx</code>, with specific codes recommended (next table).</td></tr><tr><td>Mutations over GET</td><td>MUST be refused with a <code>4xx</code> and not executed; <code>405</code> is recommended, which requires an <code>Allow</code> header.</td></tr><tr><td>Non-GraphQL failures</td><td>When no GraphQL response can be produced, use a <code>4xx</code> or <code>5xx</code> and MUST NOT use <code>application/graphql-response+json</code>.</td></tr></tbody></table></figure>
+<!-- /wp:table -->
+
+<!-- wp:paragraph -->
+<p>The new media type is what makes honest status codes safe. A client that receives <code>application/graphql-response+json</code> knows the body is a GraphQL response whatever the status, so a <code>422</code> from GraphQL can no longer be confused with a <code>422</code> from a gateway. Clients are told to read the body and ignore the status code; the status code is for everything in between: logs, gateways, dashboards and intrusion detection.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:table {"className":"is-style-stripes"} -->
+<figure class="wp-block-table is-style-stripes"><table><thead><tr><th>Condition</th><th>Recommended status</th></tr></thead><tbody><tr><td>Body is not valid JSON</td><td>400</td></tr><tr><td>Not a well-formed request (e.g. <code>qeury</code>, <code>variables</code> as an array)</td><td>422</td></tr><tr><td>GraphQL document does not parse</td><td>400</td></tr><tr><td>Document fails validation</td><td>422</td></tr><tr><td>Operation cannot be determined (several operations, no <code>operationName</code>)</td><td>422</td></tr><tr><td>Variables cannot be coerced</td><td>422</td></tr><tr><td>Mutation over GET, or unsupported HTTP method</td><td>405</td></tr><tr><td>Unsupported <code>Content-Type</code></td><td>415</td></tr><tr><td>No acceptable response media type</td><td>406</td></tr><tr><td>Not authenticated or not allowed</td><td>401, 403</td></tr><tr><td>Server overloaded or in maintenance</td><td>503</td></tr><tr><td>Executed, with field errors</td><td>294</td></tr></tbody></table></figure>
+<!-- /wp:table -->
+
+<!-- wp:html -->
+<div class="callout callout-info" style="background: #e3f2fd; border-left: 4px solid #2196f3; padding: 16px 20px; margin: 20px 0; border-radius: 4px;"><div style="display: flex; align-items: start;"><span style="font-size: 24px; margin-right: 12px;">ℹ️</span><div><strong style="color: #1976d2; display: block; margin-bottom: 8px;">WHY 294</strong><p style="margin: 0; color: #333;">There is no registered HTTP status for "partial success": 203, 206 and 207 each mean something else. The specification defines <code>294 Partial Success</code> itself and recommends it only together with <code>application/graphql-response+json</code>. HTTP clients that do not know 294 must treat it as 200, but the specification warns that infrastructure with fixed lists of status codes (caches, load balancers, WAFs) may handle it differently, so test every hop.</p></div></div></div>
+<!-- /wp:html -->
+
+<!-- wp:html -->
+<div class="callout callout-warning" style="background: #fff3e0; border-left: 4px solid #ff9800; padding: 16px 20px; margin: 20px 0; border-radius: 4px;"><div style="display: flex; align-items: start;"><span style="font-size: 24px; margin-right: 12px;">⚠️</span><div><strong style="color: #f57c00; display: block; margin-bottom: 8px;">THE EDITION DISAGREES WITH ITSELF ON FIELD ERRORS</strong><p style="margin: 0; color: #333;">The Status Codes section says a result with both <code>data</code> and <code>errors</code> SHOULD get <code>294</code>. The worked example "Field errors encountered during execution" a few lines later still says the server SHOULD respond <code>200 OK</code>. Both are <code>2xx</code>, so either is allowed; 294 is the newer intent (it was adopted in April 2026), but expect implementations to differ until an erratum settles it.</p></div></div></div>
+<!-- /wp:html -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">How a client should read a response</h2>
+<!-- /wp:heading -->
+
+<!-- wp:image {"id":18477,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="https://www.dataa.dev/wp-content/uploads/2026/11/graphql-over-http-reading-responses.jpg" alt="Decision path for reading a GraphQL over HTTP response: application/graphql-response+json is always a GraphQL result; application/json only with a 2xx status; anything else is a transport error. Status codes by outcome: 200, 294, 400, 422, 405, 415, 406" class="wp-image-18477"/><figcaption class="wp-element-caption">Decide by media type first, status code second.</figcaption></figure>
+<!-- /wp:image -->
+
+<!-- wp:merpress/mermaidjs -->
+<div class="wp-block-merpress-mermaidjs diagram-source-mermaid"><pre class="mermaid">%%{init: {'theme':'base','themeVariables':{'primaryColor':'#FFF3E0','primaryTextColor':'#232F3E','primaryBorderColor':'#FF9900','lineColor':'#232F3E','clusterBkg':'#F8FAFC','clusterBorder':'#CBD5E1','edgeLabelBackground':'#FFFFFF','nodeTextColor':'#232F3E'}}}%%
+flowchart TD
+    A["HTTP response"] --&gt; B{"Content-Type?"}
+    B --&gt;|"application/graphql-response+json"| C["GraphQL result, any status code"]
+    B --&gt;|"application/json"| D{"Status 2xx?"}
+    D --&gt;|"Yes"| C
+    D --&gt;|"No"| E["Cannot tell who sent it: transport error"]
+    B --&gt;|"anything else"| E
+    C --&gt; F{"data and errors?"}
+    F --&gt;|"data only"| G["Success (200)"]
+    F --&gt;|"data and errors"| H["Partial success (294)"]
+    F --&gt;|"errors only"| I["Request error (4xx/5xx)"]</pre></div>
+<!-- /wp:merpress/mermaidjs -->
+
+<!-- wp:paragraph -->
+<p>The sample's client follows that path. It sends the recommended <code>Accept</code> header, reads <code>application/graphql-response+json</code> at any status, reads <code>application/json</code> only on <code>2xx</code>, and turns everything else into a transport error. For legacy servers that answer validation errors with <code>400</code> and <code>application/json</code>, there is an opt-in to read those bodies when you control every hop in front of the server.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:code {"language":"python"} -->
+<pre class="wp-block-code"><code class="language-python">"""A GraphQL-over-HTTP client that reads responses the way the September 2026 edition says.
+
+- Send Accept: application/graphql-response+json, application/json;q=0.9
+- application/graphql-response+json: a GraphQL response, whatever the status code.
+- application/json: a GraphQL response only when the status is 2xx (legacy servers).
+- Anything else (a proxy's 502 page, a rate limiter's 429): a transport error.
+
+Servers that never send application/graphql-response+json (legacy servers) often answer a
+validation error with 400 and application/json. The spec says a client cannot know such a body
+came from GraphQL, so by default it is a transport error. If you know every hop in front of the
+server, trust_json_errors=True reads those bodies too, when they have the shape of a GraphQL result.
+"""
+from __future__ import annotations
+
+from dataclasses import dataclass, field
+from typing import Any
+
+import httpx
+
+GQL = "application/graphql-response+json"
+JSON = "application/json"
+ACCEPT = f"{GQL}, {JSON};q=0.9"
+
+
+class TransportError(Exception):
+    """The response did not come from a GraphQL server, or could not be read as one."""
+
+    def __init__(self, status: int, content_type: str, message: str) -&gt; None:
+        super().__init__(f"HTTP {status} ({content_type or 'no content type'}): {message}")
+        self.status = status
+        self.content_type = content_type
+
+
+@dataclass
+class Result:
+    data: dict[str, Any] | None
+    errors: list[dict[str, Any]] = field(default_factory=list)
+    extensions: dict[str, Any] | None = None
+    status: int = 200
+
+    @property
+    def partial(self) -&gt; bool:
+        """Executed, with some fields failing: data and errors together (status 294 when the server follows the spec)."""
+        return self.data is not None and bool(self.errors)
+
+    @property
+    def request_error(self) -&gt; bool:
+        """Not executed at all: parse, validation or variable errors."""
+        return self.data is None and bool(self.errors)
+
+
+class GraphQLHTTPClient:
+    def __init__(self, url: str, client: httpx.Client | None = None, timeout: float = 10.0,
+                 trust_json_errors: bool = False) -&gt; None:
+        self.url = url
+        self._client = client or httpx.Client(timeout=timeout)
+        self.trust_json_errors = trust_json_errors
+
+    def execute(self, query: str, variables: dict[str, Any] | None = None,
+                operation_name: str | None = None) -&gt; Result:
+        body: dict[str, Any] = {"query": query}
+        if variables is not None:
+            body["variables"] = variables
+        if operation_name is not None:
+            body["operationName"] = operation_name
+        response = self._client.post(self.url, json=body, headers={"accept": ACCEPT})
+        return self.read(response, self.trust_json_errors)
+
+    @staticmethod
+    def read(response: httpx.Response, trust_json_errors: bool = False) -&gt; Result:
+        media = response.headers.get("content-type", "").split(";")[0].strip().lower()
+        status = response.status_code
+        legacy_error = media == JSON and 400 &lt;= status &lt; 500 and trust_json_errors
+        if media == GQL or (media == JSON and 200 &lt;= status &lt; 300) or legacy_error:
+            try:
+                payload = response.json()
+            except ValueError as exc:
+                raise TransportError(status, media, "body is not JSON") from exc
+            if not isinstance(payload, dict) or ("data" not in payload and "errors" not in payload):
+                raise TransportError(status, media, "body is not a GraphQL response")
+            return Result(payload.get("data"), payload.get("errors") or [], payload.get("extensions"), status)
+        raise TransportError(status, media, response.text[:200])</code></pre>
+<!-- /wp:code -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">Six servers against the specification</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Each server ran its default HTTP stack with the same schema: <code>hello</code>, <code>user(id)</code>, a <code>boom</code> field that always throws (to produce partial results) and a <code>setGreeting</code> mutation. Versions are the newest stable releases published before 24 November: graphql-http 1.23.1 (the reference implementation in the GraphQL organisation), GraphQL Yoga 6.1.1, Apollo Server 5.5.2, Mercurius 16.12.2 on Fastify, all on graphql-js 16.15.0, and Strawberry 0.341.3 and Ariadne 1.1.1 on graphql-core 3.3.2.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:table {"className":"is-style-stripes"} -->
+<figure class="wp-block-table is-style-stripes"><table><thead><tr><th>Request</th><th>graphql-http</th><th>GraphQL Yoga</th><th>Apollo Server</th><th>Mercurius</th><th>Strawberry</th><th>Ariadne</th></tr></thead><tbody><tr><td><strong>A1</strong> POST, Accept graphql-response+json</td><td>200 gql ✅</td><td>200 gql ✅</td><td>200 gql ✅</td><td>200 json ❌</td><td>200 json ❌</td><td>200 json ❌</td></tr><tr><td><strong>A2</strong> POST, Accept application/json (legacy client)</td><td>200 json ✅</td><td>200 json ✅</td><td>200 json ✅</td><td>200 json ✅</td><td>200 json ✅</td><td>200 json ✅</td></tr><tr><td><strong>A3</strong> POST, Accept both, graphql-response+json preferred</td><td>200 gql ✅</td><td>200 gql ✅</td><td>200 gql ✅</td><td>200 json ❌</td><td>200 json ❌</td><td>200 json ❌</td></tr><tr><td><strong>A4</strong> POST, no Accept header</td><td>200 json ·</td><td>200 json ·</td><td>200 json ·</td><td>200 json ·</td><td>200 json ·</td><td>200 json ·</td></tr><tr><td><strong>A5</strong> POST, Accept text/html only</td><td>406 none ✅</td><td>406 none ✅</td><td>406 json ✅</td><td>200 json ⚠️</td><td>200 json ⚠️</td><td>200 json ⚠️</td></tr><tr><td><strong>B1</strong> POST, Content-Type text/plain</td><td>415 none ✅</td><td>415 none ✅</td><td>400 gql ⚠️</td><td>400 json ⚠️</td><td>400 text ⚠️</td><td>400 text ⚠️</td></tr><tr><td><strong>B2</strong> POST, no Content-Type</td><td>415 none ✅</td><td>415 none ✅</td><td>400 gql ✅</td><td>415 json ✅</td><td>400 text ✅</td><td>400 text ✅</td></tr><tr><td><strong>B3</strong> POST, body is not JSON</td><td>400 json ✅</td><td>400 gql ✅</td><td>400 html ✅</td><td>400 json ✅</td><td>400 text ✅</td><td>400 text ✅</td></tr><tr><td><strong>B4</strong> POST, misspelt parameter (qeury)</td><td>400 json ⚠️</td><td>400 gql ⚠️</td><td>400 gql ⚠️</td><td>400 json ⚠️</td><td>400 text ⚠️</td><td>400 json ⚠️</td></tr><tr><td><strong>B5</strong> POST, variables is an array</td><td>400 json ⚠️</td><td>400 gql ⚠️</td><td>400 gql ⚠️</td><td>400 json ⚠️</td><td>400 text ⚠️</td><td>400 json ⚠️</td></tr><tr><td><strong>B6</strong> POST, unknown top-level property</td><td>200 gql ✅</td><td>400 gql ❌</td><td>200 gql ✅</td><td>200 json ✅</td><td>200 json ✅</td><td>200 json ✅</td></tr><tr><td><strong>C1</strong> Document does not parse</td><td>400 gql ✅</td><td>400 gql ✅</td><td>400 gql ✅</td><td>400 json ✅</td><td>200 json ⚠️</td><td>400 json ✅</td></tr><tr><td><strong>C2</strong> Validation error (unknown field)</td><td>400 gql ⚠️</td><td>400 gql ⚠️</td><td>400 gql ⚠️</td><td>400 json ⚠️</td><td>200 json ⚠️</td><td>400 json ⚠️</td></tr><tr><td><strong>C3</strong> Two operations, no operationName</td><td>400 gql ⚠️</td><td>400 gql ⚠️</td><td>400 gql ⚠️</td><td>200 json ⚠️</td><td>200 json ⚠️</td><td>400 json ⚠️</td></tr><tr><td><strong>C4</strong> Required variable missing</td><td>200 gql ❌</td><td>400 gql ⚠️</td><td>400 gql ⚠️</td><td>200 json ⚠️</td><td>200 json ⚠️</td><td>400 json ⚠️</td></tr><tr><td><strong>C5</strong> Partial result (data and errors)</td><td>200 gql ⚠️</td><td>200 gql ⚠️</td><td>200 gql ⚠️</td><td>200 json ⚠️</td><td>200 json ⚠️</td><td>200 json ⚠️</td></tr><tr><td><strong>C6</strong> Validation error, legacy Accept application/json</td><td>200 json ⚠️</td><td>200 json ⚠️</td><td>400 json ⚠️</td><td>400 json ⚠️</td><td>200 json ⚠️</td><td>400 json ⚠️</td></tr><tr><td><strong>D1</strong> GET query</td><td>200 gql ✅</td><td>200 gql ✅</td><td>400 gql ·</td><td>200 json ✅</td><td>200 json ✅</td><td>200 html ·</td></tr><tr><td><strong>D2</strong> GET mutation</td><td>405 none ✅</td><td>405 gql ✅</td><td>400 gql ⚠️</td><td>405 json ❌</td><td>400 text ⚠️</td><td>200 html ·</td></tr><tr><td><strong>D3</strong> PUT</td><td>405 none ✅</td><td>405 gql ✅</td><td>405 gql ✅</td><td>404 json ⚠️</td><td>405 text ✅</td><td>405 none ✅</td></tr><tr><td><strong>D4</strong> GET query + apollo-require-preflight</td><td>200 gql ✅</td><td>200 gql ✅</td><td>200 gql ✅</td><td>200 json ✅</td><td>200 json ✅</td><td>200 html ·</td></tr><tr><td><strong>D5</strong> GET mutation + apollo-require-preflight</td><td>405 none ✅</td><td>405 gql ✅</td><td>405 gql ✅</td><td>405 json ❌</td><td>400 text ⚠️</td><td>200 html ·</td></tr><tr><td><strong>MUST broken / SHOULD differs</strong></td><td><strong>1 / 6</strong></td><td><strong>1 / 7</strong></td><td><strong>0 / 9</strong></td><td><strong>4 / 10</strong></td><td><strong>2 / 12</strong></td><td><strong>2 / 9</strong></td></tr></tbody></table></figure>
+<!-- /wp:table -->
+
+<!-- wp:paragraph -->
+<p>Key: ✅ as specified, ⚠️ allowed but not what the specification recommends (a SHOULD), ❌ breaks a MUST, · left open. <code>gql</code> is <code>application/graphql-response+json</code>, <code>json</code> is <code>application/json</code>. D4 and D5 repeat the GET requests with Apollo's preflight header.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image {"id":18478,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="https://www.dataa.dev/wp-content/uploads/2026/11/graphql-over-http-six-servers.jpg" alt="Scorecard of six GraphQL servers against the September 2026 edition: graphql-http, GraphQL Yoga and Apollo Server speak the new media type; Mercurius, Strawberry and Ariadne answer application/json only; no server uses 422 or 294 yet" class="wp-image-18478"/><figcaption class="wp-element-caption">Three servers speak the new media type; none uses 422 or 294 yet.</figcaption></figure>
+<!-- /wp:image -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Three servers do not speak the new media type</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>graphql-http, Yoga and Apollo Server answered <code>application/graphql-response+json</code> when asked and fell back to <code>application/json</code> for a legacy <code>Accept</code>. Mercurius, Strawberry and Ariadne answered <code>application/json</code> to every request, including one that asked only for the new type. Under the new edition that makes them legacy servers: supporting the media type is a MUST. They still work for clients that send <code>application/json;q=0.9</code> as a fallback, which is why the specification recommends that header.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Nobody uses 422 or 294 yet</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Every server answered validation errors, ambiguous operations and bad variables with <code>400</code> (or <code>200</code>), and every partial result with <code>200</code>. Both recommendations are new: <code>422</code> and <code>294</code> entered the draft in April 2026, and graphql-http 1.23.1 was released on 28 September, before the edition. graphql-http's own audit suite, which tests the draft's earlier expectations, passes all 61 checks against graphql-http and Yoga. Expect status codes to change in the next releases of these libraries, and treat that as a behaviour change for dashboards and alerts.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">The MUST-level findings</h3>
+<!-- /wp:heading -->
+
+<!-- wp:list -->
+<ul class="wp-block-list"><!-- wp:list-item -->
+<li><strong>graphql-http</strong> answered a missing required variable with <code>200</code> and <code>application/graphql-response+json</code>, with <code>errors</code> and no <code>data</code>. A result without data MUST get a <code>4xx</code> or <code>5xx</code>; the same server answered a validation error correctly with <code>400</code>.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li><strong>GraphQL Yoga</strong> refused a request with an extra top-level property (<code>"trace": true</code>) with <code>400 Unexpected parameter "trace" in the request body</code>. The specification says servers MUST ignore properties they do not understand, so that new request properties can be added later.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li><strong>Mercurius</strong> refused a mutation over GET with <code>405</code> but sent no <code>Allow</code> header, which RFC 9110 requires with 405. graphql-http's audit also flagged it for rejecting <code>"extensions": null</code>.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li><strong>Mercurius, Strawberry and Ariadne</strong> never send <code>application/graphql-response+json</code> (above).</li>
+<!-- /wp:list-item -->
+</ul>
+<!-- /wp:list -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Other behaviour worth knowing</h3>
+<!-- /wp:heading -->
+
+<!-- wp:list -->
+<ul class="wp-block-list"><!-- wp:list-item -->
+<li><strong>Apollo Server's CSRF prevention</strong> refused every GET and the <code>text/plain</code> POST with <code>400</code>, before looking at the operation, because a browser can send those without a CORS preflight. With its <code>apollo-require-preflight</code> header the same GET query succeeded and the GET mutation got <code>405</code>. This is the pattern the specification's security notes describe; budget for the extra header in clients that use GET.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li><strong>Ariadne</strong> answered GET requests with the GraphiQL page, even when the client asked for <code>application/graphql-response+json</code>, so it does not serve queries over GET by default. That is allowed (GET is optional), but caching proxies will not get GraphQL responses from it.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li><strong>Strawberry</strong> answered a document that does not parse and a validation error with <code>200</code>. Strawberry and Mercurius also included <code>"data": null</code> in request-error results; the GraphQL specification says <code>data</code> should not be present when an error happens before execution, and with the new status rules a <code>data</code> entry changes the expected status from <code>4xx</code> to <code>294</code>.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li><strong>A strict client cannot read legacy validation errors.</strong> Mercurius and Ariadne answer an unknown field with <code>400</code> and <code>application/json</code>. A client that follows the specification cannot tell that body from a proxy's error, so it reports a transport error and the GraphQL message is lost. That is the case the client's <code>trust_json_errors</code> option exists for.</li>
+<!-- /wp:list-item -->
+</ul>
+<!-- /wp:list -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">What to change</h2>
+<!-- /wp:heading -->
+
+<!-- wp:table {"className":"is-style-stripes"} -->
+<figure class="wp-block-table is-style-stripes"><table><thead><tr><th>Where</th><th>Change</th></tr></thead><tbody><tr><td>Clients</td><td>Send <code>Accept: application/graphql-response+json, application/json;q=0.9</code>. Decide by media type, then status. Treat 294 as success with errors, not as an error.</td></tr><tr><td>Servers</td><td>Upgrade to releases that support <code>application/graphql-response+json</code>, and plan for the switch to 422 and 294. Keep <code>application/json</code> for legacy clients; the specification says 2xx answers to them keep that type. Ignore unknown body properties.</td></tr><tr><td>GET</td><td>Refuse mutations with 405 and an <code>Allow</code> header. Require a preflight-forcing header if GET is enabled for browsers.</td></tr><tr><td>Gateways, CDNs and WAFs</td><td>Check that 294 is passed through, logged and not cached or rewritten unexpectedly. Stop rewriting GraphQL 4xx bodies into generic error pages: the media type marks them as GraphQL.</td></tr><tr><td>Monitoring</td><td>Split dashboards by status: 2xx success, 294 partial, 4xx client errors, 5xx server errors. Alert on rates, now that a failed query is no longer a 200.</td></tr><tr><td>Testing</td><td>Add a conformance probe like the sample's to CI so a library upgrade that changes status codes is noticed before production.</td></tr></tbody></table></figure>
+<!-- /wp:table -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">Key takeaways</h2>
+<!-- /wp:heading -->
+
+<!-- wp:list -->
+<ul class="wp-block-list"><!-- wp:list-item -->
+<li>The September 2026 edition makes <code>application/graphql-response+json</code> mandatory for servers and lets status codes carry meaning: 200, 294, 400, 422, 405, 415, 406.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li>Clients should read the media type first: <code>application/graphql-response+json</code> is GraphQL at any status; <code>application/json</code> only on 2xx.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li>Three of six servers tested already speak the media type; none uses 422 or 294 yet, not even the reference implementation released before the edition.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li>Four MUST-level gaps showed up with default settings: 200 for a result without data, refusing an unknown body property, 405 without <code>Allow</code>, and no support for the media type.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li>294 is new to every proxy, CDN and dashboard; test each hop before servers start sending it.</li>
+<!-- /wp:list-item -->
+</ul>
+<!-- /wp:list -->
+
+<!-- wp:paragraph -->
+<p>Which status code change will hit your dashboards first: 422 for validation errors or 294 for partial results? Let me know in the comments.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>For the broader choice between API styles, see <a href="https://www.dataa.dev/2021/07/22/graphql-vs-grpc-vs-rest-choosing-the-right-api-style/">GraphQL vs gRPC vs REST</a>.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:html -->
+<div class="callout callout-note" style="background: #f5f5f5; border-left: 4px solid #607d8b; padding: 16px 20px; margin: 20px 0; border-radius: 4px;"><div style="display: flex; align-items: start;"><span style="font-size: 24px; margin-right: 12px;">📝</span><div><strong style="color: #455a64; display: block; margin-bottom: 8px;">HOW THIS WAS CHECKED</strong><p style="margin: 0; color: #333;">The specification text was read from the <code>September2026</code> tag of the graphql/graphql-over-http repository; dates of the 422 and 294 changes come from its commit history. The six servers ran locally on Linux with Node 22 and Python 3.13, each with its default HTTP settings and the same schema, using the newest stable releases published before 24 November 2026. The probe sent 22 requests to each server once; the table is its output. graphql-http's <code>serverAudits</code> ran against each server as a second check. The client's 12 tests use a mocked transport and were also run against the six servers. Hot Chocolate, graphql-java and gqlgen were not tested.</p></div></div></div>
+<!-- /wp:html -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">Glossary</h2>
+<!-- /wp:heading -->
+
+<!-- wp:html -->
+<dl style="background:#F6F8FA;border:1px solid #D0D7DE;border-radius:8px;padding:20px 24px;margin:24px 0"><dt style="font-weight:700;color:#24292F;margin-top:12px">GraphQL over HTTP</dt><dd style="margin:4px 0 0 20px;color:#57606A">The specification, separate from the GraphQL specification, for sending GraphQL requests and responses over HTTP; first edition September 2026.</dd><dt style="font-weight:700;color:#24292F;margin-top:12px">application/graphql-response+json</dt><dd style="margin:4px 0 0 20px;color:#57606A">The response media type that marks a body as a GraphQL response following the specification, whatever the status code.</dd><dt style="font-weight:700;color:#24292F;margin-top:12px">Legacy server</dt><dd style="margin:4px 0 0 20px;color:#57606A">A server that does not support <code>application/graphql-response+json</code>; it does not conform to the specification.</dd><dt style="font-weight:700;color:#24292F;margin-top:12px">Legacy client</dt><dd style="margin:4px 0 0 20px;color:#57606A">A client that only accepts <code>application/json</code>; servers answer it with that type on 2xx.</dd><dt style="font-weight:700;color:#24292F;margin-top:12px">Request error</dt><dd style="margin:4px 0 0 20px;color:#57606A">An error before execution (parse, validation, variable coercion, operation selection); the result has no <code>data</code> entry.</dd><dt style="font-weight:700;color:#24292F;margin-top:12px">Execution (field) error</dt><dd style="margin:4px 0 0 20px;color:#57606A">An error while resolving a field; the result has <code>data</code>, possibly with nulls, and <code>errors</code>.</dd><dt style="font-weight:700;color:#24292F;margin-top:12px">294 Partial Success</dt><dd style="margin:4px 0 0 20px;color:#57606A">A status code defined by the specification, not by IANA, for results with both data and errors.</dd><dt style="font-weight:700;color:#24292F;margin-top:12px">Well-formed request</dt><dd style="margin:4px 0 0 20px;color:#57606A">A request whose parameters have the right names and types; the document does not have to parse.</dd><dt style="font-weight:700;color:#24292F;margin-top:12px">CSRF preflight header</dt><dd style="margin:4px 0 0 20px;color:#57606A">A custom header, such as Apollo's <code>apollo-require-preflight</code>, that forces browsers to send a CORS preflight before the request.</dd></dl>
+<!-- /wp:html -->
+
+<!-- wp:html -->
+<div class="callout callout-tip sample-code-link" style="background: #e8f5e9; border-left: 4px solid #4caf50; padding: 16px 20px; margin: 20px 0; border-radius: 4px;"><div style="display: flex; align-items: start;"><span style="font-size: 24px; margin-right: 12px;">💡</span><div><strong style="color: #388e3c; display: block; margin-bottom: 8px;">GET THE CODE</strong><p style="margin: 0; color: #333;">The complete sample for this article is on GitHub: <a href="https://github.com/nithinmohantk/blog-samples-working-repo/tree/main/graphql-over-http-conformance" target="_blank" rel="noopener">nithinmohantk/blog-samples-working-repo/graphql-over-http-conformance</a>. Clone it with <code>git clone https://github.com/nithinmohantk/blog-samples-working-repo.git</code> and open the <code>graphql-over-http-conformance</code> folder. Its README says how to run it and what has been verified.</p></div></div></div>
+<!-- /wp:html -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">References &amp; Further Reading</h2>
+<!-- /wp:heading -->
+
+<!-- wp:html -->
+<ul style="background:#F6F8FA;border:1px solid #D0D7DE;border-radius:8px;padding:20px 24px;margin:24px 0;list-style:none"><li style="margin:10px 0"><a href="https://http-spec.graphql.org/September2026/" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; GraphQL over HTTP, September 2026 edition</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— The specification</span></li><li style="margin:10px 0"><a href="https://graphql.org/blog/2026-11-12-announcing-the-graphql-over-http-spec/" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; Announcing the GraphQL over HTTP specification</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— GraphQL TSC, 12 November 2026</span></li><li style="margin:10px 0"><a href="https://github.com/graphql/graphql-over-http" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; graphql/graphql-over-http on GitHub</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— Source, September2026 tag and changelog</span></li><li style="margin:10px 0"><a href="https://github.com/graphql/graphql-http" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; graphql-http</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— Reference implementation and audit suite</span></li><li style="margin:10px 0"><a href="https://httpwg.org/specs/rfc9110.html" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; RFC 9110: HTTP Semantics</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— Status codes, Accept and the Allow header</span></li><li style="margin:10px 0"><a href="https://github.com/nithinmohantk/blog-samples-working-repo/tree/main/graphql-over-http-conformance" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; Sample code for this article</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— Servers, probe, audits, client and results</span></li></ul>
+<!-- /wp:html -->
