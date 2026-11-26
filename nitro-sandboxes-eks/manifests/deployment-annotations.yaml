@@ -1,0 +1,47 @@
+# Same annotation, two places. Only the pod template annotation reaches the pods;
+# the one on the Deployment's own metadata is accepted and silently ignored.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wrong-place
+  namespace: sbx
+  annotations:
+    sandbox.amazonaws.com/network-isolated: "true"   # ignored
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: wrong-place}}
+  template:
+    metadata:
+      labels: {app: wrong-place}
+    spec:
+      runtimeClassName: isolated-sandbox
+      containers:
+      - name: main
+        image: public.ecr.aws/amazonlinux/amazonlinux:2023
+        command: ["sleep", "infinity"]
+        resources:
+          requests: {cpu: 250m, memory: 256Mi}
+          limits: {cpu: "1", memory: 512Mi}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: right-place
+  namespace: sbx
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: right-place}}
+  template:
+    metadata:
+      labels: {app: right-place}
+      annotations:
+        sandbox.amazonaws.com/network-isolated: "true"   # applied
+    spec:
+      runtimeClassName: isolated-sandbox
+      containers:
+      - name: main
+        image: public.ecr.aws/amazonlinux/amazonlinux:2023
+        command: ["sleep", "infinity"]
+        resources:
+          requests: {cpu: 250m, memory: 256Mi}
+          limits: {cpu: "1", memory: 512Mi}

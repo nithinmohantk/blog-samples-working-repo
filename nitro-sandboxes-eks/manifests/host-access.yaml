@@ -1,0 +1,42 @@
+# A deliberately over-privileged pod: privileged, hostPID and the node's root
+# filesystem mounted at /host. Run it plain and sandboxed and compare what it can see.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: escape-plain
+  namespace: sbx
+spec:
+  hostPID: true
+  containers:
+  - name: main
+    image: public.ecr.aws/amazonlinux/amazonlinux:2023
+    command: ["sleep", "infinity"]
+    securityContext: {privileged: true}
+    volumeMounts: [{name: host, mountPath: /host, readOnly: true}]
+    resources:
+      requests: {cpu: 250m, memory: 256Mi}
+      limits: {cpu: "1", memory: 512Mi}
+  volumes:
+  - name: host
+    hostPath: {path: /, type: Directory}
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: escape-sandboxed
+  namespace: sbx
+spec:
+  runtimeClassName: isolated-sandbox
+  hostPID: true
+  containers:
+  - name: main
+    image: public.ecr.aws/amazonlinux/amazonlinux:2023
+    command: ["sleep", "infinity"]
+    securityContext: {privileged: true}
+    volumeMounts: [{name: host, mountPath: /host, readOnly: true}]
+    resources:
+      requests: {cpu: 250m, memory: 256Mi}
+      limits: {cpu: "1", memory: 512Mi}
+  volumes:
+  - name: host
+    hostPath: {path: /, type: Directory}
