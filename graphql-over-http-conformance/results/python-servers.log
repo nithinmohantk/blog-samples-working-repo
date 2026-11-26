@@ -1,0 +1,864 @@
+listening: strawberry :4005/graphql, ariadne :4006/graphql
+Syntax Error: Expected Name, found <EOF>.
+
+GraphQL request:1:2
+1 | {
+  |  ^
+Cannot query field 'nope' on type 'Query'.
+
+GraphQL request:1:3
+1 | { nope }
+  |   ^
+Variable '$id' has invalid value: Expected a value of non-null type 'ID!' to be provided.
+
+GraphQL request:1:9
+1 | query Q($id: ID!) { user(id: $id) { name } }
+  |         ^
+graphql.error.graphql_error.GraphQLError: Expected a value of non-null type 'ID!' to be provided.
+boom failed
+
+GraphQL request:1:9
+1 | { hello boom }
+  |         ^
+Traceback (most recent call last):
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/execution/executor.py", line 982, in execute_field
+    result = resolve_fn(source, info, **args)
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/strawberry/schema/schema_converter.py", line 1292, in _resolver
+    return _get_result_with_extensions(
+        _source,
+        strawberry_info,
+        **kwargs,
+    )
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/strawberry/schema/schema_converter.py", line 1278, in extension_resolver
+    return reduce(
+           ~~~~~~~
+    ...<2 lines>...
+        wrapped_get_result,
+        ~~~~~~~~~~~~~~~~~~~
+    )(_source, info, **field_kwargs)
+    ~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/strawberry/schema/schema_converter.py", line 1270, in wrapped_get_result
+    return _get_result(
+        _source,
+    ...<2 lines>...
+        field_kwargs=kwargs,
+    )
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/strawberry/schema/schema_converter.py", line 1156, in _get_result
+    return field.get_result(
+           ~~~~~~~~~~~~~~~~^
+        _source, info=info, args=field_args, kwargs=field_kwargs
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/strawberry/types/field.py", line 242, in get_result
+    return self.base_resolver(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/strawberry/types/fields/resolver.py", line 280, in __call__
+    return self.wrapped_func(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/servers.py", line 44, in boom
+    raise ValueError("boom failed")
+ValueError: boom failed
+Cannot query field 'nope' on type 'Query'.
+
+GraphQL request:1:3
+1 | { nope }
+  |   ^
+The query must be a string.
+Traceback (most recent call last):
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/ariadne/graphql.py", line 141, in graphql
+    validate_data(data)
+    ~~~~~~~~~~~~~^^^^^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/ariadne/graphql.py", line 657, in validate_data
+    validate_query_body(data.get("query"))
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/ariadne/graphql.py", line 664, in validate_query_body
+    raise GraphQLError("The query must be a string.")
+graphql.error.graphql_error.GraphQLError: The query must be a string.
+Query variables must be a null or an object.
+Traceback (most recent call last):
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/ariadne/graphql.py", line 141, in graphql
+    validate_data(data)
+    ~~~~~~~~~~~~~^^^^^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/ariadne/graphql.py", line 658, in validate_data
+    validate_variables(data.get("variables"))
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/ariadne/graphql.py", line 669, in validate_variables
+    raise GraphQLError("Query variables must be a null or an object.")
+graphql.error.graphql_error.GraphQLError: Query variables must be a null or an object.
+Syntax Error: Expected Name, found <EOF>.
+
+GraphQL request:1:2
+1 | {
+  |  ^
+Traceback (most recent call last):
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/ariadne/graphql.py", line 150, in graphql
+    document = parse_query(context_value, query_parser, data)
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/ariadne/graphql.py", line 604, in parse_query
+    raise error
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/ariadne/graphql.py", line 602, in parse_query
+    return parse(data["query"])
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 223, in parse
+    return parser.parse_document()
+           ~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 624, in parse_document
+    definitions=self.many(TokenKind.SOF, self.parse_definition, TokenKind.EOF),
+                ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 1687, in many
+    nodes = [parse_fn()]
+             ~~~~~~~~^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 663, in parse_definition
+    return self.parse_operation_definition()
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 717, in parse_operation_definition
+    selection_set=self.parse_selection_set(),
+                  ~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 785, in parse_selection_set
+    self.any(TokenKind.BRACE_L, self.parse_selection, TokenKind.BRACE_R)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 1653, in any
+    append(parse_fn())
+           ~~~~~~~~^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 803, in parse_selection
+    return (
+           ~
+        self.parse_fragment if self.peek(TokenKind.SPREAD) else self.parse_field
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    )()
+    ~^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 810, in parse_field
+    name_or_alias = self.parse_name()
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 606, in parse_name
+    token = self.expect_token(TokenKind.NAME)
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 1583, in expect_token
+    raise GraphQLSyntaxError(
+    ...<3 lines>...
+    )
+graphql.error.syntax_error.GraphQLSyntaxError: Syntax Error: Expected Name, found <EOF>.
+
+GraphQL request:1:2
+1 | {
+  |  ^
+Cannot query field 'nope' on type 'Query'.
+
+GraphQL request:1:3
+1 | { nope }
+  |   ^
+graphql.error.graphql_error.GraphQLError: Cannot query field 'nope' on type 'Query'.
+
+GraphQL request:1:3
+1 | { nope }
+  |   ^
+Must provide operation name if query contains multiple operations.
+graphql.error.graphql_error.GraphQLError: Must provide operation name if query contains multiple operations.
+Variable '$id' has invalid value: Expected a value of non-null type 'ID!' to be provided.
+
+GraphQL request:1:9
+1 | query Q($id: ID!) { user(id: $id) { name } }
+  |         ^
+graphql.error.graphql_error.GraphQLError: Variable '$id' has invalid value: Expected a value of non-null type 'ID!' to be provided.
+
+GraphQL request:1:9
+1 | query Q($id: ID!) { user(id: $id) { name } }
+  |         ^
+boom failed
+
+GraphQL request:1:9
+1 | { hello boom }
+  |         ^
+Traceback (most recent call last):
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/execution/executor.py", line 982, in execute_field
+    result = resolve_fn(source, info, **args)
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/servers.py", line 61, in resolve_boom
+    raise ValueError("boom failed")
+ValueError: boom failed
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/execution/executor.py", line 982, in execute_field
+    result = resolve_fn(source, info, **args)
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/servers.py", line 61, in resolve_boom
+    raise ValueError("boom failed")
+graphql.error.graphql_error.GraphQLError: boom failed
+
+GraphQL request:1:9
+1 | { hello boom }
+  |         ^
+Cannot query field 'nope' on type 'Query'.
+
+GraphQL request:1:3
+1 | { nope }
+  |   ^
+graphql.error.graphql_error.GraphQLError: Cannot query field 'nope' on type 'Query'.
+
+GraphQL request:1:3
+1 | { nope }
+  |   ^
+Syntax Error: Expected Name, found <EOF>.
+
+GraphQL request:1:2
+1 | {
+  |  ^
+Syntax Error: Invalid number, expected digit but got: 'f'.
+
+GraphQL request:1:4
+1 | { 8f31403dfe404bccbb0e835f2629c6a7 }
+  |    ^
+Variable '$id' is never used in operation 'CoerceFailure'.
+
+GraphQL request:1:21
+1 | query CoerceFailure($id: ID!){ __typename }
+  |                     ^
+Syntax Error: Expected Name, found <EOF>.
+
+GraphQL request:1:2
+1 | {
+  |  ^
+Syntax Error: Expected Name, found <EOF>.
+
+GraphQL request:1:2
+1 | {
+  |  ^
+Syntax Error: Expected Name, found <EOF>.
+
+GraphQL request:1:2
+1 | {
+  |  ^
+Syntax Error: Invalid number, expected digit but got: 'f'.
+
+GraphQL request:1:4
+1 | { 8f31403dfe404bccbb0e835f2629c6a7 }
+  |    ^
+Syntax Error: Invalid number, expected digit but got: 'f'.
+
+GraphQL request:1:4
+1 | { 8f31403dfe404bccbb0e835f2629c6a7 }
+  |    ^
+Syntax Error: Invalid number, expected digit but got: 'f'.
+
+GraphQL request:1:4
+1 | { 8f31403dfe404bccbb0e835f2629c6a7 }
+  |    ^
+Variable '$id' is never used in operation 'CoerceFailure'.
+
+GraphQL request:1:21
+1 | query CoerceFailure($id: ID!){ __typename }
+  |                     ^
+The query must be a string.
+Traceback (most recent call last):
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/ariadne/graphql.py", line 141, in graphql
+    validate_data(data)
+    ~~~~~~~~~~~~~^^^^^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/ariadne/graphql.py", line 657, in validate_data
+    validate_query_body(data.get("query"))
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/ariadne/graphql.py", line 664, in validate_query_body
+    raise GraphQLError("The query must be a string.")
+graphql.error.graphql_error.GraphQLError: The query must be a string.
+The query must be a string.
+Traceback (most recent call last):
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/ariadne/graphql.py", line 141, in graphql
+    validate_data(data)
+    ~~~~~~~~~~~~~^^^^^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/ariadne/graphql.py", line 657, in validate_data
+    validate_query_body(data.get("query"))
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/ariadne/graphql.py", line 664, in validate_query_body
+    raise GraphQLError("The query must be a string.")
+graphql.error.graphql_error.GraphQLError: The query must be a string.
+The query must be a string.
+Traceback (most recent call last):
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/ariadne/graphql.py", line 141, in graphql
+    validate_data(data)
+    ~~~~~~~~~~~~~^^^^^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/ariadne/graphql.py", line 657, in validate_data
+    validate_query_body(data.get("query"))
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/ariadne/graphql.py", line 664, in validate_query_body
+    raise GraphQLError("The query must be a string.")
+graphql.error.graphql_error.GraphQLError: The query must be a string.
+The query must be a string.
+Traceback (most recent call last):
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/ariadne/graphql.py", line 141, in graphql
+    validate_data(data)
+    ~~~~~~~~~~~~~^^^^^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/ariadne/graphql.py", line 657, in validate_data
+    validate_query_body(data.get("query"))
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/ariadne/graphql.py", line 664, in validate_query_body
+    raise GraphQLError("The query must be a string.")
+graphql.error.graphql_error.GraphQLError: The query must be a string.
+The query must be a string.
+Traceback (most recent call last):
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/ariadne/graphql.py", line 141, in graphql
+    validate_data(data)
+    ~~~~~~~~~~~~~^^^^^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/ariadne/graphql.py", line 657, in validate_data
+    validate_query_body(data.get("query"))
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/ariadne/graphql.py", line 664, in validate_query_body
+    raise GraphQLError("The query must be a string.")
+graphql.error.graphql_error.GraphQLError: The query must be a string.
+"{'obj': 'ect'}" is not a valid operation name.
+Traceback (most recent call last):
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/ariadne/graphql.py", line 141, in graphql
+    validate_data(data)
+    ~~~~~~~~~~~~~^^^^^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/ariadne/graphql.py", line 659, in validate_data
+    validate_operation_name(data.get("operationName"))
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/ariadne/graphql.py", line 674, in validate_operation_name
+    raise GraphQLError(f'"{operation_name}" is not a valid operation name.')
+graphql.error.graphql_error.GraphQLError: "{'obj': 'ect'}" is not a valid operation name.
+"0" is not a valid operation name.
+Traceback (most recent call last):
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/ariadne/graphql.py", line 141, in graphql
+    validate_data(data)
+    ~~~~~~~~~~~~~^^^^^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/ariadne/graphql.py", line 659, in validate_data
+    validate_operation_name(data.get("operationName"))
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/ariadne/graphql.py", line 674, in validate_operation_name
+    raise GraphQLError(f'"{operation_name}" is not a valid operation name.')
+graphql.error.graphql_error.GraphQLError: "0" is not a valid operation name.
+"False" is not a valid operation name.
+Traceback (most recent call last):
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/ariadne/graphql.py", line 141, in graphql
+    validate_data(data)
+    ~~~~~~~~~~~~~^^^^^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/ariadne/graphql.py", line 659, in validate_data
+    validate_operation_name(data.get("operationName"))
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/ariadne/graphql.py", line 674, in validate_operation_name
+    raise GraphQLError(f'"{operation_name}" is not a valid operation name.')
+graphql.error.graphql_error.GraphQLError: "False" is not a valid operation name.
+"['array']" is not a valid operation name.
+Traceback (most recent call last):
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/ariadne/graphql.py", line 141, in graphql
+    validate_data(data)
+    ~~~~~~~~~~~~~^^^^^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/ariadne/graphql.py", line 659, in validate_data
+    validate_operation_name(data.get("operationName"))
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/ariadne/graphql.py", line 674, in validate_operation_name
+    raise GraphQLError(f'"{operation_name}" is not a valid operation name.')
+graphql.error.graphql_error.GraphQLError: "['array']" is not a valid operation name.
+Query variables must be a null or an object.
+Traceback (most recent call last):
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/ariadne/graphql.py", line 141, in graphql
+    validate_data(data)
+    ~~~~~~~~~~~~~^^^^^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/ariadne/graphql.py", line 658, in validate_data
+    validate_variables(data.get("variables"))
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/ariadne/graphql.py", line 669, in validate_variables
+    raise GraphQLError("Query variables must be a null or an object.")
+graphql.error.graphql_error.GraphQLError: Query variables must be a null or an object.
+Query variables must be a null or an object.
+Traceback (most recent call last):
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/ariadne/graphql.py", line 141, in graphql
+    validate_data(data)
+    ~~~~~~~~~~~~~^^^^^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/ariadne/graphql.py", line 658, in validate_data
+    validate_variables(data.get("variables"))
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/ariadne/graphql.py", line 669, in validate_variables
+    raise GraphQLError("Query variables must be a null or an object.")
+graphql.error.graphql_error.GraphQLError: Query variables must be a null or an object.
+Query variables must be a null or an object.
+Traceback (most recent call last):
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/ariadne/graphql.py", line 141, in graphql
+    validate_data(data)
+    ~~~~~~~~~~~~~^^^^^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/ariadne/graphql.py", line 658, in validate_data
+    validate_variables(data.get("variables"))
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/ariadne/graphql.py", line 669, in validate_variables
+    raise GraphQLError("Query variables must be a null or an object.")
+graphql.error.graphql_error.GraphQLError: Query variables must be a null or an object.
+Query variables must be a null or an object.
+Traceback (most recent call last):
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/ariadne/graphql.py", line 141, in graphql
+    validate_data(data)
+    ~~~~~~~~~~~~~^^^^^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/ariadne/graphql.py", line 658, in validate_data
+    validate_variables(data.get("variables"))
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/ariadne/graphql.py", line 669, in validate_variables
+    raise GraphQLError("Query variables must be a null or an object.")
+graphql.error.graphql_error.GraphQLError: Query variables must be a null or an object.
+The query must be a string.
+Traceback (most recent call last):
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/ariadne/graphql.py", line 141, in graphql
+    validate_data(data)
+    ~~~~~~~~~~~~~^^^^^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/ariadne/graphql.py", line 657, in validate_data
+    validate_query_body(data.get("query"))
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/ariadne/graphql.py", line 664, in validate_query_body
+    raise GraphQLError("The query must be a string.")
+graphql.error.graphql_error.GraphQLError: The query must be a string.
+The query must be a string.
+Traceback (most recent call last):
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/ariadne/graphql.py", line 141, in graphql
+    validate_data(data)
+    ~~~~~~~~~~~~~^^^^^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/ariadne/graphql.py", line 657, in validate_data
+    validate_query_body(data.get("query"))
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/ariadne/graphql.py", line 664, in validate_query_body
+    raise GraphQLError("The query must be a string.")
+graphql.error.graphql_error.GraphQLError: The query must be a string.
+Syntax Error: Expected Name, found <EOF>.
+
+GraphQL request:1:2
+1 | {
+  |  ^
+Traceback (most recent call last):
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/ariadne/graphql.py", line 150, in graphql
+    document = parse_query(context_value, query_parser, data)
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/ariadne/graphql.py", line 604, in parse_query
+    raise error
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/ariadne/graphql.py", line 602, in parse_query
+    return parse(data["query"])
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 223, in parse
+    return parser.parse_document()
+           ~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 624, in parse_document
+    definitions=self.many(TokenKind.SOF, self.parse_definition, TokenKind.EOF),
+                ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 1687, in many
+    nodes = [parse_fn()]
+             ~~~~~~~~^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 663, in parse_definition
+    return self.parse_operation_definition()
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 717, in parse_operation_definition
+    selection_set=self.parse_selection_set(),
+                  ~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 785, in parse_selection_set
+    self.any(TokenKind.BRACE_L, self.parse_selection, TokenKind.BRACE_R)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 1653, in any
+    append(parse_fn())
+           ~~~~~~~~^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 803, in parse_selection
+    return (
+           ~
+        self.parse_fragment if self.peek(TokenKind.SPREAD) else self.parse_field
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    )()
+    ~^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 810, in parse_field
+    name_or_alias = self.parse_name()
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 606, in parse_name
+    token = self.expect_token(TokenKind.NAME)
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 1583, in expect_token
+    raise GraphQLSyntaxError(
+    ...<3 lines>...
+    )
+graphql.error.syntax_error.GraphQLSyntaxError: Syntax Error: Expected Name, found <EOF>.
+
+GraphQL request:1:2
+1 | {
+  |  ^
+Syntax Error: Invalid number, expected digit but got: 'f'.
+
+GraphQL request:1:4
+1 | { 8f31403dfe404bccbb0e835f2629c6a7 }
+  |    ^
+Traceback (most recent call last):
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/ariadne/graphql.py", line 150, in graphql
+    document = parse_query(context_value, query_parser, data)
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/ariadne/graphql.py", line 604, in parse_query
+    raise error
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/ariadne/graphql.py", line 602, in parse_query
+    return parse(data["query"])
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 223, in parse
+    return parser.parse_document()
+           ~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 624, in parse_document
+    definitions=self.many(TokenKind.SOF, self.parse_definition, TokenKind.EOF),
+                ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 1687, in many
+    nodes = [parse_fn()]
+             ~~~~~~~~^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 663, in parse_definition
+    return self.parse_operation_definition()
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 717, in parse_operation_definition
+    selection_set=self.parse_selection_set(),
+                  ~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 785, in parse_selection_set
+    self.any(TokenKind.BRACE_L, self.parse_selection, TokenKind.BRACE_R)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 1648, in any
+    self.expect_token(open_kind)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 1580, in expect_token
+    self.advance_lexer()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 1730, in advance_lexer
+    token = lexer.advance()
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/lexer.py", line 87, in advance
+    token = self.token = self.lookahead()
+                         ~~~~~~~~~~~~~~^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/lexer.py", line 111, in lookahead
+    next_token = self.read_next_token(token.end)
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/lexer.py", line 216, in read_next_token
+    return self.read_number(position, char)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/lexer.py", line 379, in read_number
+    raise GraphQLSyntaxError(
+    ...<4 lines>...
+    )
+graphql.error.syntax_error.GraphQLSyntaxError: Syntax Error: Invalid number, expected digit but got: 'f'.
+
+GraphQL request:1:4
+1 | { 8f31403dfe404bccbb0e835f2629c6a7 }
+  |    ^
+Variable '$id' is never used in operation 'CoerceFailure'.
+
+GraphQL request:1:21
+1 | query CoerceFailure($id: ID!){ __typename }
+  |                     ^
+graphql.error.graphql_error.GraphQLError: Variable '$id' is never used in operation 'CoerceFailure'.
+
+GraphQL request:1:21
+1 | query CoerceFailure($id: ID!){ __typename }
+  |                     ^
+Syntax Error: Expected Name, found <EOF>.
+
+GraphQL request:1:2
+1 | {
+  |  ^
+Traceback (most recent call last):
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/ariadne/graphql.py", line 150, in graphql
+    document = parse_query(context_value, query_parser, data)
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/ariadne/graphql.py", line 604, in parse_query
+    raise error
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/ariadne/graphql.py", line 602, in parse_query
+    return parse(data["query"])
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 223, in parse
+    return parser.parse_document()
+           ~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 624, in parse_document
+    definitions=self.many(TokenKind.SOF, self.parse_definition, TokenKind.EOF),
+                ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 1687, in many
+    nodes = [parse_fn()]
+             ~~~~~~~~^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 663, in parse_definition
+    return self.parse_operation_definition()
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 717, in parse_operation_definition
+    selection_set=self.parse_selection_set(),
+                  ~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 785, in parse_selection_set
+    self.any(TokenKind.BRACE_L, self.parse_selection, TokenKind.BRACE_R)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 1653, in any
+    append(parse_fn())
+           ~~~~~~~~^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 803, in parse_selection
+    return (
+           ~
+        self.parse_fragment if self.peek(TokenKind.SPREAD) else self.parse_field
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    )()
+    ~^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 810, in parse_field
+    name_or_alias = self.parse_name()
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 606, in parse_name
+    token = self.expect_token(TokenKind.NAME)
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 1583, in expect_token
+    raise GraphQLSyntaxError(
+    ...<3 lines>...
+    )
+graphql.error.syntax_error.GraphQLSyntaxError: Syntax Error: Expected Name, found <EOF>.
+
+GraphQL request:1:2
+1 | {
+  |  ^
+Syntax Error: Expected Name, found <EOF>.
+
+GraphQL request:1:2
+1 | {
+  |  ^
+Traceback (most recent call last):
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/ariadne/graphql.py", line 150, in graphql
+    document = parse_query(context_value, query_parser, data)
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/ariadne/graphql.py", line 604, in parse_query
+    raise error
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/ariadne/graphql.py", line 602, in parse_query
+    return parse(data["query"])
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 223, in parse
+    return parser.parse_document()
+           ~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 624, in parse_document
+    definitions=self.many(TokenKind.SOF, self.parse_definition, TokenKind.EOF),
+                ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 1687, in many
+    nodes = [parse_fn()]
+             ~~~~~~~~^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 663, in parse_definition
+    return self.parse_operation_definition()
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 717, in parse_operation_definition
+    selection_set=self.parse_selection_set(),
+                  ~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 785, in parse_selection_set
+    self.any(TokenKind.BRACE_L, self.parse_selection, TokenKind.BRACE_R)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 1653, in any
+    append(parse_fn())
+           ~~~~~~~~^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 803, in parse_selection
+    return (
+           ~
+        self.parse_fragment if self.peek(TokenKind.SPREAD) else self.parse_field
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    )()
+    ~^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 810, in parse_field
+    name_or_alias = self.parse_name()
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 606, in parse_name
+    token = self.expect_token(TokenKind.NAME)
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 1583, in expect_token
+    raise GraphQLSyntaxError(
+    ...<3 lines>...
+    )
+graphql.error.syntax_error.GraphQLSyntaxError: Syntax Error: Expected Name, found <EOF>.
+
+GraphQL request:1:2
+1 | {
+  |  ^
+Syntax Error: Expected Name, found <EOF>.
+
+GraphQL request:1:2
+1 | {
+  |  ^
+Traceback (most recent call last):
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/ariadne/graphql.py", line 150, in graphql
+    document = parse_query(context_value, query_parser, data)
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/ariadne/graphql.py", line 604, in parse_query
+    raise error
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/ariadne/graphql.py", line 602, in parse_query
+    return parse(data["query"])
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 223, in parse
+    return parser.parse_document()
+           ~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 624, in parse_document
+    definitions=self.many(TokenKind.SOF, self.parse_definition, TokenKind.EOF),
+                ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 1687, in many
+    nodes = [parse_fn()]
+             ~~~~~~~~^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 663, in parse_definition
+    return self.parse_operation_definition()
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 717, in parse_operation_definition
+    selection_set=self.parse_selection_set(),
+                  ~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 785, in parse_selection_set
+    self.any(TokenKind.BRACE_L, self.parse_selection, TokenKind.BRACE_R)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 1653, in any
+    append(parse_fn())
+           ~~~~~~~~^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 803, in parse_selection
+    return (
+           ~
+        self.parse_fragment if self.peek(TokenKind.SPREAD) else self.parse_field
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    )()
+    ~^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 810, in parse_field
+    name_or_alias = self.parse_name()
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 606, in parse_name
+    token = self.expect_token(TokenKind.NAME)
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 1583, in expect_token
+    raise GraphQLSyntaxError(
+    ...<3 lines>...
+    )
+graphql.error.syntax_error.GraphQLSyntaxError: Syntax Error: Expected Name, found <EOF>.
+
+GraphQL request:1:2
+1 | {
+  |  ^
+Syntax Error: Invalid number, expected digit but got: 'f'.
+
+GraphQL request:1:4
+1 | { 8f31403dfe404bccbb0e835f2629c6a7 }
+  |    ^
+Traceback (most recent call last):
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/ariadne/graphql.py", line 150, in graphql
+    document = parse_query(context_value, query_parser, data)
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/ariadne/graphql.py", line 604, in parse_query
+    raise error
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/ariadne/graphql.py", line 602, in parse_query
+    return parse(data["query"])
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 223, in parse
+    return parser.parse_document()
+           ~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 624, in parse_document
+    definitions=self.many(TokenKind.SOF, self.parse_definition, TokenKind.EOF),
+                ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 1687, in many
+    nodes = [parse_fn()]
+             ~~~~~~~~^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 663, in parse_definition
+    return self.parse_operation_definition()
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 717, in parse_operation_definition
+    selection_set=self.parse_selection_set(),
+                  ~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 785, in parse_selection_set
+    self.any(TokenKind.BRACE_L, self.parse_selection, TokenKind.BRACE_R)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 1648, in any
+    self.expect_token(open_kind)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 1580, in expect_token
+    self.advance_lexer()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 1730, in advance_lexer
+    token = lexer.advance()
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/lexer.py", line 87, in advance
+    token = self.token = self.lookahead()
+                         ~~~~~~~~~~~~~~^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/lexer.py", line 111, in lookahead
+    next_token = self.read_next_token(token.end)
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/lexer.py", line 216, in read_next_token
+    return self.read_number(position, char)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/lexer.py", line 379, in read_number
+    raise GraphQLSyntaxError(
+    ...<4 lines>...
+    )
+graphql.error.syntax_error.GraphQLSyntaxError: Syntax Error: Invalid number, expected digit but got: 'f'.
+
+GraphQL request:1:4
+1 | { 8f31403dfe404bccbb0e835f2629c6a7 }
+  |    ^
+Syntax Error: Invalid number, expected digit but got: 'f'.
+
+GraphQL request:1:4
+1 | { 8f31403dfe404bccbb0e835f2629c6a7 }
+  |    ^
+Traceback (most recent call last):
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/ariadne/graphql.py", line 150, in graphql
+    document = parse_query(context_value, query_parser, data)
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/ariadne/graphql.py", line 604, in parse_query
+    raise error
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/ariadne/graphql.py", line 602, in parse_query
+    return parse(data["query"])
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 223, in parse
+    return parser.parse_document()
+           ~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 624, in parse_document
+    definitions=self.many(TokenKind.SOF, self.parse_definition, TokenKind.EOF),
+                ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 1687, in many
+    nodes = [parse_fn()]
+             ~~~~~~~~^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 663, in parse_definition
+    return self.parse_operation_definition()
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 717, in parse_operation_definition
+    selection_set=self.parse_selection_set(),
+                  ~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 785, in parse_selection_set
+    self.any(TokenKind.BRACE_L, self.parse_selection, TokenKind.BRACE_R)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 1648, in any
+    self.expect_token(open_kind)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 1580, in expect_token
+    self.advance_lexer()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 1730, in advance_lexer
+    token = lexer.advance()
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/lexer.py", line 87, in advance
+    token = self.token = self.lookahead()
+                         ~~~~~~~~~~~~~~^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/lexer.py", line 111, in lookahead
+    next_token = self.read_next_token(token.end)
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/lexer.py", line 216, in read_next_token
+    return self.read_number(position, char)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/lexer.py", line 379, in read_number
+    raise GraphQLSyntaxError(
+    ...<4 lines>...
+    )
+graphql.error.syntax_error.GraphQLSyntaxError: Syntax Error: Invalid number, expected digit but got: 'f'.
+
+GraphQL request:1:4
+1 | { 8f31403dfe404bccbb0e835f2629c6a7 }
+  |    ^
+Syntax Error: Invalid number, expected digit but got: 'f'.
+
+GraphQL request:1:4
+1 | { 8f31403dfe404bccbb0e835f2629c6a7 }
+  |    ^
+Traceback (most recent call last):
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/ariadne/graphql.py", line 150, in graphql
+    document = parse_query(context_value, query_parser, data)
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/ariadne/graphql.py", line 604, in parse_query
+    raise error
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/ariadne/graphql.py", line 602, in parse_query
+    return parse(data["query"])
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 223, in parse
+    return parser.parse_document()
+           ~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 624, in parse_document
+    definitions=self.many(TokenKind.SOF, self.parse_definition, TokenKind.EOF),
+                ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 1687, in many
+    nodes = [parse_fn()]
+             ~~~~~~~~^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 663, in parse_definition
+    return self.parse_operation_definition()
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 717, in parse_operation_definition
+    selection_set=self.parse_selection_set(),
+                  ~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 785, in parse_selection_set
+    self.any(TokenKind.BRACE_L, self.parse_selection, TokenKind.BRACE_R)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 1648, in any
+    self.expect_token(open_kind)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 1580, in expect_token
+    self.advance_lexer()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/parser.py", line 1730, in advance_lexer
+    token = lexer.advance()
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/lexer.py", line 87, in advance
+    token = self.token = self.lookahead()
+                         ~~~~~~~~~~~~~~^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/lexer.py", line 111, in lookahead
+    next_token = self.read_next_token(token.end)
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/lexer.py", line 216, in read_next_token
+    return self.read_number(position, char)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/python/.venv/lib/python3.13/site-packages/graphql/language/lexer.py", line 379, in read_number
+    raise GraphQLSyntaxError(
+    ...<4 lines>...
+    )
+graphql.error.syntax_error.GraphQLSyntaxError: Syntax Error: Invalid number, expected digit but got: 'f'.
+
+GraphQL request:1:4
+1 | { 8f31403dfe404bccbb0e835f2629c6a7 }
+  |    ^
+Variable '$id' is never used in operation 'CoerceFailure'.
+
+GraphQL request:1:21
+1 | query CoerceFailure($id: ID!){ __typename }
+  |                     ^
+graphql.error.graphql_error.GraphQLError: Variable '$id' is never used in operation 'CoerceFailure'.
+
+GraphQL request:1:21
+1 | query CoerceFailure($id: ID!){ __typename }
+  |                     ^

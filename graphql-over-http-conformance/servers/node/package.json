@@ -1,0 +1,16 @@
+{
+  "name": "graphql-over-http-conformance-servers",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@apollo/server": "5.5.2",
+    "fastify": "5.12.8",
+    "graphql": "16.15.0",
+    "graphql-http": "1.23.1",
+    "graphql-yoga": "6.1.1",
+    "mercurius": "16.12.2"
+  }
+}

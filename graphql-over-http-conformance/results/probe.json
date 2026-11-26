@@ -1,0 +1,2382 @@
+{
+  "graphql-http 1.23.1": [
+    {
+      "case": "A1",
+      "title": "POST, Accept graphql-response+json",
+      "status": 200,
+      "content_type": "application/graphql-response+json",
+      "allow": null,
+      "verdict": "pass",
+      "note": "",
+      "body": {
+        "data": {
+          "hello": "world"
+        }
+      }
+    },
+    {
+      "case": "A2",
+      "title": "POST, Accept application/json (legacy client)",
+      "status": 200,
+      "content_type": "application/json",
+      "allow": null,
+      "verdict": "pass",
+      "note": "",
+      "body": {
+        "data": {
+          "hello": "world"
+        }
+      }
+    },
+    {
+      "case": "A3",
+      "title": "POST, Accept both, graphql-response+json preferred",
+      "status": 200,
+      "content_type": "application/graphql-response+json",
+      "allow": null,
+      "verdict": "pass",
+      "note": "",
+      "body": {
+        "data": {
+          "hello": "world"
+        }
+      }
+    },
+    {
+      "case": "A4",
+      "title": "POST, no Accept header",
+      "status": 200,
+      "content_type": "application/json",
+      "allow": null,
+      "verdict": "info",
+      "note": "",
+      "body": {
+        "data": {
+          "hello": "world"
+        }
+      }
+    },
+    {
+      "case": "A5",
+      "title": "POST, Accept text/html only",
+      "status": 406,
+      "content_type": "-",
+      "allow": null,
+      "verdict": "pass",
+      "note": "",
+      "body": ""
+    },
+    {
+      "case": "B1",
+      "title": "POST, Content-Type text/plain",
+      "status": 415,
+      "content_type": "-",
+      "allow": null,
+      "verdict": "pass",
+      "note": "",
+      "body": ""
+    },
+    {
+      "case": "B2",
+      "title": "POST, no Content-Type",
+      "status": 415,
+      "content_type": "-",
+      "allow": null,
+      "verdict": "pass",
+      "note": "",
+      "body": ""
+    },
+    {
+      "case": "B3",
+      "title": "POST, body is not JSON",
+      "status": 400,
+      "content_type": "application/json",
+      "allow": null,
+      "verdict": "pass",
+      "note": "",
+      "body": {
+        "errors": [
+          {
+            "message": "Unparsable JSON body"
+          }
+        ]
+      }
+    },
+    {
+      "case": "B4",
+      "title": "POST, misspelt parameter (qeury)",
+      "status": 400,
+      "content_type": "application/json",
+      "allow": null,
+      "verdict": "should",
+      "note": "spec: 422",
+      "body": {
+        "errors": [
+          {
+            "message": "Missing query"
+          }
+        ]
+      }
+    },
+    {
+      "case": "B5",
+      "title": "POST, variables is an array",
+      "status": 400,
+      "content_type": "application/json",
+      "allow": null,
+      "verdict": "should",
+      "note": "spec: 422",
+      "body": {
+        "errors": [
+          {
+            "message": "Invalid variables"
+          }
+        ]
+      }
+    },
+    {
+      "case": "B6",
+      "title": "POST, unknown top-level property",
+      "status": 200,
+      "content_type": "application/graphql-response+json",
+      "allow": null,
+      "verdict": "pass",
+      "note": "",
+      "body": {
+        "data": {
+          "hello": "world"
+        }
+      }
+    },
+    {
+      "case": "C1",
+      "title": "Document does not parse",
+      "status": 400,
+      "content_type": "application/graphql-response+json",
+      "allow": null,
+      "verdict": "pass",
+      "note": "",
+      "body": {
+        "errors": [
+          {
+            "message": "Syntax Error: Expected Name, found <EOF>.",
+            "locations": [
+              {
+                "line": 1,
+                "column": 2
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "case": "C2",
+      "title": "Validation error (unknown field)",
+      "status": 400,
+      "content_type": "application/graphql-response+json",
+      "allow": null,
+      "verdict": "should",
+      "note": "spec: 422",
+      "body": {
+        "errors": [
+          {
+            "message": "Cannot query field \"nope\" on type \"Query\".",
+            "locations": [
+              {
+                "line": 1,
+                "column": 3
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "case": "C3",
+      "title": "Two operations, no operationName",
+      "status": 400,
+      "content_type": "application/graphql-response+json",
+      "allow": null,
+      "verdict": "should",
+      "note": "spec: 422",
+      "body": {
+        "errors": [
+          {
+            "message": "Unable to detect operation AST"
+          }
+        ]
+      }
+    },
+    {
+      "case": "C4",
+      "title": "Required variable missing",
+      "status": 200,
+      "content_type": "application/graphql-response+json",
+      "allow": null,
+      "verdict": "must",
+      "note": "spec: 422; 200 for a result without data (spec: 4xx or 5xx)",
+      "body": {
+        "errors": [
+          {
+            "message": "Variable \"$id\" of required type \"ID!\" was not provided.",
+            "locations": [
+              {
+                "line": 1,
+                "column": 9
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "case": "C5",
+      "title": "Partial result (data and errors)",
+      "status": 200,
+      "content_type": "application/graphql-response+json",
+      "allow": null,
+      "verdict": "should",
+      "note": "200: allowed (2xx), status-code section recommends 294",
+      "body": {
+        "errors": [
+          {
+            "message": "boom failed",
+            "locations": [
+              {
+                "line": 1,
+                "column": 9
+              }
+            ],
+            "path": [
+              "boom"
+            ]
+          }
+        ],
+        "data": {
+          "hello": "world",
+          "boom": null
+        }
+      }
+    },
+    {
+      "case": "C6",
+      "title": "Validation error, legacy Accept application/json",
+      "status": 200,
+      "content_type": "application/json",
+      "allow": null,
+      "verdict": "should",
+      "note": "spec: 422",
+      "body": {
+        "errors": [
+          {
+            "message": "Cannot query field \"nope\" on type \"Query\".",
+            "locations": [
+              {
+                "line": 1,
+                "column": 3
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "case": "D1",
+      "title": "GET query",
+      "status": 200,
+      "content_type": "application/graphql-response+json",
+      "allow": null,
+      "verdict": "pass",
+      "note": "",
+      "body": {
+        "data": {
+          "hello": "world"
+        }
+      }
+    },
+    {
+      "case": "D2",
+      "title": "GET mutation",
+      "status": 405,
+      "content_type": "-",
+      "allow": "POST",
+      "verdict": "pass",
+      "note": "",
+      "body": {
+        "errors": [
+          {
+            "message": "Cannot perform mutations over GET"
+          }
+        ]
+      }
+    },
+    {
+      "case": "D3",
+      "title": "PUT",
+      "status": 405,
+      "content_type": "-",
+      "allow": "GET, POST",
+      "verdict": "pass",
+      "note": "",
+      "body": ""
+    },
+    {
+      "case": "D4",
+      "title": "GET query + apollo-require-preflight",
+      "status": 200,
+      "content_type": "application/graphql-response+json",
+      "allow": null,
+      "verdict": "pass",
+      "note": "",
+      "body": {
+        "data": {
+          "hello": "world"
+        }
+      }
+    },
+    {
+      "case": "D5",
+      "title": "GET mutation + apollo-require-preflight",
+      "status": 405,
+      "content_type": "-",
+      "allow": "POST",
+      "verdict": "pass",
+      "note": "",
+      "body": {
+        "errors": [
+          {
+            "message": "Cannot perform mutations over GET"
+          }
+        ]
+      }
+    }
+  ],
+  "GraphQL Yoga 6.1.1": [
+    {
+      "case": "A1",
+      "title": "POST, Accept graphql-response+json",
+      "status": 200,
+      "content_type": "application/graphql-response+json",
+      "allow": null,
+      "verdict": "pass",
+      "note": "",
+      "body": {
+        "data": {
+          "hello": "world"
+        }
+      }
+    },
+    {
+      "case": "A2",
+      "title": "POST, Accept application/json (legacy client)",
+      "status": 200,
+      "content_type": "application/json",
+      "allow": null,
+      "verdict": "pass",
+      "note": "",
+      "body": {
+        "data": {
+          "hello": "world"
+        }
+      }
+    },
+    {
+      "case": "A3",
+      "title": "POST, Accept both, graphql-response+json preferred",
+      "status": 200,
+      "content_type": "application/graphql-response+json",
+      "allow": null,
+      "verdict": "pass",
+      "note": "",
+      "body": {
+        "data": {
+          "hello": "world"
+        }
+      }
+    },
+    {
+      "case": "A4",
+      "title": "POST, no Accept header",
+      "status": 200,
+      "content_type": "application/json",
+      "allow": null,
+      "verdict": "info",
+      "note": "",
+      "body": {
+        "data": {
+          "hello": "world"
+        }
+      }
+    },
+    {
+      "case": "A5",
+      "title": "POST, Accept text/html only",
+      "status": 406,
+      "content_type": "-",
+      "allow": null,
+      "verdict": "pass",
+      "note": "",
+      "body": ""
+    },
+    {
+      "case": "B1",
+      "title": "POST, Content-Type text/plain",
+      "status": 415,
+      "content_type": "-",
+      "allow": null,
+      "verdict": "pass",
+      "note": "",
+      "body": ""
+    },
+    {
+      "case": "B2",
+      "title": "POST, no Content-Type",
+      "status": 415,
+      "content_type": "-",
+      "allow": null,
+      "verdict": "pass",
+      "note": "",
+      "body": ""
+    },
+    {
+      "case": "B3",
+      "title": "POST, body is not JSON",
+      "status": 400,
+      "content_type": "application/graphql-response+json",
+      "allow": null,
+      "verdict": "pass",
+      "note": "",
+      "body": {
+        "errors": [
+          {
+            "message": "POST body sent invalid JSON.",
+            "extensions": {
+              "code": "BAD_REQUEST",
+              "originalError": {
+                "name": "SyntaxError",
+                "message": "Unexpected token 'N', \"NONSENSE\" is not valid JSON, \"NONSENSE\" is not valid JSON"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case": "B4",
+      "title": "POST, misspelt parameter (qeury)",
+      "status": 400,
+      "content_type": "application/graphql-response+json",
+      "allow": null,
+      "verdict": "should",
+      "note": "spec: 422",
+      "body": {
+        "errors": [
+          {
+            "message": "Unexpected parameter \"qeury\" in the request body.",
+            "extensions": {
+              "code": "BAD_REQUEST"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case": "B5",
+      "title": "POST, variables is an array",
+      "status": 400,
+      "content_type": "application/graphql-response+json",
+      "allow": "GET, POST, QUERY",
+      "verdict": "should",
+      "note": "spec: 422",
+      "body": {
+        "errors": [
+          {
+            "message": "Expected \"variables\" param to be empty or an object, but given array.",
+            "extensions": {
+              "code": "BAD_REQUEST"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case": "B6",
+      "title": "POST, unknown top-level property",
+      "status": 400,
+      "content_type": "application/graphql-response+json",
+      "allow": null,
+      "verdict": "must",
+      "note": "spec: 200",
+      "body": {
+        "errors": [
+          {
+            "message": "Unexpected parameter \"trace\" in the request body.",
+            "extensions": {
+              "code": "BAD_REQUEST"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case": "C1",
+      "title": "Document does not parse",
+      "status": 400,
+      "content_type": "application/graphql-response+json",
+      "allow": null,
+      "verdict": "pass",
+      "note": "",
+      "body": {
+        "errors": [
+          {
+            "message": "Syntax Error: Expected Name, found <EOF>.",
+            "locations": [
+              {
+                "line": 1,
+                "column": 2
+              }
+            ],
+            "extensions": {
+              "code": "GRAPHQL_PARSE_FAILED"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case": "C2",
+      "title": "Validation error (unknown field)",
+      "status": 400,
+      "content_type": "application/graphql-response+json",
+      "allow": null,
+      "verdict": "should",
+      "note": "spec: 422",
+      "body": {
+        "errors": [
+          {
+            "message": "Cannot query field \"nope\" on type \"Query\".",
+            "locations": [
+              {
+                "line": 1,
+                "column": 3
+              }
+            ],
+            "extensions": {
+              "code": "GRAPHQL_VALIDATION_FAILED"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case": "C3",
+      "title": "Two operations, no operationName",
+      "status": 400,
+      "content_type": "application/graphql-response+json",
+      "allow": null,
+      "verdict": "should",
+      "note": "spec: 422",
+      "body": {
+        "errors": [
+          {
+            "message": "Could not determine what operation to execute.",
+            "extensions": {
+              "code": "OPERATION_RESOLUTION_FAILURE"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case": "C4",
+      "title": "Required variable missing",
+      "status": 400,
+      "content_type": "application/graphql-response+json",
+      "allow": null,
+      "verdict": "should",
+      "note": "spec: 422",
+      "body": {
+        "errors": [
+          {
+            "message": "Variable \"$id\" of required type \"ID!\" was not provided.",
+            "locations": [
+              {
+                "line": 1,
+                "column": 9
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "case": "C5",
+      "title": "Partial result (data and errors)",
+      "status": 200,
+      "content_type": "application/graphql-response+json",
+      "allow": null,
+      "verdict": "should",
+      "note": "200: allowed (2xx), status-code section recommends 294",
+      "body": {
+        "errors": [
+          {
+            "message": "Unexpected error.",
+            "locations": [
+              {
+                "line": 1,
+                "column": 9
+              }
+            ],
+            "path": [
+              "boom"
+            ],
+            "extensions": {
+              "code": "INTERNAL_SERVER_ERROR"
+            }
+          }
+        ],
+        "data": {
+          "hello": "world",
+          "boom": null
+        }
+      }
+    },
+    {
+      "case": "C6",
+      "title": "Validation error, legacy Accept application/json",
+      "status": 200,
+      "content_type": "application/json",
+      "allow": null,
+      "verdict": "should",
+      "note": "spec: 422",
+      "body": {
+        "errors": [
+          {
+            "message": "Cannot query field \"nope\" on type \"Query\".",
+            "locations": [
+              {
+                "line": 1,
+                "column": 3
+              }
+            ],
+            "extensions": {
+              "code": "GRAPHQL_VALIDATION_FAILED"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case": "D1",
+      "title": "GET query",
+      "status": 200,
+      "content_type": "application/graphql-response+json",
+      "allow": null,
+      "verdict": "pass",
+      "note": "",
+      "body": {
+        "data": {
+          "hello": "world"
+        }
+      }
+    },
+    {
+      "case": "D2",
+      "title": "GET mutation",
+      "status": 405,
+      "content_type": "application/graphql-response+json",
+      "allow": "POST",
+      "verdict": "pass",
+      "note": "",
+      "body": {
+        "errors": [
+          {
+            "message": "Can only perform a mutation operation from a POST request.",
+            "extensions": {
+              "code": "BAD_REQUEST"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case": "D3",
+      "title": "PUT",
+      "status": 405,
+      "content_type": "application/graphql-response+json",
+      "allow": "GET, POST, QUERY",
+      "verdict": "pass",
+      "note": "",
+      "body": {
+        "errors": [
+          {
+            "message": "GraphQL only supports GET, POST and QUERY requests.",
+            "extensions": {
+              "code": "BAD_REQUEST"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case": "D4",
+      "title": "GET query + apollo-require-preflight",
+      "status": 200,
+      "content_type": "application/graphql-response+json",
+      "allow": null,
+      "verdict": "pass",
+      "note": "",
+      "body": {
+        "data": {
+          "hello": "world"
+        }
+      }
+    },
+    {
+      "case": "D5",
+      "title": "GET mutation + apollo-require-preflight",
+      "status": 405,
+      "content_type": "application/graphql-response+json",
+      "allow": "POST",
+      "verdict": "pass",
+      "note": "",
+      "body": {
+        "errors": [
+          {
+            "message": "Can only perform a mutation operation from a POST request.",
+            "extensions": {
+              "code": "BAD_REQUEST"
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "Apollo Server 5.5.2": [
+    {
+      "case": "A1",
+      "title": "POST, Accept graphql-response+json",
+      "status": 200,
+      "content_type": "application/graphql-response+json",
+      "allow": null,
+      "verdict": "pass",
+      "note": "",
+      "body": {
+        "data": {
+          "hello": "world"
+        }
+      }
+    },
+    {
+      "case": "A2",
+      "title": "POST, Accept application/json (legacy client)",
+      "status": 200,
+      "content_type": "application/json",
+      "allow": null,
+      "verdict": "pass",
+      "note": "",
+      "body": {
+        "data": {
+          "hello": "world"
+        }
+      }
+    },
+    {
+      "case": "A3",
+      "title": "POST, Accept both, graphql-response+json preferred",
+      "status": 200,
+      "content_type": "application/graphql-response+json",
+      "allow": null,
+      "verdict": "pass",
+      "note": "",
+      "body": {
+        "data": {
+          "hello": "world"
+        }
+      }
+    },
+    {
+      "case": "A4",
+      "title": "POST, no Accept header",
+      "status": 200,
+      "content_type": "application/json",
+      "allow": null,
+      "verdict": "info",
+      "note": "",
+      "body": {
+        "data": {
+          "hello": "world"
+        }
+      }
+    },
+    {
+      "case": "A5",
+      "title": "POST, Accept text/html only",
+      "status": 406,
+      "content_type": "application/json",
+      "allow": null,
+      "verdict": "pass",
+      "note": "",
+      "body": {
+        "errors": [
+          {
+            "message": "An 'accept' header was provided for this request which does not accept application/json; charset=utf-8 or application/graphql-response+json; charset=utf-8",
+            "extensions": {
+              "code": "BAD_REQUEST",
+              "stacktrace": [
+                "BadRequestError: An 'accept' header was provided for this request which does not accept application/json; charset=utf-8 or application/graphql-response+json; charset=utf-8",
+                "    at new GraphQLErrorWithCode (file:///home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/@apollo/server/dist/esm/internalErrorClasses.js:7:9)",
+                "    at new BadRequestError (file:///home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/@apollo/server/dist/esm/internalErrorClasses.js:75:9)",
+                "    at runHttpQuery (file:///home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/@apollo/server/dist/esm/runHttpQuery.js:149:23)",
+                "    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)",
+                "    at async runPotentiallyBatchedHttpQuery (file:///home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/@apollo/server/dist/esm/httpBatching.js:34:16)",
+                "    at async ApolloServer.executeHTTPGraphQLRequest (file:///home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/@apollo/server/dist/esm/ApolloServer.js:545:20)"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case": "B1",
+      "title": "POST, Content-Type text/plain",
+      "status": 400,
+      "content_type": "application/graphql-response+json",
+      "allow": null,
+      "verdict": "should",
+      "note": "spec: 415",
+      "body": {
+        "errors": [
+          {
+            "message": "This operation has been blocked as a potential Cross-Site Request Forgery (CSRF). Please either specify a 'content-type' header (with a type that is not one of application/x-www-form-urlencoded, multipart/form-data, text/plain) or provide a non-empty value for one of the following headers: x-apollo-operation-name, apollo-require-preflight\n",
+            "extensions": {
+              "code": "BAD_REQUEST",
+              "stacktrace": [
+                "BadRequestError: This operation has been blocked as a potential Cross-Site Request Forgery (CSRF). Please either specify a 'content-type' header (with a type that is not one of application/x-www-form-urlencoded, multipart/form-data, text/plain) or provide a non-empty value for one of the following headers: x-apollo-operation-name, apollo-require-preflight",
+                "",
+                "    at new GraphQLErrorWithCode (file:///home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/@apollo/server/dist/esm/internalErrorClasses.js:7:9)",
+                "    at new BadRequestError (file:///home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/@apollo/server/dist/esm/internalErrorClasses.js:75:9)",
+                "    at preventCsrf (file:///home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/@apollo/server/dist/esm/preventCsrf.js:29:11)",
+                "    at ApolloServer.executeHTTPGraphQLRequest (file:///home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/@apollo/server/dist/esm/ApolloServer.js:527:17)"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case": "B2",
+      "title": "POST, no Content-Type",
+      "status": 400,
+      "content_type": "application/graphql-response+json",
+      "allow": null,
+      "verdict": "pass",
+      "note": "",
+      "body": {
+        "errors": [
+          {
+            "message": "This operation has been blocked as a potential Cross-Site Request Forgery (CSRF). Please either specify a 'content-type' header (with a type that is not one of application/x-www-form-urlencoded, multipart/form-data, text/plain) or provide a non-empty value for one of the following headers: x-apollo-operation-name, apollo-require-preflight\n",
+            "extensions": {
+              "code": "BAD_REQUEST",
+              "stacktrace": [
+                "BadRequestError: This operation has been blocked as a potential Cross-Site Request Forgery (CSRF). Please either specify a 'content-type' header (with a type that is not one of application/x-www-form-urlencoded, multipart/form-data, text/plain) or provide a non-empty value for one of the following headers: x-apollo-operation-name, apollo-require-preflight",
+                "",
+                "    at new GraphQLErrorWithCode (file:///home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/@apollo/server/dist/esm/internalErrorClasses.js:7:9)",
+                "    at new BadRequestError (file:///home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/@apollo/server/dist/esm/internalErrorClasses.js:75:9)",
+                "    at preventCsrf (file:///home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/@apollo/server/dist/esm/preventCsrf.js:29:11)",
+                "    at ApolloServer.executeHTTPGraphQLRequest (file:///home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/@apollo/server/dist/esm/ApolloServer.js:527:17)"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case": "B3",
+      "title": "POST, body is not JSON",
+      "status": 400,
+      "content_type": "text/html",
+      "allow": null,
+      "verdict": "pass",
+      "note": "",
+      "body": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\">\n<title>Error</title>\n</head>\n<body>\n<pre>SyntaxError: Une"
+    },
+    {
+      "case": "B4",
+      "title": "POST, misspelt parameter (qeury)",
+      "status": 400,
+      "content_type": "application/graphql-response+json",
+      "allow": null,
+      "verdict": "should",
+      "note": "spec: 422",
+      "body": {
+        "errors": [
+          {
+            "message": "GraphQL operations must contain a non-empty `query` or a `persistedQuery` extension.",
+            "extensions": {
+              "code": "BAD_REQUEST",
+              "stacktrace": [
+                "BadRequestError: GraphQL operations must contain a non-empty `query` or a `persistedQuery` extension.",
+                "    at new GraphQLErrorWithCode (file:///home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/@apollo/server/dist/esm/internalErrorClasses.js:7:9)",
+                "    at new BadRequestError (file:///home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/@apollo/server/dist/esm/internalErrorClasses.js:75:9)",
+                "    at processGraphQLRequest (file:///home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/@apollo/server/dist/esm/requestPipeline.js:71:13)",
+                "    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)",
+                "    at async internalExecuteOperation (file:///home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/@apollo/server/dist/esm/ApolloServer.js:635:16)",
+                "    at async runHttpQuery (file:///home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/@apollo/server/dist/esm/runHttpQuery.js:138:29)",
+                "    at async runPotentiallyBatchedHttpQuery (file:///home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/@apollo/server/dist/esm/httpBatching.js:34:16)",
+                "    at async ApolloServer.executeHTTPGraphQLRequest (file:///home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/@apollo/server/dist/esm/ApolloServer.js:545:20)"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case": "B5",
+      "title": "POST, variables is an array",
+      "status": 400,
+      "content_type": "application/graphql-response+json",
+      "allow": null,
+      "verdict": "should",
+      "note": "spec: 422",
+      "body": {
+        "errors": [
+          {
+            "message": "`variables` in a POST body must be an object if provided.",
+            "extensions": {
+              "code": "BAD_REQUEST",
+              "stacktrace": [
+                "BadRequestError: `variables` in a POST body must be an object if provided.",
+                "    at new GraphQLErrorWithCode (file:///home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/@apollo/server/dist/esm/internalErrorClasses.js:7:9)",
+                "    at new BadRequestError (file:///home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/@apollo/server/dist/esm/internalErrorClasses.js:75:9)",
+                "    at runHttpQuery (file:///home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/@apollo/server/dist/esm/runHttpQuery.js:93:23)",
+                "    at runPotentiallyBatchedHttpQuery (file:///home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/@apollo/server/dist/esm/httpBatching.js:34:22)",
+                "    at ApolloServer.executeHTTPGraphQLRequest (file:///home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/@apollo/server/dist/esm/ApolloServer.js:545:26)",
+                "    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case": "B6",
+      "title": "POST, unknown top-level property",
+      "status": 200,
+      "content_type": "application/graphql-response+json",
+      "allow": null,
+      "verdict": "pass",
+      "note": "",
+      "body": {
+        "data": {
+          "hello": "world"
+        }
+      }
+    },
+    {
+      "case": "C1",
+      "title": "Document does not parse",
+      "status": 400,
+      "content_type": "application/graphql-response+json",
+      "allow": null,
+      "verdict": "pass",
+      "note": "",
+      "body": {
+        "errors": [
+          {
+            "message": "Syntax Error: Expected Name, found <EOF>.",
+            "locations": [
+              {
+                "line": 1,
+                "column": 2
+              }
+            ],
+            "extensions": {
+              "code": "GRAPHQL_PARSE_FAILED",
+              "stacktrace": [
+                "GraphQLError: Syntax Error: Expected Name, found <EOF>.",
+                "    at syntaxError (/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/graphql/error/syntaxError.js:31:10)",
+                "    at Parser.expectToken (/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/graphql/language/parser.js:1778:40)",
+                "    at Parser.parseName (/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/graphql/language/parser.js:247:24)",
+                "    at Parser.parseField (/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/graphql/language/parser.js:520:30)",
+                "    at Parser.parseSelection (/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/graphql/language/parser.js:508:14)",
+                "    at Parser.many (/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/graphql/language/parser.js:1906:26)",
+                "    at Parser.parseSelectionSet (/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/graphql/language/parser.js:489:24)",
+                "    at Parser.parseOperationDefinition (/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/graphql/language/parser.js:387:28)",
+                "    at Parser.parseDefinition (/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/graphql/language/parser.js:298:19)",
+                "    at Parser.many (/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/graphql/language/parser.js:1906:26)"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case": "C2",
+      "title": "Validation error (unknown field)",
+      "status": 400,
+      "content_type": "application/graphql-response+json",
+      "allow": null,
+      "verdict": "should",
+      "note": "spec: 422",
+      "body": {
+        "errors": [
+          {
+            "message": "Cannot query field \"nope\" on type \"Query\".",
+            "locations": [
+              {
+                "line": 1,
+                "column": 3
+              }
+            ],
+            "extensions": {
+              "code": "GRAPHQL_VALIDATION_FAILED",
+              "stacktrace": [
+                "GraphQLError: Cannot query field \"nope\" on type \"Query\".",
+                "    at Object.Field (/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/graphql/validation/rules/FieldsOnCorrectTypeRule.js:84:13)",
+                "    at Object.enter (/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/graphql/language/visitor.js:350:32)",
+                "    at Object.enter (/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/graphql/utilities/TypeInfo.js:838:27)",
+                "    at visit (/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/graphql/language/visitor.js:219:21)",
+                "    at validate (/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/graphql/validation/validate.js:170:24)",
+                "    at processGraphQLRequest (file:///home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/@apollo/server/dist/esm/requestPipeline.js:101:36)",
+                "    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)",
+                "    at async internalExecuteOperation (file:///home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/@apollo/server/dist/esm/ApolloServer.js:635:16)",
+                "    at async runHttpQuery (file:///home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/@apollo/server/dist/esm/runHttpQuery.js:138:29)",
+                "    at async runPotentiallyBatchedHttpQuery (file:///home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/@apollo/server/dist/esm/httpBatching.js:34:16)"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case": "C3",
+      "title": "Two operations, no operationName",
+      "status": 400,
+      "content_type": "application/graphql-response+json",
+      "allow": null,
+      "verdict": "should",
+      "note": "spec: 422",
+      "body": {
+        "errors": [
+          {
+            "message": "Must provide operation name if query contains multiple operations.",
+            "extensions": {
+              "code": "OPERATION_RESOLUTION_FAILURE",
+              "stacktrace": [
+                "GraphQLError: Must provide operation name if query contains multiple operations.",
+                "    at buildExecutionContext (/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/graphql/execution/execute.js:461:15)",
+                "    at execute (/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/graphql/execution/execute.js:296:22)",
+                "    at executeIncrementally (file:///home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/@apollo/server/dist/esm/incrementalDeliveryPolyfill.js:36:12)",
+                "    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)",
+                "    at async execute (file:///home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/@apollo/server/dist/esm/requestPipeline.js:242:37)",
+                "    at async processGraphQLRequest (file:///home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/@apollo/server/dist/esm/requestPipeline.js:163:32)",
+                "    at async internalExecuteOperation (file:///home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/@apollo/server/dist/esm/ApolloServer.js:635:16)",
+                "    at async runHttpQuery (file:///home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/@apollo/server/dist/esm/runHttpQuery.js:138:29)",
+                "    at async runPotentiallyBatchedHttpQuery (file:///home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/@apollo/server/dist/esm/httpBatching.js:34:16)",
+                "    at async ApolloServer.executeHTTPGraphQLRequest (file:///home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/@apollo/server/dist/esm/ApolloServer.js:545:20)"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case": "C4",
+      "title": "Required variable missing",
+      "status": 400,
+      "content_type": "application/graphql-response+json",
+      "allow": null,
+      "verdict": "should",
+      "note": "spec: 422",
+      "body": {
+        "errors": [
+          {
+            "message": "Variable \"$id\" of required type \"ID!\" was not provided.",
+            "locations": [
+              {
+                "line": 1,
+                "column": 9
+              }
+            ],
+            "extensions": {
+              "code": "BAD_USER_INPUT",
+              "stacktrace": [
+                "GraphQLError: Variable \"$id\" of required type \"ID!\" was not provided.",
+                "    at coerceVariableValues (/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/graphql/execution/values.js:182:11)",
+                "    at getVariableValues (/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/graphql/execution/values.js:115:21)",
+                "    at buildExecutionContext (/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/graphql/execution/execute.js:506:63)",
+                "    at execute (/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/graphql/execution/execute.js:296:22)",
+                "    at executeIncrementally (file:///home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/@apollo/server/dist/esm/incrementalDeliveryPolyfill.js:36:12)",
+                "    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)",
+                "    at async execute (file:///home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/@apollo/server/dist/esm/requestPipeline.js:242:37)",
+                "    at async processGraphQLRequest (file:///home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/@apollo/server/dist/esm/requestPipeline.js:163:32)",
+                "    at async internalExecuteOperation (file:///home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/@apollo/server/dist/esm/ApolloServer.js:635:16)",
+                "    at async runHttpQuery (file:///home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/@apollo/server/dist/esm/runHttpQuery.js:138:29)"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case": "C5",
+      "title": "Partial result (data and errors)",
+      "status": 200,
+      "content_type": "application/graphql-response+json",
+      "allow": null,
+      "verdict": "should",
+      "note": "200: allowed (2xx), status-code section recommends 294",
+      "body": {
+        "errors": [
+          {
+            "message": "boom failed",
+            "locations": [
+              {
+                "line": 1,
+                "column": 9
+              }
+            ],
+            "path": [
+              "boom"
+            ],
+            "extensions": {
+              "code": "INTERNAL_SERVER_ERROR",
+              "stacktrace": [
+                "Error: boom failed",
+                "    at Object.boom (file:///home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/schema.js:24:13)",
+                "    at field.resolve (file:///home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/@apollo/server/dist/esm/utils/schemaInstrumentation.js:36:28)",
+                "    at executeField (/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/graphql/execution/execute.js:738:20)",
+                "    at executeFields (/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/graphql/execution/execute.js:658:22)",
+                "    at executeOperation (/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/graphql/execution/execute.js:584:14)",
+                "    at execute (/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/graphql/execution/execute.js:306:20)",
+                "    at executeIncrementally (file:///home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/@apollo/server/dist/esm/incrementalDeliveryPolyfill.js:36:12)",
+                "    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)",
+                "    at async execute (file:///home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/@apollo/server/dist/esm/requestPipeline.js:242:37)",
+                "    at async processGraphQLRequest (file:///home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/@apollo/server/dist/esm/requestPipeline.js:163:32)"
+              ]
+            }
+          }
+        ],
+        "data": {
+          "hello": "world",
+          "boom": null
+        }
+      }
+    },
+    {
+      "case": "C6",
+      "title": "Validation error, legacy Accept application/json",
+      "status": 400,
+      "content_type": "application/json",
+      "allow": null,
+      "verdict": "should",
+      "note": "spec: 422",
+      "body": {
+        "errors": [
+          {
+            "message": "Cannot query field \"nope\" on type \"Query\".",
+            "locations": [
+              {
+                "line": 1,
+                "column": 3
+              }
+            ],
+            "extensions": {
+              "code": "GRAPHQL_VALIDATION_FAILED",
+              "stacktrace": [
+                "GraphQLError: Cannot query field \"nope\" on type \"Query\".",
+                "    at Object.Field (/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/graphql/validation/rules/FieldsOnCorrectTypeRule.js:84:13)",
+                "    at Object.enter (/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/graphql/language/visitor.js:350:32)",
+                "    at Object.enter (/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/graphql/utilities/TypeInfo.js:838:27)",
+                "    at visit (/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/graphql/language/visitor.js:219:21)",
+                "    at validate (/home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/graphql/validation/validate.js:170:24)",
+                "    at processGraphQLRequest (file:///home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/@apollo/server/dist/esm/requestPipeline.js:101:36)",
+                "    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)",
+                "    at async internalExecuteOperation (file:///home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/@apollo/server/dist/esm/ApolloServer.js:635:16)",
+                "    at async runHttpQuery (file:///home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/@apollo/server/dist/esm/runHttpQuery.js:138:29)",
+                "    at async runPotentiallyBatchedHttpQuery (file:///home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/@apollo/server/dist/esm/httpBatching.js:34:16)"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case": "D1",
+      "title": "GET query",
+      "status": 400,
+      "content_type": "application/graphql-response+json",
+      "allow": null,
+      "verdict": "info",
+      "note": "spec: 200",
+      "body": {
+        "errors": [
+          {
+            "message": "This operation has been blocked as a potential Cross-Site Request Forgery (CSRF). Please either specify a 'content-type' header (with a type that is not one of application/x-www-form-urlencoded, multipart/form-data, text/plain) or provide a non-empty value for one of the following headers: x-apollo-operation-name, apollo-require-preflight\n",
+            "extensions": {
+              "code": "BAD_REQUEST",
+              "stacktrace": [
+                "BadRequestError: This operation has been blocked as a potential Cross-Site Request Forgery (CSRF). Please either specify a 'content-type' header (with a type that is not one of application/x-www-form-urlencoded, multipart/form-data, text/plain) or provide a non-empty value for one of the following headers: x-apollo-operation-name, apollo-require-preflight",
+                "",
+                "    at new GraphQLErrorWithCode (file:///home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/@apollo/server/dist/esm/internalErrorClasses.js:7:9)",
+                "    at new BadRequestError (file:///home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/@apollo/server/dist/esm/internalErrorClasses.js:75:9)",
+                "    at preventCsrf (file:///home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/@apollo/server/dist/esm/preventCsrf.js:29:11)",
+                "    at ApolloServer.executeHTTPGraphQLRequest (file:///home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/@apollo/server/dist/esm/ApolloServer.js:527:17)",
+                "    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case": "D2",
+      "title": "GET mutation",
+      "status": 400,
+      "content_type": "application/graphql-response+json",
+      "allow": null,
+      "verdict": "should",
+      "note": "spec: 405",
+      "body": {
+        "errors": [
+          {
+            "message": "This operation has been blocked as a potential Cross-Site Request Forgery (CSRF). Please either specify a 'content-type' header (with a type that is not one of application/x-www-form-urlencoded, multipart/form-data, text/plain) or provide a non-empty value for one of the following headers: x-apollo-operation-name, apollo-require-preflight\n",
+            "extensions": {
+              "code": "BAD_REQUEST",
+              "stacktrace": [
+                "BadRequestError: This operation has been blocked as a potential Cross-Site Request Forgery (CSRF). Please either specify a 'content-type' header (with a type that is not one of application/x-www-form-urlencoded, multipart/form-data, text/plain) or provide a non-empty value for one of the following headers: x-apollo-operation-name, apollo-require-preflight",
+                "",
+                "    at new GraphQLErrorWithCode (file:///home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/@apollo/server/dist/esm/internalErrorClasses.js:7:9)",
+                "    at new BadRequestError (file:///home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/@apollo/server/dist/esm/internalErrorClasses.js:75:9)",
+                "    at preventCsrf (file:///home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/@apollo/server/dist/esm/preventCsrf.js:29:11)",
+                "    at ApolloServer.executeHTTPGraphQLRequest (file:///home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/@apollo/server/dist/esm/ApolloServer.js:527:17)",
+                "    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case": "D3",
+      "title": "PUT",
+      "status": 405,
+      "content_type": "application/graphql-response+json",
+      "allow": "GET, POST",
+      "verdict": "pass",
+      "note": "",
+      "body": {
+        "errors": [
+          {
+            "message": "Apollo Server supports only GET/POST requests.",
+            "extensions": {
+              "code": "BAD_REQUEST",
+              "stacktrace": [
+                "BadRequestError: Apollo Server supports only GET/POST requests.",
+                "    at new GraphQLErrorWithCode (file:///home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/@apollo/server/dist/esm/internalErrorClasses.js:7:9)",
+                "    at new BadRequestError (file:///home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/@apollo/server/dist/esm/internalErrorClasses.js:75:9)",
+                "    at runHttpQuery (file:///home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/@apollo/server/dist/esm/runHttpQuery.js:129:19)",
+                "    at runPotentiallyBatchedHttpQuery (file:///home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/@apollo/server/dist/esm/httpBatching.js:34:22)",
+                "    at ApolloServer.executeHTTPGraphQLRequest (file:///home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/@apollo/server/dist/esm/ApolloServer.js:545:26)",
+                "    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case": "D4",
+      "title": "GET query + apollo-require-preflight",
+      "status": 200,
+      "content_type": "application/graphql-response+json",
+      "allow": null,
+      "verdict": "pass",
+      "note": "",
+      "body": {
+        "data": {
+          "hello": "world"
+        }
+      }
+    },
+    {
+      "case": "D5",
+      "title": "GET mutation + apollo-require-preflight",
+      "status": 405,
+      "content_type": "application/graphql-response+json",
+      "allow": "POST",
+      "verdict": "pass",
+      "note": "",
+      "body": {
+        "errors": [
+          {
+            "message": "GET requests only support query operations, not mutation operations",
+            "extensions": {
+              "code": "BAD_REQUEST",
+              "stacktrace": [
+                "BadRequestError: GET requests only support query operations, not mutation operations",
+                "    at new GraphQLErrorWithCode (file:///home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/@apollo/server/dist/esm/internalErrorClasses.js:7:9)",
+                "    at new BadRequestError (file:///home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/@apollo/server/dist/esm/internalErrorClasses.js:75:9)",
+                "    at processGraphQLRequest (file:///home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/@apollo/server/dist/esm/requestPipeline.js:124:13)",
+                "    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)",
+                "    at async internalExecuteOperation (file:///home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/@apollo/server/dist/esm/ApolloServer.js:635:16)",
+                "    at async runHttpQuery (file:///home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/@apollo/server/dist/esm/runHttpQuery.js:138:29)",
+                "    at async runPotentiallyBatchedHttpQuery (file:///home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/@apollo/server/dist/esm/httpBatching.js:34:16)",
+                "    at async ApolloServer.executeHTTPGraphQLRequest (file:///home/claude/blog-samples-working-repo/graphql-over-http-conformance/servers/node/node_modules/@apollo/server/dist/esm/ApolloServer.js:545:20)"
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "Mercurius 16.12.2": [
+    {
+      "case": "A1",
+      "title": "POST, Accept graphql-response+json",
+      "status": 200,
+      "content_type": "application/json",
+      "allow": null,
+      "verdict": "must",
+      "note": "spec: application/graphql-response+json",
+      "body": {
+        "data": {
+          "hello": "world"
+        }
+      }
+    },
+    {
+      "case": "A2",
+      "title": "POST, Accept application/json (legacy client)",
+      "status": 200,
+      "content_type": "application/json",
+      "allow": null,
+      "verdict": "pass",
+      "note": "",
+      "body": {
+        "data": {
+          "hello": "world"
+        }
+      }
+    },
+    {
+      "case": "A3",
+      "title": "POST, Accept both, graphql-response+json preferred",
+      "status": 200,
+      "content_type": "application/json",
+      "allow": null,
+      "verdict": "must",
+      "note": "spec: application/graphql-response+json",
+      "body": {
+        "data": {
+          "hello": "world"
+        }
+      }
+    },
+    {
+      "case": "A4",
+      "title": "POST, no Accept header",
+      "status": 200,
+      "content_type": "application/json",
+      "allow": null,
+      "verdict": "info",
+      "note": "",
+      "body": {
+        "data": {
+          "hello": "world"
+        }
+      }
+    },
+    {
+      "case": "A5",
+      "title": "POST, Accept text/html only",
+      "status": 200,
+      "content_type": "application/json",
+      "allow": null,
+      "verdict": "should",
+      "note": "ignored Accept (allowed), spec recommends 406",
+      "body": {
+        "data": {
+          "hello": "world"
+        }
+      }
+    },
+    {
+      "case": "B1",
+      "title": "POST, Content-Type text/plain",
+      "status": 400,
+      "content_type": "application/json",
+      "allow": null,
+      "verdict": "should",
+      "note": "spec: 415",
+      "body": {
+        "data": null,
+        "errors": [
+          {
+            "message": "body must be object"
+          }
+        ]
+      }
+    },
+    {
+      "case": "B2",
+      "title": "POST, no Content-Type",
+      "status": 415,
+      "content_type": "application/json",
+      "allow": null,
+      "verdict": "pass",
+      "note": "",
+      "body": {
+        "data": null,
+        "errors": [
+          {
+            "message": "Unsupported Media Type"
+          }
+        ]
+      }
+    },
+    {
+      "case": "B3",
+      "title": "POST, body is not JSON",
+      "status": 400,
+      "content_type": "application/json",
+      "allow": null,
+      "verdict": "pass",
+      "note": "",
+      "body": {
+        "data": null,
+        "errors": [
+          {
+            "message": "Body is not valid JSON but content-type is set to 'application/json'"
+          }
+        ]
+      }
+    },
+    {
+      "case": "B4",
+      "title": "POST, misspelt parameter (qeury)",
+      "status": 400,
+      "content_type": "application/json",
+      "allow": null,
+      "verdict": "should",
+      "note": "spec: 422",
+      "body": {
+        "data": null,
+        "errors": [
+          {
+            "message": "Unknown query"
+          }
+        ]
+      }
+    },
+    {
+      "case": "B5",
+      "title": "POST, variables is an array",
+      "status": 400,
+      "content_type": "application/json",
+      "allow": null,
+      "verdict": "should",
+      "note": "spec: 422",
+      "body": {
+        "data": null,
+        "errors": [
+          {
+            "message": "body/variables must be object,null"
+          }
+        ]
+      }
+    },
+    {
+      "case": "B6",
+      "title": "POST, unknown top-level property",
+      "status": 200,
+      "content_type": "application/json",
+      "allow": null,
+      "verdict": "pass",
+      "note": "",
+      "body": {
+        "data": {
+          "hello": "world"
+        }
+      }
+    },
+    {
+      "case": "C1",
+      "title": "Document does not parse",
+      "status": 400,
+      "content_type": "application/json",
+      "allow": null,
+      "verdict": "pass",
+      "note": "",
+      "body": {
+        "data": null,
+        "errors": [
+          {
+            "message": "Syntax Error: Expected Name, found <EOF>.",
+            "locations": [
+              {
+                "line": 1,
+                "column": 2
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "case": "C2",
+      "title": "Validation error (unknown field)",
+      "status": 400,
+      "content_type": "application/json",
+      "allow": null,
+      "verdict": "should",
+      "note": "spec: 422",
+      "body": {
+        "data": null,
+        "errors": [
+          {
+            "message": "Cannot query field \"nope\" on type \"Query\".",
+            "locations": [
+              {
+                "line": 1,
+                "column": 3
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "case": "C3",
+      "title": "Two operations, no operationName",
+      "status": 200,
+      "content_type": "application/json",
+      "allow": null,
+      "verdict": "should",
+      "note": "spec: 422",
+      "body": {
+        "data": null,
+        "errors": [
+          {
+            "message": "Must provide operation name if query contains multiple operations."
+          }
+        ]
+      }
+    },
+    {
+      "case": "C4",
+      "title": "Required variable missing",
+      "status": 200,
+      "content_type": "application/json",
+      "allow": null,
+      "verdict": "should",
+      "note": "spec: 422",
+      "body": {
+        "data": null,
+        "errors": [
+          {
+            "message": "Variable \"$id\" of required type \"ID!\" was not provided.",
+            "locations": [
+              {
+                "line": 1,
+                "column": 9
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "case": "C5",
+      "title": "Partial result (data and errors)",
+      "status": 200,
+      "content_type": "application/json",
+      "allow": null,
+      "verdict": "should",
+      "note": "200: allowed (2xx), status-code section recommends 294",
+      "body": {
+        "data": {
+          "hello": "world",
+          "boom": null
+        },
+        "errors": [
+          {
+            "message": "boom failed",
+            "locations": [
+              {
+                "line": 1,
+                "column": 9
+              }
+            ],
+            "path": [
+              "boom"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "case": "C6",
+      "title": "Validation error, legacy Accept application/json",
+      "status": 400,
+      "content_type": "application/json",
+      "allow": null,
+      "verdict": "should",
+      "note": "spec: 422",
+      "body": {
+        "data": null,
+        "errors": [
+          {
+            "message": "Cannot query field \"nope\" on type \"Query\".",
+            "locations": [
+              {
+                "line": 1,
+                "column": 3
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "case": "D1",
+      "title": "GET query",
+      "status": 200,
+      "content_type": "application/json",
+      "allow": null,
+      "verdict": "pass",
+      "note": "",
+      "body": {
+        "data": {
+          "hello": "world"
+        }
+      }
+    },
+    {
+      "case": "D2",
+      "title": "GET mutation",
+      "status": 405,
+      "content_type": "application/json",
+      "allow": null,
+      "verdict": "must",
+      "note": "405 without Allow header (RFC 9110)",
+      "body": {
+        "data": null,
+        "errors": [
+          {
+            "message": "Operation cannot be performed via a GET request"
+          }
+        ]
+      }
+    },
+    {
+      "case": "D3",
+      "title": "PUT",
+      "status": 404,
+      "content_type": "application/json",
+      "allow": null,
+      "verdict": "should",
+      "note": "spec: 405",
+      "body": {
+        "message": "Route PUT:/graphql not found",
+        "error": "Not Found",
+        "statusCode": 404
+      }
+    },
+    {
+      "case": "D4",
+      "title": "GET query + apollo-require-preflight",
+      "status": 200,
+      "content_type": "application/json",
+      "allow": null,
+      "verdict": "pass",
+      "note": "",
+      "body": {
+        "data": {
+          "hello": "world"
+        }
+      }
+    },
+    {
+      "case": "D5",
+      "title": "GET mutation + apollo-require-preflight",
+      "status": 405,
+      "content_type": "application/json",
+      "allow": null,
+      "verdict": "must",
+      "note": "405 without Allow header (RFC 9110)",
+      "body": {
+        "data": null,
+        "errors": [
+          {
+            "message": "Operation cannot be performed via a GET request"
+          }
+        ]
+      }
+    }
+  ],
+  "Strawberry 0.341.3": [
+    {
+      "case": "A1",
+      "title": "POST, Accept graphql-response+json",
+      "status": 200,
+      "content_type": "application/json",
+      "allow": null,
+      "verdict": "must",
+      "note": "spec: application/graphql-response+json",
+      "body": {
+        "data": {
+          "hello": "world"
+        }
+      }
+    },
+    {
+      "case": "A2",
+      "title": "POST, Accept application/json (legacy client)",
+      "status": 200,
+      "content_type": "application/json",
+      "allow": null,
+      "verdict": "pass",
+      "note": "",
+      "body": {
+        "data": {
+          "hello": "world"
+        }
+      }
+    },
+    {
+      "case": "A3",
+      "title": "POST, Accept both, graphql-response+json preferred",
+      "status": 200,
+      "content_type": "application/json",
+      "allow": null,
+      "verdict": "must",
+      "note": "spec: application/graphql-response+json",
+      "body": {
+        "data": {
+          "hello": "world"
+        }
+      }
+    },
+    {
+      "case": "A4",
+      "title": "POST, no Accept header",
+      "status": 200,
+      "content_type": "application/json",
+      "allow": null,
+      "verdict": "info",
+      "note": "",
+      "body": {
+        "data": {
+          "hello": "world"
+        }
+      }
+    },
+    {
+      "case": "A5",
+      "title": "POST, Accept text/html only",
+      "status": 200,
+      "content_type": "application/json",
+      "allow": null,
+      "verdict": "should",
+      "note": "ignored Accept (allowed), spec recommends 406",
+      "body": {
+        "data": {
+          "hello": "world"
+        }
+      }
+    },
+    {
+      "case": "B1",
+      "title": "POST, Content-Type text/plain",
+      "status": 400,
+      "content_type": "text/plain",
+      "allow": null,
+      "verdict": "should",
+      "note": "spec: 415",
+      "body": "Unsupported content type"
+    },
+    {
+      "case": "B2",
+      "title": "POST, no Content-Type",
+      "status": 400,
+      "content_type": "text/plain",
+      "allow": null,
+      "verdict": "pass",
+      "note": "",
+      "body": "Unsupported content type"
+    },
+    {
+      "case": "B3",
+      "title": "POST, body is not JSON",
+      "status": 400,
+      "content_type": "text/plain",
+      "allow": null,
+      "verdict": "pass",
+      "note": "",
+      "body": "Unable to parse request body as JSON"
+    },
+    {
+      "case": "B4",
+      "title": "POST, misspelt parameter (qeury)",
+      "status": 400,
+      "content_type": "text/plain",
+      "allow": null,
+      "verdict": "should",
+      "note": "spec: 422",
+      "body": "No GraphQL query found in the request"
+    },
+    {
+      "case": "B5",
+      "title": "POST, variables is an array",
+      "status": 400,
+      "content_type": "text/plain",
+      "allow": null,
+      "verdict": "should",
+      "note": "spec: 422",
+      "body": "The GraphQL operation's `variables` must be an object or null, if provided."
+    },
+    {
+      "case": "B6",
+      "title": "POST, unknown top-level property",
+      "status": 200,
+      "content_type": "application/json",
+      "allow": null,
+      "verdict": "pass",
+      "note": "",
+      "body": {
+        "data": {
+          "hello": "world"
+        }
+      }
+    },
+    {
+      "case": "C1",
+      "title": "Document does not parse",
+      "status": 200,
+      "content_type": "application/json",
+      "allow": null,
+      "verdict": "should",
+      "note": "spec: 400",
+      "body": {
+        "data": null,
+        "errors": [
+          {
+            "message": "Syntax Error: Expected Name, found <EOF>.",
+            "locations": [
+              {
+                "line": 1,
+                "column": 2
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "case": "C2",
+      "title": "Validation error (unknown field)",
+      "status": 200,
+      "content_type": "application/json",
+      "allow": null,
+      "verdict": "should",
+      "note": "spec: 422",
+      "body": {
+        "data": null,
+        "errors": [
+          {
+            "message": "Cannot query field 'nope' on type 'Query'.",
+            "locations": [
+              {
+                "line": 1,
+                "column": 3
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "case": "C3",
+      "title": "Two operations, no operationName",
+      "status": 200,
+      "content_type": "application/json",
+      "allow": null,
+      "verdict": "should",
+      "note": "spec: 422",
+      "body": {
+        "data": {
+          "hello": "world"
+        }
+      }
+    },
+    {
+      "case": "C4",
+      "title": "Required variable missing",
+      "status": 200,
+      "content_type": "application/json",
+      "allow": null,
+      "verdict": "should",
+      "note": "spec: 422",
+      "body": {
+        "data": null,
+        "errors": [
+          {
+            "message": "Variable '$id' has invalid value: Expected a value of non-null type 'ID!' to be provided.",
+            "locations": [
+              {
+                "line": 1,
+                "column": 9
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "case": "C5",
+      "title": "Partial result (data and errors)",
+      "status": 200,
+      "content_type": "application/json",
+      "allow": null,
+      "verdict": "should",
+      "note": "200: allowed (2xx), status-code section recommends 294",
+      "body": {
+        "data": {
+          "hello": "world",
+          "boom": null
+        },
+        "errors": [
+          {
+            "message": "boom failed",
+            "locations": [
+              {
+                "line": 1,
+                "column": 9
+              }
+            ],
+            "path": [
+              "boom"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "case": "C6",
+      "title": "Validation error, legacy Accept application/json",
+      "status": 200,
+      "content_type": "application/json",
+      "allow": null,
+      "verdict": "should",
+      "note": "spec: 422",
+      "body": {
+        "data": null,
+        "errors": [
+          {
+            "message": "Cannot query field 'nope' on type 'Query'.",
+            "locations": [
+              {
+                "line": 1,
+                "column": 3
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "case": "D1",
+      "title": "GET query",
+      "status": 200,
+      "content_type": "application/json",
+      "allow": null,
+      "verdict": "pass",
+      "note": "",
+      "body": {
+        "data": {
+          "hello": "world"
+        }
+      }
+    },
+    {
+      "case": "D2",
+      "title": "GET mutation",
+      "status": 400,
+      "content_type": "text/plain",
+      "allow": null,
+      "verdict": "should",
+      "note": "spec: 405",
+      "body": "mutations are not allowed when using GET"
+    },
+    {
+      "case": "D3",
+      "title": "PUT",
+      "status": 405,
+      "content_type": "text/plain",
+      "allow": null,
+      "verdict": "pass",
+      "note": "",
+      "body": "GraphQL only supports GET and POST requests."
+    },
+    {
+      "case": "D4",
+      "title": "GET query + apollo-require-preflight",
+      "status": 200,
+      "content_type": "application/json",
+      "allow": null,
+      "verdict": "pass",
+      "note": "",
+      "body": {
+        "data": {
+          "hello": "world"
+        }
+      }
+    },
+    {
+      "case": "D5",
+      "title": "GET mutation + apollo-require-preflight",
+      "status": 400,
+      "content_type": "text/plain",
+      "allow": null,
+      "verdict": "should",
+      "note": "spec: 405",
+      "body": "mutations are not allowed when using GET"
+    }
+  ],
+  "Ariadne 1.1.1": [
+    {
+      "case": "A1",
+      "title": "POST, Accept graphql-response+json",
+      "status": 200,
+      "content_type": "application/json",
+      "allow": null,
+      "verdict": "must",
+      "note": "spec: application/graphql-response+json",
+      "body": {
+        "data": {
+          "hello": "world"
+        }
+      }
+    },
+    {
+      "case": "A2",
+      "title": "POST, Accept application/json (legacy client)",
+      "status": 200,
+      "content_type": "application/json",
+      "allow": null,
+      "verdict": "pass",
+      "note": "",
+      "body": {
+        "data": {
+          "hello": "world"
+        }
+      }
+    },
+    {
+      "case": "A3",
+      "title": "POST, Accept both, graphql-response+json preferred",
+      "status": 200,
+      "content_type": "application/json",
+      "allow": null,
+      "verdict": "must",
+      "note": "spec: application/graphql-response+json",
+      "body": {
+        "data": {
+          "hello": "world"
+        }
+      }
+    },
+    {
+      "case": "A4",
+      "title": "POST, no Accept header",
+      "status": 200,
+      "content_type": "application/json",
+      "allow": null,
+      "verdict": "info",
+      "note": "",
+      "body": {
+        "data": {
+          "hello": "world"
+        }
+      }
+    },
+    {
+      "case": "A5",
+      "title": "POST, Accept text/html only",
+      "status": 200,
+      "content_type": "application/json",
+      "allow": null,
+      "verdict": "should",
+      "note": "ignored Accept (allowed), spec recommends 406",
+      "body": {
+        "data": {
+          "hello": "world"
+        }
+      }
+    },
+    {
+      "case": "B1",
+      "title": "POST, Content-Type text/plain",
+      "status": 400,
+      "content_type": "text/plain",
+      "allow": null,
+      "verdict": "should",
+      "note": "spec: 415",
+      "body": "Posted content must be of type application/json or multipart/form-data"
+    },
+    {
+      "case": "B2",
+      "title": "POST, no Content-Type",
+      "status": 400,
+      "content_type": "text/plain",
+      "allow": null,
+      "verdict": "pass",
+      "note": "",
+      "body": "Posted content must be of type application/json or multipart/form-data"
+    },
+    {
+      "case": "B3",
+      "title": "POST, body is not JSON",
+      "status": 400,
+      "content_type": "text/plain",
+      "allow": null,
+      "verdict": "pass",
+      "note": "",
+      "body": "Request body is not a valid JSON"
+    },
+    {
+      "case": "B4",
+      "title": "POST, misspelt parameter (qeury)",
+      "status": 400,
+      "content_type": "application/json",
+      "allow": null,
+      "verdict": "should",
+      "note": "spec: 422",
+      "body": {
+        "errors": [
+          {
+            "message": "The query must be a string."
+          }
+        ]
+      }
+    },
+    {
+      "case": "B5",
+      "title": "POST, variables is an array",
+      "status": 400,
+      "content_type": "application/json",
+      "allow": null,
+      "verdict": "should",
+      "note": "spec: 422",
+      "body": {
+        "errors": [
+          {
+            "message": "Query variables must be a null or an object."
+          }
+        ]
+      }
+    },
+    {
+      "case": "B6",
+      "title": "POST, unknown top-level property",
+      "status": 200,
+      "content_type": "application/json",
+      "allow": null,
+      "verdict": "pass",
+      "note": "",
+      "body": {
+        "data": {
+          "hello": "world"
+        }
+      }
+    },
+    {
+      "case": "C1",
+      "title": "Document does not parse",
+      "status": 400,
+      "content_type": "application/json",
+      "allow": null,
+      "verdict": "pass",
+      "note": "",
+      "body": {
+        "errors": [
+          {
+            "message": "Syntax Error: Expected Name, found <EOF>.",
+            "locations": [
+              {
+                "line": 1,
+                "column": 2
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "case": "C2",
+      "title": "Validation error (unknown field)",
+      "status": 400,
+      "content_type": "application/json",
+      "allow": null,
+      "verdict": "should",
+      "note": "spec: 422",
+      "body": {
+        "errors": [
+          {
+            "message": "Cannot query field 'nope' on type 'Query'.",
+            "locations": [
+              {
+                "line": 1,
+                "column": 3
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "case": "C3",
+      "title": "Two operations, no operationName",
+      "status": 400,
+      "content_type": "application/json",
+      "allow": null,
+      "verdict": "should",
+      "note": "spec: 422",
+      "body": {
+        "data": null,
+        "errors": [
+          {
+            "message": "Must provide operation name if query contains multiple operations."
+          }
+        ]
+      }
+    },
+    {
+      "case": "C4",
+      "title": "Required variable missing",
+      "status": 400,
+      "content_type": "application/json",
+      "allow": null,
+      "verdict": "should",
+      "note": "spec: 422",
+      "body": {
+        "data": null,
+        "errors": [
+          {
+            "message": "Variable '$id' has invalid value: Expected a value of non-null type 'ID!' to be provided.",
+            "locations": [
+              {
+                "line": 1,
+                "column": 9
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "case": "C5",
+      "title": "Partial result (data and errors)",
+      "status": 200,
+      "content_type": "application/json",
+      "allow": null,
+      "verdict": "should",
+      "note": "200: allowed (2xx), status-code section recommends 294",
+      "body": {
+        "data": {
+          "hello": "world",
+          "boom": null
+        },
+        "errors": [
+          {
+            "message": "boom failed",
+            "locations": [
+              {
+                "line": 1,
+                "column": 9
+              }
+            ],
+            "path": [
+              "boom"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "case": "C6",
+      "title": "Validation error, legacy Accept application/json",
+      "status": 400,
+      "content_type": "application/json",
+      "allow": null,
+      "verdict": "should",
+      "note": "spec: 422",
+      "body": {
+        "errors": [
+          {
+            "message": "Cannot query field 'nope' on type 'Query'.",
+            "locations": [
+              {
+                "line": 1,
+                "column": 3
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "case": "D1",
+      "title": "GET query",
+      "status": 200,
+      "content_type": "text/html",
+      "allow": null,
+      "verdict": "info",
+      "note": "GET returned the GraphiQL page, not a GraphQL response",
+      "body": "<!--\n *  Copyright (c) 2025 GraphQL Contributors\n *  All rights reserved.\n *\n *  This source code is licensed under the "
+    },
+    {
+      "case": "D2",
+      "title": "GET mutation",
+      "status": 200,
+      "content_type": "text/html",
+      "allow": null,
+      "verdict": "info",
+      "note": "GET returned the GraphiQL page, not a GraphQL response",
+      "body": "<!--\n *  Copyright (c) 2025 GraphQL Contributors\n *  All rights reserved.\n *\n *  This source code is licensed under the "
+    },
+    {
+      "case": "D3",
+      "title": "PUT",
+      "status": 405,
+      "content_type": "-",
+      "allow": "OPTIONS, POST, GET",
+      "verdict": "pass",
+      "note": "",
+      "body": ""
+    },
+    {
+      "case": "D4",
+      "title": "GET query + apollo-require-preflight",
+      "status": 200,
+      "content_type": "text/html",
+      "allow": null,
+      "verdict": "info",
+      "note": "GET returned the GraphiQL page, not a GraphQL response",
+      "body": "<!--\n *  Copyright (c) 2025 GraphQL Contributors\n *  All rights reserved.\n *\n *  This source code is licensed under the "
+    },
+    {
+      "case": "D5",
+      "title": "GET mutation + apollo-require-preflight",
+      "status": 200,
+      "content_type": "text/html",
+      "allow": null,
+      "verdict": "info",
+      "note": "GET returned the GraphiQL page, not a GraphQL response",
+      "body": "<!--\n *  Copyright (c) 2025 GraphQL Contributors\n *  All rights reserved.\n *\n *  This source code is licensed under the "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+Mercurius failed MUST audits:
+    MUST allow null {extensions} parameter when accepting application/json
+┌─────────┬─────────────────┬─────────┬───────────┬───────────┬─────────────┬───────┬────┐
+│ (index) │ server          │ MUST_ok │ MUST_fail │ SHOULD_ok │ SHOULD_fail │ total │ ok │
+├─────────┼─────────────────┼─────────┼───────────┼───────────┼─────────────┼───────┼────┤
+│ 0       │ 'graphql-http'  │ 13      │ 0         │ 23        │ 0           │ 61    │ 61 │
+│ 1       │ 'GraphQL Yoga'  │ 13      │ 0         │ 23        │ 0           │ 61    │ 61 │
+│ 2       │ 'Apollo Server' │ 13      │ 0         │ 20        │ 3           │ 61    │ 55 │
+│ 3       │ 'Mercurius'     │ 12      │ 1         │ 16        │ 7           │ 61    │ 47 │
+│ 4       │ 'Strawberry'    │ 13      │ 0         │ 15        │ 8           │ 61    │ 53 │
+│ 5       │ 'Ariadne'       │ 13      │ 0         │ 19        │ 4           │ 61    │ 50 │
+└─────────┴─────────────────┴─────────┴───────────┴───────────┴─────────────┴───────┴────┘

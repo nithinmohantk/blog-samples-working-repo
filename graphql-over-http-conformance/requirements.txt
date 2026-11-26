@@ -1,0 +1,7 @@
+ariadne==1.1.1
+graphql-core==3.3.2
+httpx==0.28.1
+pytest==9.2.0
+starlette==1.10.0
+strawberry-graphql==0.341.3
+uvicorn==0.54.0
