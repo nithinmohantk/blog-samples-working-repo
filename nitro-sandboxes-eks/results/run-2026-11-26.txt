@@ -1,0 +1,116 @@
+Run on 26 Nov 2026 in AWS CloudShell, eu-west-1, EKS Auto Mode cluster created by setup.sh.
+Copied from the terminal output. Account IDs removed.
+
+=== 00 versions ===
+Client Version: v1.36.2-eks-8f14419
+Server Version: v1.37.1-eks-91f89a9
+eksctl 0.232.0
+aws-cli/2.41.1
+run started 2026-11-26T21:58:17Z
+
+=== 00 runtime classes ===
+apiVersion: node.k8s.io/v1
+handler: isolated-sandbox
+kind: RuntimeClass
+metadata:
+  name: isolated-sandbox
+overhead:
+  podFixed:
+    eks.amazonaws.com/nitro-sandbox: "1"
+    memory: 256Mi
+scheduling:
+  nodeSelector:
+    eks.amazonaws.com/nitro-sandbox: "true"
+
+=== 01 kernel: plain vs sandboxed ===
+--- plain ()
+node=i-060fb0c92034cb65f instance=c6a.large threads_per_core=2 node_kernel=6.18.62 container_runtime=containerd://2.2.10+bottlerocket
+pod_kernel=6.18.62 nproc=2 mem_total_kib=3882500
+--- sandboxed (isolated-sandbox)
+node=i-0b9e2c70db5e12737 instance=c8a.large threads_per_core=1 node_kernel=6.18.62 container_runtime=containerd://2.2.10+bottlerocket
+pod_kernel=6.18.62 nproc=1 mem_total_kib=405768
+
+=== 02 privileged + hostPID + hostPath / ===
+--- escape-plain
+pid 1 is: systemd
+processes visible: 184
+kubelet process visible: 1
+/host os: PRETTY_NAME="Bottlerocket (EKS Auto, Standard) 2026.11.18 (aws-k8s-1.37-standard)"
+/host kubelet pod dirs: 2
+/host top level: bin boot dev etc home lib lib64 local media mnt opt proc root run sbin srv sys tmp usr var x86_64-bottlerocket-linux-gnu
+--- escape-sandboxed
+pid 1 is: systemd
+processes visible: 133
+kubelet process visible: 0
+/host os: PRETTY_NAME="Bottlerocket (EKS Auto, Standard) 2026.11.18 (aws-k8s-1_37-guest)"
+/host kubelet pod dirs: 1
+/host top level: bin dev etc home lib lib64 local media mnt opt proc root run sbin srv sys tmp usr var x86_64-bottlerocket-linux-gnu
+
+=== 03 instance metadata and credentials ===
+--- plain
+imdsv2 token: none
+  placement/region -> HTTP 401
+  placement/availability-zone-id -> HTTP 401
+  instance-id -> HTTP 401
+  iam/security-credentials/ -> HTTP 401
+  imdsv1 (no token) -> HTTP 401
+--- sandboxed
+imdsv2 token: received
+  placement/region -> HTTP 200
+  placement/availability-zone-id -> HTTP 200
+  instance-id -> HTTP 404
+  iam/security-credentials/ -> HTTP 404
+  imdsv1 (no token) -> HTTP 401
+--- podid-sandboxed (EKS Pod Identity)
+aws-cli/2.42.4 Python/3.14.10 Linux/6.18.62 docker/x86_64.amzn.2023
+AWS_CONTAINER_CREDENTIALS_FULL_URI=http://169.254.170.23/v1/credentials
+arn:aws:sts::<account>:assumed-role/nitro-sbx-blogtest-podid/eks-nitro-sbx--podid-sand-<id>
+
+=== 04 network-isolated annotation ===
+--- sandboxed (normal)
+interfaces: dummy0 eth0 lo
+https to aws.amazon.com: 200
+--- no-network
+(first run: the pod waited about 10 minutes for a node; see "scheduling" below)
+
+=== 05 annotation on Deployment metadata vs pod template ===
+--- wrong-place
+interfaces: dummy0 eth0 lo
+https to aws.amazon.com: 200
+--- right-place
+interfaces: dummy0 lo
+https to aws.amazon.com: 000failed
+
+=== 06 pod start time, 4 pods each (nodes running, image cached) ===
+nodes before:
+NODE                 INSTANCE   SANDBOX_LABEL  CREATED               SANDBOX_SLOTS  CPU    MEMORY
+i-060fb0c92034cb65f  c6a.large  false          2026-11-26T21:58:34Z  -              1780m  3138052Ki
+i-0b9e2c70db5e12737  c8a.large  true           2026-11-26T21:58:53Z  10             1780m  2349Mi
+i-0fd6ebad6b6bcd909  c8a.large  true           2026-11-26T22:10:03Z  10             1780m  2349Mi
+plain: n=4 on 2 node(s)
+  created->scheduled: min 0s, median 0s, max 0s
+  scheduled->ready:   min 1s, median 1s, max 2s
+  created->ready:     min 1s, median 1s, max 2s
+sandboxed: n=4 on 2 node(s)
+  created->scheduled: min 0s, median 0s, max 0s
+  scheduled->ready:   min 4s, median 4s, max 4s
+  created->ready:     min 4s, median 4s, max 4s
+(Kubernetes records condition times to the second.)
+
+=== 07 throughput ===
+Not measured: the run was stopped before iperf3 finished.
+
+=== scheduling observations ===
+- The first sandboxed pod caused Auto Mode to launch a c8a.large (threads_per_core=1);
+  plain pods went to a c6a.large. Sandbox nodes carry the label eks.amazonaws.com/nitro-sandbox=true.
+- With three sandboxed pods (each 256Mi or 512Mi request plus 256Mi overhead) on the first c8a.large,
+  the no-network pod reported "1 Insufficient memory" while Auto Mode kept nominating that same
+  node. It was scheduled about 10 minutes later, when a second c8a.large (created 22:10:03Z) joined.
+- In the first 10-pod start-time batch, 8 plain pods ran on the c6a.large; 2 stayed Pending with
+  Auto Mode nominating the sandbox node i-0b9e2c70db5e12737, and no new node was launched within
+  10 minutes. The scheduler's reason was not captured.
+- In the 4-pod batch, 2 of the 4 plain pods were placed on the sandbox nodes: they carry no taint.
+
+=== teardown ===
+2026-11-26 22:30:29 all cluster resources were deleted
+clusters, instances, nat gateways, elastic ips, vpcs, iam role: all empty

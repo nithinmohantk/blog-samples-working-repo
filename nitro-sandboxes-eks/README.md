@@ -34,3 +34,12 @@ Costs while it runs: the EKS control plane, the Auto Mode nodes (EC2 plus the Au
 fee) and the NAT gateway eksctl creates. Nitro Sandboxes themselves have no extra charge.
 
 Not covered: confidential mode, attestation and AWS KMS key policies.
+
+## What was verified
+
+One run on 26 November 2026 in AWS CloudShell, eu-west-1, Kubernetes 1.37.1 on EKS Auto Mode
+(eksctl 0.232.0). The output is in `results/run-2026-11-26.txt`. Sections 00 to 06 ran; the
+throughput check (07) did not finish, so no throughput figures were measured. The first run of
+sections 04 to 06 stalled while pods waited for nodes; `run-tests.sh` now waits in shorter slices
+and frees nodes before the start-time batch. Teardown left no cluster, instance, NAT gateway,
+Elastic IP, VPC or IAM role behind.
