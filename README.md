@@ -97,6 +97,7 @@ Each folder has its own README that says what the code does, how to run it, and 
 | `copilot-sdk-harness-test` | [Microsoft Copilot SDK 2.0: Putting a Production Agent Harness to the Test](https://www.dataa.dev/2026/11/20/microsoft-copilot-sdk-2-0-agent-harness-test/) | Python |
 | `foundry-release-gates` | [Release Gates for Agents on Microsoft Foundry: Multi-Turn Evaluation, Evaluation Insights and the Agent Optimizer](https://www.dataa.dev/2026/11/20/release-gates-for-agents-on-microsoft-foundry/) | Python |
 | `llamaindex-production-rag` | [LlamaIndex: The Data Framework for Building Production RAG Applications](https://www.dataa.dev/2025/04/15/llamaindex-the-data-framework-for-building-production-rag-applications/) | Python |
+| `nitro-sandboxes-eks` | [AWS Nitro Sandboxes on Amazon EKS: What Changes for a Pod, Tested on Auto Mode](https://www.dataa.dev/2026/11/22/aws-nitro-sandboxes-on-amazon-eks-what-changes-for-a-pod/) | Bash, Kubernetes YAML |
 
 ## Verification status
 
