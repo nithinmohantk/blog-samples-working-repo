@@ -1,0 +1,456 @@
+<!-- wp:paragraph -->
+<p>Containers on a Kubernetes node share one Linux kernel. A container escape or a kernel bug in one pod can reach every other pod on the node, so teams that run untrusted code, such as AI agents executing generated code, CI jobs from forks or customer plug-ins, have usually given each workload its own node and paid for the idle capacity. On 9 November AWS launched Nitro Sandboxes for Amazon EKS, Amazon ECS and EC2: an opted-in pod or task runs in its own lightweight virtual machine with its own kernel, carved out of a running EC2 instance and isolated by the Nitro hypervisor.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>The launch post shows the one-line change and leaves out what an architect needs to size and secure it: start-up cost, memory overhead, what changes for credentials, and how scheduling behaves. I ran the isolated mode on an EKS Auto Mode cluster, put the same pods on the shared kernel and in a sandbox, and compared them. This article covers what changed, what it costs in capacity, and the traps I hit.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">How it works</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>A Nitro Sandbox is a Firecracker microVM that runs on the vCPUs and memory of its parent EC2 instance. The parent must be launched with Nitro Enclaves enabled, and the Nitro hypervisor, not the parent's kernel, enforces the CPU and memory boundary between sandboxes. On EKS, kubelet hands a sandboxed pod to <code>containerd-shim-nitro-sandbox-v2</code>, which boots the microVM; inside it an agent runs the containers with its own <code>containerd</code>, evaluates the pod's Cedar policy and talks to the host over virtio-vsock.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image {"id":18472,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="https://www.dataa.dev/wp-content/uploads/2026/11/nitro-sandboxes-eks-one-pod-one-microvm.jpg" alt="Nitro Sandbox on EKS: kubelet, containerd and the sandbox shim on the parent EC2 instance; Firecracker microVM with its own guest kernel, sandbox agent and containers; Nitro hypervisor underneath; IMDS surrogate and Pod Identity endpoint inside the sandbox" class="wp-image-18472"/><figcaption class="wp-element-caption">One pod, one microVM. The parent instance runs kubelet and the shim; the pod's containers run on a separate guest kernel.</figcaption></figure>
+<!-- /wp:image -->
+
+<!-- wp:merpress/mermaidjs -->
+<div class="wp-block-merpress-mermaidjs diagram-source-mermaid"><pre class="mermaid">%%{init: {'theme':'base','themeVariables':{'signalColor':'#0073BB','signalTextColor':'#0F172A','actorBkg':'#FFF3E0','actorBorder':'#FF9900','actorTextColor':'#232F3E','noteBkgColor':'#FFF8E7','noteBorderColor':'#FF9900','noteTextColor':'#232F3E'}}}%%
+sequenceDiagram
+    participant K as kubelet and containerd
+    participant S as nitro-sandbox shim
+    participant G as Sandbox agent (guest)
+    K-&gt;&gt;S: Create pod sandbox (runtimeClassName isolated-sandbox)
+    S-&gt;&gt;S: Boot Firecracker microVM on the Nitro hypervisor
+    S-&gt;&gt;G: Pod spec and Cedar policy over vsock
+    G-&gt;&gt;G: Check policy, load images, start containers
+    G--&gt;&gt;K: Container status, logs and exec over vsock</pre></div>
+<!-- /wp:merpress/mermaidjs -->
+
+<!-- wp:paragraph -->
+<p>Two modes are available, selected by the runtime class. The runtime class is the authority: the mode is derived from <code>runtimeClassName</code> and any mode annotation on the pod is ignored.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:table {"className":"is-style-stripes"} -->
+<figure class="wp-block-table is-style-stripes"><table><thead><tr><th></th><th>isolated-sandbox</th><th>confidential-sandbox</th></tr></thead><tbody><tr><td>Trusted party</td><td>Parent instance (node)</td><td>Only the guest</td></tr><tr><td>Protects</td><td>Node and other pods from a compromised container</td><td>Workload data from cluster and node administrators</td></tr><tr><td>exec, logs, process listing</td><td>Allowed</td><td>exec, stdin and process listing denied</td></tr><tr><td>Cedar policy</td><td>Any valid container spec accepted</td><td>Pins image digests, args, env, mounts and security settings</td></tr><tr><td>Attestation</td><td>Not required</td><td>Nitro Secure Module PCRs, checked by AWS KMS key policy</td></tr></tbody></table></figure>
+<!-- /wp:table -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">Turning it on</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Nitro Sandboxes need Kubernetes 1.36 or later and run on most Nitro-based Intel, AMD and Graviton instance families. EKS Auto Mode installs both runtime classes in every cluster, so nothing else is needed there; with managed or self-managed node groups you build an AMI with the sandbox runtime and launch the nodes with Nitro Enclaves enabled (<code>EnclaveOptions.Enabled=true</code>). There is no extra charge: you pay for the EC2 capacity the sandboxes use. The test cluster was created with eksctl, which needs an explicit version because its default is older than 1.36:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:code {"language":"bash"} -->
+<pre class="wp-block-code"><code class="language-bash">eksctl create cluster --name nitro-sbx-blogtest --region eu-west-1 --version 1.37 --enable-auto-mode</code></pre>
+<!-- /wp:code -->
+
+<!-- wp:paragraph -->
+<p>The runtime class Auto Mode created says more about capacity planning than the launch post does. Every sandboxed pod is charged a fixed 256 MiB of memory and one <code>eks.amazonaws.com/nitro-sandbox</code> slot on top of its own requests, and it can only land on nodes labelled for sandboxes:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:code {"language":"yaml"} -->
+<pre class="wp-block-code"><code class="language-yaml">apiVersion: node.k8s.io/v1
+handler: isolated-sandbox
+kind: RuntimeClass
+metadata:
+  name: isolated-sandbox
+overhead:
+  podFixed:
+    eks.amazonaws.com/nitro-sandbox: "1"
+    memory: 256Mi
+scheduling:
+  nodeSelector:
+    eks.amazonaws.com/nitro-sandbox: "true"</code></pre>
+<!-- /wp:code -->
+
+<!-- wp:paragraph -->
+<p>For a pod, the change is one field. The sample runs the same pod twice, with and without it:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:code {"language":"yaml"} -->
+<pre class="wp-block-code"><code class="language-yaml"># The same pod twice: once on the node's shared kernel, once in a Nitro Sandbox.
+# The only difference is runtimeClassName.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: plain
+  namespace: sbx
+spec:
+  containers:
+  - name: main
+    image: public.ecr.aws/amazonlinux/amazonlinux:2023
+    command: ["sleep", "infinity"]
+    resources:
+      requests: {cpu: 250m, memory: 256Mi}
+      limits: {cpu: "1", memory: 512Mi}
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: sandboxed
+  namespace: sbx
+spec:
+  runtimeClassName: isolated-sandbox
+  containers:
+  - name: main
+    image: public.ecr.aws/amazonlinux/amazonlinux:2023
+    command: ["sleep", "infinity"]
+    resources:
+      requests: {cpu: 250m, memory: 256Mi}
+      limits: {cpu: "1", memory: 512Mi}</code></pre>
+<!-- /wp:code -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">What changed inside the pod</h2>
+<!-- /wp:heading -->
+
+<!-- wp:table {"className":"is-style-stripes"} -->
+<figure class="wp-block-table is-style-stripes"><table><thead><tr><th>Check</th><th>Plain pod (shared kernel)</th><th>Sandboxed pod</th></tr></thead><tbody><tr><td>Node</td><td>c6a.large, 2 threads per core</td><td>c8a.large, 1 thread per core, label <code>nitro-sandbox=true</code></td></tr><tr><td><code>uname -r</code></td><td>6.18.62</td><td>6.18.62 (same version, different kernel instance)</td></tr><tr><td>CPUs and memory seen</td><td>2 CPUs, 3.7 GiB (the node)</td><td>1 CPU, 396 MiB (the microVM)</td></tr><tr><td>Privileged + hostPID: processes visible</td><td>184, including kubelet</td><td>133, no kubelet</td></tr><tr><td>hostPath <code>/</code> resolves to</td><td>Node: Bottlerocket aws-k8s-1.37-standard</td><td>Guest: Bottlerocket aws-k8s-1_37-guest</td></tr><tr><td>IMDS</td><td>401 on every path (Auto Mode blocks pods)</td><td>Region and AZ 200; instance-id and IAM credentials 404</td></tr><tr><td>AWS credentials</td><td>Not tested</td><td>EKS Pod Identity: STS returned the associated role</td></tr><tr><td>Start time, warm node, cached image</td><td>1 to 2 s</td><td>4 s</td></tr></tbody></table></figure>
+<!-- /wp:table -->
+
+<!-- wp:html -->
+<div class="callout callout-info" style="background: #e3f2fd; border-left: 4px solid #2196f3; padding: 16px 20px; margin: 20px 0; border-radius: 4px;"><div style="display: flex; align-items: start;"><span style="font-size: 24px; margin-right: 12px;">ℹ️</span><div><strong style="color: #1976d2; display: block; margin-bottom: 8px;">UNAME IS NOT A TEST</strong><p style="margin: 0; color: #333;">Inside the sandbox <code>uname -r</code> printed the same kernel version as the node, because the guest image is built from the same Bottlerocket release. Use what the pod can see instead: CPU count and memory match the pod's limits, not the node, and <code>/proc</code> has no kubelet.</p></div></div></div>
+<!-- /wp:html -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">A privileged pod in a sandbox</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>The most useful test is the pod you hope never to deploy: privileged, sharing the host PID namespace, with the node's root filesystem mounted.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:code {"language":"yaml"} -->
+<pre class="wp-block-code"><code class="language-yaml"># A deliberately over-privileged pod: privileged, hostPID and the node's root
+# filesystem mounted at /host. Run it plain and sandboxed and compare what it can see.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: escape-plain
+  namespace: sbx
+spec:
+  hostPID: true
+  containers:
+  - name: main
+    image: public.ecr.aws/amazonlinux/amazonlinux:2023
+    command: ["sleep", "infinity"]
+    securityContext: {privileged: true}
+    volumeMounts: [{name: host, mountPath: /host, readOnly: true}]
+    resources:
+      requests: {cpu: 250m, memory: 256Mi}
+      limits: {cpu: "1", memory: 512Mi}
+  volumes:
+  - name: host
+    hostPath: {path: /, type: Directory}
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: escape-sandboxed
+  namespace: sbx
+spec:
+  runtimeClassName: isolated-sandbox
+  hostPID: true
+  containers:
+  - name: main
+    image: public.ecr.aws/amazonlinux/amazonlinux:2023
+    command: ["sleep", "infinity"]
+    securityContext: {privileged: true}
+    volumeMounts: [{name: host, mountPath: /host, readOnly: true}]
+    resources:
+      requests: {cpu: 250m, memory: 256Mi}
+      limits: {cpu: "1", memory: 512Mi}
+  volumes:
+  - name: host
+    hostPath: {path: /, type: Directory}</code></pre>
+<!-- /wp:code -->
+
+<!-- wp:paragraph -->
+<p>On the shared kernel it saw 184 processes including kubelet, the node's Bottlerocket root filesystem and the kubelet pod directories. In the sandbox the same spec started, but <code>privileged</code>, <code>hostPID</code> and <code>hostPath</code> all resolved inside the microVM: 133 processes of the guest, no kubelet, and a root filesystem that identifies itself as the guest image. That is the point of the feature: the pod spec can still be dangerous, but the danger stops at the VM. It is also why device plug-ins and node agents cannot run in a sandbox.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Credentials</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>The sandbox has no route to the node's metadata service. It runs its own IMDSv2-only surrogate that answers region, Availability Zone, AZ ID, service domain and partition, and returns 404 for everything else, including <code>iam/security-credentials/</code>. AWS credentials come from EKS Pod Identity, whose endpoint is available inside the sandbox; the test pod called STS and got the role associated with its service account. IRSA also works for the workload's own calls, but encrypted-image decryption and signature verification use Pod Identity only.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:code {"language":"yaml"} -->
+<pre class="wp-block-code"><code class="language-yaml"># AWS credentials inside a sandbox come from EKS Pod Identity, not from IMDS.
+# setup.sh associates the podid-test service account with an IAM role.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: podid-sandboxed
+  namespace: sbx
+spec:
+  runtimeClassName: isolated-sandbox
+  serviceAccountName: podid-test
+  restartPolicy: Never
+  containers:
+  - name: main
+    image: public.ecr.aws/aws-cli/aws-cli:latest
+    command: ["sleep", "infinity"]
+    resources:
+      requests: {cpu: 250m, memory: 256Mi}
+      limits: {cpu: "1", memory: 512Mi}</code></pre>
+<!-- /wp:code -->
+
+<!-- wp:html -->
+<div class="callout callout-warning" style="background: #fff3e0; border-left: 4px solid #ff9800; padding: 16px 20px; margin: 20px 0; border-radius: 4px;"><div style="display: flex; align-items: start;"><span style="font-size: 24px; margin-right: 12px;">⚠️</span><div><strong style="color: #f57c00; display: block; margin-bottom: 8px;">POLICIES AND POD IDENTITY</strong><p style="margin: 0; color: #333;">If you attach a generated Cedar policy, generate it with <code>--with-pod-identity</code> (or <code>--with-irsa</code>). The Pod Identity webhook injects the token volume after the policy generator has read the manifest, so without the flag the pod starts, the token file is missing, and every SDK call fails.</p></div></div></div>
+<!-- /wp:html -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">No network at all</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>For generated code that must not talk to anything, the annotation <code>sandbox.amazonaws.com/network-isolated: "true"</code> boots the microVM with no network device. There is no DNS, IMDS or Pod Identity either, and HTTP or TCP probes cannot succeed, so use exec probes. Logs and <code>exec</code> still work over vsock, which AWS points out also means the isolation is not absolute.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:code {"language":"yaml"} -->
+<pre class="wp-block-code"><code class="language-yaml"># For untrusted or generated code: the sandbox boots with no network device at all.
+# No DNS, IMDS or Pod Identity either, and HTTP/TCP probes cannot work.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: no-network
+  namespace: sbx
+  annotations:
+    sandbox.amazonaws.com/network-isolated: "true"
+spec:
+  runtimeClassName: isolated-sandbox
+  containers:
+  - name: main
+    image: public.ecr.aws/amazonlinux/amazonlinux:2023
+    command: ["sleep", "infinity"]
+    resources:
+      requests: {cpu: 250m, memory: 256Mi}
+      limits: {cpu: "1", memory: 512Mi}</code></pre>
+<!-- /wp:code -->
+
+<!-- wp:paragraph -->
+<p>The annotation has to be on the pod. On a Deployment, the obvious place is wrong:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:code {"language":"yaml"} -->
+<pre class="wp-block-code"><code class="language-yaml"># Same annotation, two places. Only the pod template annotation reaches the pods;
+# the one on the Deployment's own metadata is accepted and silently ignored.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wrong-place
+  namespace: sbx
+  annotations:
+    sandbox.amazonaws.com/network-isolated: "true"   # ignored
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: wrong-place}}
+  template:
+    metadata:
+      labels: {app: wrong-place}
+    spec:
+      runtimeClassName: isolated-sandbox
+      containers:
+      - name: main
+        image: public.ecr.aws/amazonlinux/amazonlinux:2023
+        command: ["sleep", "infinity"]
+        resources:
+          requests: {cpu: 250m, memory: 256Mi}
+          limits: {cpu: "1", memory: 512Mi}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: right-place
+  namespace: sbx
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: right-place}}
+  template:
+    metadata:
+      labels: {app: right-place}
+      annotations:
+        sandbox.amazonaws.com/network-isolated: "true"   # applied
+    spec:
+      runtimeClassName: isolated-sandbox
+      containers:
+      - name: main
+        image: public.ecr.aws/amazonlinux/amazonlinux:2023
+        command: ["sleep", "infinity"]
+        resources:
+          requests: {cpu: 250m, memory: 256Mi}
+          limits: {cpu: "1", memory: 512Mi}</code></pre>
+<!-- /wp:code -->
+
+<!-- wp:code {"language":"text"} -->
+<pre class="wp-block-code"><code class="language-text">--- wrong-place
+interfaces: dummy0 eth0 lo
+https to aws.amazon.com: 200
+--- right-place
+interfaces: dummy0 lo
+https to aws.amazon.com: 000failed</code></pre>
+<!-- /wp:code -->
+
+<!-- wp:html -->
+<div class="callout callout-warning" style="background: #fff3e0; border-left: 4px solid #ff9800; padding: 16px 20px; margin: 20px 0; border-radius: 4px;"><div style="display: flex; align-items: start;"><span style="font-size: 24px; margin-right: 12px;">⚠️</span><div><strong style="color: #f57c00; display: block; margin-bottom: 8px;">ANNOTATIONS BELONG ON THE POD TEMPLATE</strong><p style="margin: 0; color: #333;">Kubernetes accepts a <code>sandbox.amazonaws.com/</code> annotation on a Deployment's own metadata and then ignores it, because it is not copied to the pods. A policy, throttle or network-isolation annotation in the wrong place fails open, with no error. Add a policy check (Kyverno, Gatekeeper or a CI test) that rejects these annotations outside <code>spec.template.metadata</code>.</p></div></div></div>
+<!-- /wp:html -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">Capacity and scheduling</h2>
+<!-- /wp:heading -->
+
+<!-- wp:image {"id":18473,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="https://www.dataa.dev/wp-content/uploads/2026/11/nitro-sandboxes-eks-sizing.jpg" alt="Capacity on a c8a.large sandbox node: 10 sandbox slots, 2349 MiB allocatable memory, 256 MiB fixed overhead per sandboxed pod, about four 256 MiB pods per node; start time 4 s against 1 to 2 s; default network throttles" class="wp-image-18473"/><figcaption class="wp-element-caption">What one small sandbox node holds, and what each sandboxed pod costs.</figcaption></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>Three numbers decide how many sandboxes fit on a node:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list -->
+<ul class="wp-block-list"><!-- wp:list-item -->
+<li><strong>Slots.</strong> A node can hold at most five sandboxes per vCPU, and total sandbox vCPUs cannot exceed five times the node's vCPUs. The 2-vCPU c8a.large nodes advertised 10 slots.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li><strong>Memory.</strong> Each sandboxed pod costs its request plus the fixed 256 MiB. The c8a.large sandbox nodes reported 2349 MiB allocatable memory, against about 3064 MiB on the plain c6a.large of the same size, so roughly 700 MiB more of the node is held back. In practice memory, not slots, ran out first: four or five small pods per node.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li><strong>Threads.</strong> On instances with two threads per core, two different sandboxes never share sibling threads, so usable compute is roughly half the advertised vCPUs. Auto Mode picked a c8a.large, one thread per core, for the sandboxes and a c6a.large, two threads per core, for plain pods. Graviton instances also have one thread per core.</li>
+<!-- /wp:list-item -->
+</ul>
+<!-- /wp:list -->
+
+<!-- wp:paragraph -->
+<p>Two scheduling behaviours were worth knowing before production:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list -->
+<ul class="wp-block-list"><!-- wp:list-item -->
+<li><strong>Plain pods use sandbox nodes.</strong> The sandbox nodes carry a label, not a taint. In a four-pod batch, two of the four plain pods landed on sandbox nodes and took memory that sandboxes would need. If sandbox capacity should be reserved, give it its own NodePool with a taint and tolerate that taint in the sandboxed pods' templates. I did not test this configuration.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li><strong>Pods can wait for minutes when a sandbox node is nearly full.</strong> Twice, a pod stayed <code>Pending</code> while Auto Mode kept nominating the existing sandbox node and the scheduler reported insufficient memory. Once a second sandbox node joined after about ten minutes; once two plain pods waited ten minutes and no node was added before I stopped the batch. I did not capture the scheduler's full reasoning, so treat this as an observation from one cluster, not a diagnosis. Leave memory headroom on sandbox nodes and alert on pods pending for more than a minute or two.</li>
+<!-- /wp:list-item -->
+</ul>
+<!-- /wp:list -->
+
+<!-- wp:paragraph -->
+<p>Start-up cost was small once a node existed. With the image cached, four plain pods were ready in 1 to 2 seconds and four sandboxed pods in 4 seconds (Kubernetes records these times to the second). For long-running services that is noise; for a job that runs for five seconds it doubles the time. AWS's warm-pool pattern, using the Kubernetes SIG agent-sandbox project, keeps pre-booted VMs that it says can be claimed in about two seconds.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">Default throttles</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Every sandbox is throttled by default so that one pod cannot exhaust the node's shared resources. The defaults are low enough to matter for request-heavy services:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:table {"className":"is-style-stripes"} -->
+<figure class="wp-block-table is-style-stripes"><table><thead><tr><th>Annotation (prefix <code>sandbox.amazonaws.com/</code>)</th><th>Default</th></tr></thead><tbody><tr><td><code>ingress-bandwidth</code>, <code>egress-bandwidth</code></td><td>100 Mbps each</td></tr><tr><td><code>ingress-packets-per-second</code>, <code>egress-packets-per-second</code></td><td>1500</td></tr><tr><td><code>dns-packets-per-second</code></td><td>100 (maximum 512, or <code>disabled</code>)</td></tr><tr><td><code>conntrack-limit</code></td><td>4096 connections per address family (64 to 65536, cannot be disabled)</td></tr><tr><td><code>overlay-disk-bandwidth</code>, <code>overlay-disk-iops</code></td><td>400 Mbps (50 MBps), 1500 IOPS</td></tr><tr><td><code>log-bandwidth</code></td><td>2 Mbps</td></tr></tbody></table></figure>
+<!-- /wp:table -->
+
+<!-- wp:paragraph -->
+<p>Bandwidth and packet rate are separate token buckets, so raising one alone changes nothing: at 1500 packets per second and a 9001-byte MTU the ceiling is about 102 Mbps whatever the bandwidth setting. Annotations are read once at pod creation. A value of <code>0</code> fails the pod; use <code>disabled</code> where that is allowed. The sample includes an iperf3 check with default and raised limits, but it did not complete on the test run, so this article has no measured throughput figures.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:code {"language":"yaml"} -->
+<pre class="wp-block-code"><code class="language-yaml">metadata:
+  annotations:
+    sandbox.amazonaws.com/ingress-bandwidth: "1G"
+    sandbox.amazonaws.com/egress-bandwidth: "1G"
+    sandbox.amazonaws.com/ingress-packets-per-second: "15000"
+    sandbox.amazonaws.com/egress-packets-per-second: "15000"</code></pre>
+<!-- /wp:code -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">What does not work in a sandbox</h2>
+<!-- /wp:heading -->
+
+<!-- wp:table {"className":"is-style-stripes"} -->
+<figure class="wp-block-table is-style-stripes"><table><thead><tr><th>Feature</th><th>Behaviour</th></tr></thead><tbody><tr><td><code>hostNetwork: true</code></td><td>Pod fails to start</td></tr><tr><td>User namespaces (<code>hostUsers: false</code>)</td><td>Pod does not start</td></tr><tr><td>GPUs and device passthrough</td><td>Not supported at launch (Firecracker cannot pass host devices)</td></tr><tr><td>Huge pages</td><td>Not supported from the node pool; configure inside the sandbox</td></tr><tr><td>In-place resize</td><td>Not supported; CPU and memory are fixed at boot</td></tr><tr><td>Shared EBS volume, online expansion</td><td>Not supported; use EFS for shared storage</td></tr><tr><td>CPU Manager <code>static</code> policy</td><td>No effect</td></tr><tr><td><code>emptyDir</code> and writable-layer usage</td><td>Reported as zero; set ephemeral-storage limits or use memory-backed emptyDir</td></tr><tr><td>Auto Mode with FIPS, GPU or Neuron AMIs, multi-NUMA types</td><td>Sandbox pods stay Pending</td></tr></tbody></table></figure>
+<!-- /wp:table -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">Confidential mode</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>I did not test confidential mode, so this is from the documentation only. In confidential mode the parent instance is untrusted: the Cedar policy pins every admission field, <code>exec</code> and process listing are denied, and image layers can be encrypted and decrypted inside the sandbox with AWS KMS. The Nitro Secure Module measures the system image and the policy into PCRs, and AWS recommends KMS key policy conditions on <code>kms:RecipientAttestation:PCR17</code> (policy hash) and <code>kms:RecipientAttestation:PCR8:ServiceName</code> (system image signer). Without such a key policy the measurements are recorded but nothing checks them. Note also that the parent can read every block device it presents, including encrypted EBS volumes, so data at rest must be encrypted inside the sandbox with a key released only to an attested sandbox.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:html -->
+<div class="callout callout-compliance" style="background: #fce4ec; border-left: 4px solid #e91e63; padding: 16px 20px; margin: 20px 0; border-radius: 4px;"><div style="display: flex; align-items: start;"><span style="font-size: 24px; margin-right: 12px;">⚖️</span><div><strong style="color: #c2185b; display: block; margin-bottom: 8px;">WHAT CONFIDENTIAL MODE DOES NOT CHANGE</strong><p style="margin: 0; color: #333;">Confidential mode limits what your cluster and node administrators can do to a pod. AWS states that it does not change the AWS operator access properties of the Nitro System, which apply to every EKS worker node. Describe it to auditors in those terms.</p></div></div></div>
+<!-- /wp:html -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">When to use it</h2>
+<!-- /wp:heading -->
+
+<!-- wp:table {"className":"is-style-stripes"} -->
+<figure class="wp-block-table is-style-stripes"><table><thead><tr><th>Situation</th><th>Fit</th></tr></thead><tbody><tr><td>AI agents or users running generated code, CI for untrusted pull requests, customer plug-ins</td><td>Good fit: isolated mode, with <code>network-isolated</code> where the code needs no network</td></tr><tr><td>Multi-tenant SaaS on shared nodes</td><td>Good fit; reserve sandbox nodes and size by memory</td></tr><tr><td>Tenant data that administrators must not read</td><td>Confidential mode with attestation-gated KMS keys</td></tr><tr><td>GPU inference, device plug-ins, node agents, <code>hostNetwork</code></td><td>Not supported; keep on the shared kernel or separate nodes</td></tr><tr><td>Short jobs where seconds matter</td><td>Measure first: 2 to 3 extra seconds per pod in this test, or use a warm pool</td></tr><tr><td>Small, tightly scoped jobs on very sensitive data</td><td>AWS points to Nitro Enclaves</td></tr></tbody></table></figure>
+<!-- /wp:table -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">Key takeaways</h2>
+<!-- /wp:heading -->
+
+<!-- wp:list -->
+<ul class="wp-block-list"><!-- wp:list-item -->
+<li>Nitro Sandboxes give a pod its own kernel with one field, <code>runtimeClassName: isolated-sandbox</code>, on EKS 1.36 or later, at no extra charge beyond the capacity used.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li>A privileged, hostPID, hostPath pod in a sandbox only reached the guest VM: no kubelet, no node filesystem.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li>Plan capacity by memory: each sandboxed pod costs 256 MiB on top of its request, and sandbox nodes hold back more memory than plain ones.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li>Credentials come from Pod Identity or IRSA, not IMDS. Generate Cedar policies with <code>--with-pod-identity</code> or <code>--with-irsa</code>.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li>Put every <code>sandbox.amazonaws.com/</code> annotation on the pod template; on the Deployment it is silently ignored.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li>Raise bandwidth and packet rate together before load-testing, and alert on long-pending sandbox pods.</li>
+<!-- /wp:list-item -->
+</ul>
+<!-- /wp:list -->
+
+<!-- wp:paragraph -->
+<p>What would you run in a sandbox first: agent tool calls, CI jobs or tenant workloads? Let me know in the comments.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:html -->
+<div class="callout callout-note" style="background: #f5f5f5; border-left: 4px solid #607d8b; padding: 16px 20px; margin: 20px 0; border-radius: 4px;"><div style="display: flex; align-items: start;"><span style="font-size: 24px; margin-right: 12px;">📝</span><div><strong style="color: #455a64; display: block; margin-bottom: 8px;">HOW THIS WAS CHECKED</strong><p style="margin: 0; color: #333;">The sample created an EKS Auto Mode cluster in eu-west-1 with eksctl 0.232.0 (Kubernetes 1.37.1, Bottlerocket 2026.11.18 nodes) and ran the checks once from AWS CloudShell. The kernel, host-access, metadata, Pod Identity, network-isolation, Deployment-annotation and start-time results above are copied from that run; the raw output is in the repository. The throughput check did not complete, so throttle figures are AWS's documented defaults. The scheduling delays were observed on this one cluster and their cause was not diagnosed. Confidential mode and attestation were not tested. The cluster, its VPC and NAT gateway, and the IAM role were deleted afterwards.</p></div></div></div>
+<!-- /wp:html -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">Glossary</h2>
+<!-- /wp:heading -->
+
+<!-- wp:html -->
+<dl style="background:#F6F8FA;border:1px solid #D0D7DE;border-radius:8px;padding:20px 24px;margin:24px 0"><dt style="font-weight:700;color:#24292F;margin-top:12px">Nitro Sandbox</dt><dd style="margin:4px 0 0 20px;color:#57606A">A Firecracker microVM with its own kernel, carved out of an EC2 instance's vCPUs and memory and isolated by the Nitro hypervisor.</dd><dt style="font-weight:700;color:#24292F;margin-top:12px">Parent instance</dt><dd style="margin:4px 0 0 20px;color:#57606A">The EC2 instance, here the EKS node, whose resources the sandboxes use. It must be launched with Nitro Enclaves enabled.</dd><dt style="font-weight:700;color:#24292F;margin-top:12px">RuntimeClass</dt><dd style="margin:4px 0 0 20px;color:#57606A">A Kubernetes object that tells kubelet which container runtime to use; here <code>isolated-sandbox</code> or <code>confidential-sandbox</code>.</dd><dt style="font-weight:700;color:#24292F;margin-top:12px">Pod overhead</dt><dd style="margin:4px 0 0 20px;color:#57606A">Resources a RuntimeClass adds to every pod's requests for scheduling; 256 MiB and one sandbox slot here.</dd><dt style="font-weight:700;color:#24292F;margin-top:12px">Cedar policy</dt><dd style="margin:4px 0 0 20px;color:#57606A">A declarative policy, stored in a pod annotation, that the sandbox enforces for container admission, exec, logs and mounts.</dd><dt style="font-weight:700;color:#24292F;margin-top:12px">Attestation</dt><dd style="margin:4px 0 0 20px;color:#57606A">A signed document from the Nitro Secure Module describing what booted; AWS KMS can release keys only when it matches.</dd><dt style="font-weight:700;color:#24292F;margin-top:12px">PCR</dt><dd style="margin:4px 0 0 20px;color:#57606A">Platform configuration register: a measurement slot in the Nitro Secure Module, such as PCR17 for the pod policy.</dd><dt style="font-weight:700;color:#24292F;margin-top:12px">EKS Pod Identity</dt><dd style="margin:4px 0 0 20px;color:#57606A">The EKS mechanism that gives a service account temporary IAM credentials through a node-local endpoint.</dd><dt style="font-weight:700;color:#24292F;margin-top:12px">IMDS surrogate</dt><dd style="margin:4px 0 0 20px;color:#57606A">The sandbox's own metadata service, which answers only region, Availability Zone and partition paths.</dd><dt style="font-weight:700;color:#24292F;margin-top:12px">EKS Auto Mode</dt><dd style="margin:4px 0 0 20px;color:#57606A">EKS with AWS-managed nodes, provisioned by Karpenter-based NodePools, that ships the sandbox runtime classes.</dd></dl>
+<!-- /wp:html -->
+
+<!-- wp:html -->
+<div class="callout callout-tip sample-code-link" style="background: #e8f5e9; border-left: 4px solid #4caf50; padding: 16px 20px; margin: 20px 0; border-radius: 4px;"><div style="display: flex; align-items: start;"><span style="font-size: 24px; margin-right: 12px;">💡</span><div><strong style="color: #388e3c; display: block; margin-bottom: 8px;">GET THE CODE</strong><p style="margin: 0; color: #333;">The complete sample for this article is on GitHub: <a href="https://github.com/nithinmohantk/blog-samples-working-repo/tree/main/nitro-sandboxes-eks" target="_blank" rel="noopener">nithinmohantk/blog-samples-working-repo/nitro-sandboxes-eks</a>. Clone it with <code>git clone https://github.com/nithinmohantk/blog-samples-working-repo.git</code> and open the <code>nitro-sandboxes-eks</code> folder. Its README says how to run it and what has been verified.</p></div></div></div>
+<!-- /wp:html -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">References &amp; Further Reading</h2>
+<!-- /wp:heading -->
+
+<!-- wp:html -->
+<ul style="background:#F6F8FA;border:1px solid #D0D7DE;border-radius:8px;padding:20px 24px;margin:24px 0;list-style:none"><li style="margin:10px 0"><a href="https://aws.amazon.com/blogs/containers/aws-nitro-sandboxes-hardware-enforced-workload-isolation-on-amazon-eks/" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; AWS Nitro Sandboxes: hardware-enforced workload isolation on Amazon EKS</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— Launch post, 9 November 2026</span></li><li style="margin:10px 0"><a href="https://docs.aws.amazon.com/eks/latest/userguide/sandboxing.html" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; Sandboxing on Amazon EKS with isolated and confidential pods</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— EKS User Guide: how it works, modes, shared responsibility</span></li><li style="margin:10px 0"><a href="https://docs.aws.amazon.com/eks/latest/userguide/sandboxing-isolated-setup.html" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; Run a pod in isolated mode</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— Auto Mode and node group setup, workload controllers</span></li><li style="margin:10px 0"><a href="https://docs.aws.amazon.com/eks/latest/userguide/sandboxing-limitations.html" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; Nitro Sandbox limitations on Amazon EKS</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— Unsupported features, density and Auto Mode constraints</span></li><li style="margin:10px 0"><a href="https://docs.aws.amazon.com/eks/latest/userguide/sandboxing-resource-isolation.html" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; Resource isolation and throttling</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— Throttle annotations and defaults</span></li><li style="margin:10px 0"><a href="https://docs.aws.amazon.com/eks/latest/userguide/sandboxing-metadata-credentials.html" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; Pod Identity and credentials</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— IMDS surrogate, Pod Identity and IRSA</span></li><li style="margin:10px 0"><a href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/amazon-ec2-nitro-sandboxes.html" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; Nitro Sandboxes in the Amazon EC2 User Guide</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— Instance types, sizing limits, security considerations, pricing</span></li><li style="margin:10px 0"><a href="https://aws.amazon.com/eks/pricing/" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; Amazon EKS pricing</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— Control plane and Auto Mode charges</span></li><li style="margin:10px 0"><a href="https://github.com/aws-samples/sample-eks-nitro-sandbox" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; aws-samples/sample-eks-nitro-sandbox</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— AWS blueprints: coding agents, warm pools, CI, confidential pods</span></li><li style="margin:10px 0"><a href="https://github.com/nithinmohantk/blog-samples-working-repo/tree/main/nitro-sandboxes-eks" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; Sample code for this article</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— Manifests, test script and results</span></li></ul>
+<!-- /wp:html -->
