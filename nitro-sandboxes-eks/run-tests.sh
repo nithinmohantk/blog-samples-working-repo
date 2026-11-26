@@ -5,7 +5,7 @@ set -uo pipefail
 cd "$(dirname "$0")" || exit 1
 export PATH="$HOME/bin:$PATH"
 REGION="${REGION:-eu-west-1}"
-BATCH="${BATCH:-10}"
+BATCH="${BATCH:-4}"
 R=results
 mkdir -p "$R"
 NS=sbx
@@ -110,6 +110,11 @@ done
 
 want 06 && {
 section "06 pod start time, $BATCH pods each"
+# Free the nodes first (sections 02-05 have written their results), so the batch
+# measures pod start-up rather than Auto Mode launching another node.
+k delete pod escape-plain escape-sandboxed podid-sandboxed no-network --ignore-not-found --wait=true >/dev/null
+k delete deploy wrong-place right-place --ignore-not-found --wait=true >/dev/null
+k delete pod -l batch --ignore-not-found --wait=true >/dev/null
 echo "nodes before:"; nodes
 for kind in plain sandboxed; do
   rc=""; [ "$kind" = sandboxed ] && rc="  runtimeClassName: isolated-sandbox"

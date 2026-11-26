@@ -14,8 +14,8 @@ spec:
     command: ["sh", "-c", "dnf install -y -q iperf3 >/dev/null && iperf3 -s"]
     ports: [{containerPort: 5201}]
     resources:
-      requests: {cpu: "1", memory: 512Mi}
-      limits: {cpu: "2", memory: 1Gi}
+      requests: {cpu: 250m, memory: 256Mi}
+      limits: {cpu: "1", memory: 512Mi}
 ---
 apiVersion: v1
 kind: Service
@@ -37,8 +37,8 @@ spec:
     image: public.ecr.aws/amazonlinux/amazonlinux:2023
     command: ["sh", "-c", "dnf install -y -q iperf3 >/dev/null && sleep infinity"]
     resources:
-      requests: {cpu: "1", memory: 512Mi}
-      limits: {cpu: "2", memory: 1Gi}
+      requests: {cpu: 250m, memory: 256Mi}
+      limits: {cpu: "1", memory: 512Mi}
 ---
 apiVersion: v1
 kind: Pod
@@ -52,8 +52,8 @@ spec:
     image: public.ecr.aws/amazonlinux/amazonlinux:2023
     command: ["sh", "-c", "dnf install -y -q iperf3 >/dev/null && sleep infinity"]
     resources:
-      requests: {cpu: "1", memory: 512Mi}
-      limits: {cpu: "2", memory: 1Gi}
+      requests: {cpu: 250m, memory: 256Mi}
+      limits: {cpu: "1", memory: 512Mi}
 ---
 apiVersion: v1
 kind: Pod
@@ -72,5 +72,5 @@ spec:
     image: public.ecr.aws/amazonlinux/amazonlinux:2023
     command: ["sh", "-c", "dnf install -y -q iperf3 >/dev/null && sleep infinity"]
     resources:
-      requests: {cpu: "1", memory: 512Mi}
-      limits: {cpu: "2", memory: 1Gi}
+      requests: {cpu: 250m, memory: 256Mi}
+      limits: {cpu: "1", memory: 512Mi}
