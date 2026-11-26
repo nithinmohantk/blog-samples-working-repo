@@ -11,7 +11,24 @@ mkdir -p "$R"
 NS=sbx
 k() { kubectl -n "$NS" "$@"; }
 section() { echo; echo "=== $1 ==="; }
-wait_ready() { k wait --for=condition=Ready "$@" --timeout=600s >/dev/null; }
+# Waits in 4-minute slices: one long kubectl watch outlives the ~15-minute EKS token.
+# A sandbox pod can wait several minutes for Auto Mode to launch a sandbox-capable node.
+wait_ready() {
+  local i
+  for i in 1 2 3 4 5 6 7; do
+    k wait --for=condition=Ready "$@" --timeout=240s >/dev/null 2>&1 && return 0
+  done
+  echo "NOT READY after 28 minutes: $*"; k get pods -o wide; return 1
+}
+# SECTIONS="04 05" ./run-tests.sh runs only those checks.
+SECTIONS="${SECTIONS:-00 01 02 03 04 05 06 07 08}"
+want() { [[ " $SECTIONS " == *" $1 "* ]]; }
+nodes() {
+  kubectl get nodes -o json | jq -r '.items[] | [.metadata.name, .metadata.labels["node.kubernetes.io/instance-type"],
+    (.metadata.labels["eks.amazonaws.com/nitro-sandbox"] // "-"), .metadata.creationTimestamp,
+    (.status.allocatable["eks.amazonaws.com/nitro-sandbox"] // "-"), .status.allocatable.cpu, .status.allocatable.memory] | @tsv' \
+  | column -t -N NODE,INSTANCE,SANDBOX_LABEL,CREATED,SANDBOX_SLOTS,CPU,MEMORY
+}
 node_of() { k get pod "$1" -o jsonpath='{.spec.nodeName}'; }
 node_info() { # pod -> instance type, kernel, threads per core
   local n it
@@ -20,7 +37,7 @@ node_info() { # pod -> instance type, kernel, threads per core
   echo "node=$n instance=$it threads_per_core=$(aws ec2 describe-instance-types --region "$REGION" --instance-types "$it" --query 'InstanceTypes[0].VCpuInfo.DefaultThreadsPerCore' --output text) node_kernel=$(kubectl get node "$n" -o jsonpath='{.status.nodeInfo.kernelVersion}') container_runtime=$(kubectl get node "$n" -o jsonpath='{.status.nodeInfo.containerRuntimeVersion}')"
 }
 
-{
+want 00 && {
 section "00 versions"
 kubectl version 2>/dev/null | sed -n '1,3p'
 eksctl version 2>/dev/null
@@ -30,7 +47,7 @@ section "00 runtime classes"
 kubectl get runtimeclass isolated-sandbox -o yaml | grep -vE 'creationTimestamp|resourceVersion|uid:|managedFields|generation'
 } 2>&1 | tee "$R/00-environment.txt"
 
-{
+want 01 && {
 section "01 kernel: plain vs sandboxed"
 k apply -f manifests/pair.yaml >/dev/null
 wait_ready pod/plain pod/sandboxed
@@ -41,7 +58,7 @@ for p in plain sandboxed; do
 done
 } 2>&1 | tee "$R/01-kernel.txt"
 
-{
+want 02 && {
 section "02 privileged + hostPID + hostPath /"
 k apply -f manifests/host-access.yaml >/dev/null
 wait_ready pod/escape-plain pod/escape-sandboxed
@@ -62,7 +79,7 @@ imds='T=$(curl -s -m 3 -X PUT http://169.254.169.254/latest/api/token -H "X-aws-
   for p in placement/region placement/availability-zone-id instance-id iam/security-credentials/; do
     echo "  $p -> HTTP $(curl -s -m 3 -o /dev/null -w "%{http_code}" -H "X-aws-ec2-metadata-token: $T" http://169.254.169.254/latest/meta-data/$p)"; done;
   echo "  imdsv1 (no token) -> HTTP $(curl -s -m 3 -o /dev/null -w "%{http_code}" http://169.254.169.254/latest/meta-data/placement/region)"'
-{
+want 03 && {
 section "03 instance metadata and credentials"
 for p in plain sandboxed; do echo "--- $p"; k exec "$p" -- sh -c "$imds"; done
 k apply -f manifests/credentials.yaml >/dev/null
@@ -73,24 +90,27 @@ k exec podid-sandboxed -- sh -c 'aws --version; echo "AWS_CONTAINER_CREDENTIALS_
 } 2>&1 | tee "$R/03-credentials.txt"
 
 net='echo "interfaces: $(ls /sys/class/net | tr "\n" " ")"; echo "https to aws.amazon.com: $(curl -s -m 5 -o /dev/null -w "%{http_code}" https://aws.amazon.com || echo failed)"'
-{
+want 04 && {
 section "04 network-isolated annotation"
 k apply -f manifests/network-isolated.yaml >/dev/null
 wait_ready pod/no-network
 echo "--- sandboxed (normal)"; k exec sandboxed -- sh -c "$net"
 echo "--- no-network"; k exec no-network -- sh -c "$net"
+} 2>&1 | tee "$R/04-network-isolation.txt"
+
+want 05 && {
 section "05 annotation on Deployment metadata vs pod template"
 k apply -f manifests/deployment-annotations.yaml >/dev/null
-k rollout status deploy/wrong-place --timeout=600s >/dev/null
-k rollout status deploy/right-place --timeout=600s >/dev/null
+wait_ready pod -l app=wrong-place
+wait_ready pod -l app=right-place
 for d in wrong-place right-place; do
   echo "--- $d"; k exec deploy/$d -- sh -c "$net"
 done
-} 2>&1 | tee "$R/04-network-isolation.txt"
+} 2>&1 | tee "$R/05-deployment-annotation.txt"
 
-{
-section "06 pod start time, $BATCH pods each, nodes already warm"
-echo "nodes before: $(kubectl get nodes --no-headers | wc -l)"
+want 06 && {
+section "06 pod start time, $BATCH pods each"
+echo "nodes before:"; nodes
 for kind in plain sandboxed; do
   rc=""; [ "$kind" = sandboxed ] && rc="  runtimeClassName: isolated-sandbox"
   for i in $(seq 1 "$BATCH"); do cat <<EOF
@@ -107,19 +127,19 @@ $rc
 ---
 EOF
   done | k apply -f - >/dev/null
-  k wait --for=condition=Ready pod -l batch=start-$kind --timeout=900s >/dev/null
+  wait_ready pod -l batch=start-$kind
   k get pods -l batch=start-$kind -o json | jq -r --arg kind "$kind" '
-    [.items[] | {node: .spec.nodeName,
-      s: ((.status.conditions[] | select(.type=="Ready") | .lastTransitionTime | fromdate)
-          - (.metadata.creationTimestamp | fromdate))}] as $p
-    | ($p | map(.s) | sort) as $s
-    | "\($kind): n=\($s|length) min=\($s[0])s median=\($s[(($s|length)/2|floor)])s max=\($s[-1])s nodes=\($p|map(.node)|unique|length)"'
+    def t($c): (.status.conditions[] | select(.type==$c) | .lastTransitionTime | fromdate);
+    def st(f): (map(f) | sort) as $s | "min \($s[0])s, median \($s[(($s|length)/2|floor)])s, max \($s[-1])s";
+    [.items[] | {node: .spec.nodeName, total: (t("Ready") - (.metadata.creationTimestamp|fromdate)),
+                 to_node: (t("PodScheduled") - (.metadata.creationTimestamp|fromdate)), start: (t("Ready") - t("PodScheduled"))}] as $p
+    | "\($kind): n=\($p|length) on \($p|map(.node)|unique|length) node(s)\n  created->scheduled: \($p|st(.to_node))\n  scheduled->ready:   \($p|st(.start))\n  created->ready:     \($p|st(.total))"'
 done
-echo "nodes after: $(kubectl get nodes --no-headers | wc -l)"
+echo "nodes after:"; nodes
 k delete pod -l 'batch in (start-plain,start-sandboxed)' --wait=false >/dev/null
 } 2>&1 | tee "$R/06-start-time.txt"
 
-{
+want 07 && {
 section "07 throughput to a plain iperf3 server (20 s, first 5 s omitted)"
 k apply -f manifests/throughput.yaml >/dev/null
 wait_ready pod/iperf-server pod/iperf-plain pod/iperf-sbx-default pod/iperf-sbx-raised
@@ -133,6 +153,13 @@ for p in iperf-plain iperf-sbx-default iperf-sbx-raised; do
   echo "$p on $(node_of $p): $(echo "$out" | jq -r '"sent \(.end.sum_sent.bits_per_second/1e6|floor) Mbps, received \(.end.sum_received.bits_per_second/1e6|floor) Mbps, retransmits \(.end.sum_sent.retransmits)"')"
 done
 } 2>&1 | tee "$R/07-throughput.txt"
+
+want 08 && {
+section "08 nodes and where the pods ran"
+nodes
+echo
+k get pods -o custom-columns='POD:.metadata.name,RUNTIME:.spec.runtimeClassName,NODE:.spec.nodeName,MEM_REQ:.spec.containers[0].resources.requests.memory,OVERHEAD:.spec.overhead.memory'
+} 2>&1 | tee "$R/08-nodes.txt"
 
 date -u +"run finished %Y-%m-%dT%H:%M:%SZ" | tee -a "$R/07-throughput.txt"
 echo; echo "ALL RESULTS:"; cat "$R"/*.txt > "$R/all.txt"; echo "results/all.txt written"
