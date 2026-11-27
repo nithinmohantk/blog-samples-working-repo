@@ -2,6 +2,7 @@
 
     python -m bench.cli setup | data | batchwrite | standard | rerun | accelerated
                        | import | errors | verify | teardown
+    python -m bench.cli resume <result-name> <bulk-operation-arn>
 """
 from __future__ import annotations
 
@@ -143,6 +144,27 @@ def run_bulk(name: str, table: str, prefix: str, tier: str, traffic: bool = Fals
     return out
 
 
+def resume(name: str, arn: str) -> dict:
+    """Pick up an operation whose waiting shell was closed (CloudShell times out after ~20 minutes idle).
+
+    The operation keeps running in DynamoDB; this waits for it and saves the result like run_bulk.
+    Wall time is not known here, so only the service's own start and end times are kept.
+    """
+    desc = bulkput.wait(arn, on_poll=lambda s: log(f"  {s['status']} items={s['processed_items']} "
+                                                  f"bytes={s['processed_bytes']}/{s['total_bytes']}"))
+    out = {"table": desc.get("TableName"), "tier": desc.get("PerformanceTier"), "status": desc["BulkOperationStatus"],
+           "wall_seconds": None, "resumed": True,
+           "service_seconds": (desc["EndTime"] - desc["StartTime"]).total_seconds() if desc.get("EndTime") else None,
+           "processed_items": desc.get("ProcessedItemCount"), "failed_items": desc.get("FailedItemCount"),
+           "processed_input_bytes": desc.get("ProcessedInputBytes"), "total_input_bytes": desc.get("TotalInputBytes"),
+           "billed_bytes": bulkput.billed_bytes(desc), "failure": desc.get("FailureCode"),
+           "window": [desc["StartTime"].timestamp(), desc["EndTime"].timestamp()] if desc.get("EndTime") else None,
+           "describe": desc}
+    save(name, out)
+    log(f"{name}: {out['status']} in {out['service_seconds']} s (service time), billed {out['billed_bytes']}")
+    return out
+
+
 def consumed_writes(table: str, start: float, end: float) -> float:
     """Sum of ConsumedWriteCapacityUnits for the table between start and end (1-minute data)."""
     cw = client("cloudwatch")
@@ -257,6 +279,7 @@ def main(argv: list[str]) -> None:
         "import": lambda: save("05-import", importtable.run(TABLE_IMPORT, "full/")),
         "errors": lambda: run_bulk("06-errors", TABLE_ERRORS, "errors/", "STANDARD"),
         "verify": verify,
+        "resume": lambda: resume(argv[2], argv[3]),
         "teardown": teardown,
     }
     if step not in steps:
