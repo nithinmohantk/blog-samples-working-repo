@@ -34,3 +34,13 @@ Results go to `results/`.
 
 `tests/test_bench.py` runs without AWS: data shape, BatchWriteItem retries and the
 StartBulkPutItems request, checked against the botocore 1.44.12 service model with Stubber.
+
+## What was verified
+
+Two runs in AWS CloudShell, eu-west-1, on 26 and 27 November 2026 with boto3 1.44.12; the figures
+are in `results/run-2026-11-27.md`. The first run stopped when CloudShell timed out during the
+Standard bulk put (the operation itself finished and was collected with
+`python -m bench.cli resume`). The second run reused the tables, so its BatchWriteItem and Standard
+loads were overwrites of identical items; both cases are reported. The application-traffic thread
+was slowed by client-side stalls of about 1 s, so its latency figures show only that the median
+did not change and that there were no errors or throttling.
