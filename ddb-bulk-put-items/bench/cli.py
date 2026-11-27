@@ -17,7 +17,7 @@ from concurrent.futures import ThreadPoolExecutor
 from botocore.exceptions import ClientError
 
 from . import batchwrite, bulkput, importtable
-from .common import (DATA_DIR, REGION, RESULTS, TABLE_ACCEL, TABLE_BATCH, TABLE_ERRORS, TABLE_IMPORT,
+from .common import (DATA_DIR, GSI, REGION, RESULTS, TABLE_ACCEL, TABLE_BATCH, TABLE_ERRORS, TABLE_IMPORT,
                      TABLE_STANDARD, TABLES, TAG, Timer, account_id, bucket, client, key_schema,
                      save, wait_table)
 from .data import error_files, write_files
@@ -176,6 +176,22 @@ def consumed_writes(table: str, start: float, end: float) -> float:
     return sum(p["Sum"] for p in resp["Datapoints"])
 
 
+def writes_last_day(table: str, index: str | None = None) -> float:
+    """ConsumedWriteCapacityUnits summed over 24 hours, for the table or one of its GSIs.
+
+    Bulk put items does not consume the table's write capacity, so this separates what
+    BatchWriteItem and the application thread consumed from what the bulk loads wrote.
+    """
+    dims = [{"Name": "TableName", "Value": table}]
+    if index:
+        dims.append({"Name": "GlobalSecondaryIndexName", "Value": index})
+    end = dt.datetime.now(dt.timezone.utc)
+    resp = client("cloudwatch").get_metric_statistics(
+        Namespace="AWS/DynamoDB", MetricName="ConsumedWriteCapacityUnits", Dimensions=dims,
+        StartTime=end - dt.timedelta(hours=24), EndTime=end, Period=3600, Statistics=["Sum"])
+    return sum(p["Sum"] for p in resp["Datapoints"])
+
+
 def count(table: str, segments: int = 8) -> int:
     ddb = client("dynamodb")
 
@@ -224,6 +240,8 @@ def verify() -> None:
     for table in (TABLE_BATCH, TABLE_STANDARD, TABLE_ACCEL, TABLE_IMPORT):
         try:
             out[f"count_{table}"] = count(table)
+            out[f"wcu_24h_{table}"] = writes_last_day(table)
+            out[f"wcu_24h_{table}_gsi"] = writes_last_day(table, GSI)
         except ClientError as err:
             out[f"count_{table}"] = err.response["Error"]["Code"]
     out["reports_rerun"] = reports(TABLE_STANDARD)
