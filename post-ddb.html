@@ -1,0 +1,406 @@
+<!-- wp:paragraph -->
+<p>Loading a large data set into a DynamoDB table that already serves traffic has never had a managed answer. Import from S3 creates a new table and cannot touch an existing one, so backfills, migrations between accounts and partial restores have run as BatchWriteItem loops in Glue, EMR, Step Functions or Lambda fleets. Those loops spend the table's own write capacity, compete with the application for it, and need retry logic for every throttled item.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>On 5 November AWS made bulk put items generally available: a managed, asynchronous job that reads DynamoDB JSON or Ion files from S3 and writes them into an existing table on capacity separate from the application's. I loaded the same million items four ways (a BatchWriteItem loop, bulk put items in both of its performance tiers, and import from S3), then looked at time, what was billed, what the application saw, and what happens when the input is broken.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">How bulk put items works</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>You point a <code>StartBulkPutItems</code> call at an S3 prefix and a table. Every object under the prefix must use the same format (line-delimited DynamoDB JSON or Amazon Ion) and the same compression (gzip, zstd or none). DynamoDB reads the objects in parallel and writes the items with dedicated capacity, so the writes do not consume the table's provisioned or on-demand write capacity. The operation is asynchronous: you poll <code>DescribeBulkOperation</code> by its ARN, and it keeps running if the process that started it goes away.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:merpress/mermaidjs -->
+<div class="wp-block-merpress-mermaidjs diagram-source-mermaid"><pre class="mermaid">%%{init: {'theme':'base','themeVariables':{'signalColor':'#0073BB','signalTextColor':'#0F172A','actorBkg':'#FFF3E0','actorBorder':'#FF9900','actorTextColor':'#232F3E','noteBkgColor':'#FFF8E7','noteBorderColor':'#FF9900','noteTextColor':'#232F3E'}}}%%
+sequenceDiagram
+    participant C as Loader script
+    participant D as DynamoDB bulk operation
+    participant S as Amazon S3
+    C-&gt;&gt;D: StartBulkPutItems (table, input prefix, report prefix, tier, ClientToken)
+    D--&gt;&gt;C: BulkOperationArn, status IN_PROGRESS
+    D-&gt;&gt;S: Read input objects in parallel
+    D-&gt;&gt;D: Validate each record, check its condition, write table and GSIs
+    C-&gt;&gt;D: DescribeBulkOperation (poll)
+    D--&gt;&gt;C: ProcessedItemCount, ProcessedInputBytes / TotalInputBytes
+    D-&gt;&gt;S: Error and condition-failure reports, manifest
+    D--&gt;&gt;C: COMPLETED, COMPLETED_WITH_ERRORS or FAILED, with BulkOperationUsage</pre></div>
+<!-- /wp:merpress/mermaidjs -->
+
+<!-- wp:paragraph -->
+<p>Each line is one record: an <code>Item</code> in DynamoDB JSON and, optionally, a <code>ConditionExpression</code> with its attribute names and values. Without a condition the item overwrites any existing item with the same key. <code>attribute_not_exists(pk)</code> makes a record insert-only, and a version guard such as <code>attribute_not_exists(#v) OR #v &lt; :new</code> lets a re-run write only newer data. The same files, without conditions, are valid input for import from S3.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:code {"language":"json"} -->
+<pre class="wp-block-code"><code class="language-json">{"Item":{"pk":{"S":"order#000000042"},"category":{"S":"cat-02"},"version":{"N":"1"},"amount":{"N":"412.80"},"status":{"S":"PACKED"},"note":{"S":"..."}}}
+{"Item":{"pk":{"S":"order#000000043"},"category":{"S":"cat-03"},"version":{"N":"1"},"amount":{"N":"86.15"},"status":{"S":"NEW"},"note":{"S":"..."}},"ConditionExpression":"attribute_not_exists(pk)"}</code></pre>
+<!-- /wp:code -->
+
+<!-- wp:table {"className":"is-style-stripes"} -->
+<figure class="wp-block-table is-style-stripes"><table><thead><tr><th>Setting</th><th>What it does</th></tr></thead><tbody><tr><td><code>PerformanceTier</code></td><td><code>STANDARD</code> (default, for background loads) or <code>ACCELERATED</code> (finishes faster at a higher rate).</td></tr><tr><td><code>MaxWriteRequestUnits</code></td><td>Caps the operation's write rate (at least 1,024 per second) without changing the table's capacity settings.</td></tr><tr><td><code>ClientToken</code></td><td>Makes the start idempotent for 8 hours: a retried call with the same token and parameters returns the same operation.</td></tr><tr><td><code>OutputS3Configuration.OutputType</code></td><td><code>ERROR</code>, <code>CONDITION_CHECK_FAILURE</code> or both: which records go to the S3 report. The output location is mandatory.</td></tr></tbody></table></figure>
+<!-- /wp:table -->
+
+<!-- wp:paragraph -->
+<p>Two prerequisites matter for scheduling: only one bulk operation can run on a table at a time, and none can start while an index is being created on it. Input objects must not change while the operation runs.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">The test</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>One million synthetic order items of about 1 KB each, in 16 gzip files (111 MB compressed, 953 MB uncompressed), and a table with one keys-only global secondary index on <code>category</code>. Everything ran from AWS CloudShell in eu-west-1 against on-demand tables. The BatchWriteItem baseline used 16 threads, 25 items per call, and retried unprocessed items with full-jitter backoff:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:code {"language":"python"} -->
+<pre class="wp-block-code"><code class="language-python">"""The do-it-yourself baseline: BatchWriteItem in parallel, with unprocessed items retried.
+
+BatchWriteItem takes up to 25 puts per call. Throttled items come back in
+UnprocessedItems rather than as an error, so they must be resent with backoff.
+"""
+from __future__ import annotations
+
+import random
+import threading
+import time
+from concurrent.futures import ThreadPoolExecutor
+from dataclasses import dataclass, field
+from pathlib import Path
+from typing import Iterable
+
+from botocore.exceptions import ClientError
+
+from .common import client
+from .data import read_items
+
+BATCH = 25
+MAX_RETRIES = 12
+
+
+@dataclass
+class Stats:
+    items: int = 0
+    calls: int = 0
+    write_units: float = 0.0
+    unprocessed_retries: int = 0
+    throttle_errors: int = 0
+    lock: threading.Lock = field(default_factory=threading.Lock, repr=False)
+
+    def add(self, **kw) -&gt; None:
+        with self.lock:
+            for k, v in kw.items():
+                setattr(self, k, getattr(self, k) + v)
+
+
+def backoff(attempt: int, base: float = 0.05, cap: float = 5.0) -&gt; float:
+    """Full jitter: a random wait up to an exponentially growing ceiling."""
+    return random.uniform(0, min(cap, base * 2 ** attempt))
+
+
+def write_batch(table: str, items: list[dict], stats: Stats, ddb=None) -&gt; None:
+    ddb = ddb or client("dynamodb")
+    requests = [{"PutRequest": {"Item": it}} for it in items]
+    attempt = 0
+    while requests:
+        try:
+            resp = ddb.batch_write_item(RequestItems={table: requests}, ReturnConsumedCapacity="TOTAL")
+        except ClientError as err:
+            code = err.response["Error"]["Code"]
+            if code not in ("ProvisionedThroughputExceededException", "ThrottlingException",
+                            "RequestLimitExceeded") or attempt &gt;= MAX_RETRIES:
+                raise
+            stats.add(throttle_errors=1)
+            time.sleep(backoff(attempt))
+            attempt += 1
+            continue
+        stats.add(calls=1, write_units=sum(c.get("CapacityUnits", 0) for c in resp.get("ConsumedCapacity", [])))
+        unprocessed = resp.get("UnprocessedItems", {}).get(table, [])
+        stats.add(items=len(requests) - len(unprocessed))
+        if unprocessed:
+            if attempt &gt;= MAX_RETRIES:
+                raise RuntimeError(f"{len(unprocessed)} items still unprocessed after {MAX_RETRIES} retries")
+            stats.add(unprocessed_retries=1)
+            time.sleep(backoff(attempt))
+            attempt += 1
+        requests = unprocessed
+
+
+def chunks(items: Iterable[dict], size: int = BATCH):
+    batch: list[dict] = []
+    for it in items:
+        batch.append(it)
+        if len(batch) == size:
+            yield batch
+            batch = []
+    if batch:
+        yield batch
+
+
+def load(table: str, files: list[Path], workers: int = 16) -&gt; Stats:
+    stats = Stats()
+
+    def one_file(path: Path) -&gt; None:
+        for batch in chunks(read_items(path)):
+            write_batch(table, batch, stats)
+
+    # One thread per file at a time; files are similar in size, so the load stays even.
+    with ThreadPoolExecutor(max_workers=workers) as pool:
+        for future in [pool.submit(one_file, f) for f in files]:
+            future.result()
+    return stats</code></pre>
+<!-- /wp:code -->
+
+<!-- wp:paragraph -->
+<p>The bulk put side starts the operation with a client token, polls until a terminal state, and keeps the usage figures that billing is based on:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:code {"language":"python"} -->
+<pre class="wp-block-code"><code class="language-python">"""Start a bulk put items operation, wait for it, and keep what describe-bulk-operation says."""
+from __future__ import annotations
+
+import time
+import uuid
+
+from .common import bucket, client
+
+TERMINAL = {"COMPLETED", "COMPLETED_WITH_ERRORS", "CANCELLED", "FAILED"}
+
+
+def start(table: str, prefix: str, tier: str = "STANDARD", report_prefix: str | None = None,
+          max_wru: int | None = None, token: str | None = None) -&gt; str:
+    params = {
+        "TableName": table,
+        "InputS3Configuration": {"S3Bucket": bucket(), "S3KeyPrefix": prefix,
+                                 "InputFormat": "DYNAMODB_JSON", "InputCompressionType": "GZIP"},
+        "OutputS3Configuration": {"S3Bucket": bucket(), "S3KeyPrefix": report_prefix or f"reports/{table}/",
+                                  "OutputType": ["ERROR", "CONDITION_CHECK_FAILURE"]},
+        "PerformanceTier": tier,
+        # Idempotent start: a retried call with the same token returns the same operation.
+        "ClientToken": token or f"{table}-{uuid.uuid4()}",
+    }
+    if max_wru:
+        params["MaxWriteRequestUnits"] = max_wru
+    resp = client("dynamodb").start_bulk_put_items(**params)
+    return resp["BulkOperationDescription"]["BulkOperationArn"]
+
+
+def wait(arn: str, poll: float = 15.0, timeout: float = 4 * 3600, on_poll=None) -&gt; dict:
+    """Poll until a terminal state. Counters are periodic snapshots, not live values."""
+    ddb = client("dynamodb")
+    deadline = time.monotonic() + timeout
+    history = []
+    while True:
+        desc = ddb.describe_bulk_operation(BulkOperationArn=arn)["BulkOperationDescription"]
+        snap = {"t": time.time(), "status": desc["BulkOperationStatus"],
+                "processed_items": desc.get("ProcessedItemCount"),
+                "processed_bytes": desc.get("ProcessedInputBytes"),
+                "total_bytes": desc.get("TotalInputBytes")}
+        history.append(snap)
+        if on_poll:
+            on_poll(snap)
+        if desc["BulkOperationStatus"] in TERMINAL:
+            desc["PollHistory"] = history
+            return desc
+        if time.monotonic() &gt; deadline:
+            raise TimeoutError(f"{arn} still {desc['BulkOperationStatus']} after {timeout} s")
+        time.sleep(poll)
+
+
+def billed_bytes(desc: dict) -&gt; dict:
+    """Bytes DynamoDB metered for the table and each index (the basis of the per-GB charge)."""
+    out = {}
+    for usage in desc.get("BulkOperationUsage", []):
+        out["table"] = usage.get("Table", {}).get("BulkPutBytes", 0)
+        for name, gsi in (usage.get("GlobalSecondaryIndexes") or {}).items():
+            out[f"gsi:{name}"] = gsi.get("BulkPutBytes", 0)
+    return out</code></pre>
+<!-- /wp:code -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">Results</h2>
+<!-- /wp:heading -->
+
+<!-- wp:image {"id":18481,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="https://www.dataa.dev/wp-content/uploads/2026/11/dynamodb-bulk-put-items-load-times.jpg" alt="Time to load one million 1 KB items: BatchWriteItem 726 s on an empty table and 148 s on a warmed table; bulk put Standard 1,812 s; bulk put Accelerated 902 s; import from S3 685 s" class="wp-image-18481"/><figcaption class="wp-element-caption">Load time for one million items. Only BatchWriteItem used the table's write capacity.</figcaption></figure>
+<!-- /wp:image -->
+
+<!-- wp:table {"className":"is-style-stripes"} -->
+<figure class="wp-block-table is-style-stripes"><table><thead><tr><th>Method</th><th>Target</th><th>Time</th><th>Capacity used, billing basis</th></tr></thead><tbody><tr><td>BatchWriteItem, 16 threads</td><td>Empty on-demand table</td><td>725.5 s</td><td>2,000,000 write units (table and GSI); 970 retries of unprocessed items</td></tr><tr><td>BatchWriteItem, 16 threads</td><td>Same table, identical items again</td><td>148.1 s</td><td>1,000,000 write units (GSI unchanged); no retries</td></tr><tr><td>Bulk put items, Standard</td><td>Empty table</td><td>1,812.5 s</td><td>None of the table's capacity; 1,024,000,000 bytes table + 1,024,000,000 bytes GSI</td></tr><tr><td>Bulk put items, Standard</td><td>Same table, identical items, application running</td><td>751.6 s</td><td>None; 1,024,000,000 bytes table, 0 bytes GSI</td></tr><tr><td>Bulk put items, Accelerated</td><td>Empty table</td><td>901.5 s</td><td>None; 1,024,000,000 bytes table + 1,024,000,000 bytes GSI</td></tr><tr><td>Import from S3</td><td>New table</td><td>685.3 s</td><td>None; 952,835,854 bytes (uncompressed input)</td></tr></tbody></table></figure>
+<!-- /wp:table -->
+
+<!-- wp:html -->
+<div class="callout callout-info" style="background: #e3f2fd; border-left: 4px solid #2196f3; padding: 16px 20px; margin: 20px 0; border-radius: 4px;"><div style="display: flex; align-items: start;"><span style="font-size: 24px; margin-right: 12px;">ℹ️</span><div><strong style="color: #1976d2; display: block; margin-bottom: 8px;">TWO RUNS, AND WHY BOTH ARE SHOWN</strong><p style="margin: 0; color: #333;">The first run stopped when CloudShell closed an idle session during the Standard load. That operation finished on its own and was collected later by its ARN. The second run reused the tables, so its BatchWriteItem and Standard loads rewrote identical items. Writing into an empty table and overwriting a loaded one turned out to behave differently, so the table shows both. Each figure comes from one run.</p></div></div></div>
+<!-- /wp:html -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Bulk put items is not the fastest way to load data</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>On a warmed table the BatchWriteItem loop finished in under two and a half minutes, five times faster than the Standard overwrite. Even on an empty table, where DynamoDB returned 970 batches with unprocessed items while it scaled the new on-demand table, the loop finished in less than half the Standard tier's time. Accelerated halved Standard's time on an empty table, and import from S3, which builds a new table, was the quickest of the managed options. Pick bulk put items for what it does not take from the table, not for speed, and pick the tier by deadline.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">It leaves the table's capacity to the application</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>CloudWatch showed zero consumed write capacity on the table during the Accelerated load and on the imported table. During the Standard overwrite, the only consumed writes (2,363) were the application thread's own. That thread ran PutItem and GetItem against the table before, during and after the import, with SDK retries off so throttling would show as errors: there were none, and median latency stayed at 5.6 ms for writes and 4.1 to 4.6 ms for reads. The thread itself was slowed by recurring one-second stalls on the CloudShell side, present before the import started, so its 99th percentile reflects the client, not DynamoDB.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:html -->
+<div class="callout callout-warning" style="background: #fff3e0; border-left: 4px solid #ff9800; padding: 16px 20px; margin: 20px 0; border-radius: 4px;"><div style="display: flex; align-items: start;"><span style="font-size: 24px; margin-right: 12px;">⚠️</span><div><strong style="color: #f57c00; display: block; margin-bottom: 8px;">A NEW ON-DEMAND TABLE STILL THROTTLES A BURST</strong><p style="margin: 0; color: #333;">Writing a million items into a freshly created on-demand table, the loop got 970 partial batches back and took 726 s. The same load on the table once it had scaled took 148 s with no retries. If you keep BatchWriteItem for loads, keep the unprocessed-item handling, and for a one-off load into a new table consider warm throughput or a managed import instead of a bigger client fleet.</p></div></div></div>
+<!-- /wp:html -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">What you pay for</h2>
+<!-- /wp:heading -->
+
+<!-- wp:image {"id":18482,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="https://www.dataa.dev/wp-content/uploads/2026/11/dynamodb-bulk-put-items-billing.jpg" alt="Billing rules measured for bulk put items: 1 KB minimum per item, GSI writes billed separately, an overwrite that does not change the index key writes no GSI bytes, condition failures are billed, validation failures are not" class="wp-image-18482"/><figcaption class="wp-element-caption">How bulk put items counts bytes, as measured.</figcaption></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>Bulk put items is billed per byte written, at a rate that depends on the tier and the table class. Each item counts at least 1 KB, larger items count at their size, and every index write is counted separately with its own 1 KB minimum. The run matched that exactly:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list -->
+<ul class="wp-block-list"><!-- wp:list-item -->
+<li><strong>One million items under 1 KB</strong> were billed as 1,024,000,000 bytes for the table, 1 KB each, and the same again for the GSI on an empty table.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li><strong>The overwrite billed no GSI bytes.</strong> The items were identical, so the index key did not change and DynamoDB did not write the index. BatchWriteItem behaved the same way: 2,000,000 write units into the empty table, 1,000,000 for the identical overwrite.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li><strong>Condition failures are billed.</strong> Re-running 100,000 items with <code>attribute_not_exists(pk)</code> wrote nothing and was billed 102,400,000 bytes. An insert-only re-run of a large file is not free.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li><strong>Rejected records are not billed.</strong> In the error run, 1,497 items were written and exactly 1,497 KB were billed per target; the four rejected records cost nothing.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li><strong>Import from S3</strong> is billed on the uncompressed input size, 0.95 GB here, and only works for a new table.</li>
+<!-- /wp:list-item -->
+</ul>
+<!-- /wp:list -->
+
+<!-- wp:paragraph -->
+<p>For a like-for-like estimate, compare write request units for the loop (two per item here, one for the table and one for the index) with bulk-put gigabytes (two per million 1 KB items), at the rates on the DynamoDB pricing page for your Region and tier.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">When the input is broken</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>The error run used two files: 1,000 records with three planted problems (no partition key, a numeric key on a string-keyed table, an item over 400 KB), and 1,000 records with a broken JSON line in the middle. The report and the manifest in S3 showed two kinds of failure:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:code {"language":"text"} -->
+<pre class="wp-block-code"><code class="language-text">itemIndex 100  One or more parameter values were invalid: Missing the key pk in the item
+itemIndex 400  One or more parameter values were invalid: Type mismatch for key pk expected: S actual: N
+itemIndex 700  Item size has exceeded the maximum allowed size
+truncated.json.gz (no itemIndex)  Unexpected token. Remainder of the file will not be processed.
+
+manifest: good-with-bad-records.json.gz  FULLY_PROCESSED      processedRanges [[0,999]]
+          truncated.json.gz              PARTIALLY_PROCESSED  processedRanges [[0,499]]</code></pre>
+<!-- /wp:code -->
+
+<!-- wp:paragraph -->
+<p>Record-level problems were reported with their line number and the rest of the file was loaded. The broken line stopped its file after 500 records, and because DynamoDB could not confirm it had read every byte of the input, the whole operation ended <code>FAILED</code> with <code>ValidationException</code>, even though 1,497 items had been written. Treat <code>FAILED</code> as "some data may have been written": read the manifest's <code>processedRanges</code>, fix the file, and re-run with a condition or version guard so the items already written are skipped.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:html -->
+<div class="callout callout-compliance" style="background: #fce4ec; border-left: 4px solid #e91e63; padding: 16px 20px; margin: 20px 0; border-radius: 4px;"><div style="display: flex; align-items: start;"><span style="font-size: 24px; margin-right: 12px;">⚖️</span><div><strong style="color: #c2185b; display: block; margin-bottom: 8px;">REPORTS CONTAIN YOUR DATA</strong><p style="margin: 0; color: #333;">Condition-failure reports hold the full new and existing item for every skipped record; the 100,000-record re-run produced 32 MB of them. Put the report prefix under the same encryption, access control and retention rules as the table, or request only <code>ERROR</code> output when the data is sensitive.</p></div></div></div>
+<!-- /wp:html -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">Running it in production</h2>
+<!-- /wp:heading -->
+
+<!-- wp:list -->
+<ul class="wp-block-list"><!-- wp:list-item -->
+<li><strong>Start idempotently and record the ARN.</strong> A <code>ClientToken</code> makes retries safe for 8 hours, and the ARN is all you need to find the operation again; in this test the job survived its shell closing twice.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li><strong>Poll gently.</strong> Progress counters arrived in steps about a minute apart, and <code>TotalInputBytes</code> appeared only after the input was validated.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li><strong>One operation per table.</strong> Queue loads per table, and do not schedule them while an index is being added.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li><strong>Make re-runs safe.</strong> Use a version attribute and <code>attribute_not_exists(#v) OR #v &lt; :new</code>, remembering that skipped records are still billed.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li><strong>Check the outcome, not just the status.</strong> Compare <code>ProcessedItemCount</code>, <code>FailedItemCount</code> and the manifest with what you expected, and alert on <code>COMPLETED_WITH_ERRORS</code> as well as <code>FAILED</code>.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li><strong>Size files evenly.</strong> The operation reads objects in parallel; sixteen similar files kept progress even.</li>
+<!-- /wp:list-item -->
+</ul>
+<!-- /wp:list -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">Which loader to use</h2>
+<!-- /wp:heading -->
+
+<!-- wp:table {"className":"is-style-stripes"} -->
+<figure class="wp-block-table is-style-stripes"><table><thead><tr><th>Situation</th><th>Use</th></tr></thead><tbody><tr><td>Load into a table that is serving traffic</td><td>Bulk put items; Standard if hours are fine, Accelerated for a deadline</td></tr><tr><td>Seed a new table</td><td>Import from S3: fastest managed option here, no table capacity used</td></tr><tr><td>Small or continuous writes, or logic per item</td><td>BatchWriteItem or PutItem from your own code</td></tr><tr><td>Fastest possible one-off load and the table is idle</td><td>A parallel BatchWriteItem loop, with unprocessed-item retries and warm throughput for a new table</td></tr><tr><td>Re-runnable sync between accounts or Regions</td><td>Bulk put items with version-guard conditions</td></tr></tbody></table></figure>
+<!-- /wp:table -->
+
+<!-- wp:paragraph -->
+<p>This article continues the DynamoDB thread on this blog: see <a href="https://www.dataa.dev/2026/04/17/multi-region-active-active-serverless-patterns-with-global-tables/">multi-Region active-active with global tables</a> and <a href="https://www.dataa.dev/2026/05/12/amazon-aurora-dsql-vs-dynamodb-global-tables-the-multi-region-reality/">Aurora DSQL vs DynamoDB global tables</a>.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">Key takeaways</h2>
+<!-- /wp:heading -->
+
+<!-- wp:list -->
+<ul class="wp-block-list"><!-- wp:list-item -->
+<li>Bulk put items loads S3 data into an existing DynamoDB table without using the table's write capacity; the application saw no errors and no change in median latency.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li>It is not the fastest loader: 1M items took 1,812 s on Standard and 902 s on Accelerated, against 148 to 726 s for a 16-thread BatchWriteItem loop.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li>Billing is per byte with a 1 KB minimum per item and per index write; overwrites that leave index keys unchanged write no index bytes.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li>Records that fail their condition are billed; records rejected by validation are not.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li>One broken line fails the whole operation after writing everything it could, so make re-runs safe with conditions and read the manifest.</li>
+<!-- /wp:list-item -->
+</ul>
+<!-- /wp:list -->
+
+<!-- wp:paragraph -->
+<p>Where would you use it first: a backfill, a cross-account migration or a scheduled sync? Let me know in the comments.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:html -->
+<div class="callout callout-note" style="background: #f5f5f5; border-left: 4px solid #607d8b; padding: 16px 20px; margin: 20px 0; border-radius: 4px;"><div style="display: flex; align-items: start;"><span style="font-size: 24px; margin-right: 12px;">📝</span><div><strong style="color: #455a64; display: block; margin-bottom: 8px;">HOW THIS WAS CHECKED</strong><p style="margin: 0; color: #333;">Everything ran from AWS CloudShell in eu-west-1 with boto3 1.44.12, against on-demand tables with one keys-only GSI. Times are service times from DescribeBulkOperation and DescribeImport, or wall time where the run measured it; capacity figures come from CloudWatch ConsumedWriteCapacityUnits and from ReturnConsumedCapacity. Each configuration was run once, so treat the times as one data point each. The application-traffic thread was slowed by client-side stalls, so it supports "no errors, no median change" and nothing finer. No per-GB prices are quoted because the pricing page did not show Regional rates; check it for your Region. All tables, the bucket and the budget alert were deleted afterwards.</p></div></div></div>
+<!-- /wp:html -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">Glossary</h2>
+<!-- /wp:heading -->
+
+<!-- wp:html -->
+<dl style="background:#F6F8FA;border:1px solid #D0D7DE;border-radius:8px;padding:20px 24px;margin:24px 0"><dt style="font-weight:700;color:#24292F;margin-top:12px">Bulk put items</dt><dd style="margin:4px 0 0 20px;color:#57606A">A managed, asynchronous DynamoDB operation that writes items from S3 files into an existing table on capacity separate from the table's.</dd><dt style="font-weight:700;color:#24292F;margin-top:12px">Bulk operation</dt><dd style="margin:4px 0 0 20px;color:#57606A">One StartBulkPutItems job, identified by its ARN and tracked with DescribeBulkOperation.</dd><dt style="font-weight:700;color:#24292F;margin-top:12px">Performance tier</dt><dd style="margin:4px 0 0 20px;color:#57606A">STANDARD or ACCELERATED: how fast the operation runs and the rate it is billed at.</dd><dt style="font-weight:700;color:#24292F;margin-top:12px">BulkPutBytes</dt><dd style="margin:4px 0 0 20px;color:#57606A">Bytes an operation is billed for, reported separately for the table and each GSI.</dd><dt style="font-weight:700;color:#24292F;margin-top:12px">BatchWriteItem</dt><dd style="margin:4px 0 0 20px;color:#57606A">The DynamoDB API that writes or deletes up to 25 items per call, using the table's write capacity.</dd><dt style="font-weight:700;color:#24292F;margin-top:12px">UnprocessedItems</dt><dd style="margin:4px 0 0 20px;color:#57606A">Items a BatchWriteItem call did not write, usually because of throttling, which the caller must resend.</dd><dt style="font-weight:700;color:#24292F;margin-top:12px">Import from S3</dt><dd style="margin:4px 0 0 20px;color:#57606A">ImportTable: loads S3 data into a new table it creates.</dd><dt style="font-weight:700;color:#24292F;margin-top:12px">Condition expression</dt><dd style="margin:4px 0 0 20px;color:#57606A">A per-record test that must be true for the write to happen, such as attribute_not_exists(pk).</dd><dt style="font-weight:700;color:#24292F;margin-top:12px">Manifest</dt><dd style="margin:4px 0 0 20px;color:#57606A">The file a bulk operation writes to S3 that lists each input object, its processing status and the record ranges processed.</dd><dt style="font-weight:700;color:#24292F;margin-top:12px">Write request unit</dt><dd style="margin:4px 0 0 20px;color:#57606A">The on-demand unit for writes: one write of up to 1 KB.</dd></dl>
+<!-- /wp:html -->
+
+<!-- wp:html -->
+<div class="callout callout-tip sample-code-link" style="background: #e8f5e9; border-left: 4px solid #4caf50; padding: 16px 20px; margin: 20px 0; border-radius: 4px;"><div style="display: flex; align-items: start;"><span style="font-size: 24px; margin-right: 12px;">💡</span><div><strong style="color: #388e3c; display: block; margin-bottom: 8px;">GET THE CODE</strong><p style="margin: 0; color: #333;">The complete sample for this article is on GitHub: <a href="https://github.com/nithinmohantk/blog-samples-working-repo/tree/main/ddb-bulk-put-items" target="_blank" rel="noopener">nithinmohantk/blog-samples-working-repo/ddb-bulk-put-items</a>. Clone it with <code>git clone https://github.com/nithinmohantk/blog-samples-working-repo.git</code> and open the <code>ddb-bulk-put-items</code> folder. Its README says how to run it and what has been verified.</p></div></div></div>
+<!-- /wp:html -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">References &amp; Further Reading</h2>
+<!-- /wp:heading -->
+
+<!-- wp:html -->
+<ul style="background:#F6F8FA;border:1px solid #D0D7DE;border-radius:8px;padding:20px 24px;margin:24px 0;list-style:none"><li style="margin:10px 0"><a href="https://aws.amazon.com/blogs/database/introducing-bulk-put-items-for-amazon-dynamodb-load-data-from-amazon-s3-into-existing-tables-at-scale/" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; Introducing bulk put items for Amazon DynamoDB</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— AWS Database Blog launch post</span></li><li style="margin:10px 0"><a href="https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/BulkPutItems.Format.html" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; DynamoDB JSON input format for bulk put items</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— Record format, conditions, validation errors</span></li><li style="margin:10px 0"><a href="https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/BulkPutItems.Requesting.html" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; Requesting a bulk put items operation</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— Start and describe, output types, prerequisites</span></li><li style="margin:10px 0"><a href="https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_StartBulkPutItems.html" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; StartBulkPutItems API reference</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— Parameters, tiers, MaxWriteRequestUnits, ClientToken</span></li><li style="margin:10px 0"><a href="https://aws.amazon.com/dynamodb/pricing/on-demand/" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; Amazon DynamoDB on-demand pricing</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— Bulk put items and import billing rules</span></li><li style="margin:10px 0"><a href="https://github.com/nithinmohantk/blog-samples-working-repo/tree/main/ddb-bulk-put-items" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; Sample code for this article</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— Loader, tests and results</span></li></ul>
+<!-- /wp:html -->
