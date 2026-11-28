@@ -100,6 +100,7 @@ Each folder has its own README that says what the code does, how to run it, and 
 | `nitro-sandboxes-eks` | [AWS Nitro Sandboxes on Amazon EKS: What Changes for a Pod, Tested on Auto Mode](https://www.dataa.dev/2026/11/22/aws-nitro-sandboxes-on-amazon-eks-what-changes-for-a-pod/) | Bash, Kubernetes YAML |
 | `graphql-over-http-conformance` | [GraphQL over HTTP, September 2026 Edition: Six Servers Tested Against the First Specification](https://www.dataa.dev/2026/11/24/graphql-over-http-september-2026-edition-six-servers-tested/) | Node.js, Python |
 | `ddb-bulk-put-items` | [DynamoDB Bulk Put Items: Loading a Million Items into a Live Table, Measured Against BatchWriteItem and Import from S3](https://www.dataa.dev/2026/11/26/dynamodb-bulk-put-items-measured-against-batchwriteitem-and-import-from-s3/) | Python |
+| `k8s-138-upgrade-readiness` | [Kubernetes 1.38 Preview: Breaking Changes, Removals and an Upgrade Readiness Check](https://www.dataa.dev/2026/11/28/kubernetes-1-38-preview-breaking-changes-upgrade-readiness/) | Python, Kubernetes YAML, Bash |
 
 ## Verification status
 

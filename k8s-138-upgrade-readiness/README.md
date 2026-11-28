@@ -47,6 +47,17 @@ kubectl get pods -A -o yaml > pods.yaml
 - Field names, feature gates and the swap rule were read from the Kubernetes
   source at `master` commit `ce9710e5` (27 Nov 2026) and tag `v1.38.0-beta.0`,
   and from the v1.38 sneak peek of 23 Nov 2026.
+- `ci.sh` runs in GitHub Actions (`.github/workflows/k8s-138.yml`) and publishes
+  its output to the `ci-results-k8s-138` branch. Run of 28 Nov 2026: kind v0.33.0,
+  Kubernetes v1.37.0, containerd 2.3.4, kubectl v1.37.3 and v1.38.0-beta.0.
+  - `KUBECTL_REMOTE_COMMAND_WEBSOCKETS=false`: kubectl v1.37.3 used SPDY/3.1,
+    kubectl v1.38.0-beta.0 ignored it and used WebSockets.
+  - kuberc: v1.37.3 rejects a `v1` file (`no valid preferences found`);
+    v1.38.0-beta.0 reads `v1beta1` with `name`, reads `v1` with `command`, and
+    fails on `v1` with `name` (`empty allowlist entry #1`).
+  - Server dry run of `fixtures/before/webhooks.yaml` on v1.37.0 returns one
+    warning per named review resource and none for the wildcard rule.
+  - `fixtures/before/report-worker.yaml` is accepted on v1.37.0; pods are `Burstable`.
 
 ## Limits
 
@@ -54,7 +65,8 @@ kubectl get pods -A -o yaml > pods.yaml
   follow the announced changes and must be re-read against the final release notes.
 - `LegacyCgroupDriverFallback` and the kubelet's rejection of `cgroupDriver`
   were announced in the sneak peek but were not in `master` at the commit above.
-- Nothing here ran against a v1.38 cluster.
+- No v1.38 control plane or kubelet was run. The swap and cgroup driver checks
+  follow the announcement and the source.
 - Helm templates are skipped until rendered (`helm template` first).
 - `K138-SWAP` does not model the case where the pod-level memory request is
   left out and containers set their own requests.
