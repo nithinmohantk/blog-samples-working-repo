@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: report-worker
+  namespace: reporting
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: report-worker
+  template:
+    metadata:
+      labels:
+        app: report-worker
+    spec:
+      resources:
+        requests:
+          cpu: "1"
+          memory: 1536Mi
+        limits:
+          memory: 2Gi
+      containers:
+        - name: worker
+          image: registry.example.com/reporting/worker:4.2.0
+          resources:
+            requests:
+              memory: 1Gi
+            limits:
+              memory: 1536Mi
+        - name: log-shipper
+          image: registry.example.com/platform/log-shipper:1.9.3

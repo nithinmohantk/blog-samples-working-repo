@@ -1,0 +1,72 @@
+name: Kubernetes 1.38 upgrade readiness
+
+on:
+  push:
+    paths:
+      - "k8s-138-upgrade-readiness/**"
+      - ".github/workflows/k8s-138.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write   # only to publish the result files to a results branch
+
+concurrency:
+  group: k8s-138-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  readiness:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: kind, stable kubectl and the v1.38 pre-release kubectl
+        run: |
+          mkdir -p "$HOME/bin"
+          curl -fsSLo "$HOME/bin/kind" https://github.com/kubernetes-sigs/kind/releases/latest/download/kind-linux-amd64
+          stable="$(curl -fsSL https://dl.k8s.io/release/stable.txt)"
+          curl -fsSLo "$HOME/bin/kubectl-old" "https://dl.k8s.io/release/${stable}/bin/linux/amd64/kubectl"
+          curl -fsSLo "$HOME/bin/kubectl-new" https://dl.k8s.io/release/v1.38.0-beta.0/bin/linux/amd64/kubectl
+          chmod +x "$HOME/bin/kind" "$HOME/bin/kubectl-old" "$HOME/bin/kubectl-new"
+          echo "$HOME/bin" >> "$GITHUB_PATH"
+
+      - name: Python packages
+        run: pip install -q -r k8s-138-upgrade-readiness/requirements.txt
+
+      - name: Run the checks
+        id: samples
+        continue-on-error: true
+        env:
+          KUBECTL_NEW: /home/runner/bin/kubectl-new
+          KUBECTL_OLD: /home/runner/bin/kubectl-old
+        run: ./k8s-138-upgrade-readiness/ci.sh "$GITHUB_WORKSPACE/out/k8s-138-upgrade-readiness"
+
+      - name: Publish the results
+        if: always()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p out
+          {
+            echo "commit: $GITHUB_SHA"
+            echo "run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+            echo "date: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            echo "samples: ${{ steps.samples.outcome }}"
+          } > out/run.txt
+          publish="$RUNNER_TEMP/publish"
+          rm -rf "$publish" && mkdir -p "$publish" && cp -r out/. "$publish/"
+          cd "$publish"
+          git init -q -b ci-results-k8s-138
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -q -m "Results for $GITHUB_SHA"
+          git push -f "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" ci-results-k8s-138
+
+      - name: Fail the build if a check failed
+        if: steps.samples.outcome != 'success'
+        run: exit 1

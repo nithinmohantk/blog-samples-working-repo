@@ -1,0 +1,18 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: label-defaulter
+webhooks:
+  - name: labels.platform.example.com
+    admissionReviewVersions: ["v1"]
+    sideEffects: None
+    clientConfig:
+      service:
+        namespace: platform
+        name: label-defaulter
+        path: /mutate
+    rules:
+      - apiGroups: ["", "apps", "batch"]
+        apiVersions: ["v1"]
+        operations: ["CREATE"]
+        resources: ["pods", "deployments", "statefulsets", "jobs"]
