@@ -1,0 +1,871 @@
+<!-- wp:paragraph -->
+<p>Kubernetes v1.38 is planned for Wednesday 16 December 2026. The release team's <a href="https://kubernetes.io/blog/2026/11/23/kubernetes-v1-38-sneak-peek/" target="_blank" rel="noopener">sneak peek</a> of 23 November lists two removals in kubectl, two breaking changes on the node, two longer-running changes that reach another stage, and four enhancements expected to graduate or arrive.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Most of this release is quiet for workloads. The parts that need attention sit at the edges of a platform: developer workstations and CI images that carry kubectl settings, kubelet configuration files that still name a cgroup driver, admission webhooks that expect to see access reviews, and pods on swap-enabled nodes that use pod-level resources.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>This article goes through each change from the point of view of an upgrade, records which of them were already in the Kubernetes source tree when it was written, and ends with a small scanner that finds the affected files in a repository before the upgrade does.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">Release status</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>A sneak peek describes intent. Features can slip between the announcement and the release, so each item below was compared with the <code>v1.38.0-beta.0</code> tag and with <code>master</code> at commit <code>ce9710e5</code> of 27 November 2026, ten days after code freeze.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:table {"className":"is-style-stripes"} -->
+<figure class="wp-block-table is-style-stripes"><table><thead><tr><th>Change</th><th>Announced</th><th>State in the source tree</th></tr></thead><tbody><tr><td>kubectl WebSocket opt-out variables</td><td>Removed</td><td>Removed. In the changelog since v1.38.0-alpha.3.</td></tr><tr><td>kuberc</td><td>Stable</td><td><code>kubectl.config.k8s.io/v1</code> is present; its allowlist entry has <code>command</code> only.</td></tr><tr><td>Pod-level resources</td><td>Stable</td><td><code>PodLevelResources</code> is GA and locked on in master. It was still beta at beta.0.</td></tr><tr><td>DRA partitionable devices</td><td>Stable</td><td><code>DRAPartitionableDevices</code> is GA and locked on.</td></tr><tr><td>Swap with pod-level resources</td><td>Behaviour change</td><td>The kubelet sets the pod cgroup swap limit from pod-level memory.</td></tr><tr><td>Cgroup driver from the runtime only</td><td>Breaking change</td><td>Not in master at that commit: no <code>LegacyCgroupDriverFallback</code> gate, and kubeadm still defaults <code>cgroupDriver</code> to <code>systemd</code>.</td></tr><tr><td>Review requests excluded from webhooks</td><td>Ongoing</td><td><code>ExcludeAdmissionWebhookVirtualResources</code> is beta and on by default, as in v1.37.</td></tr><tr><td>EvictionRequest API</td><td>Alpha</td><td><code>lifecycle.k8s.io/v1alpha1</code> types and a controller are present; the gate is off by default.</td></tr></tbody></table></figure>
+<!-- /wp:table -->
+
+<!-- wp:html -->
+<div class="callout callout-info" style="background: #e3f2fd; border-left: 4px solid #2196f3; padding: 16px 20px; margin: 20px 0; border-radius: 4px;"><div style="display: flex; align-items: start;"><span style="font-size: 24px; margin-right: 12px;">ℹ️</span><div><strong style="color: #1976d2; display: block; margin-bottom: 8px;">PRE-RELEASE STATUS</strong><p style="margin: 0; color: #333;">Everything here describes a release that has not shipped. The cgroup driver change is the one to watch: it was announced with a pull request reference and had not merged into master by 27 November. Read the final v1.38 release notes before acting on that item.</p></div></div></div>
+<!-- /wp:html -->
+
+<!-- wp:image {"sizeSlug":"full","linkDestination":"none"} -->
+<figure class="wp-block-image size-full"><img src="{{IMG1}}" alt="Kubernetes 1.38 changes grouped as removed, breaking behaviour, and graduating or new"/><figcaption class="wp-element-caption">The v1.38 changes that matter for an upgrade, grouped by the kind of action they need.</figcaption></figure>
+<!-- /wp:image -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">kubectl changes</h2>
+<!-- /wp:heading -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">WebSocket opt-out variables</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>kubectl has used WebSockets by default for <code>exec</code>, <code>attach</code> and <code>cp</code> since v1.30 and for <code>port-forward</code> since v1.31. Two environment variables let a user switch back to SPDY: <code>KUBECTL_REMOTE_COMMAND_WEBSOCKETS</code> and <code>KUBECTL_PORT_FORWARD_WEBSOCKETS</code>. Both are removed in v1.38. kubectl tries WebSockets first and falls back to SPDY when the server side cannot upgrade, which is what it already does by default.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>The difference is visible on the wire. With <code>KUBECTL_REMOTE_COMMAND_WEBSOCKETS=false</code>, kubectl v1.37.3 sent <code>Upgrade: SPDY/3.1</code> for an <code>exec</code>; kubectl v1.38.0-beta.0 with the same variable negotiated a WebSocket (<code>v5.channel.k8s.io</code>) against the same v1.37.0 cluster.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>The variables are ignored after the upgrade, so nothing fails at the point where they are set. The risk is in why they were set. A script that exports them usually does so because a proxy or load balancer between the client and the API server mishandled the WebSocket upgrade. Test <code>kubectl exec</code> and <code>kubectl port-forward</code> through that path with a v1.38 client before the client is rolled out to CI images.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">kuberc</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>kuberc is a separate kubectl file for user preferences: command aliases, default option values and a policy for exec credential plugins. It holds no cluster details or credentials, and lives at <code>$HOME/.kube/kuberc</code> unless <code>--kuberc</code> or the <code>KUBERC</code> variable points elsewhere. It graduates to stable in v1.38 with the API version <code>kubectl.config.k8s.io/v1</code>.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>One field does not make the move. In the beta API an entry in <code>credentialPluginAllowlist</code> could use <code>name</code> as an alias for <code>command</code>. The alias has been deprecated since v1.36 and is absent from the v1 type. A beta file that uses it looks like this:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:code {"language": "yaml"} -->
+<pre class="wp-block-code"><code lang="yaml" class="language-yaml">apiVersion: kubectl.config.k8s.io/v1beta1
+kind: Preference
+defaults:
+  - command: apply
+    options:
+      - name: server-side
+        default: "true"
+  - command: delete
+    options:
+      - name: interactive
+        default: "true"
+credentialPluginPolicy: Allowlist
+credentialPluginAllowlist:
+  - name: aws
+  - command: /usr/local/bin/kubelogin</code></pre>
+<!-- /wp:code -->
+
+<!-- wp:paragraph -->
+<p>The stable form uses <code>command</code> on every entry:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:code {"language": "yaml"} -->
+<pre class="wp-block-code"><code lang="yaml" class="language-yaml">apiVersion: kubectl.config.k8s.io/v1
+kind: Preference
+defaults:
+  - command: apply
+    options:
+      - name: server-side
+        default: "true"
+  - command: delete
+    options:
+      - name: interactive
+        default: "true"
+credentialPluginPolicy: Allowlist
+credentialPluginAllowlist:
+  - command: aws
+  - command: /usr/local/bin/kubelogin</code></pre>
+<!-- /wp:code -->
+
+<!-- wp:paragraph -->
+<p>The credential plugin policy is a security control. With <code>Allowlist</code>, kubectl runs only the exec plugins listed, which limits what a kubeconfig file from an untrusted source can execute on a workstation. A v1 file that keeps the old key does not degrade quietly: kubectl v1.38.0-beta.0 reported the unknown field, then stopped with <code>misconfigured credential plugin allowlist: empty allowlist entry #1</code> and exit code 1, for every command.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Change the API version last. kubectl v1.37.3 given the v1 file failed with <code>no valid preferences found</code>, while the v1.38 pre-release client still read the <code>v1beta1</code> file, alias included. A shared kuberc file should therefore move to <code>command</code> entries now and stay on <code>v1beta1</code> until every workstation and CI image has a v1.38 client.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">Node changes</h2>
+<!-- /wp:heading -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Cgroup driver discovery</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>The kubelet and the container runtime must agree on the cgroup driver, <code>systemd</code> or <code>cgroupfs</code>. For years that agreement was manual: the same value was written into the kubelet configuration and the runtime configuration, and a mismatch left a node unstable or unable to run pods. KEP-4033 replaced the manual step with a CRI call, <code>RuntimeConfig</code>, through which the runtime reports its driver. The feature has been stable since v1.34.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>The sneak peek announces the next step for v1.38. The kubelet stops accepting the legacy mechanism by default: the <code>cgroupDriver</code> field in the kubelet configuration is deprecated and rejected unless the temporary <code>LegacyCgroupDriverFallback</code> feature gate is enabled. kubeadm no longer writes <code>cgroupDriver: systemd</code>, and its preflight checks report an error when the runtime does not support the call.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:merpress/mermaidjs -->
+<div class="wp-block-merpress-mermaidjs diagram-source-mermaid"><pre class="mermaid">%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#FFF3E0', 'primaryTextColor': '#232F3E', 'primaryBorderColor': '#FF9900', 'lineColor': '#232F3E', 'clusterBkg': '#F8FAFC', 'clusterBorder': '#CBD5E1', 'edgeLabelBackground': '#FFFFFF', 'nodeTextColor': '#232F3E'}}}%%
+flowchart TD
+    A[Kubelet starts] --> B{cgroupDriver set in kubelet configuration}
+    B -- "Yes, fallback gate off" --> R[Configuration rejected]
+    B -- "No, or fallback gate on" --> C{Runtime answers RuntimeConfig over CRI}
+    C -- Yes --> D[Use the driver the runtime reports]
+    C -- "No, after retries" --> E{LegacyCgroupDriverFallback enabled}
+    E -- Yes --> F[Use cgroupDriver from kubelet configuration]
+    E -- No --> G[Exit with an error before the node registers]
+    classDef ok fill:#F0FFF4,stroke:#1D8102,stroke-width:2px,color:#145202
+    classDef bad fill:#FEF2F2,stroke:#D13212,stroke-width:2px,color:#991B1B
+    classDef step fill:#FFF3E0,stroke:#FF9900,stroke-width:2px,color:#232F3E
+    classDef ask fill:#EBF8FF,stroke:#0073BB,stroke-width:2px,color:#004C74
+    class A,F step
+    class B,C,E ask
+    class D ok
+    class R,G bad</pre></div>
+<!-- /wp:merpress/mermaidjs -->
+
+<!-- wp:paragraph -->
+<p>Two operational consequences follow. The runtime must be running before the kubelet starts, because the kubelet now depends on its answer; a kubelet that cannot get the driver after retrying exits before the node registers. And runtimes that predate the call are no longer usable. KEP-4033 names containerd 1.7 as the last supported runtime without it and sets the minimums at containerd 2.0 and CRI-O 1.28. The <code>CONTAINER-RUNTIME</code> column of <code>kubectl get nodes -o wide</code> shows what each node runs.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>The field is not always in a file you wrote. A kind v0.33.0 cluster on Kubernetes v1.37.0, which kubeadm builds, reported <code>"cgroupDriver": "systemd"</code> from the kubelet's <code>configz</code> endpoint although no one typed it. Read the running configuration of a node with <code>kubectl get --raw "/api/v1/nodes/NODE/proxy/configz"</code> to see what the kubelet is using, and check the release notes for how <code>kubeadm upgrade</code> treats the stored value.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>A kubelet configuration that needs attention, from the sample fixtures:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:code {"language": "yaml"} -->
+<pre class="wp-block-code"><code lang="yaml" class="language-yaml">apiVersion: kubelet.config.k8s.io/v1beta1
+kind: KubeletConfiguration
+cgroupDriver: systemd
+failCgroupV1: false
+memorySwap:
+  swapBehavior: LimitedSwap</code></pre>
+<!-- /wp:code -->
+
+<!-- wp:html -->
+<div class="callout callout-warning" style="background: #fff3e0; border-left: 4px solid #ff9800; padding: 16px 20px; margin: 20px 0; border-radius: 4px;"><div style="display: flex; align-items: start;"><span style="font-size: 24px; margin-right: 12px;">⚠️</span><div><strong style="color: #f57c00; display: block; margin-bottom: 8px;">RUNTIME START ORDER</strong><p style="margin: 0; color: #333;">Check the unit ordering on node images you build yourself. If the kubelet can start before containerd or CRI-O is ready to serve CRI, a reboot can leave the node unregistered. Managed node groups get this from the provider's image; custom images and bare-metal nodes do not.</p></div></div></div>
+<!-- /wp:html -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">cgroup v1</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>The second line in that file, <code>failCgroupV1: false</code>, is the setting that has allowed the kubelet to start on cgroup v1 hosts since v1.35. It remains available in v1.38. KEP-5573 covers the removal of cgroup v1 support in a later release, so a node pool that still needs the setting has a migration to schedule, not an action for this upgrade.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">Pod-level resources and swap</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Pod-level resources let a pod declare CPU, memory and hugepages requests and limits once, in <code>spec.resources</code>, for all of its containers together. Containers may still set their own values inside that budget. When both levels are present, the pod-level values are the ones used for scheduling and for the pod's quality-of-service class. The feature has been on by default since v1.34 and is expected to be stable in v1.38, with its feature gate locked on. It is not supported for Windows pods.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>The graduation brings one behaviour change on Linux nodes that use cgroup v2 and are configured with <code>LimitedSwap</code>. The kubelet applies swap limits from the pod-level memory settings. If the pod-level memory request equals the pod-level memory limit, the pod gets no swap. That holds for every container in it, including a container whose own memory request is lower than its limit.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>The fixture below is a Deployment that this change affects:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:code {"language": "yaml"} -->
+<pre class="wp-block-code"><code lang="yaml" class="language-yaml">apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: report-worker
+  namespace: reporting
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: report-worker
+  template:
+    metadata:
+      labels:
+        app: report-worker
+    spec:
+      resources:
+        requests:
+          cpu: "1"
+          memory: 2Gi
+        limits:
+          memory: 2Gi
+      containers:
+        - name: worker
+          image: registry.example.com/reporting/worker:4.2.0
+          resources:
+            requests:
+              memory: 1Gi
+            limits:
+              memory: 1536Mi
+        - name: log-shipper
+          image: registry.example.com/platform/log-shipper:1.9.3</code></pre>
+<!-- /wp:code -->
+
+<!-- wp:paragraph -->
+<p>The pod-level memory request and limit are both 2Gi. The <code>worker</code> container sets a 1Gi request under a 1536Mi limit, which on its own describes a container that may burst. Under the v1.38 rule the pod-level pair decides, and the pod is not given swap on a <code>LimitedSwap</code> node. On a v1.37.0 cluster the API server accepted this manifest and gave its pods the <code>Burstable</code> class, because the CPU request has no matching limit. A pod can be Burstable and still be excluded from swap; the memory pair is what counts.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:html -->
+<div class="callout callout-warning" style="background: #fff3e0; border-left: 4px solid #ff9800; padding: 16px 20px; margin: 20px 0; border-radius: 4px;"><div style="display: flex; align-items: start;"><span style="font-size: 24px; margin-right: 12px;">⚠️</span><div><strong style="color: #f57c00; display: block; margin-bottom: 8px;">SWAP-DEPENDENT WORKLOADS</strong><p style="margin: 0; color: #333;">A pod that has been leaning on swap to absorb short memory peaks will meet its memory limit sooner after the upgrade, and the result is an OOM kill, not a slowdown. Find these pods before the node upgrade and decide for each one whether to lower the pod-level request or raise the limit.</p></div></div></div>
+<!-- /wp:html -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">Admission webhooks and review resources</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Since v1.37 the API server no longer sends admission webhooks the virtual writes made to six authentication and authorization resources: <code>TokenReview</code>, <code>SelfSubjectReview</code>, <code>SubjectAccessReview</code>, <code>SelfSubjectAccessReview</code>, <code>LocalSubjectAccessReview</code> and <code>SelfSubjectRulesReview</code>. These objects are never stored; creating one is how a client asks who it is or whether an action is allowed. The behaviour is controlled by the <code>ExcludeAdmissionWebhookVirtualResources</code> feature gate, on by default.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>A webhook configuration whose rules name one of these resources still applies cleanly, with a deprecation warning on create and update, and the API server logs the affected configurations at startup. The webhook itself is not called. A configuration of that kind:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:code {"language": "yaml"} -->
+<pre class="wp-block-code"><code lang="yaml" class="language-yaml">apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
+metadata:
+  name: access-review-recorder
+webhooks:
+  - name: reviews.audit.example.com
+    admissionReviewVersions: ["v1"]
+    sideEffects: None
+    failurePolicy: Ignore
+    clientConfig:
+      service:
+        namespace: audit
+        name: review-recorder
+        path: /validate
+    rules:
+      - apiGroups: ["authorization.k8s.io"]
+        apiVersions: ["v1"]
+        operations: ["CREATE"]
+        resources: ["subjectaccessreviews", "selfsubjectaccessreviews"]
+      - apiGroups: ["authentication.k8s.io"]
+        apiVersions: ["v1"]
+        operations: ["CREATE"]
+        resources: ["tokenreviews"]
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: label-defaulter
+webhooks:
+  - name: labels.platform.example.com
+    admissionReviewVersions: ["v1"]
+    sideEffects: None
+    clientConfig:
+      service:
+        namespace: platform
+        name: label-defaulter
+        path: /mutate
+    rules:
+      - apiGroups: ["*"]
+        apiVersions: ["*"]
+        operations: ["CREATE"]
+        resources: ["*"]</code></pre>
+<!-- /wp:code -->
+
+<!-- wp:paragraph -->
+<p>The first configuration exists only to observe access reviews and has been inert since the cluster reached v1.37. A server-side dry run against v1.37.0 returns one warning for each named resource:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:code {"language": "text"} -->
+<pre class="wp-block-code"><code lang="text" class="language-text">$ kubectl apply --dry-run=server -f fixtures/before/webhooks.yaml
+Warning: webhooks[0].rules[0]: subjectaccessreviews.authorization.k8s.io is excluded from admission webhooks; this rule will have no effect
+Warning: webhooks[0].rules[0]: selfsubjectaccessreviews.authorization.k8s.io is excluded from admission webhooks; this rule will have no effect
+Warning: webhooks[0].rules[1]: tokenreviews.authentication.k8s.io is excluded from admission webhooks; this rule will have no effect
+validatingwebhookconfiguration.admissionregistration.k8s.io/access-review-recorder created (server dry run)
+mutatingwebhookconfiguration.admissionregistration.k8s.io/label-defaulter created (server dry run)</code></pre>
+<!-- /wp:code -->
+
+<!-- wp:paragraph -->
+<p>The second configuration uses wildcards, draws no warning, and is unaffected in practice, because a label defaulter has no interest in review requests. A dry run is therefore a quick way to find explicit rules in a live cluster. Disabling the feature gate restores the old behaviour for now; the gate is planned to be locked on when the feature reaches stable, so that is a way to buy time and nothing more.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:html -->
+<div class="callout callout-compliance" style="background: #fce4ec; border-left: 4px solid #e91e63; padding: 16px 20px; margin: 20px 0; border-radius: 4px;"><div style="display: flex; align-items: start;"><span style="font-size: 24px; margin-right: 12px;">⚖️</span><div><strong style="color: #c2185b; display: block; margin-bottom: 8px;">AUDIT CONTROLS</strong><p style="margin: 0; color: #333;">If a webhook that records or restricts access reviews is cited as a control in an ISO 27001, SOC 2 or HIPAA evidence pack, that control stopped working at v1.37 without an error. API server audit logging records these requests and is the place to move the control. Update the control description and the evidence source together.</p></div></div></div>
+<!-- /wp:html -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">New and graduating features</h2>
+<!-- /wp:heading -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">DRA partitionable devices</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>With Dynamic Resource Allocation, a driver can advertise a device such as a GPU both as a whole and as smaller partitions. The scheduler allocates only combinations that fit inside the physical device, so a partition and the whole device are never handed out together. The feature is expected to be stable in v1.38 with <code>DRAPartitionableDevices</code> locked on. It matters to platforms that share accelerators between inference workloads; it changes nothing for clusters without a DRA driver.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">EvictionRequest API</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>PodDisruptionBudgets answer one question: how many pods of this application may be down at once. They give the application no time to act before a specific pod goes. The EvictionRequest API, alpha in v1.38, adds that step. A controller that wants a pod gone creates an <code>EvictionRequest</code> naming the pod by name and UID. An eviction request controller coordinates the responders declared for that pod, which can finish work, release resources or move data, and report progress.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:merpress/mermaidjs -->
+<div class="wp-block-merpress-mermaidjs diagram-source-mermaid"><pre class="mermaid">%%{init: {'theme': 'base', 'themeVariables': {'signalColor': '#0073BB', 'signalTextColor': '#0F172A', 'actorBkg': '#FFF3E0', 'actorBorder': '#FF9900', 'actorTextColor': '#232F3E', 'noteBkgColor': '#FFF8E7', 'noteBorderColor': '#FF9900', 'noteTextColor': '#232F3E', 'lineColor': '#232F3E'}}}%%
+sequenceDiagram
+    participant Q as Requester
+    participant C as Eviction request controller
+    participant R as Responder
+    participant E as Pod eviction API
+    Q->>C: Create EvictionRequest for the pod
+    C->>R: Mark responder active
+    R-->>C: Heartbeat and expected completion
+    alt Responder completes
+        R-->>C: Completed, pod removed or moved
+    else No responder, or responder does not finish
+        C->>E: Evict the pod
+        Note over E: PodDisruptionBudget is still enforced
+        E-->>C: Evicted, or blocked and retried
+    end
+    C-->>Q: Status condition on the EvictionRequest</pre></div>
+<!-- /wp:merpress/mermaidjs -->
+
+<!-- wp:paragraph -->
+<p>The fallback is the existing API-initiated eviction, which still respects PodDisruptionBudgets, so the new API adds to PDBs and does not replace them. Using it needs both the <code>EvictionRequestAPI</code> feature gate and the <code>lifecycle.k8s.io/v1alpha1</code> API group enabled. Being alpha, the API can change incompatibly and belongs in a test cluster. It is worth an early look for stateful platforms where a node drain today means a fixed grace period and hope.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">Readiness check</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Five of the changes above can be found by reading files: shell scripts and CI definitions, kuberc files, kubelet configuration, webhook configurations and workload manifests. The sample for this article is a small Python scanner that does that. It reads files only and never connects to a cluster, so it can run in a pull-request pipeline against a GitOps repository.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:table {"className":"is-style-stripes"} -->
+<figure class="wp-block-table is-style-stripes"><table><thead><tr><th>Check</th><th>Severity</th><th>Finds</th></tr></thead><tbody><tr><td><code>K138-ENV</code></td><td>Warn</td><td>The two removed kubectl variables in any text file</td></tr><tr><td><code>K138-KUBERC</code></td><td>Action, Info</td><td>Allowlist entries that use <code>name</code>; files still on <code>v1beta1</code></td></tr><tr><td><code>K138-CGROUPDRIVER</code></td><td>Action</td><td><code>cgroupDriver</code> set in a <code>KubeletConfiguration</code></td></tr><tr><td><code>K138-CGROUPV1</code></td><td>Warn</td><td><code>failCgroupV1: false</code></td></tr><tr><td><code>K138-WEBHOOK</code></td><td>Action, Info</td><td>Webhook rules that name review resources, or reach them by wildcard</td></tr><tr><td><code>K138-SWAP</code></td><td>Warn</td><td>Pod-level memory request equal to the limit while a container can burst</td></tr></tbody></table></figure>
+<!-- /wp:table -->
+
+<!-- wp:paragraph -->
+<p>The checks are plain functions that take a parsed object and return findings. They treat a field of the wrong type as absent, because the scanner runs over repositories with half-finished and third-party manifests, and one malformed file should not stop the scan. Memory quantities are compared as exact decimals, so <code>0.5Gi</code> and <code>512Mi</code> are equal.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:code {"language": "python"} -->
+<pre class="wp-block-code"><code lang="python" class="language-python">"""The five checks. Each takes parsed input and returns a list of findings.
+
+Checks never raise on malformed manifests: a field of the wrong type is
+treated as absent, because the scanner runs over repositories it does not own.
+"""
+
+from __future__ import annotations
+
+from collections.abc import Iterator, Mapping, Sequence
+from decimal import Decimal
+from typing import Any
+
+from .findings import Finding, Severity
+from .quantity import QuantityError, parse_quantity
+
+KEP_4006 = "https://kubernetes.dev/resources/keps/4006"
+KEP_3104 = "https://kubernetes.dev/resources/keps/3104"
+KEP_4033 = "https://kubernetes.dev/resources/keps/4033"
+KEP_5573 = "https://kubernetes.dev/resources/keps/5573"
+KEP_5793 = "https://kubernetes.dev/resources/keps/5793"
+KEP_2837 = "https://kubernetes.dev/resources/keps/2837"
+
+REMOVED_KUBECTL_ENV_VARS = (
+    "KUBECTL_REMOTE_COMMAND_WEBSOCKETS",
+    "KUBECTL_PORT_FORWARD_WEBSOCKETS",
+)
+
+KUBERC_GROUP = "kubectl.config.k8s.io"
+
+# Virtual review resources that admission webhooks no longer receive.
+REVIEW_RESOURCES = {
+    "authentication.k8s.io": {"tokenreviews", "selfsubjectreviews"},
+    "authorization.k8s.io": {
+        "subjectaccessreviews",
+        "selfsubjectaccessreviews",
+        "localsubjectaccessreviews",
+        "selfsubjectrulesreviews",
+    },
+}
+
+WEBHOOK_KINDS = {"ValidatingWebhookConfiguration", "MutatingWebhookConfiguration"}
+
+# Where the pod spec sits inside each workload kind.
+POD_SPEC_PATHS: dict[str, tuple[str, ...]] = {
+    "Pod": ("spec",),
+    "Deployment": ("spec", "template", "spec"),
+    "StatefulSet": ("spec", "template", "spec"),
+    "DaemonSet": ("spec", "template", "spec"),
+    "ReplicaSet": ("spec", "template", "spec"),
+    "Job": ("spec", "template", "spec"),
+    "CronJob": ("spec", "jobTemplate", "spec", "template", "spec"),
+}
+
+
+def _mapping(value: Any) -&gt; Mapping[str, Any]:
+    return value if isinstance(value, Mapping) else {}
+
+
+def _sequence(value: Any) -&gt; Sequence[Any]:
+    return value if isinstance(value, list) else []
+
+
+def _dig(doc: Mapping[str, Any], path: Sequence[str]) -&gt; Mapping[str, Any]:
+    current: Any = doc
+    for key in path:
+        current = _mapping(current).get(key)
+    return _mapping(current)
+
+
+def _subject(doc: Mapping[str, Any]) -&gt; str:
+    meta = _mapping(doc.get("metadata"))
+    name = meta.get("name") or "&lt;unnamed&gt;"
+    namespace = meta.get("namespace")
+    kind = doc.get("kind") or "&lt;no kind&gt;"
+    return f"{kind}/{namespace}/{name}" if namespace else f"{kind}/{name}"
+
+
+def check_env_vars(path: str, text: str) -&gt; list[Finding]:
+    """Removed kubectl opt-out variables anywhere in a text file."""
+    findings: list[Finding] = []
+    for number, line in enumerate(text.splitlines(), start=1):
+        for variable in REMOVED_KUBECTL_ENV_VARS:
+            if variable in line:
+                findings.append(
+                    Finding(
+                        check="K138-ENV",
+                        severity=Severity.WARN,
+                        path=path,
+                        subject=f"line {number}",
+                        message=(
+                            f"{variable} is removed in kubectl v1.38 and is ignored. "
+                            "kubectl tries WebSockets first and falls back to SPDY."
+                        ),
+                        action=(
+                            "Delete the variable. If it was set to force SPDY through a proxy "
+                            "that blocks WebSocket upgrades, test exec and port-forward through "
+                            "that proxy with kubectl v1.38 before rolling it out."
+                        ),
+                        reference=KEP_4006,
+                    )
+                )
+    return findings
+
+
+def check_kuberc(path: str, doc: Mapping[str, Any]) -&gt; list[Finding]:
+    """kuberc Preference files: the allowlist `name` alias and the beta API version."""
+    api_version = str(doc.get("apiVersion", ""))
+    if doc.get("kind") != "Preference" or not api_version.startswith(f"{KUBERC_GROUP}/"):
+        return []
+
+    findings: list[Finding] = []
+    for index, entry in enumerate(_sequence(doc.get("credentialPluginAllowlist"))):
+        if "name" in _mapping(entry):
+            findings.append(
+                Finding(
+                    check="K138-KUBERC",
+                    severity=Severity.ACTION,
+                    path=path,
+                    subject=f"credentialPluginAllowlist[{index}]",
+                    message=(
+                        "Allowlist entry uses `name`. The field was a beta alias for `command`, "
+                        f"deprecated since v1.36, and does not exist in {KUBERC_GROUP}/v1."
+                    ),
+                    action="Rename the key to `command`. Do not set both keys on one entry.",
+                    reference=KEP_3104,
+                )
+            )
+    if api_version != f"{KUBERC_GROUP}/v1":
+        findings.append(
+            Finding(
+                check="K138-KUBERC",
+                severity=Severity.INFO,
+                path=path,
+                subject="apiVersion",
+                message=f"File declares {api_version}; kubectl v1.38 adds the stable {KUBERC_GROUP}/v1.",
+                action=(
+                    "Move to v1 once every workstation and CI image runs kubectl v1.38 or later. "
+                    "Older clients do not know the v1 version."
+                ),
+                reference=KEP_3104,
+            )
+        )
+    return findings
+
+
+def check_kubelet_config(path: str, doc: Mapping[str, Any]) -&gt; list[Finding]:
+    """KubeletConfiguration: explicit cgroup driver and the cgroup v1 escape hatch."""
+    if doc.get("kind") != "KubeletConfiguration":
+        return []
+
+    findings: list[Finding] = []
+    driver = doc.get("cgroupDriver")
+    if driver:
+        findings.append(
+            Finding(
+                check="K138-CGROUPDRIVER",
+                severity=Severity.ACTION,
+                path=path,
+                subject="cgroupDriver",
+                message=(
+                    f"cgroupDriver is set to {driver!r}. The v1.38 sneak peek announces that the "
+                    "kubelet takes the driver from the container runtime over CRI and rejects "
+                    "this field unless the LegacyCgroupDriverFallback feature gate is enabled."
+                ),
+                action=(
+                    "Confirm the node's runtime answers the CRI RuntimeConfig call (containerd 2.0 "
+                    "or later, CRI-O 1.28 or later per KEP-4033), make sure the runtime starts "
+                    "before the kubelet, then remove the field. Check the final release notes: "
+                    "this change was announced before it merged."
+                ),
+                reference=KEP_4033,
+            )
+        )
+    if doc.get("failCgroupV1") is False:
+        findings.append(
+            Finding(
+                check="K138-CGROUPV1",
+                severity=Severity.WARN,
+                path=path,
+                subject="failCgroupV1",
+                message=(
+                    "failCgroupV1 is false, so this node configuration is meant for cgroup v1 hosts. "
+                    "The setting still works in v1.38; cgroup v1 support is scheduled for removal "
+                    "in a later release."
+                ),
+                action="Plan the move of these nodes to a cgroup v2 operating system image.",
+                reference=KEP_5573,
+            )
+        )
+    return findings
+
+
+def _rule_review_matches(rule: Mapping[str, Any]) -&gt; tuple[set[str], bool]:
+    """Return (explicitly named review resources, matched only through wildcards)."""
+    groups = {str(g) for g in _sequence(rule.get("apiGroups"))}
+    resources = {str(r).split("/", 1)[0].lower() for r in _sequence(rule.get("resources"))}
+    named: set[str] = set()
+    wildcard = False
+    for group, review_resources in REVIEW_RESOURCES.items():
+        if group not in groups and "*" not in groups:
+            continue
+        hits = resources &amp; review_resources
+        if hits:
+            named |= {f"{group}/{resource}" for resource in hits}
+        elif "*" in resources:
+            wildcard = True
+    return named, wildcard and not named
+
+
+def check_webhooks(path: str, doc: Mapping[str, Any]) -&gt; list[Finding]:
+    """Webhook rules that select authentication or authorization review resources."""
+    if doc.get("kind") not in WEBHOOK_KINDS:
+        return []
+
+    findings: list[Finding] = []
+    subject_prefix = _subject(doc)
+    for webhook in _sequence(doc.get("webhooks")):
+        webhook_map = _mapping(webhook)
+        webhook_name = webhook_map.get("name") or "&lt;unnamed&gt;"
+        named_all: set[str] = set()
+        wildcard_any = False
+        for rule in _sequence(webhook_map.get("rules")):
+            named, wildcard = _rule_review_matches(_mapping(rule))
+            named_all |= named
+            wildcard_any = wildcard_any or wildcard
+        if named_all:
+            findings.append(
+                Finding(
+                    check="K138-WEBHOOK",
+                    severity=Severity.ACTION,
+                    path=path,
+                    subject=f"{subject_prefix} webhook {webhook_name}",
+                    message=(
+                        "Rules name review resources that the API server no longer sends to "
+                        "admission webhooks (ExcludeAdmissionWebhookVirtualResources, on by "
+                        f"default since v1.37): {', '.join(sorted(named_all))}."
+                    ),
+                    action=(
+                        "Remove these resources from the rules. If a control depends on seeing "
+                        "these requests, move it to audit policy or an authorization webhook; "
+                        "the feature gate will be locked on when the feature reaches stable."
+                    ),
+                    reference=KEP_5793,
+                )
+            )
+        elif wildcard_any:
+            findings.append(
+                Finding(
+                    check="K138-WEBHOOK",
+                    severity=Severity.INFO,
+                    path=path,
+                    subject=f"{subject_prefix} webhook {webhook_name}",
+                    message=(
+                        "A wildcard rule covers the authentication or authorization API groups. "
+                        "The webhook is no longer called for review resources in those groups."
+                    ),
+                    action="No change needed unless the webhook's logic expects review requests.",
+                    reference=KEP_5793,
+                )
+            )
+    return findings
+
+
+def _memory(resources: Mapping[str, Any], section: str) -&gt; Decimal | None:
+    raw = _mapping(resources.get(section)).get("memory")
+    if raw is None:
+        return None
+    try:
+        return parse_quantity(raw)
+    except QuantityError:
+        return None
+
+
+def _containers(pod_spec: Mapping[str, Any]) -&gt; Iterator[Mapping[str, Any]]:
+    for key in ("initContainers", "containers"):
+        for container in _sequence(pod_spec.get(key)):
+            yield _mapping(container)
+
+
+def check_pod_level_swap(path: str, doc: Mapping[str, Any]) -&gt; list[Finding]:
+    """Pods whose pod-level memory request equals the limit while a container can burst.
+
+    On a cgroup v2 node with LimitedSwap, v1.38 sizes swap from the pod-level
+    memory settings. Request equal to limit means no swap for the whole pod,
+    including containers whose own request is below their limit.
+    """
+    spec_path = POD_SPEC_PATHS.get(str(doc.get("kind")))
+    if spec_path is None:
+        return []
+    pod_spec = _dig(doc, spec_path)
+    pod_resources = _mapping(pod_spec.get("resources"))
+    pod_limit = _memory(pod_resources, "limits")
+    if pod_limit is None:
+        return []
+
+    pod_request = _memory(pod_resources, "requests")
+    containers = list(_containers(pod_spec))
+    container_requests = [_memory(_mapping(c.get("resources")), "requests") for c in containers]
+    if pod_request is None:
+        # The API server defaults a missing pod-level request to the pod-level
+        # limit only when no container sets a memory request. With container
+        # requests present it sums them, which this static check does not model.
+        if any(request is not None for request in container_requests):
+            return []
+        pod_request = pod_limit
+    if pod_request != pod_limit:
+        return []
+
+    burstable = []
+    for container in containers:
+        resources = _mapping(container.get("resources"))
+        request, limit = _memory(resources, "requests"), _memory(resources, "limits")
+        if request is not None and (limit is None or request &lt; limit):
+            burstable.append(str(container.get("name") or "&lt;unnamed&gt;"))
+    if not burstable:
+        return []
+
+    return [
+        Finding(
+            check="K138-SWAP",
+            severity=Severity.WARN,
+            path=path,
+            subject=_subject(doc),
+            message=(
+                "Pod-level memory request equals the pod-level limit, and these containers set a "
+                f"memory request below their limit: {', '.join(burstable)}. On LimitedSwap nodes "
+                "v1.38 gives this pod no swap, including those containers."
+            ),
+            action=(
+                "If the workload relies on swap, set the pod-level memory request below the "
+                "pod-level limit and retest on a v1.38 node. If it does not, no change is needed."
+            ),
+            reference=KEP_2837,
+        )
+    ]
+
+
+DOCUMENT_CHECKS = (check_kuberc, check_kubelet_config, check_webhooks, check_pod_level_swap)</code></pre>
+<!-- /wp:code -->
+
+<!-- wp:paragraph -->
+<p>The command-line entry point walks the given paths, skips binary files and files over 2 MB, reports YAML it cannot parse (unrendered Helm templates, mostly) as skipped, and opens <code>kind: List</code> wrappers so that <code>kubectl get -o yaml</code> output can be scanned directly. The exit code is 1 when a finding reaches the <code>--fail-on</code> severity.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:code {"language": "bash"} -->
+<pre class="wp-block-code"><code lang="bash" class="language-bash">python3 -m venv .venv
+.venv/bin/pip install -r requirements.txt
+.venv/bin/python -m pytest -q
+.venv/bin/python -m k138check fixtures/before
+.venv/bin/python -m k138check fixtures/after
+.venv/bin/python -m k138check path/to/manifests path/to/ci --format json --fail-on warn</code></pre>
+<!-- /wp:code -->
+
+<!-- wp:paragraph -->
+<p>Webhook configurations and running pods are not always in Git. Export them and scan the files:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:code {"language": "bash"} -->
+<pre class="wp-block-code"><code lang="bash" class="language-bash">kubectl get validatingwebhookconfigurations,mutatingwebhookconfigurations -o yaml &gt; webhooks.yaml
+kubectl get pods -A -o yaml &gt; pods.yaml</code></pre>
+<!-- /wp:code -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">Test results</h2>
+<!-- /wp:heading -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Scanner</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>The repository carries two fixture trees: <code>fixtures/before</code> with the five files shown in this article, and <code>fixtures/after</code> with the same files corrected. The scanner reports nine findings on the first tree and none on the second.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:table {"className":"is-style-stripes"} -->
+<figure class="wp-block-table is-style-stripes"><table><thead><tr><th>Check</th><th>File</th><th>Severity</th><th>Subject</th></tr></thead><tbody><tr><td><code>K138-CGROUPDRIVER</code></td><td>kubelet-config.yaml</td><td>Action</td><td><code>cgroupDriver</code></td></tr><tr><td><code>K138-KUBERC</code></td><td>kuberc</td><td>Action</td><td><code>credentialPluginAllowlist[0]</code></td></tr><tr><td><code>K138-WEBHOOK</code></td><td>webhooks.yaml</td><td>Action</td><td>access-review-recorder: three review resources named</td></tr><tr><td><code>K138-CGROUPV1</code></td><td>kubelet-config.yaml</td><td>Warn</td><td><code>failCgroupV1</code></td></tr><tr><td><code>K138-ENV</code></td><td>ci-debug.sh</td><td>Warn</td><td>line 5</td></tr><tr><td><code>K138-ENV</code></td><td>ci-debug.sh</td><td>Warn</td><td>line 6</td></tr><tr><td><code>K138-SWAP</code></td><td>report-worker.yaml</td><td>Warn</td><td>Deployment reporting/report-worker, container worker</td></tr><tr><td><code>K138-KUBERC</code></td><td>kuberc</td><td>Info</td><td><code>apiVersion</code></td></tr><tr><td><code>K138-WEBHOOK</code></td><td>webhooks.yaml</td><td>Info</td><td>label-defaulter: wildcard rule</td></tr></tbody></table></figure>
+<!-- /wp:table -->
+
+<!-- wp:code {"language": "text"} -->
+<pre class="wp-block-code"><code lang="text" class="language-text">$ python -m k138check fixtures/before | tail -n 1
+5 files, 5 objects scanned: 3 action, 4 warn, 2 info, 0 skipped
+$ python -m k138check fixtures/after
+5 files, 4 objects scanned: 0 action, 0 warn, 0 info, 0 skipped</code></pre>
+<!-- /wp:code -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Cluster checks</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>The same pipeline starts a kind cluster and runs two kubectl clients against it: the current stable client and the v1.38 pre-release. There is no v1.38 node image yet, so the server side is v1.37.0 and the results below describe client behaviour and the behaviour v1.37 already has.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:table {"className":"is-style-stripes"} -->
+<figure class="wp-block-table is-style-stripes"><table><thead><tr><th>Check</th><th>kubectl v1.37.3</th><th>kubectl v1.38.0-beta.0</th></tr></thead><tbody><tr><td><code>exec</code>, variable unset</td><td>WebSocket</td><td>WebSocket</td></tr><tr><td><code>exec</code>, <code>KUBECTL_REMOTE_COMMAND_WEBSOCKETS=false</code></td><td>SPDY/3.1</td><td>WebSocket; variable ignored</td></tr><tr><td>kuberc <code>v1beta1</code> with <code>name</code></td><td>Accepted</td><td>Accepted</td></tr><tr><td>kuberc <code>v1</code> with <code>command</code></td><td>Fails: no valid preferences found</td><td>Accepted</td></tr><tr><td>kuberc <code>v1</code> with <code>name</code></td><td>Fails: no valid preferences found</td><td>Fails: empty allowlist entry</td></tr></tbody></table></figure>
+<!-- /wp:table -->
+
+<!-- wp:table {"className":"is-style-stripes"} -->
+<figure class="wp-block-table is-style-stripes"><table><thead><tr><th>Check on the v1.37.0 cluster</th><th>Result</th></tr></thead><tbody><tr><td>Webhook rules naming review resources, server dry run</td><td>Three warnings, one per named resource; none for the wildcard rule</td></tr><tr><td>Deployment with pod-level resources</td><td>Accepted; pods are <code>Burstable</code></td></tr><tr><td>Feature gates reported by the API server</td><td><code>PodLevelResources</code> beta on, <code>ExcludeAdmissionWebhookVirtualResources</code> beta on, <code>EvictionRequestAPI</code> alpha off</td></tr><tr><td>Kubelet <code>configz</code></td><td><code>cgroupDriver: systemd</code>, <code>failCgroupV1: true</code>; runtime containerd 2.3.4</td></tr></tbody></table></figure>
+<!-- /wp:table -->
+
+<!-- wp:paragraph -->
+<p>The scanner has limits that matter. It cannot see which nodes use <code>LimitedSwap</code> or which runtime version a node runs; those are facts about nodes, not files. It does not model the case where a pod-level memory request is left out and the API server derives it from container requests. And its cgroup driver check follows the announcement, so its wording should be revisited when the release notes are final.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image {"sizeSlug":"full","linkDestination":"none"} -->
+<figure class="wp-block-image size-full"><img src="{{IMG2}}" alt="Table of Kubernetes 1.38 upgrade actions with owner, timing and action for each change"/><figcaption class="wp-element-caption">Upgrade actions by owner. Three items can be closed before the control plane is touched.</figcaption></figure>
+<!-- /wp:image -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">Production considerations</h2>
+<!-- /wp:heading -->
+
+<!-- wp:list -->
+<ul class="wp-block-list"><!-- wp:list-item -->
+<li><strong>Order of work.</strong> The kubectl and webhook items are independent of the cluster version and can be closed now. The kubelet and swap items belong to the node upgrade and need a canary node pool.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li><strong>Client skew.</strong> kubectl is supported within one minor version of the API server. Upgrade clients to v1.38 close to the control plane upgrade, and keep shared kuberc files readable by the oldest client still in use.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li><strong>Managed services.</strong> EKS, AKS and GKE add a new minor on their own schedule after the upstream release and own the node image, runtime version and kubelet configuration for managed node groups. Custom images, self-managed node groups and kubeadm clusters carry the cgroup driver change themselves.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li><strong>Feature gates as fallbacks.</strong> <code>LegacyCgroupDriverFallback</code> and disabling <code>ExcludeAdmissionWebhookVirtualResources</code> are both temporary. Record each use with an owner and a removal date, or it becomes the blocker for the next upgrade.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li><strong>Swap.</strong> Canary the node upgrade on a pool that runs the swap-dependent workloads, and watch OOM kills and container restarts for a full business cycle before continuing.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li><strong>Observability.</strong> Alert on nodes that fail to register after a reboot and on kubelet restart loops during the rollout. Those are the symptoms of a runtime that did not answer the CRI call.</li>
+<!-- /wp:list-item -->
+</ul>
+<!-- /wp:list -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">Upgrade plan</h2>
+<!-- /wp:heading -->
+
+<!-- wp:table {"className":"is-style-stripes"} -->
+<figure class="wp-block-table is-style-stripes"><table><thead><tr><th>When</th><th>Action</th><th>Owner</th></tr></thead><tbody><tr><td>Now</td><td>Run the scanner over GitOps repositories, CI definitions and exported webhook configurations</td><td>Platform</td></tr><tr><td>Now</td><td>Remove the kubectl variables; rename <code>name</code> to <code>command</code> in kuberc files</td><td>Developers, CI</td></tr><tr><td>Now</td><td>Remove review resources from webhook rules; move any dependent control to audit logging</td><td>Security</td></tr><tr><td>After rc.0 (scheduled 3 December)</td><td>Re-read the changelog for the cgroup driver change and adjust the plan</td><td>Platform</td></tr><tr><td>Before node upgrade</td><td>Confirm runtime versions and unit ordering; remove <code>cgroupDriver</code> from kubelet configuration</td><td>Platform</td></tr><tr><td>Before node upgrade</td><td>Review pods flagged for swap on <code>LimitedSwap</code> pools</td><td>Application teams</td></tr><tr><td>After upgrade</td><td>Move kuberc files to <code>v1</code>; evaluate EvictionRequest in a test cluster</td><td>Platform</td></tr><tr><td>Next two releases</td><td>Move remaining cgroup v1 nodes to cgroup v2 images</td><td>Platform</td></tr></tbody></table></figure>
+<!-- /wp:table -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">Key takeaways</h2>
+<!-- /wp:heading -->
+
+<!-- wp:list -->
+<ul class="wp-block-list"><!-- wp:list-item -->
+<li>v1.38 is planned for 16 December 2026; the changes that need action are in kubectl settings, kubelet configuration, webhook rules and swap behaviour, not in workload APIs.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li>The two removed kubectl variables are ignored, not rejected: the v1.38 pre-release client used WebSockets with the opt-out set. Test exec and port-forward through any proxy that was the reason for setting them.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li>The kubelet is set to take the cgroup driver from the container runtime only. That change had not merged ten days after code freeze, so confirm it in the release notes before changing node configuration.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li>With pod-level resources, a memory request equal to the limit means no swap for the whole pod on <code>LimitedSwap</code> nodes.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li>Webhooks that watch access reviews have not been called since v1.37. Move the control to audit logging.</li>
+<!-- /wp:list-item -->
+</ul>
+<!-- /wp:list -->
+
+<!-- wp:paragraph -->
+<p>If your upgrade turns up a change that is not covered here, leave a comment with the details.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:html -->
+<div class="callout callout-info" style="background: #e3f2fd; border-left: 4px solid #2196f3; padding: 16px 20px; margin: 20px 0; border-radius: 4px;"><div style="display: flex; align-items: start;"><span style="font-size: 24px; margin-right: 12px;">ℹ️</span><div><strong style="color: #1976d2; display: block; margin-bottom: 8px;">HOW THIS WAS CHECKED</strong><p style="margin: 0; color: #333;">Announced changes were read from the Kubernetes v1.38 sneak peek of 23 November 2026 and compared with the Kubernetes source at tag v1.38.0-beta.0 and at master commit ce9710e5 (27 November 2026): feature gate definitions, the kuberc v1 and v1beta1 types, the lifecycle v1alpha1 types, the kubelet swap helpers and CHANGELOG-1.38.md. The scanner's 43 tests pass with Python 3.13, PyYAML 6.0.3 and pytest 9.0.2 on hand-written fixtures. Cluster checks ran in GitHub Actions on 28 November 2026 (<a href="https://github.com/nithinmohantk/blog-samples-working-repo/actions/runs/46174504597" target="_blank" rel="noopener">run 46174504597</a>, commit 5d2ab8b): kind v0.33.0, Kubernetes v1.37.0, containerd 2.3.4, kubectl v1.37.3 and v1.38.0-beta.0. No v1.38 control plane or kubelet was run, so the swap and cgroup driver changes are described from the announcement and the source.</p></div></div></div>
+<!-- /wp:html -->
+
+<!-- wp:html -->
+<div class="callout callout-tip sample-code-link" style="background: #e8f5e9; border-left: 4px solid #4caf50; padding: 16px 20px; margin: 20px 0; border-radius: 4px;"><div style="display: flex; align-items: start;"><span style="font-size: 24px; margin-right: 12px;">💡</span><div><strong style="color: #388e3c; display: block; margin-bottom: 8px;">GET THE CODE</strong><p style="margin: 0; color: #333;">The complete sample for this article is on GitHub: <a href="https://github.com/nithinmohantk/blog-samples-working-repo/tree/main/k8s-138-upgrade-readiness" target="_blank" rel="noopener">nithinmohantk/blog-samples-working-repo/k8s-138-upgrade-readiness</a>. Clone it with <code>git clone https://github.com/nithinmohantk/blog-samples-working-repo.git</code> and open the <code>k8s-138-upgrade-readiness</code> folder. Its README says how to run it and what has been verified.</p></div></div></div>
+<!-- /wp:html -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">Glossary</h2>
+<!-- /wp:heading -->
+
+<!-- wp:html -->
+<dl style="background:#F6F8FA;border:1px solid #D0D7DE;border-radius:8px;padding:20px 24px;margin:24px 0"><dt style="color:#0969DA;font-weight:700;margin-top:12px">cgroup driver</dt><dd style="color:#24292F;margin:4px 0 0 20px">The mechanism the kubelet and container runtime use to manage control groups: systemd or cgroupfs. Both must use the same one.</dd><dt style="color:#0969DA;font-weight:700;margin-top:12px">CRI</dt><dd style="color:#24292F;margin:4px 0 0 20px">Container Runtime Interface, the gRPC API between the kubelet and a runtime such as containerd or CRI-O.</dd><dt style="color:#0969DA;font-weight:700;margin-top:12px">RuntimeConfig</dt><dd style="color:#24292F;margin:4px 0 0 20px">The CRI call through which a runtime reports configuration to the kubelet, including its cgroup driver.</dd><dt style="color:#0969DA;font-weight:700;margin-top:12px">cgroup v2</dt><dd style="color:#24292F;margin:4px 0 0 20px">The unified Linux control group hierarchy. Kubernetes features such as swap limits require it.</dd><dt style="color:#0969DA;font-weight:700;margin-top:12px">LimitedSwap</dt><dd style="color:#24292F;margin:4px 0 0 20px">A kubelet swap behaviour in which eligible pods get a bounded amount of swap sized from their memory request.</dd><dt style="color:#0969DA;font-weight:700;margin-top:12px">Pod-level resources</dt><dd style="color:#24292F;margin:4px 0 0 20px">Requests and limits declared in spec.resources for the whole pod instead of per container.</dd><dt style="color:#0969DA;font-weight:700;margin-top:12px">kuberc</dt><dd style="color:#24292F;margin:4px 0 0 20px">A kubectl preferences file for aliases, default options and credential plugin policy, separate from kubeconfig.</dd><dt style="color:#0969DA;font-weight:700;margin-top:12px">Exec credential plugin</dt><dd style="color:#24292F;margin:4px 0 0 20px">A program named in a kubeconfig file that kubectl runs to obtain credentials.</dd><dt style="color:#0969DA;font-weight:700;margin-top:12px">Admission webhook</dt><dd style="color:#24292F;margin:4px 0 0 20px">An HTTP callback the API server calls to validate or mutate a request before it is stored.</dd><dt style="color:#0969DA;font-weight:700;margin-top:12px">SubjectAccessReview</dt><dd style="color:#24292F;margin:4px 0 0 20px">A request that asks the API server whether a given user may perform a given action. It is answered, not stored.</dd><dt style="color:#0969DA;font-weight:700;margin-top:12px">DRA</dt><dd style="color:#24292F;margin:4px 0 0 20px">Dynamic Resource Allocation, the Kubernetes API for requesting devices such as GPUs through drivers.</dd><dt style="color:#0969DA;font-weight:700;margin-top:12px">PodDisruptionBudget</dt><dd style="color:#24292F;margin:4px 0 0 20px">A limit on how many pods of an application may be voluntarily disrupted at one time.</dd><dt style="color:#0969DA;font-weight:700;margin-top:12px">Feature gate</dt><dd style="color:#24292F;margin:4px 0 0 20px">A named switch that turns a Kubernetes feature on or off. Stable features are locked on and the gate is later removed.</dd></dl>
+<!-- /wp:html -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">References &amp; Further Reading</h2>
+<!-- /wp:heading -->
+
+<!-- wp:html -->
+<ul style="background:#F6F8FA;border:1px solid #D0D7DE;border-radius:8px;padding:20px 24px;margin:24px 0;list-style:none"><li style="margin:10px 0"><a href="https://kubernetes.io/blog/2026/11/23/kubernetes-v1-38-sneak-peek/" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; Kubernetes v1.38 Sneak Peek</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— Kubernetes blog, 23 November 2026</span></li><li style="margin:10px 0"><a href="https://github.com/kubernetes/kubernetes/blob/master/CHANGELOG/CHANGELOG-1.38.md" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; CHANGELOG-1.38</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— Pre-release changelog; the full release notes land here</span></li><li style="margin:10px 0"><a href="https://kubernetes.dev/resources/keps/4006" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; KEP-4006: Transition from SPDY to WebSockets</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— kubectl streaming protocol</span></li><li style="margin:10px 0"><a href="https://kubernetes.io/docs/reference/kubectl/kuberc/" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; Kubectl user preferences (kuberc)</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— Schema, allowlist matching rules and the name deprecation</span></li><li style="margin:10px 0"><a href="https://kubernetes.dev/resources/keps/4033" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; KEP-4033: Discover cgroup driver from CRI</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— RuntimeConfig, runtime minimum versions, removal plan</span></li><li style="margin:10px 0"><a href="https://kubernetes.dev/resources/keps/5573" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; KEP-5573: Remove cgroup v1 support</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— Timeline for cgroup v1</span></li><li style="margin:10px 0"><a href="https://kubernetes.io/docs/tasks/configure-pod-container/assign-pod-level-resources/" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; Assign Pod-level CPU and memory resources</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— Task page with examples and limitations</span></li><li style="margin:10px 0"><a href="https://kubernetes.dev/resources/keps/2837" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; KEP-2837: Pod Level Resource Specifications</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— Design, defaulting and swap behaviour</span></li><li style="margin:10px 0"><a href="https://kubernetes.dev/resources/keps/5793" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; KEP-5793</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— Referenced by the sneak peek for the webhook review-resource change</span></li><li style="margin:10px 0"><a href="https://kubernetes.dev/resources/keps/4563" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; KEP-4563: EvictionRequest API</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— Requesters, responders and the eviction fallback</span></li><li style="margin:10px 0"><a href="https://kubernetes.io/docs/concepts/resource-management/dynamic-resource-allocation/dra-features/#partitionable-devices" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; DRA: partitionable devices</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— How drivers advertise whole devices and partitions</span></li><li style="margin:10px 0"><a href="https://github.com/nithinmohantk/blog-samples-working-repo/tree/main/k8s-138-upgrade-readiness" target="_blank" rel="noopener" style="color:#0969DA;text-decoration:none;font-weight:600">&#x2192; Sample code for this article</a><span style="color:#57606A;font-size:0.9em;margin-left:8px">— k8s-138-upgrade-readiness in blog-samples-working-repo</span></li></ul>
+<!-- /wp:html -->
