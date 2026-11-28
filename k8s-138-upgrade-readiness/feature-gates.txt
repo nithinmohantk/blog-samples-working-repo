@@ -1,0 +1,5 @@
+kubernetes_feature_enabled{name="DRAPartitionableDevices",stage="BETA"} 1
+kubernetes_feature_enabled{name="EvictionRequestAPI",stage="ALPHA"} 0
+kubernetes_feature_enabled{name="ExcludeAdmissionWebhookVirtualResources",stage="BETA"} 1
+kubernetes_feature_enabled{name="KubeletCgroupDriverFromCRI",stage=""} 1
+kubernetes_feature_enabled{name="PodLevelResources",stage="BETA"} 1

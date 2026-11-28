@@ -1,0 +1,46 @@
+[ACTION] K138-CGROUPDRIVER  fixtures/before/kubelet-config.yaml  (cgroupDriver)
+    cgroupDriver is set to 'systemd'. The v1.38 sneak peek announces that the kubelet takes the driver from the container runtime over CRI and rejects this field unless the LegacyCgroupDriverFallback feature gate is enabled.
+    Action: Confirm the node's runtime answers the CRI RuntimeConfig call (containerd 2.0 or later, CRI-O 1.28 or later per KEP-4033), make sure the runtime starts before the kubelet, then remove the field. Check the final release notes: this change was announced before it merged.
+    Reference: https://kubernetes.dev/resources/keps/4033
+
+[ACTION] K138-KUBERC  fixtures/before/kuberc  (credentialPluginAllowlist[0])
+    Allowlist entry uses `name`. The field was a beta alias for `command`, deprecated since v1.36, and does not exist in kubectl.config.k8s.io/v1.
+    Action: Rename the key to `command`. Do not set both keys on one entry.
+    Reference: https://kubernetes.dev/resources/keps/3104
+
+[ACTION] K138-WEBHOOK  fixtures/before/webhooks.yaml  (ValidatingWebhookConfiguration/access-review-recorder webhook reviews.audit.example.com)
+    Rules name review resources that the API server no longer sends to admission webhooks (ExcludeAdmissionWebhookVirtualResources, on by default since v1.37): authentication.k8s.io/tokenreviews, authorization.k8s.io/selfsubjectaccessreviews, authorization.k8s.io/subjectaccessreviews.
+    Action: Remove these resources from the rules. If a control depends on seeing these requests, move it to audit policy or an authorization webhook; the feature gate will be locked on when the feature reaches stable.
+    Reference: https://kubernetes.dev/resources/keps/5793
+
+[WARN] K138-CGROUPV1  fixtures/before/kubelet-config.yaml  (failCgroupV1)
+    failCgroupV1 is false, so this node configuration is meant for cgroup v1 hosts. The setting still works in v1.38; cgroup v1 support is scheduled for removal in a later release.
+    Action: Plan the move of these nodes to a cgroup v2 operating system image.
+    Reference: https://kubernetes.dev/resources/keps/5573
+
+[WARN] K138-ENV  fixtures/before/ci-debug.sh  (line 5)
+    KUBECTL_REMOTE_COMMAND_WEBSOCKETS is removed in kubectl v1.38 and is ignored. kubectl tries WebSockets first and falls back to SPDY.
+    Action: Delete the variable. If it was set to force SPDY through a proxy that blocks WebSocket upgrades, test exec and port-forward through that proxy with kubectl v1.38 before rolling it out.
+    Reference: https://kubernetes.dev/resources/keps/4006
+
+[WARN] K138-ENV  fixtures/before/ci-debug.sh  (line 6)
+    KUBECTL_PORT_FORWARD_WEBSOCKETS is removed in kubectl v1.38 and is ignored. kubectl tries WebSockets first and falls back to SPDY.
+    Action: Delete the variable. If it was set to force SPDY through a proxy that blocks WebSocket upgrades, test exec and port-forward through that proxy with kubectl v1.38 before rolling it out.
+    Reference: https://kubernetes.dev/resources/keps/4006
+
+[WARN] K138-SWAP  fixtures/before/report-worker.yaml  (Deployment/reporting/report-worker)
+    Pod-level memory request equals the pod-level limit, and these containers set a memory request below their limit: worker. On LimitedSwap nodes v1.38 gives this pod no swap, including those containers.
+    Action: If the workload relies on swap, set the pod-level memory request below the pod-level limit and retest on a v1.38 node. If it does not, no change is needed.
+    Reference: https://kubernetes.dev/resources/keps/2837
+
+[INFO] K138-KUBERC  fixtures/before/kuberc  (apiVersion)
+    File declares kubectl.config.k8s.io/v1beta1; kubectl v1.38 adds the stable kubectl.config.k8s.io/v1.
+    Action: Move to v1 once every workstation and CI image runs kubectl v1.38 or later. Older clients do not know the v1 version.
+    Reference: https://kubernetes.dev/resources/keps/3104
+
+[INFO] K138-WEBHOOK  fixtures/before/webhooks.yaml  (MutatingWebhookConfiguration/label-defaulter webhook labels.platform.example.com)
+    A wildcard rule covers the authentication or authorization API groups. The webhook is no longer called for review resources in those groups.
+    Action: No change needed unless the webhook's logic expects review requests.
+    Reference: https://kubernetes.dev/resources/keps/5793
+
+5 files, 5 objects scanned: 3 action, 4 warn, 2 info, 0 skipped

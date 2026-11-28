@@ -1,0 +1,12 @@
+kind v0.33.0 go1.26.7 linux/amd64
+--- new client
+Client Version: v1.38.0-beta.0
+Kustomize Version: v5.8.3
+--- old client
+Client Version: v1.37.3
+Kustomize Version: v5.8.1
+--- server
+v1.37.0
+--- nodes
+NAME                 STATUS   ROLES           AGE   VERSION   INTERNAL-IP   EXTERNAL-IP   OS-IMAGE                       KERNEL-VERSION             CONTAINER-RUNTIME
+k138-control-plane   Ready    control-plane   22s   v1.37.0   172.18.0.2    <none>        Debian GNU/Linux 13 (trixie)   7.0.0-1020-azure (amd64)   containerd://2.3.4

@@ -1,0 +1,4 @@
+$ /home/runner/bin/kubectl-new --kuberc /home/runner/work/blog-samples-working-repo/blog-samples-working-repo/out/k8s-138-upgrade-readiness/kuberc-v1-with-name get namespaces default
+kuberc: ignoring strict decoding error in /home/runner/work/blog-samples-working-repo/blog-samples-working-repo/out/k8s-138-upgrade-readiness/kuberc-v1-with-name: strict decoding error: unknown field "credentialPluginAllowlist[0].name"
+error occurred while applying preferences misconfigured credential plugin allowlist: empty allowlist entry #1
+exit=1

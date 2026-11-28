@@ -1,0 +1,9 @@
+exit=0
+lines mentioning websocket: 7
+lines mentioning spdy: 0
+	Sec-Websocket-Protocol: v5.channel.k8s.io
+	Sec-Websocket-Accept: EuwxhCKsE/tZLF3k8S0gZrembZs=
+	Sec-Websocket-Protocol: v5.channel.k8s.io
+	Upgrade: websocket
+I1128 18:12:36.899818   10530 websocket.go:134] "Subprotocol negotiated" protocol="v5.channel.k8s.io"
+I1128 18:12:36.899970   10530 websocket.go:269] "Websocket read starts" deadline="1m1s"

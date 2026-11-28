@@ -1,0 +1,4 @@
+exit=0
+lines mentioning websocket: 0
+lines mentioning spdy: 1
+	Upgrade: SPDY/3.1

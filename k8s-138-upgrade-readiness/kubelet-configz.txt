@@ -1,0 +1,6 @@
+{
+ "cgroupDriver": "systemd",
+ "failCgroupV1": true,
+ "memorySwap": {},
+ "failSwapOn": false
+}

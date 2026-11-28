@@ -1,0 +1,4 @@
+$ /home/runner/bin/kubectl-old --kuberc fixtures/before/kuberc get namespaces default
+NAME      STATUS   AGE
+default   Active   22s
+exit=0

@@ -1,0 +1,15 @@
+apiVersion: kubectl.config.k8s.io/v1
+kind: Preference
+defaults:
+  - command: apply
+    options:
+      - name: server-side
+        default: "true"
+  - command: delete
+    options:
+      - name: interactive
+        default: "true"
+credentialPluginPolicy: Allowlist
+credentialPluginAllowlist:
+  - name: aws
+  - command: /usr/local/bin/kubelogin

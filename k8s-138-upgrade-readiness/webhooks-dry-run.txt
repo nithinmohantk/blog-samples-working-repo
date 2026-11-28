@@ -1,0 +1,7 @@
+$ /home/runner/bin/kubectl-old apply --dry-run=server -f fixtures/before/webhooks.yaml
+Warning: webhooks[0].rules[0]: subjectaccessreviews.authorization.k8s.io is excluded from admission webhooks; this rule will have no effect
+Warning: webhooks[0].rules[0]: selfsubjectaccessreviews.authorization.k8s.io is excluded from admission webhooks; this rule will have no effect
+Warning: webhooks[0].rules[1]: tokenreviews.authentication.k8s.io is excluded from admission webhooks; this rule will have no effect
+validatingwebhookconfiguration.admissionregistration.k8s.io/access-review-recorder created (server dry run)
+mutatingwebhookconfiguration.admissionregistration.k8s.io/label-defaulter created (server dry run)
+exit=0

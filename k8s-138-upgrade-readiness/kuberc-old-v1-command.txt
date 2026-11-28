@@ -1,0 +1,3 @@
+$ /home/runner/bin/kubectl-old --kuberc fixtures/after/kuberc get namespaces default
+error occurred while applying preferences kuberc error kuberc: no valid preferences found in fixtures/after/kuberc, use --v=5 to see details
+exit=1

@@ -1,0 +1,3 @@
+$ /home/runner/bin/kubectl-old apply -f fixtures/before/report-worker.yaml
+deployment.apps/report-worker created
+exit=0

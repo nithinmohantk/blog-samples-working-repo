@@ -1,0 +1,2 @@
+report-worker-684ddd66f4-cc2sb qosClass=Burstable podResources={"limits":{"memory":"2Gi"},"requests":{"cpu":"1","memory":"2Gi"}}
+report-worker-684ddd66f4-h25sr qosClass=Burstable podResources={"limits":{"memory":"2Gi"},"requests":{"cpu":"1","memory":"2Gi"}}

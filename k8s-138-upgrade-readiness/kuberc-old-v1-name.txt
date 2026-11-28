@@ -1,0 +1,3 @@
+$ /home/runner/bin/kubectl-old --kuberc /home/runner/work/blog-samples-working-repo/blog-samples-working-repo/out/k8s-138-upgrade-readiness/kuberc-v1-with-name get namespaces default
+error occurred while applying preferences kuberc error kuberc: no valid preferences found in /home/runner/work/blog-samples-working-repo/blog-samples-working-repo/out/k8s-138-upgrade-readiness/kuberc-v1-with-name, use --v=5 to see details
+exit=1
